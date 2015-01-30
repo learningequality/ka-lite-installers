@@ -8,7 +8,6 @@
 # Steps
 # . Execute the PyRun installer from https://downloads.egenix.com/python/install-pyrun into a tmp directory.
 # . Clone KA-Lite into a directory
-# . Create a kalite binary in `/usr/local/bin/` to use PyRun's Python instead of the system Python.
 # . Modify `<ka-lite-folder>/python.sh` so it uses PyRun`s Python.
 #
 # TODO:
