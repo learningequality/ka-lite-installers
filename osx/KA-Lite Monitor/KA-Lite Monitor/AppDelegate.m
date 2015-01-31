@@ -87,19 +87,27 @@ NSString *getResourcePath(NSString *pathToAppend) {
 // REF: http://stackoverflow.com/a/10284037/845481
 // convert const char* to NSString * and convert back - _NSAutoreleaseNoPool()
 int runKalite(NSString *command) {
-    // It needs the `KALITE_DIR` environment variable, so we set it here for every call.
+    // It needs the `KALITE_DIR` and `KALITE_PYTHON` environment variables, so we set them here for every call.
+    // TODO(cpauya): We must prompt user on a preferences dialog and persist these perhaps on `local_settings.py`?
     NSString *kaliteDir;
+    NSString *pyrun;
     NSString *kalitePath;
+    NSString *finalCmd;
     
     kaliteDir = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ka-lite"];
     kaliteDir = [kaliteDir stringByStandardizingPath];
-
+    
+    pyrun = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"pyrun-2.7/bin/pyrun"];
+    pyrun = [pyrun stringByStandardizingPath];
+    
     kalitePath = [kaliteDir stringByAppendingString:@"/bin/kalite"];
-
-    command = [NSString stringWithFormat: @"export KALITE_DIR=\"%@\"; \"%@\" %@", kaliteDir, kalitePath, command] ;
+    
+    finalCmd = [NSString stringWithFormat: @"export KALITE_DIR=\"%@\"", kaliteDir];
+    finalCmd = [NSString stringWithFormat: @"%@; export KALITE_PYTHON=\"%@\"", finalCmd, pyrun];
+    finalCmd = [NSString stringWithFormat: @"%@; \"%@\" %@", finalCmd, kalitePath, command];
     
     // convert to objective-c string
-    const char *exportCommand = [command UTF8String];
+    const char *exportCommand = [finalCmd UTF8String];
     NSLog(@"==> Running exportCommand %s", exportCommand);
     int i = system(exportCommand);
 
@@ -172,6 +180,8 @@ int runKalite(NSString *command) {
 
 - (IBAction)startOnBoot:(id)sender {
     NSLog(@"==> Start on boot...");
+// TODO(cpauya): This is a test, remove when done!
+//    int i = runKalite(@"manage shell");
 }
 
 
