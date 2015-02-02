@@ -20,7 +20,7 @@
             </connections>
         </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
-        <menu id="3js-7p-b5M">
+        <menu title="KA-Lite" id="3js-7p-b5M">
             <items>
                 <menuItem title="Start KA Lite" id="cmv-NE-Gmn">
                     <modifierMask key="keyEquivalentModifierMask"/>
@@ -92,8 +92,8 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3rc-kc-VMj">
-                        <rect key="frame" x="397" y="7" width="82" height="32"/>
-                        <buttonCell key="cell" type="push" title="Save" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GgK-EM-gBS">
+                        <rect key="frame" x="379" y="7" width="100" height="32"/>
+                        <buttonCell key="cell" type="push" title="Apply" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GgK-EM-gBS">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
@@ -107,7 +107,6 @@
                         <tabViewItems>
                             <tabViewItem label="Preferences" identifier="1" id="bsG-cY-LW8">
                                 <view key="view" id="B8D-my-NmZ">
-                                    <rect key="frame" x="10" y="33" width="447" height="234"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 </view>
                             </tabViewItem>
@@ -119,20 +118,23 @@
                             </tabViewItem>
                         </tabViewItems>
                     </tabView>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YFf-Hn-71e">
+                        <rect key="frame" x="20" y="0.0" width="128" height="48"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="ka-lite-logo" id="SrL-UW-fmI"/>
+                    </imageView>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jrJ-7c-9Me">
-                        <rect key="frame" x="240" y="7" width="146" height="32"/>
-                        <buttonCell key="cell" type="push" title="Discard Changes" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="w7y-vp-NDZ">
+                        <rect key="frame" x="244" y="7" width="100" height="32"/>
+                        <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="w7y-vp-NDZ">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
                         </buttonCell>
                         <connections>
                             <action selector="discardPreferences:" target="Voe-Tx-rLC" id="9pR-Ye-2YX"/>
                         </connections>
                     </button>
-                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YFf-Hn-71e">
-                        <rect key="frame" x="20" y="0.0" width="128" height="48"/>
-                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="ka-lite-logo" id="SrL-UW-fmI"/>
-                    </imageView>
                 </subviews>
             </view>
             <point key="canvasLocation" x="727.5" y="225.5"/>

@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		F1720BED1A79566700096453 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = F1720BEC1A79566700096453 /* README.md */; };
 		F1720BF11A7A343A00096453 /* local_settings.default in Resources */ = {isa = PBXBuildFile; fileRef = F1720BF01A7A343A00096453 /* local_settings.default */; };
+		F1998F891A7F7B0D006157B7 /* ka-lite in Resources */ = {isa = PBXBuildFile; fileRef = F1998F871A7F7B0D006157B7 /* ka-lite */; };
+		F1998F8A1A7F7B0D006157B7 /* pyrun-2.7 in Resources */ = {isa = PBXBuildFile; fileRef = F1998F881A7F7B0D006157B7 /* pyrun-2.7 */; };
 		F1DDD4131A6E5DC10022F1C9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DDD4121A6E5DC10022F1C9 /* AppDelegate.m */; };
 		F1DDD4151A6E5DC10022F1C9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DDD4141A6E5DC10022F1C9 /* main.m */; };
 		F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1DDD4161A6E5DC10022F1C9 /* Images.xcassets */; };
@@ -29,6 +31,9 @@
 /* Begin PBXFileReference section */
 		F1720BEC1A79566700096453 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F1720BF01A7A343A00096453 /* local_settings.default */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = local_settings.default; sourceTree = "<group>"; };
+		F1998F861A7F73B5006157B7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		F1998F871A7F7B0D006157B7 /* ka-lite */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "ka-lite"; path = "Resources/ka-lite"; sourceTree = "<group>"; };
+		F1998F881A7F7B0D006157B7 /* pyrun-2.7 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "pyrun-2.7"; path = "Resources/pyrun-2.7"; sourceTree = "<group>"; };
 		F1DDD40C1A6E5DC10022F1C9 /* KA-Lite Monitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KA-Lite Monitor.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1DDD4101A6E5DC10022F1C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F1DDD4111A6E5DC10022F1C9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -92,6 +97,8 @@
 		F1DDD40F1A6E5DC10022F1C9 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				F1998F871A7F7B0D006157B7 /* ka-lite */,
+				F1998F881A7F7B0D006157B7 /* pyrun-2.7 */,
 				F1720BF01A7A343A00096453 /* local_settings.default */,
 				F1DDD4101A6E5DC10022F1C9 /* Info.plist */,
 				F1DDD4141A6E5DC10022F1C9 /* main.m */,
@@ -199,6 +206,8 @@
 			files = (
 				F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */,
 				F1DDD41A1A6E5DC10022F1C9 /* MainMenu.xib in Resources */,
+				F1998F8A1A7F7B0D006157B7 /* pyrun-2.7 in Resources */,
+				F1998F891A7F7B0D006157B7 /* ka-lite in Resources */,
 				F1720BF11A7A343A00096453 /* local_settings.default in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -246,6 +255,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				F1DDD4191A6E5DC10022F1C9 /* Base */,
+				F1998F861A7F73B5006157B7 /* en */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";

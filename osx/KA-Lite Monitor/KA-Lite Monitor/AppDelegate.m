@@ -15,15 +15,12 @@
 
 @implementation AppDelegate
 
+- (void)applicationWillFinishLaunching:(NSNotification *)notification {
+}
+
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
-
-    [NSTimer scheduledTimerWithTimeInterval:5.0
-                                     target:self
-                                   selector:@selector(closeSplash)
-                                   userInfo:nil
-                                    repeats:NO];
     
     // Setup the status menu item.
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
@@ -65,6 +62,13 @@
     @catch (NSException *ex) {
         NSLog(@"KA Lite had an Error: %@", ex);
     }
+    
+    [NSTimer scheduledTimerWithTimeInterval:0.0
+                                     target:self
+                                   selector:@selector(closeSplash)
+                                   userInfo:nil
+                                    repeats:NO];
+    //    [self closeSplash];
 }
 
 
@@ -205,13 +209,11 @@ int runKalite(NSString *command) {
 
 - (IBAction)hidePreferences:(id)sender {
     NSLog(@"==> hiding preferences...");
-    [window orderFront:[window identifier]];
     [window orderOut:[window identifier]];
 }
 
 - (IBAction)savePreferences:(id)sender {
     NSLog(@"==> saving preferences...");
-    [window orderFront:[window identifier]];
     [window orderOut:[window identifier]];
 }
 
