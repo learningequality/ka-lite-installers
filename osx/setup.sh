@@ -36,7 +36,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # TODO(cpauya): Delete when done debugging.  No time to wait for downloads, let's re-use what we have.
-WORKING_DIR="."
+# WORKING_DIR="."
 echo "  Using temporary directory $WORKING_DIR..."
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
 PYRUN_DIR="$WORKING_DIR/pyrun-2.7"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="14C109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
@@ -14,7 +14,9 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
+                <outlet property="splash" destination="izD-1r-MWo" id="ax5-nI-Mu0"/>
                 <outlet property="statusMenu" destination="3js-7p-b5M" id="TSS-gO-zwP"/>
+                <outlet property="window" destination="BCW-kl-SX8" id="jIg-Qn-PfW"/>
             </connections>
         </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
@@ -38,24 +40,12 @@
                         <action selector="open:" target="Voe-Tx-rLC" id="lgo-Cb-7Rt"/>
                     </connections>
                 </menuItem>
-                <menuItem title="Options" id="yHr-Lv-F5n">
+                <menuItem isSeparatorItem="YES" id="tGn-hI-5vx"/>
+                <menuItem title="Preferences..." id="yyh-DE-6bf">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="Options" id="SZh-wW-lGN">
-                        <items>
-                            <menuItem title="Start KA-Lite on boot" enabled="NO" id="Vov-0N-15C">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="startOnBoot:" target="Voe-Tx-rLC" id="utf-YR-IRz"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem title="Check for updates automatically" enabled="NO" id="Omr-Ye-LC6">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="checkForUpdatesAutomatically:" target="Voe-Tx-rLC" id="6TU-T5-xo6"/>
-                                </connections>
-                            </menuItem>
-                        </items>
-                    </menu>
+                    <connections>
+                        <action selector="showPreferences:" target="Voe-Tx-rLC" id="vWE-dn-Kzg"/>
+                    </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="SkF-BF-hLt"/>
                 <menuItem title="Quit" id="G8m-4B-Yw1">
@@ -65,7 +55,90 @@
                     </connections>
                 </menuItem>
             </items>
-            <point key="canvasLocation" x="257" y="328.5"/>
+            <point key="canvasLocation" x="284" y="347.5"/>
         </menu>
+        <window title="Starting KA-Lite..." allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="izD-1r-MWo">
+            <windowStyleMask key="styleMask" titled="YES"/>
+            <rect key="contentRect" x="565" y="404" width="216" height="135"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <view key="contentView" id="X7G-oL-gsN">
+                <rect key="frame" x="0.0" y="0.0" width="216" height="135"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Zyj-4i-slS">
+                        <rect key="frame" x="67" y="13" width="82" height="32"/>
+                        <buttonCell key="cell" type="push" title="Close" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6fb-pf-X0Q">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="closeSplash:" target="Voe-Tx-rLC" id="PGw-G9-84a"/>
+                        </connections>
+                    </button>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9W0-uA-DtZ">
+                        <rect key="frame" x="7" y="50" width="203" height="77"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="ka-lite-logo" id="RYn-a9-bqN"/>
+                    </imageView>
+                </subviews>
+            </view>
+            <point key="canvasLocation" x="311" y="144.5"/>
+        </window>
+        <window title="KA-Lite Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="BCW-kl-SX8">
+            <windowStyleMask key="styleMask" titled="YES"/>
+            <rect key="contentRect" x="131" y="158" width="493" height="321"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <view key="contentView" id="TP3-Cd-o99">
+                <rect key="frame" x="0.0" y="0.0" width="493" height="321"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3rc-kc-VMj">
+                        <rect key="frame" x="397" y="7" width="82" height="32"/>
+                        <buttonCell key="cell" type="push" title="Save" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GgK-EM-gBS">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="savePreferences:" target="Voe-Tx-rLC" id="vIj-vM-cdP"/>
+                        </connections>
+                    </button>
+                    <tabView fixedFrame="YES" initialItem="bsG-cY-LW8" translatesAutoresizingMaskIntoConstraints="NO" id="Elv-hY-FGF">
+                        <rect key="frame" x="13" y="35" width="467" height="280"/>
+                        <font key="font" metaFont="system"/>
+                        <tabViewItems>
+                            <tabViewItem label="Preferences" identifier="1" id="bsG-cY-LW8">
+                                <view key="view" id="B8D-my-NmZ">
+                                    <rect key="frame" x="10" y="33" width="447" height="234"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                </view>
+                            </tabViewItem>
+                            <tabViewItem label="Logs" identifier="2" id="a88-uU-pNE">
+                                <view key="view" id="VVZ-XB-ata">
+                                    <rect key="frame" x="10" y="33" width="447" height="228"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                </view>
+                            </tabViewItem>
+                        </tabViewItems>
+                    </tabView>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jrJ-7c-9Me">
+                        <rect key="frame" x="240" y="7" width="146" height="32"/>
+                        <buttonCell key="cell" type="push" title="Discard Changes" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="w7y-vp-NDZ">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="discardPreferences:" target="Voe-Tx-rLC" id="9pR-Ye-2YX"/>
+                        </connections>
+                    </button>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YFf-Hn-71e">
+                        <rect key="frame" x="20" y="0.0" width="128" height="48"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="ka-lite-logo" id="SrL-UW-fmI"/>
+                    </imageView>
+                </subviews>
+            </view>
+            <point key="canvasLocation" x="727.5" y="225.5"/>
+        </window>
     </objects>
+    <resources>
+        <image name="ka-lite-logo" width="261" height="66"/>
+    </resources>
 </document>

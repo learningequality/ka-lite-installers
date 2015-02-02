@@ -9,7 +9,7 @@
 #import "AppDelegate.h"
 
 @interface AppDelegate ()
-    @property (weak) IBOutlet NSWindow *window;
+//    @property (weak) IBOutlet NSWindow *window;
 @end
 
 
@@ -18,10 +18,16 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
+
+    [NSTimer scheduledTimerWithTimeInterval:5.0
+                                     target:self
+                                   selector:@selector(closeSplash)
+                                   userInfo:nil
+                                    repeats:NO];
     
     // Setup the status menu item.
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
-    [self.statusItem setImage:[NSImage imageNamed:@"0278-play2.png"]];
+    [self.statusItem setImage:[NSImage imageNamed:@"play"]];
     [self.statusItem setMenu:self.statusMenu];
     [self.statusItem setHighlightMode:YES];
     [self.statusItem setToolTip:@"Click to show the KA-Lite menu items."];
@@ -33,26 +39,40 @@
      2. copy local_settings_sample.py to KALITE_DIR/kalite/local_settings.py
      3. run `kalite manage setup --username admin --password password123 --noinput`
      */
-    NSString *localSettings = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/local_settings" ofType:@"py"];
-    if (localSettings == nil) {
-        NSLog(@"local_settings.py not found, copying local_settings.default...");
-        copyLocalSettings();
-    } else {
-        NSLog(@"FOUND local_settings.py!");
-    }
 
-    NSString *database = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/database/data" ofType:@"sqlite"];
-    if (database == nil) {
-        NSLog(@"Database not found, will run setup.");
-        // TODO(cpauya): prompt user for admin account credentials.
-        NSString *username = @"admin";
-        NSString *password = @"password123";
-        NSString *cmd = [NSString stringWithFormat:@"manage setup --username %@ --password %@ --noinput", username, password];
-        runKalite(cmd);
-    } else {
-        NSLog(@"FOUND database!");
+    @try {
+        NSString *localSettings = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/local_settings" ofType:@"py"];
+        if (localSettings == nil) {
+            NSLog(@"local_settings.py not found, copying local_settings.default...");
+            copyLocalSettings();
+        } else {
+            NSLog(@"FOUND local_settings.py!");
+        }
+        
+        NSString *database = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/database/data" ofType:@"sqlite"];
+        if (database == nil) {
+            NSLog(@"Database not found, will run setup.");
+            // TODO(cpauya): prompt user for admin account credentials.
+            NSString *username = @"admin";
+            NSString *password = @"password123";
+            NSString *cmd = [NSString stringWithFormat:@"manage setup --username %@ --password %@ --noinput", username, password];
+            runKalite(cmd);
+        } else {
+            NSLog(@"FOUND database!");
+        }
+        NSLog(@"KA Lite was successfully started!");
     }
-    NSLog(@"KA Lite was successfully started!");
+    @catch (NSException *ex) {
+        NSLog(@"KA Lite had an Error: %@", ex);
+    }
+}
+
+
+- (void)applicationWillTerminate:(NSNotification *)aNotification {
+    // Insert code here to tear down your application
+    // TODO(cpauya): Confirm quit action from user.
+    runKalite(@"stop");
+    NSLog(@"==> quitting...");
 }
 
 
@@ -77,13 +97,6 @@ NSString *getResourcePath(NSString *pathToAppend) {
 }
 
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification {
-    // Insert code here to tear down your application
-    // TODO(cpauya): Confirm quit action from user.
-    runKalite(@"stop");
-}
-
-
 // REF: http://stackoverflow.com/a/10284037/845481
 // convert const char* to NSString * and convert back - _NSAutoreleaseNoPool()
 int runKalite(NSString *command) {
@@ -94,55 +107,43 @@ int runKalite(NSString *command) {
     NSString *kalitePath;
     NSString *finalCmd;
     
-    kaliteDir = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ka-lite"];
-    kaliteDir = [kaliteDir stringByStandardizingPath];
-    
-    pyrun = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"pyrun-2.7/bin/pyrun"];
-    pyrun = [pyrun stringByStandardizingPath];
-    
-    kalitePath = [kaliteDir stringByAppendingString:@"/bin/kalite"];
-    
-    finalCmd = [NSString stringWithFormat: @"export KALITE_DIR=\"%@\"", kaliteDir];
-    finalCmd = [NSString stringWithFormat: @"%@; export KALITE_PYTHON=\"%@\"", finalCmd, pyrun];
-    finalCmd = [NSString stringWithFormat: @"%@; \"%@\" %@", finalCmd, kalitePath, command];
-    
-    // convert to objective-c string
-    const char *exportCommand = [finalCmd UTF8String];
-    NSLog(@"==> Running exportCommand %s", exportCommand);
-    int i = system(exportCommand);
-
-    NSLog(@"==> return is %i... done.", i);
-    return i;
+    @try {
+        kaliteDir = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ka-lite"];
+        kaliteDir = [kaliteDir stringByStandardizingPath];
+        
+        pyrun = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"pyrun-2.7/bin/pyrun"];
+        pyrun = [pyrun stringByStandardizingPath];
+        
+        kalitePath = [kaliteDir stringByAppendingString:@"/bin/kalite"];
+        
+        finalCmd = [NSString stringWithFormat: @"export KALITE_DIR=\"%@\"", kaliteDir];
+        finalCmd = [NSString stringWithFormat: @"%@; export KALITE_PYTHON=\"%@\"", finalCmd, pyrun];
+        finalCmd = [NSString stringWithFormat: @"%@; \"%@\" %@", finalCmd, kalitePath, command];
+        
+        // convert to objective-c string
+        const char *exportCommand = [finalCmd UTF8String];
+        NSLog(@"==> Running exportCommand %s", exportCommand);
+        int i = system(exportCommand);
+        
+        NSLog(@"==> return is %i... done.", i);
+        return i;
+    }
+    @catch (NSException *ex) {
+        NSLog(@"Error running `kalite` %@", ex);
+    }
 }
-
-
-/*
- 
- TODO(cpauya): Use these methods to update the status of menu items.
-
- - (void)menuWhenRunning {
-    [self.startItem setTitle:@"Running."];
-    [self.stopItem setTitle:@"Stop KA Lite"];
-}
-
-
-- (void)menuWhenStopped {
-    [self.startItem setTitle:@"Start KA Lite"];
-    [self.stopItem setTitle:@"Stopped."];
-}
-*/
 
 
 - (IBAction)start:(id)sender {
     [self.statusItem setTitle:@"..."];
-//    system("export KALITE_DIR=/Users/cyril/w/fle/benjaoming/ka-lite/;/usr/bin/kalite start");
-    int i = runKalite(@"start");
+    int i;
+    i = runKalite(@"start");
     [self.statusItem setTitle:@""];
     if (i == 0) {
-        [self.statusItem setImage:[NSImage imageNamed:@"0280-stop.png"]];
+        [self.statusItem setImage:[NSImage imageNamed:@"stop"]];
         [self.statusItem setToolTip:@"KA-Lite is running."];
     } else {
-        [self.statusItem setImage:[NSImage imageNamed:@"0265-notification.png"]];
+        [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
         [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
     }
 }
@@ -151,16 +152,15 @@ int runKalite(NSString *command) {
 - (IBAction)stop:(id)sender {
     NSLog(@"==> Stopping...");
     [self.statusItem setTitle:@"..."];
-//    system("/Users/cyril/w/fle/ka-lite/ka-lite-src/scripts/stop.sh");
-//    system("export KALITE_DIR=/Users/cyril/w/fle/benjaoming/ka-lite/;/usr/bin/kalite stop");
-    int i = runKalite(@"stop");
+    int i;
+    i = runKalite(@"stop");
     [self.statusItem setTitle:@""];
     if (i == 0) {
-        [self.statusItem setImage:[NSImage imageNamed:@"0278-play2.png"]];
+        [self.statusItem setImage:[NSImage imageNamed:@"play"]];
         [self.statusItem setTitle:@""];
         [self.statusItem setToolTip:@"KA-Lite is not running."];
     } else {
-        [self.statusItem setImage:[NSImage imageNamed:@"0265-notification.png"]];
+        [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
         [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
     }
 }
@@ -189,5 +189,43 @@ int runKalite(NSString *command) {
     NSLog(@"==> Checking for updates automatically...");
 }
 
+
+- (IBAction)closeSplash:(id)sender {
+    [self closeSplash];
+}
+
+
+- (IBAction)showPreferences:(id)sender {
+    NSLog(@"==> showing preferences...");
+//    [window orderFront:[window identifier]];
+    [window makeKeyAndOrderFront:self];
+    [NSApp activateIgnoringOtherApps:YES];
+}
+
+
+- (IBAction)hidePreferences:(id)sender {
+    NSLog(@"==> hiding preferences...");
+    [window orderFront:[window identifier]];
+    [window orderOut:[window identifier]];
+}
+
+- (IBAction)savePreferences:(id)sender {
+    NSLog(@"==> saving preferences...");
+    [window orderFront:[window identifier]];
+    [window orderOut:[window identifier]];
+}
+
+
+- (IBAction)discardPreferences:(id)sender {
+    NSLog(@"==> discarding preferences...");
+    [window orderOut:[window identifier]];
+}
+
+
+- (void)closeSplash {
+    [splash orderOut:self];
+    [window makeKeyAndOrderFront:self];
+    [NSApp activateIgnoringOtherApps:YES];
+}
 
 @end

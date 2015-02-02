@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F1542CBE1A7C97480017EEA1 /* ka-lite in Resources */ = {isa = PBXBuildFile; fileRef = F1542CBC1A7C97480017EEA1 /* ka-lite */; };
-		F1542CBF1A7C97480017EEA1 /* pyrun-2.7 in Resources */ = {isa = PBXBuildFile; fileRef = F1542CBD1A7C97480017EEA1 /* pyrun-2.7 */; };
-		F1720BE91A7943A100096453 /* images in Resources */ = {isa = PBXBuildFile; fileRef = F1720BE81A7943A100096453 /* images */; };
 		F1720BED1A79566700096453 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = F1720BEC1A79566700096453 /* README.md */; };
 		F1720BF11A7A343A00096453 /* local_settings.default in Resources */ = {isa = PBXBuildFile; fileRef = F1720BF01A7A343A00096453 /* local_settings.default */; };
 		F1DDD4131A6E5DC10022F1C9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DDD4121A6E5DC10022F1C9 /* AppDelegate.m */; };
@@ -30,9 +27,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		F1542CBC1A7C97480017EEA1 /* ka-lite */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "ka-lite"; path = "Resources/ka-lite"; sourceTree = "<group>"; };
-		F1542CBD1A7C97480017EEA1 /* pyrun-2.7 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "pyrun-2.7"; path = "Resources/pyrun-2.7"; sourceTree = "<group>"; };
-		F1720BE81A7943A100096453 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
 		F1720BEC1A79566700096453 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F1720BF01A7A343A00096453 /* local_settings.default */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = local_settings.default; sourceTree = "<group>"; };
 		F1DDD40C1A6E5DC10022F1C9 /* KA-Lite Monitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KA-Lite Monitor.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,10 +92,7 @@
 		F1DDD40F1A6E5DC10022F1C9 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				F1542CBC1A7C97480017EEA1 /* ka-lite */,
-				F1542CBD1A7C97480017EEA1 /* pyrun-2.7 */,
 				F1720BF01A7A343A00096453 /* local_settings.default */,
-				F1720BE81A7943A100096453 /* images */,
 				F1DDD4101A6E5DC10022F1C9 /* Info.plist */,
 				F1DDD4141A6E5DC10022F1C9 /* main.m */,
 				F1720BEC1A79566700096453 /* README.md */,
@@ -206,9 +197,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F1720BE91A7943A100096453 /* images in Resources */,
-				F1542CBF1A7C97480017EEA1 /* pyrun-2.7 in Resources */,
-				F1542CBE1A7C97480017EEA1 /* ka-lite in Resources */,
 				F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */,
 				F1DDD41A1A6E5DC10022F1C9 /* MainMenu.xib in Resources */,
 				F1720BF11A7A343A00096453 /* local_settings.default in Resources */,
@@ -346,7 +334,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
-				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.framework *.gch *.xcode* (*) .DS_Store CVS .svn .git .hg ka-lite";
+				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.framework *.gch *.xcode* (*) .DS_Store CVS .svn .git .hg ka-lite pyrun";
 				EXCLUDED_SOURCE_FILE_NAMES = (
 					"*.html",
 					"*.css",
@@ -354,12 +342,14 @@
 					"*.js",
 					"*.py",
 					"*.pyc",
+					"*.md",
 					"*ka-lite/*.*",
 				);
 				INFOPLIST_FILE = "KA-Lite Monitor/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.9;
 			};
 			name = Debug;
 		};
@@ -368,7 +358,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
-				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.framework *.gch *.xcode* (*) .DS_Store CVS .svn .git .hg ka-lite";
+				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.framework *.gch *.xcode* (*) .DS_Store CVS .svn .git .hg ka-lite pyrun";
 				EXCLUDED_SOURCE_FILE_NAMES = (
 					"*.html",
 					"*.css",
@@ -376,12 +366,15 @@
 					"*.js",
 					"*.py",
 					"*.pyc",
+					"*.md",
 					"*ka-lite/*.*",
 				);
 				INFOPLIST_FILE = "KA-Lite Monitor/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.9;
 			};
 			name = Release;
 		};
