@@ -174,7 +174,7 @@
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <secureTextField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1Fb-vP-m1M">
-                                                        <rect key="frame" x="186" y="44" width="203" height="22"/>
+                                                        <rect key="frame" x="162" y="44" width="227" height="22"/>
                                                         <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="" drawsBackground="YES" usesSingleLineMode="YES" id="a2i-0L-3ge">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -183,9 +183,16 @@
                                                                 <string>NSAllRomanInputSourcesLocaleIdentifier</string>
                                                             </allowedInputSourceLocales>
                                                         </secureTextFieldCell>
+                                                        <connections>
+                                                            <binding destination="Voe-Tx-rLC" name="value" keyPath="password" id="qnp-xb-m6v">
+                                                                <dictionary key="options">
+                                                                    <string key="NSNullPlaceholder">required</string>
+                                                                </dictionary>
+                                                            </binding>
+                                                        </connections>
                                                     </secureTextField>
                                                     <secureTextField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mHu-hs-5dX">
-                                                        <rect key="frame" x="186" y="16" width="203" height="22"/>
+                                                        <rect key="frame" x="162" y="16" width="227" height="22"/>
                                                         <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="" drawsBackground="YES" usesSingleLineMode="YES" id="KPp-hV-ZWi">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -194,14 +201,28 @@
                                                                 <string>NSAllRomanInputSourcesLocaleIdentifier</string>
                                                             </allowedInputSourceLocales>
                                                         </secureTextFieldCell>
+                                                        <connections>
+                                                            <binding destination="Voe-Tx-rLC" name="value" keyPath="confirmPassword" id="Wjk-rx-f7f">
+                                                                <dictionary key="options">
+                                                                    <string key="NSNullPlaceholder">required</string>
+                                                                </dictionary>
+                                                            </binding>
+                                                        </connections>
                                                     </secureTextField>
-                                                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="URN-i2-B86">
-                                                        <rect key="frame" x="186" y="73" width="203" height="22"/>
-                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Alpha-numeric characters only." drawsBackground="YES" id="RD5-eC-lvC">
+                                                    <textField toolTip="Letters, numbers and @/./+/-/_ characters only.  Maximum of 30 characters." verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="URN-i2-B86">
+                                                        <rect key="frame" x="162" y="73" width="227" height="22"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="letters, numbers and @/./+/-/_ characters" drawsBackground="YES" id="RD5-eC-lvC">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
+                                                        <connections>
+                                                            <binding destination="Voe-Tx-rLC" name="value" keyPath="username" id="7Jx-c1-dbN">
+                                                                <dictionary key="options">
+                                                                    <string key="NSNullPlaceholder">letters, numbers and @/./+/-/_ characters</string>
+                                                                </dictionary>
+                                                            </binding>
+                                                        </connections>
                                                     </textField>
                                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cbm-2R-QZu">
                                                         <rect key="frame" x="26" y="77" width="135" height="17"/>
@@ -295,6 +316,7 @@ Gw
             </view>
             <point key="canvasLocation" x="731.5" y="264.5"/>
         </window>
+        <userDefaultsController representsSharedInstance="YES" id="a2C-ep-hKK"/>
     </objects>
     <resources>
         <image name="ka-lite-logo" width="261" height="66"/>

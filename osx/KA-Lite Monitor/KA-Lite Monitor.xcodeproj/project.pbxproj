@@ -14,6 +14,8 @@
 		F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1DDD4161A6E5DC10022F1C9 /* Images.xcassets */; };
 		F1DDD4261A6E5DC10022F1C9 /* KA_Lite_MonitorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DDD4251A6E5DC10022F1C9 /* KA_Lite_MonitorTests.m */; };
 		F1E5A30B1A8041FD003FA650 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = F1E5A3091A8041FD003FA650 /* MainMenu.xib */; };
+		F1E5A30E1A80DB99003FA650 /* ka-lite in Resources */ = {isa = PBXBuildFile; fileRef = F1E5A30C1A80DB99003FA650 /* ka-lite */; };
+		F1E5A30F1A80DB99003FA650 /* pyrun-2.7 in Resources */ = {isa = PBXBuildFile; fileRef = F1E5A30D1A80DB99003FA650 /* pyrun-2.7 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +41,8 @@
 		F1DDD4241A6E5DC10022F1C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F1DDD4251A6E5DC10022F1C9 /* KA_Lite_MonitorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KA_Lite_MonitorTests.m; sourceTree = "<group>"; };
 		F1E5A30A1A8041FD003FA650 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		F1E5A30C1A80DB99003FA650 /* ka-lite */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "ka-lite"; path = "Resources/ka-lite"; sourceTree = "<group>"; };
+		F1E5A30D1A80DB99003FA650 /* pyrun-2.7 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "pyrun-2.7"; path = "Resources/pyrun-2.7"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +96,8 @@
 		F1DDD40F1A6E5DC10022F1C9 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				F1E5A30C1A80DB99003FA650 /* ka-lite */,
+				F1E5A30D1A80DB99003FA650 /* pyrun-2.7 */,
 				F1720BF01A7A343A00096453 /* local_settings.default */,
 				F1DDD4101A6E5DC10022F1C9 /* Info.plist */,
 				F1DDD4141A6E5DC10022F1C9 /* main.m */,
@@ -199,6 +205,8 @@
 			files = (
 				F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */,
 				F1E5A30B1A8041FD003FA650 /* MainMenu.xib in Resources */,
+				F1E5A30F1A80DB99003FA650 /* pyrun-2.7 in Resources */,
+				F1E5A30E1A80DB99003FA650 /* ka-lite in Resources */,
 				F1720BF11A7A343A00096453 /* local_settings.default in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

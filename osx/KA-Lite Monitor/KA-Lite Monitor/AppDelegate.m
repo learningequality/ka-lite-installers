@@ -149,6 +149,7 @@ int runKalite(NSString *command) {
     }
 }
 
+
 /********************
  END Useful Methods
  ********************/
@@ -250,22 +251,52 @@ int runKalite(NSString *command) {
 }
 
 
+void alert(NSString *message) {
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:message];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert runModal];
+}
+
 - (void)savePreferences {
     /*
-     TODO(cpauya):
-     1. show window for progress of setup
+     This method:
+     1. shows window for progress of setup
      2. copy local_settings_sample.py to KALITE_DIR/kalite/local_settings.py
-     3. run `kalite manage setup --username admin --password password123 --noinput`
+     3. run `kalite manage setup --username <username> --password <password> --noinput`
      */
-    NSLog(@"==> saving preferences...");
+    
+    /*
+     Validate the following:
+        * username length max of 30 characters
+        * password length max of 128 characters
+        * username allowed characters are "letters, numbers and @/./+/-/_ characters" based on django.contrib.auth.models.AbstractUser
+     */
+    NSLog(@"==> saving preferences... username %@, password %@, confirm %@",
+          self.username, self.password, self.confirmPassword);
+    if (self.username == nil) {
+        alert(@"Username must not be blank and can only contain letters, numbers and @/./+/-/_ characters.");
+        return;
+    }
+    if (self.password == nil || self.confirmPassword == nil) {
+        alert(@"Invalid password or the password does not match on both fields.");
+        return;
+    }
+    if (![self.password isEqualToString:self.confirmPassword]) {
+        alert(@"The password does not match on both fields.");
+        return;
+    }
+    
     copyLocalSettings();
     // TODO(cpauya): get admin account credentials from preferences
-    //            NSString *username = @"admin";
-    //            NSString *password = @"password123";
-    //            NSString *cmd = [NSString stringWithFormat:@"manage setup --username %@ --password %@ --noinput", username, password];
-    //            runKalite(cmd);
-    sleep(3);
-    [window orderOut:[window identifier]];
+    NSString *cmd = [NSString stringWithFormat:@"manage setup --username %@ --password %@ --noinput",
+                     self.username, self.password];
+    int i = runKalite(cmd);
+    if (i == 0) {
+        [window orderOut:[window identifier]];
+    } else {
+        alert(@"Running 'manage setup' failed, please see Console.");
+    }
 }
 
 

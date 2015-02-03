@@ -23,4 +23,8 @@
 @property (strong, nonatomic) NSStatusItem *stopItem;
 @property (strong, nonatomic) NSStatusItem *openItem;
 
+@property (strong, nonatomic) IBOutlet NSString *username;
+@property (strong, nonatomic) IBOutlet NSString *password;
+@property (strong, nonatomic) IBOutlet NSString *confirmPassword;
+
 @end
