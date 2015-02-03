@@ -150,6 +150,14 @@ int runKalite(NSString *command) {
 }
 
 
+void alert(NSString *message) {
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:message];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert runModal];
+}
+
+
 /********************
  END Useful Methods
  ********************/
@@ -199,18 +207,6 @@ int runKalite(NSString *command) {
 }
 
 
-- (IBAction)startOnBoot:(id)sender {
-    NSLog(@"==> Start on boot...");
-// TODO(cpauya): This is a test, remove when done!
-//    int i = runKalite(@"manage shell");
-}
-
-
-- (IBAction)checkForUpdatesAutomatically:(id)sender {
-    NSLog(@"==> Checking for updates automatically...");
-}
-
-
 - (IBAction)closeSplash:(id)sender {
     [self closeSplash];
 }
@@ -245,18 +241,22 @@ int runKalite(NSString *command) {
 - (void)showPreferences {
     [splash orderOut:self];
     NSLog(@"==> showing preferences...");
-    //    [window orderFront:[window identifier]];
+    [self loadPreferences];
     [window makeKeyAndOrderFront:self];
     [NSApp activateIgnoringOtherApps:YES];
 }
 
 
-void alert(NSString *message) {
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:message];
-    [alert setAlertStyle:NSWarningAlertStyle];
-    [alert runModal];
+- (void)loadPreferences {
+    // TODO(cpauya): Get the persisted preferences.
+    // If none found, we must prompt the preference dialog.
+    NSLog(@"==> loading preferences...");
+    self.username = @"username";
+    self.password = @"password";
+    self.confirmPassword = @"confirm";
+    return;
 }
+
 
 - (void)savePreferences {
     /*
@@ -278,10 +278,19 @@ void alert(NSString *message) {
         alert(@"Username must not be blank and can only contain letters, numbers and @/./+/-/_ characters.");
         return;
     }
+
+//    NSString *chars = @"@.+-_";
+//    // TODO(cpauya): Check for special characters in the username.
+//    if ([self.username rangeOfString:chars].location == NSNotFound) {
+//        alert(@"Invalid username characters found, please use letters, numbers and @/./+/-/_ characters.");
+//        return;
+//    }
+
     if (self.password == nil || self.confirmPassword == nil) {
         alert(@"Invalid password or the password does not match on both fields.");
         return;
     }
+
     if (![self.password isEqualToString:self.confirmPassword]) {
         alert(@"The password does not match on both fields.");
         return;
@@ -289,6 +298,7 @@ void alert(NSString *message) {
     
     copyLocalSettings();
     // TODO(cpauya): get admin account credentials from preferences
+    // How do we determine if user wants to run setup or not?
     NSString *cmd = [NSString stringWithFormat:@"manage setup --username %@ --password %@ --noinput",
                      self.username, self.password];
     int i = runKalite(cmd);
@@ -302,8 +312,15 @@ void alert(NSString *message) {
 
 - (void)discardPreferences {
     NSLog(@"==> discarding changes in preferences...");
-    // TODO(cpauya): Discard changes load the saved preferences.
+    // TODO(cpauya): Discard changes and load the saved preferences.
     [window orderOut:[window identifier]];
+}
+
+
+- (void)loadLog {
+    // REF: http://boredzo.org/blog/archives/2008-01-23/asl-searching
+    // REF: http://stackoverflow.com/questions/13621343/getting-time-of-logs-stored-in-asl-log-files-with-asl-api-objective-c
+    return;
 }
 
 

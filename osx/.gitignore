@@ -3,3 +3,4 @@ ka-lite.zip
 install-pyrun.sh
 pyrun-2.7/
 *.zip
+*.xcuserstate

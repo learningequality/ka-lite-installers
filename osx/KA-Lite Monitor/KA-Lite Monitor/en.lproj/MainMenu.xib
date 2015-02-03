@@ -156,7 +156,14 @@
                                                 <subviews>
                                                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZJu-Y8-v7Y">
                                                         <rect key="frame" x="16" y="46" width="168" height="18"/>
-                                                        <buttonCell key="cell" type="check" title="Auto-start on boot" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="hdP-ma-fi7">
+                                                        <buttonCell key="cell" type="check" title="Auto-start on boot" bezelStyle="regularSquare" imagePosition="left" enabled="NO" inset="2" id="hdP-ma-fi7">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="system"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LGO-kK-gKp">
+                                                        <rect key="frame" x="16" y="21" width="297" height="18"/>
+                                                        <buttonCell key="cell" type="check" title="Check for updates automatically" bezelStyle="regularSquare" imagePosition="left" enabled="NO" inset="2" id="AGK-J1-S1r">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
@@ -262,7 +269,7 @@
                                     <rect key="frame" x="10" y="33" width="447" height="304"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textField autoresizesSubviews="NO" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kd1-WT-LSD">
+                                        <textField autoresizesSubviews="NO" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kd1-WT-LSD">
                                             <rect key="frame" x="7" y="17" width="400" height="284"/>
                                             <textFieldCell key="cell" controlSize="small" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="KA-Lite Logs" drawsBackground="YES" id="fxX-Go-sBG">
                                                 <font key="font" metaFont="smallSystem"/>
