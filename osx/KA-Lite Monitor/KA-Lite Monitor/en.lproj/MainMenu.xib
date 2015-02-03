@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="14C109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
+        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
     </dependencies>
     <objects>
@@ -18,7 +19,6 @@
                 <outlet property="window" destination="BCW-kl-SX8" id="jIg-Qn-PfW"/>
             </connections>
         </customObject>
-        <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <menu title="KA-Lite" id="3js-7p-b5M">
             <items>
                 <menuItem title="Start KA Lite" id="cmv-NE-Gmn">
@@ -78,19 +78,190 @@
                         <rect key="frame" x="7" y="50" width="203" height="77"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="ka-lite-logo" id="RYn-a9-bqN"/>
                     </imageView>
+                    <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="Whl-jw-4n7">
+                        <rect key="frame" x="148" y="91" width="16" height="16"/>
+                    </progressIndicator>
                 </subviews>
             </view>
             <point key="canvasLocation" x="311" y="144.5"/>
         </window>
-        <window title="KA-Lite Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="BCW-kl-SX8">
+        <window title="KA-Lite Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="BCW-kl-SX8">
             <windowStyleMask key="styleMask" titled="YES"/>
-            <rect key="contentRect" x="131" y="158" width="493" height="321"/>
+            <rect key="contentRect" x="131" y="158" width="493" height="393"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" id="TP3-Cd-o99">
-                <rect key="frame" x="0.0" y="0.0" width="493" height="321"/>
+                <rect key="frame" x="0.0" y="0.0" width="493" height="393"/>
                 <autoresizingMask key="autoresizingMask"/>
+                <userGuides>
+                    <userLayoutGuide location="474" affinity="minX"/>
+                    <userLayoutGuide location="362" affinity="minY"/>
+                </userGuides>
                 <subviews>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3rc-kc-VMj">
+                    <tabView fixedFrame="YES" initialItem="bsG-cY-LW8" translatesAutoresizingMaskIntoConstraints="NO" id="Elv-hY-FGF">
+                        <rect key="frame" x="13" y="37" width="467" height="350"/>
+                        <font key="font" metaFont="system"/>
+                        <tabViewItems>
+                            <tabViewItem label="Preferences" identifier="1" id="bsG-cY-LW8">
+                                <view key="view" id="B8D-my-NmZ">
+                                    <rect key="frame" x="10" y="33" width="447" height="304"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="Path for Database and Content" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
+                                            <rect key="frame" x="11" y="82" width="414" height="91"/>
+                                            <view key="contentView">
+                                                <rect key="frame" x="1" y="1" width="412" height="72"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m5s-fK-oBc">
+                                                        <rect key="frame" x="26" y="44" width="135" height="17"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Database path" id="QW9-qa-Qra">
+                                                            <font key="font" metaFont="system"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="i8n-CM-XYv">
+                                                        <rect key="frame" x="26" y="14" width="135" height="17"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Content path" id="5Bh-5m-tWX">
+                                                            <font key="font" metaFont="system"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <pathControl verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Fr9-lD-cxj">
+                                                        <rect key="frame" x="187" y="40" width="200" height="26"/>
+                                                        <pathCell key="cell" selectable="YES" editable="YES" alignment="left" placeholderString="" pathStyle="popUp" id="mgX-4z-WIm">
+                                                            <font key="font" metaFont="system"/>
+                                                            <url key="url" string="file:///Home/ka-lite"/>
+                                                        </pathCell>
+                                                    </pathControl>
+                                                    <pathControl verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jq2-BL-rnK">
+                                                        <rect key="frame" x="186" y="14" width="200" height="26"/>
+                                                        <pathCell key="cell" selectable="YES" editable="YES" alignment="left" placeholderString="" pathStyle="popUp" id="fXE-iQ-Q63">
+                                                            <font key="font" metaFont="system"/>
+                                                            <url key="url" string="file:///Home/ka-lite"/>
+                                                        </pathCell>
+                                                    </pathControl>
+                                                </subviews>
+                                            </view>
+                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <font key="titleFont" metaFont="systemBold"/>
+                                        </box>
+                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="Application behavior" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
+                                            <rect key="frame" x="11" y="-13" width="414" height="91"/>
+                                            <view key="contentView">
+                                                <rect key="frame" x="1" y="1" width="412" height="72"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZJu-Y8-v7Y">
+                                                        <rect key="frame" x="16" y="46" width="168" height="18"/>
+                                                        <buttonCell key="cell" type="check" title="Auto-start on boot" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="hdP-ma-fi7">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="system"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                </subviews>
+                                            </view>
+                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <font key="titleFont" metaFont="systemBold"/>
+                                        </box>
+                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="Administrator account" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="swH-Hn-WS9">
+                                            <rect key="frame" x="11" y="177" width="414" height="124"/>
+                                            <view key="contentView">
+                                                <rect key="frame" x="1" y="1" width="412" height="105"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <secureTextField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1Fb-vP-m1M">
+                                                        <rect key="frame" x="186" y="44" width="203" height="22"/>
+                                                        <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="" drawsBackground="YES" usesSingleLineMode="YES" id="a2i-0L-3ge">
+                                                            <font key="font" metaFont="system"/>
+                                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                            <allowedInputSourceLocales>
+                                                                <string>NSAllRomanInputSourcesLocaleIdentifier</string>
+                                                            </allowedInputSourceLocales>
+                                                        </secureTextFieldCell>
+                                                    </secureTextField>
+                                                    <secureTextField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mHu-hs-5dX">
+                                                        <rect key="frame" x="186" y="16" width="203" height="22"/>
+                                                        <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="" drawsBackground="YES" usesSingleLineMode="YES" id="KPp-hV-ZWi">
+                                                            <font key="font" metaFont="system"/>
+                                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                            <allowedInputSourceLocales>
+                                                                <string>NSAllRomanInputSourcesLocaleIdentifier</string>
+                                                            </allowedInputSourceLocales>
+                                                        </secureTextFieldCell>
+                                                    </secureTextField>
+                                                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="URN-i2-B86">
+                                                        <rect key="frame" x="186" y="73" width="203" height="22"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Alpha-numeric characters only." drawsBackground="YES" id="RD5-eC-lvC">
+                                                            <font key="font" metaFont="system"/>
+                                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cbm-2R-QZu">
+                                                        <rect key="frame" x="26" y="77" width="135" height="17"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Username" id="pV7-Gs-Fr5">
+                                                            <font key="font" metaFont="system"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nUZ-tW-1t3">
+                                                        <rect key="frame" x="26" y="47" width="135" height="17"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Password" id="G7Y-bL-no3">
+                                                            <font key="font" metaFont="system"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Nfw-8Y-AVg">
+                                                        <rect key="frame" x="26" y="16" width="135" height="17"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Confirm Password" id="GGO-yc-Cew">
+                                                            <font key="font" metaFont="system"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                </subviews>
+                                            </view>
+                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <font key="titleFont" metaFont="systemBold"/>
+                                        </box>
+                                    </subviews>
+                                </view>
+                            </tabViewItem>
+                            <tabViewItem label="Logs" identifier="2" id="a88-uU-pNE">
+                                <view key="view" id="VVZ-XB-ata">
+                                    <rect key="frame" x="10" y="33" width="447" height="304"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <textField autoresizesSubviews="NO" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kd1-WT-LSD">
+                                            <rect key="frame" x="7" y="17" width="400" height="284"/>
+                                            <textFieldCell key="cell" controlSize="small" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="KA-Lite Logs" drawsBackground="YES" id="fxX-Go-sBG">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                    </subviews>
+                                </view>
+                            </tabViewItem>
+                        </tabViewItems>
+                    </tabView>
+                    <imageView autoresizesSubviews="NO" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YFf-Hn-71e">
+                        <rect key="frame" x="20" y="0.0" width="128" height="48"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="ka-lite-logo" id="SrL-UW-fmI"/>
+                    </imageView>
+                    <progressIndicator autoresizesSubviews="NO" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" doubleValue="33" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="F58-jA-gsZ">
+                        <rect key="frame" x="106" y="26" width="16" height="16"/>
+                    </progressIndicator>
+                    <button autoresizesSubviews="NO" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3rc-kc-VMj">
                         <rect key="frame" x="379" y="7" width="100" height="32"/>
                         <buttonCell key="cell" type="push" title="Apply" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GgK-EM-gBS">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -100,29 +271,8 @@
                             <action selector="savePreferences:" target="Voe-Tx-rLC" id="vIj-vM-cdP"/>
                         </connections>
                     </button>
-                    <tabView fixedFrame="YES" initialItem="bsG-cY-LW8" translatesAutoresizingMaskIntoConstraints="NO" id="Elv-hY-FGF">
-                        <rect key="frame" x="13" y="35" width="467" height="280"/>
-                        <font key="font" metaFont="system"/>
-                        <tabViewItems>
-                            <tabViewItem label="Preferences" identifier="1" id="bsG-cY-LW8">
-                                <view key="view" id="B8D-my-NmZ">
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                </view>
-                            </tabViewItem>
-                            <tabViewItem label="Logs" identifier="2" id="a88-uU-pNE">
-                                <view key="view" id="VVZ-XB-ata">
-                                    <rect key="frame" x="10" y="33" width="447" height="228"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                </view>
-                            </tabViewItem>
-                        </tabViewItems>
-                    </tabView>
-                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YFf-Hn-71e">
-                        <rect key="frame" x="20" y="0.0" width="128" height="48"/>
-                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="ka-lite-logo" id="SrL-UW-fmI"/>
-                    </imageView>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jrJ-7c-9Me">
-                        <rect key="frame" x="244" y="7" width="100" height="32"/>
+                    <button autoresizesSubviews="NO" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jrJ-7c-9Me">
+                        <rect key="frame" x="264" y="7" width="100" height="32"/>
                         <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="w7y-vp-NDZ">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -134,9 +284,16 @@ Gw
                             <action selector="discardPreferences:" target="Voe-Tx-rLC" id="9pR-Ye-2YX"/>
                         </connections>
                     </button>
+                    <button autoresizesSubviews="NO" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IFr-HI-gEe">
+                        <rect key="frame" x="214" y="11" width="25" height="25"/>
+                        <buttonCell key="cell" type="help" bezelStyle="helpButton" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="8Gk-SG-HUS">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="727.5" y="225.5"/>
+            <point key="canvasLocation" x="731.5" y="264.5"/>
         </window>
     </objects>
     <resources>

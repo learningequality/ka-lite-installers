@@ -29,46 +29,41 @@
     [self.statusItem setHighlightMode:YES];
     [self.statusItem setToolTip:@"Click to show the KA-Lite menu items."];
 
-    // We need to run setup if local_settings.py or database does not exist.
-    /*
-     TODO(cpauya):
-     1. show window for progress of setup
-     2. copy local_settings_sample.py to KALITE_DIR/kalite/local_settings.py
-     3. run `kalite manage setup --username admin --password password123 --noinput`
-     */
-
+    // We need to show preferences if local_settings.py or database does not exist.
+    bool mustShowPreferences = false;
     @try {
-        NSString *localSettings = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/local_settings" ofType:@"py"];
+        NSString *localSettings = getLocalSettingsPath();
         if (localSettings == nil) {
-            NSLog(@"local_settings.py not found, copying local_settings.default...");
-            copyLocalSettings();
+            NSLog(@"local_settings.py not found, must show preferences...");
+            mustShowPreferences = true;
         } else {
             NSLog(@"FOUND local_settings.py!");
         }
         
-        NSString *database = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/database/data" ofType:@"sqlite"];
+        NSString *database = getDatabasePath();
         if (database == nil) {
-            NSLog(@"Database not found, will run setup.");
-            // TODO(cpauya): prompt user for admin account credentials.
-            NSString *username = @"admin";
-            NSString *password = @"password123";
-            NSString *cmd = [NSString stringWithFormat:@"manage setup --username %@ --password %@ --noinput", username, password];
-            runKalite(cmd);
+            NSLog(@"Database not found, must show preferences.");
+            mustShowPreferences = true;
         } else {
             NSLog(@"FOUND database!");
         }
+        
         NSLog(@"KA Lite was successfully started!");
     }
     @catch (NSException *ex) {
         NSLog(@"KA Lite had an Error: %@", ex);
     }
     
-    [NSTimer scheduledTimerWithTimeInterval:0.0
+    void *sel = @selector(closeSplash);
+    if (mustShowPreferences == true) {
+        NSLog(@"==> must show preferences");
+        sel = @selector(showPreferences);
+    }
+    [NSTimer scheduledTimerWithTimeInterval:0.1
                                      target:self
-                                   selector:@selector(closeSplash)
+                                   selector:sel
                                    userInfo:nil
                                     repeats:NO];
-    //    [self closeSplash];
 }
 
 
@@ -80,14 +75,19 @@
 }
 
 
+/********************
+  Useful Methods
+********************/
+
 int copyLocalSettings() {
+    NSLog(@"==> Copying local_settings.default as local_settings.py...");
     NSString *source = [[NSBundle mainBundle] pathForResource:@"local_settings" ofType:@"default"];
     NSLog(@"==> localSettings: %@", source);
-
+    
     NSString *target = getResourcePath(@"ka-lite/kalite/local_settings.py");
     NSString *command = [NSString stringWithFormat:@"cp \"%@\" \"%@\"", source, target];
     NSLog(@"==> Running command: %@", command);
-
+    
     const char *cmd = [command UTF8String];
     int i = system(cmd);
     return i;
@@ -98,6 +98,18 @@ NSString *getResourcePath(NSString *pathToAppend) {
     NSString *path = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:pathToAppend];
     path = [path stringByStandardizingPath];
     return path;
+}
+
+
+NSString *getLocalSettingsPath() {
+    NSString *localSettings = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/local_settings" ofType:@"py"];
+    return localSettings;
+}
+
+
+NSString *getDatabasePath() {
+    NSString *database = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/database/data" ofType:@"sqlite"];
+    return database;
 }
 
 
@@ -124,7 +136,7 @@ int runKalite(NSString *command) {
         finalCmd = [NSString stringWithFormat: @"%@; export KALITE_PYTHON=\"%@\"", finalCmd, pyrun];
         finalCmd = [NSString stringWithFormat: @"%@; \"%@\" %@", finalCmd, kalitePath, command];
         
-        // convert to objective-c string
+        // convert to objective-c string for use in `system` call
         const char *exportCommand = [finalCmd UTF8String];
         NSLog(@"==> Running exportCommand %s", exportCommand);
         int i = system(exportCommand);
@@ -136,6 +148,10 @@ int runKalite(NSString *command) {
         NSLog(@"Error running `kalite` %@", ex);
     }
 }
+
+/********************
+ END Useful Methods
+ ********************/
 
 
 - (IBAction)start:(id)sender {
@@ -200,10 +216,7 @@ int runKalite(NSString *command) {
 
 
 - (IBAction)showPreferences:(id)sender {
-    NSLog(@"==> showing preferences...");
-//    [window orderFront:[window identifier]];
-    [window makeKeyAndOrderFront:self];
-    [NSApp activateIgnoringOtherApps:YES];
+    [self showPreferences];
 }
 
 
@@ -212,22 +225,55 @@ int runKalite(NSString *command) {
     [window orderOut:[window identifier]];
 }
 
+
 - (IBAction)savePreferences:(id)sender {
-    NSLog(@"==> saving preferences...");
-    [window orderOut:[window identifier]];
+    [self savePreferences];
 }
 
 
 - (IBAction)discardPreferences:(id)sender {
-    NSLog(@"==> discarding preferences...");
-    [window orderOut:[window identifier]];
+    [self discardPreferences];
 }
 
 
 - (void)closeSplash {
     [splash orderOut:self];
+}
+
+
+- (void)showPreferences {
+    [splash orderOut:self];
+    NSLog(@"==> showing preferences...");
+    //    [window orderFront:[window identifier]];
     [window makeKeyAndOrderFront:self];
     [NSApp activateIgnoringOtherApps:YES];
 }
+
+
+- (void)savePreferences {
+    /*
+     TODO(cpauya):
+     1. show window for progress of setup
+     2. copy local_settings_sample.py to KALITE_DIR/kalite/local_settings.py
+     3. run `kalite manage setup --username admin --password password123 --noinput`
+     */
+    NSLog(@"==> saving preferences...");
+    copyLocalSettings();
+    // TODO(cpauya): get admin account credentials from preferences
+    //            NSString *username = @"admin";
+    //            NSString *password = @"password123";
+    //            NSString *cmd = [NSString stringWithFormat:@"manage setup --username %@ --password %@ --noinput", username, password];
+    //            runKalite(cmd);
+    sleep(3);
+    [window orderOut:[window identifier]];
+}
+
+
+- (void)discardPreferences {
+    NSLog(@"==> discarding changes in preferences...");
+    // TODO(cpauya): Discard changes load the saved preferences.
+    [window orderOut:[window identifier]];
+}
+
 
 @end
