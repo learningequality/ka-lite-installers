@@ -24,7 +24,7 @@
     
     // Setup the status menu item.
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
-    [self.statusItem setImage:[NSImage imageNamed:@"play"]];
+    [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
     [self.statusItem setMenu:self.statusMenu];
     [self.statusItem setHighlightMode:YES];
     [self.statusItem setToolTip:@"Click to show the KA-Lite menu items."];
@@ -185,7 +185,7 @@ void alert(NSString *message) {
     i = runKalite(@"stop");
     [self.statusItem setTitle:@""];
     if (i == 0) {
-        [self.statusItem setImage:[NSImage imageNamed:@"play"]];
+        [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
         [self.statusItem setTitle:@""];
         [self.statusItem setToolTip:@"KA-Lite is not running."];
     } else {
@@ -251,9 +251,9 @@ void alert(NSString *message) {
     // TODO(cpauya): Get the persisted preferences.
     // If none found, we must prompt the preference dialog.
     NSLog(@"==> loading preferences...");
-    self.username = @"username";
-    self.password = @"password";
-    self.confirmPassword = @"confirm";
+//    self.username = @"username";
+//    self.password = @"password";
+//    self.confirmPassword = @"confirm";
     return;
 }
 
