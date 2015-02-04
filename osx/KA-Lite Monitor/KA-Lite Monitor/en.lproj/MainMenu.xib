@@ -87,27 +87,24 @@
         </window>
         <window title="KA-Lite Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="BCW-kl-SX8">
             <windowStyleMask key="styleMask" titled="YES"/>
-            <rect key="contentRect" x="131" y="158" width="493" height="393"/>
+            <windowCollectionBehavior key="collectionBehavior" canJoinAllSpaces="YES"/>
+            <rect key="contentRect" x="131" y="158" width="493" height="414"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" id="TP3-Cd-o99">
-                <rect key="frame" x="0.0" y="0.0" width="493" height="393"/>
+                <rect key="frame" x="0.0" y="0.0" width="493" height="414"/>
                 <autoresizingMask key="autoresizingMask"/>
-                <userGuides>
-                    <userLayoutGuide location="474" affinity="minX"/>
-                    <userLayoutGuide location="362" affinity="minY"/>
-                </userGuides>
                 <subviews>
                     <tabView fixedFrame="YES" initialItem="bsG-cY-LW8" translatesAutoresizingMaskIntoConstraints="NO" id="Elv-hY-FGF">
-                        <rect key="frame" x="13" y="37" width="467" height="350"/>
+                        <rect key="frame" x="13" y="37" width="467" height="371"/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
                             <tabViewItem label="Preferences" identifier="1" id="bsG-cY-LW8">
                                 <view key="view" id="B8D-my-NmZ">
-                                    <rect key="frame" x="10" y="33" width="447" height="304"/>
+                                    <rect key="frame" x="10" y="33" width="447" height="325"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Path for Database and Content" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
-                                            <rect key="frame" x="11" y="82" width="414" height="91"/>
+                                            <rect key="frame" x="11" y="103" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -130,14 +127,14 @@
                                                     </textField>
                                                     <pathControl verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Fr9-lD-cxj">
                                                         <rect key="frame" x="187" y="40" width="200" height="26"/>
-                                                        <pathCell key="cell" selectable="YES" editable="YES" alignment="left" placeholderString="" pathStyle="popUp" id="mgX-4z-WIm">
+                                                        <pathCell key="cell" selectable="YES" editable="YES" enabled="NO" alignment="left" placeholderString="" pathStyle="popUp" id="mgX-4z-WIm">
                                                             <font key="font" metaFont="system"/>
                                                             <url key="url" string="file:///Home/ka-lite"/>
                                                         </pathCell>
                                                     </pathControl>
                                                     <pathControl verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jq2-BL-rnK">
                                                         <rect key="frame" x="186" y="14" width="200" height="26"/>
-                                                        <pathCell key="cell" selectable="YES" editable="YES" alignment="left" placeholderString="" pathStyle="popUp" id="fXE-iQ-Q63">
+                                                        <pathCell key="cell" selectable="YES" editable="YES" enabled="NO" alignment="left" placeholderString="" pathStyle="popUp" id="fXE-iQ-Q63">
                                                             <font key="font" metaFont="system"/>
                                                             <url key="url" string="file:///Home/ka-lite"/>
                                                         </pathCell>
@@ -149,7 +146,7 @@
                                             <font key="titleFont" metaFont="systemBold"/>
                                         </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Application behavior" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
-                                            <rect key="frame" x="11" y="-13" width="414" height="91"/>
+                                            <rect key="frame" x="11" y="8" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -175,7 +172,7 @@
                                             <font key="titleFont" metaFont="systemBold"/>
                                         </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Administrator account" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="swH-Hn-WS9">
-                                            <rect key="frame" x="11" y="177" width="414" height="124"/>
+                                            <rect key="frame" x="11" y="198" width="414" height="124"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="105"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -191,9 +188,10 @@
                                                             </allowedInputSourceLocales>
                                                         </secureTextFieldCell>
                                                         <connections>
-                                                            <binding destination="Voe-Tx-rLC" name="value" keyPath="password" id="qnp-xb-m6v">
+                                                            <binding destination="Voe-Tx-rLC" name="value" keyPath="password" id="iyG-G1-aFf">
                                                                 <dictionary key="options">
                                                                     <string key="NSNullPlaceholder">required</string>
+                                                                    <bool key="NSValidatesImmediately" value="YES"/>
                                                                 </dictionary>
                                                             </binding>
                                                         </connections>
@@ -209,9 +207,10 @@
                                                             </allowedInputSourceLocales>
                                                         </secureTextFieldCell>
                                                         <connections>
-                                                            <binding destination="Voe-Tx-rLC" name="value" keyPath="confirmPassword" id="Wjk-rx-f7f">
+                                                            <binding destination="Voe-Tx-rLC" name="value" keyPath="confirmPassword" id="z0M-Nx-QWp">
                                                                 <dictionary key="options">
                                                                     <string key="NSNullPlaceholder">required</string>
+                                                                    <bool key="NSValidatesImmediately" value="YES"/>
                                                                 </dictionary>
                                                             </binding>
                                                         </connections>
@@ -224,9 +223,10 @@
                                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                         <connections>
-                                                            <binding destination="Voe-Tx-rLC" name="value" keyPath="username" id="7Jx-c1-dbN">
+                                                            <binding destination="Voe-Tx-rLC" name="value" keyPath="username" id="3xQ-rZ-w5n">
                                                                 <dictionary key="options">
                                                                     <string key="NSNullPlaceholder">letters, numbers and @/./+/-/_ characters</string>
+                                                                    <bool key="NSValidatesImmediately" value="YES"/>
                                                                 </dictionary>
                                                             </binding>
                                                         </connections>
@@ -266,11 +266,11 @@
                             </tabViewItem>
                             <tabViewItem label="Logs" identifier="2" id="a88-uU-pNE">
                                 <view key="view" id="VVZ-XB-ata">
-                                    <rect key="frame" x="10" y="33" width="447" height="304"/>
+                                    <rect key="frame" x="10" y="33" width="447" height="325"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textField autoresizesSubviews="NO" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kd1-WT-LSD">
-                                            <rect key="frame" x="7" y="17" width="400" height="284"/>
+                                            <rect key="frame" x="7" y="38" width="400" height="284"/>
                                             <textFieldCell key="cell" controlSize="small" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="KA-Lite Logs" drawsBackground="YES" id="fxX-Go-sBG">
                                                 <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -321,7 +321,7 @@ Gw
                     </button>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="731.5" y="264.5"/>
+            <point key="canvasLocation" x="731.5" y="275"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="a2C-ep-hKK"/>
     </objects>
