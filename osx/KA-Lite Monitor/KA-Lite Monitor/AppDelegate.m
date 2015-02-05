@@ -12,8 +12,9 @@
 //    @property (weak) IBOutlet NSWindow *window;
 @end
 
-
 @implementation AppDelegate
+
+@synthesize fusername;
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
 }
@@ -257,6 +258,9 @@ NSString *getUsernameChars() {
 
 
 - (IBAction)savePreferences:(id)sender {
+    
+    NSString *username = self.fusername.stringValue;
+    self.username = username;
     [self savePreferences];
 }
 
@@ -303,6 +307,7 @@ NSString *getUsernameChars() {
      */
 
     NSLog(@"==> saving preferences...");
+    NSLog(@"==> saving preferences... %@", self.username);
     
     if (self.username == nil) {
         alert(@"Username must not be blank and can only contain letters, numbers and @/./+/-/_ characters.");
