@@ -199,30 +199,33 @@ NSString *getUsernameChars() {
 
 
 - (IBAction)start:(id)sender {
-    showNotification(@"KA-Lite is starting...");
+    showNotification(@"Starting...");
     int i = runKalite(@"start");
     if (i == 0) {
         [self.statusItem setImage:[NSImage imageNamed:@"stop"]];
         [self.statusItem setToolTip:@"KA-Lite is running."];
+    showNotification(@"You can now click on 'Open in Browser' menu");
     } else {
         [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
         [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
-        showNotification(@"KA-Lite has encountered an error, pls check the Console.");
+        showNotification(@"Has encountered an error, pls check the Console.");
     }
+    //showNotification(@"You can now click on 'Open in Browser' menu");
 }
 
 
 - (IBAction)stop:(id)sender {
     NSLog(@"==> Stopping...");
-    showNotification(@"KA-Lite is stopping...");
+    showNotification(@"Stopping...");
     int i = runKalite(@"stop");
     if (i == 0) {
         [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
         [self.statusItem setToolTip:@"KA-Lite is not running."];
+    showNotification(@"Stopped");
     } else {
         [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
         [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
-        showNotification(@"KA-Lite has encountered an error, pls check the Console.");
+        showNotification(@"Has encountered an error, pls check the Console.");
     }
 }
 
