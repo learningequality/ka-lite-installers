@@ -204,13 +204,12 @@ NSString *getUsernameChars() {
     if (i == 0) {
         [self.statusItem setImage:[NSImage imageNamed:@"stop"]];
         [self.statusItem setToolTip:@"KA-Lite is running."];
-    showNotification(@"You can now click on 'Open in Browser' menu");
+        showNotification(@"You can now click on 'Open in Browser' menu");
     } else {
         [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
         [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
         showNotification(@"Has encountered an error, pls check the Console.");
     }
-    //showNotification(@"You can now click on 'Open in Browser' menu");
 }
 
 
@@ -221,7 +220,7 @@ NSString *getUsernameChars() {
     if (i == 0) {
         [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
         [self.statusItem setToolTip:@"KA-Lite is not running."];
-    showNotification(@"Stopped");
+        showNotification(@"Stopped");
     } else {
         [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
         [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
