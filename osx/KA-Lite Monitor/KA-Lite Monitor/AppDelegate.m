@@ -81,19 +81,22 @@
 ********************/
 
 
-int copyLocalSettings() {
+void copyLocalSettings() {
     NSLog(@"==> Copying local_settings.default as local_settings.py...");
-    NSString *source = [[NSBundle mainBundle] pathForResource:@"local_settings" ofType:@"default"];
-    NSLog(@"==> localSettings: %@", source);
-    
     NSString *target = getResourcePath(@"ka-lite/kalite/local_settings.py");
-    NSString *command = [NSString stringWithFormat:@"cp \"%@\" \"%@\"", source, target];
-    NSLog(@"==> Running command: %@", command);
-    
-    const char *cmd = [command UTF8String];
-    int i = system(cmd);
-    showNotification(@"Copied local_settings.default to local_settings.py.");
-    return i;
+    BOOL isExists = [[NSFileManager defaultManager] fileExistsAtPath:target];
+    if (isExists) {
+        NSString *source = [[NSBundle mainBundle] pathForResource:@"local_settings" ofType:@"default"];
+        NSLog(@"====> local_settings.default: %@", source);
+        NSString *command = [NSString stringWithFormat:@"cp \"%@\" \"%@\"", source, target];
+        NSLog(@"====> Running command: %@", command);
+        
+        const char *cmd = [command UTF8String];
+        int i = system(cmd);
+        showNotification(@"Copied local_settings.default to local_settings.py.");
+    } else {
+        NSLog(@"====> `ka-lite` folder does not exist!");
+    }
 }
 
 
@@ -429,12 +432,14 @@ NSString *getUsernameChars() {
 
 
 - (void)startKaliteMonitorTimer {
-    // Setup a timer to monitor the result of `kalite status` after 5 minutes then every 2 minutes thereafter.
+    // Setup a timer to monitor the result of `kalite status` after 5 minutes
+    // TODO(cpauya): then every 2 minutes thereafter.
+
     // Monitor only if preferences are set.
     NSString *username = [self getUsernamePref];
     if (username != nil) {
         // TODO(cpauya): Use initWithFireDate of NSTimer instance.
-        [NSTimer scheduledTimerWithTimeInterval:5.0
+        [NSTimer scheduledTimerWithTimeInterval:300.0
                                          target:self
                                        selector:@selector(getKaliteStatus)
                                        userInfo:nil
