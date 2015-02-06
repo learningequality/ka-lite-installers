@@ -23,6 +23,9 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
     
+    // Set the default status.
+    self.status = statusCouldNotDetermineStatus;
+    
     // Setup the status menu item.
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
     [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
@@ -61,15 +64,15 @@
         sel = @selector(showPreferences);
     }
     [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:sel userInfo:nil repeats:NO];
-    
+    [self startKaliteMonitorTimer];
 }
 
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
     // TODO(cpauya): Confirm quit action from user.
-    runKalite(@"stop");
     NSLog(@"==> quitting...");
+    [self runKalite:@"stop"];
 }
 
 
@@ -115,13 +118,15 @@ NSString *getDatabasePath() {
 
 // REF: http://stackoverflow.com/a/10284037/845481
 // convert const char* to NSString * and convert back - _NSAutoreleaseNoPool()
-int runKalite(NSString *command) {
+- (enum kaliteStatus)runKalite:(NSString *)command {
     // It needs the `KALITE_DIR` and `KALITE_PYTHON` environment variables, so we set them here for every call.
     // TODO(cpauya): We must prompt user on a preferences dialog and persist these perhaps on `local_settings.py`?
+    // Updates status if old status is not the same as current.
     NSString *kaliteDir;
     NSString *pyrun;
     NSString *kalitePath;
     NSString *finalCmd;
+    enum kaliteStatus oldStatus = self.status;
     
     @try {
         kaliteDir = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ka-lite"];
@@ -132,21 +137,33 @@ int runKalite(NSString *command) {
         
         kalitePath = [kaliteDir stringByAppendingString:@"/bin/kalite"];
         
-        finalCmd = [NSString stringWithFormat: @"export KALITE_DIR=\"%@\"", kaliteDir];
-        finalCmd = [NSString stringWithFormat: @"%@; export KALITE_PYTHON=\"%@\"", finalCmd, pyrun];
-        finalCmd = [NSString stringWithFormat: @"%@; \"%@\" %@", finalCmd, kalitePath, command];
+        finalCmd = [NSString stringWithFormat: @"export KALITE_DIR=\"%@\"; export KALITE_PYTHON=\"%@\"; \"%@\" %@",
+                    kaliteDir, pyrun, kalitePath, command];
         
-        // convert to objective-c string for use in `system` call
-        const char *exportCommand = [finalCmd UTF8String];
-        NSLog(@"==> Running exportCommand %s", exportCommand);
-        int i = system(exportCommand);
-        
-        NSLog(@"==> return is %i... done.", i);
-        return i;
+        // TODO(cpauya): Check if path exists.
+        // REF: http://www.exampledb.com/objective-c-check-if-file-exists.htm
+        BOOL isExists = [[NSFileManager defaultManager] fileExistsAtPath:kalitePath];
+        if (isExists) {
+            // convert to objective-c string for use in `system` call
+            const char *exportCommand = [finalCmd UTF8String];
+            //        NSLog(@"==> Running `kalite`... exportCommand %s", exportCommand);
+            enum kaliteStatus status = system(exportCommand);
+            self.status = status;
+            NSLog(@"==> `bin/kalite %@` returned is %i... done.", command, status);
+        } else {
+            self.status = statusCouldNotDetermineStatus;
+            [self showStatus:self.status];
+            NSLog(@"==> `bin/kalite` does not exist!");
+        }
     }
     @catch (NSException *ex) {
-        NSLog(@"Error running `kalite` %@", ex);
+        self.status = statusCouldNotDetermineStatus;
+        NSLog(@"==> Error running `bin/kalite` %@", ex);
     }
+    if (oldStatus != self.status) {
+        [self showStatus:self.status];
+    }
+    return self.status;
 }
 
 
@@ -162,7 +179,7 @@ void showNotification(NSString *subtitle) {
     // REF: http://stackoverflow.com/questions/12267357/nsusernotification-with-custom-soundname?rq=1
     // TODO(cpauya): These must be ticked by user on preferences if they want notifications, sounds, or not.
     NSUserNotification* notification = [[NSUserNotification alloc]init];
-    notification.title = @"KA-Lite";
+    notification.title = @"KA-Lite Monitor";
     notification.subtitle = subtitle;
     notification.soundName = @"Basso.aiff";
 //    notification.informativeText = @"informative text here";
@@ -199,34 +216,39 @@ NSString *getUsernameChars() {
  ********************/
 
 
-- (IBAction)start:(id)sender {
-    showNotification(@"Starting...");
-    int i = runKalite(@"start");
-    if (i == 0) {
-        [self.statusItem setImage:[NSImage imageNamed:@"stop"]];
-        [self.statusItem setToolTip:@"KA-Lite is running."];
-        showNotification(@"You can now click on 'Open in Browser' menu");
-    } else {
-        [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
-        [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
-        showNotification(@"Has encountered an error, pls check the Console.");
+- (void)showStatus:(enum kaliteStatus)status {
+    // TODO(cpauya): Enable/disable menu items based on status.
+    switch (status) {
+        case statusOkRunning:
+            [self.statusItem setImage:[NSImage imageNamed:@"stop"]];
+            [self.statusItem setToolTip:@"KA-Lite is running."];
+            showNotification(@"You can now click on 'Open in Browser' menu");
+            break;
+        case statusStopped:
+            [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
+            [self.statusItem setToolTip:@"KA-Lite is not running."];
+            showNotification(@"Stopped");
+            break;
+        default:
+            [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
+            [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
+            showNotification(@"Has encountered an error, pls check the Console.");
+            break;
     }
+}
+
+
+- (IBAction)start:(id)sender {
+    NSLog(@"==> Starting...");
+    showNotification(@"Starting...");
+    [self runKalite:@"start"];
 }
 
 
 - (IBAction)stop:(id)sender {
     NSLog(@"==> Stopping...");
     showNotification(@"Stopping...");
-    int i = runKalite(@"stop");
-    if (i == 0) {
-        [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
-        [self.statusItem setToolTip:@"KA-Lite is not running."];
-        showNotification(@"Stopped");
-    } else {
-        [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
-        [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
-        showNotification(@"Has encountered an error, pls check the Console.");
-    }
+    [self runKalite:@"start"];
 }
 
 
@@ -260,7 +282,6 @@ NSString *getUsernameChars() {
 
 
 - (IBAction)savePreferences:(id)sender {
-    
     [self savePreferences];
 }
 
@@ -284,13 +305,17 @@ NSString *getUsernameChars() {
 }
 
 
-- (void)loadPreferences {
-    // TODO(cpauya): Get the persisted preferences.
-    // If none found, we must prompt the preference dialog.
-    NSLog(@"==> loading preferences...");
+- (NSString *)getUsernamePref {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     NSString *username = [prefs stringForKey:@"username"];
-    self.username = username;
+    return username;
+}
+
+
+- (void)loadPreferences {
+    // TODO(cpauya): If no preferences were found, we must prompt the preference dialog.
+    NSLog(@"==> loading preferences...");
+    self.username = [self getUsernamePref];
     return;
 }
 
@@ -365,8 +390,8 @@ NSString *getUsernameChars() {
         showNotification(@"Running `kalite manage setup`.");
         NSString *cmd = [NSString stringWithFormat:@"manage setup --username %@ --password %@ --noinput",
                          self.username, self.password];
-        int i = runKalite(cmd);
-        if (i == 0) {
+        enum kaliteStatus status = [self runKalite:@"start"];
+        if (status == statusOkRunning) {
             [window orderOut:[window identifier]];
         } else {
             alert(@"Running 'manage setup' failed, please see Console.");
@@ -382,12 +407,27 @@ NSString *getUsernameChars() {
 }
 
 
-- (void)loadLog {
-    // REF: http://boredzo.org/blog/archives/2008-01-23/asl-searching
-    // REF: http://stackoverflow.com/questions/13621343/getting-time-of-logs-stored-in-asl-log-files-with-asl-api-objective-c
-    // TODO(cpauya): Actually, it is not practical to load log data here.
-    // We must use ASL + notifications instead of this.
-    return;
+- (void)startKaliteMonitorTimer {
+    // Setup a timer to monitor the result of `kalite status` after 5 minutes then every 2 minutes thereafter.
+    // Monitor only if preferences are set.
+    NSString *username = [self getUsernamePref];
+    if (username != nil) {
+        // TODO(cpauya): Use initWithFireDate of NSTimer instance.
+        [NSTimer scheduledTimerWithTimeInterval:5.0
+                                         target:self
+                                       selector:@selector(getKaliteStatus)
+                                       userInfo:nil
+                                        repeats:YES];
+    } else {
+        NSLog(@"==> Not running timer because no preferences yet.");
+    }
+}
+
+
+- (void)getKaliteStatus {
+    // Method to get run `kalite status` then update the icon and menu items.
+    NSLog(@"==> Monitoring KA-Lite status...");
+    [self runKalite:@"status"];
 }
 
 

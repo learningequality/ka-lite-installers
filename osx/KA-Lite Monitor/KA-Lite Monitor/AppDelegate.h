@@ -31,4 +31,22 @@
 @property (weak) IBOutlet NSSecureTextField *fpassword;
 @property (weak) IBOutlet NSSecureTextField *fcpassword;
 
+
+enum kaliteStatus {
+    statusOkRunning = 0,
+    statusStopped = 1,
+    statusStartingUp = 4,
+    statusNotResponding = 5,
+    statusFailedToStart = 6,
+    statusUncleanShutdown = 7,
+    statusUnknownKaliteRunningOnPort = 8,
+    statusKaliteServerConfigurationError = 9,
+    statusCouldNotReadPidFile = 99,
+    statusInvalidPidFile = 100,
+    statusCouldNotDetermineStatus = 101
+};
+
+@property enum kaliteStatus status;
+
+
 @end
