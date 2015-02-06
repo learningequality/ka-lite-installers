@@ -290,9 +290,9 @@ NSString *getUsernameChars() {
     // TODO(cpauya): Get the persisted preferences.
     // If none found, we must prompt the preference dialog.
     NSLog(@"==> loading preferences...");
-//    self.username = @"username";
-//    self.password = @"password";
-//    self.confirmPassword = @"confirm";
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSString *username = [prefs stringForKey:@"username"];
+    self.username = username;
     return;
 }
 
@@ -309,7 +309,6 @@ NSString *getUsernameChars() {
      */
 
     NSLog(@"==> saving preferences...");
-    NSLog(@"==> saving preferences... %@", self.username);
     
     if (self.username == nil) {
         alert(@"Username must not be blank and can only contain letters, numbers and @/./+/-/_ characters.");
@@ -342,6 +341,10 @@ NSString *getUsernameChars() {
         return;
     }
     
+    // TODO(cpauya): Save the preferences.
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    [prefs setObject:self.username forKey:@"username"];
+
     // Copy `local_settings.default` if no `local_settings.py` was found.
     NSString *localSettingsPath = getLocalSettingsPath();
     if (localSettingsPath == nil) {
