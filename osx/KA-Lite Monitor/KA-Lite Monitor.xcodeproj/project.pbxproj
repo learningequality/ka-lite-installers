@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A73FAB921A84ADCF00DB35F9 /* ka-lite in Resources */ = {isa = PBXBuildFile; fileRef = A73FAB911A84ADCF00DB35F9 /* ka-lite */; };
+		A73FAB941A84ADF400DB35F9 /* pyrun-2.7 in Resources */ = {isa = PBXBuildFile; fileRef = A73FAB931A84ADF300DB35F9 /* pyrun-2.7 */; };
 		F103615C1A81B7DF00998E6B /* images in Resources */ = {isa = PBXBuildFile; fileRef = F103615B1A81B7DF00998E6B /* images */; };
 		F1720BED1A79566700096453 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = F1720BEC1A79566700096453 /* README.md */; };
 		F1720BF11A7A343A00096453 /* local_settings.default in Resources */ = {isa = PBXBuildFile; fileRef = F1720BF01A7A343A00096453 /* local_settings.default */; };
@@ -28,6 +30,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A73FAB911A84ADCF00DB35F9 /* ka-lite */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "ka-lite"; path = "Resources/ka-lite"; sourceTree = "<group>"; };
+		A73FAB931A84ADF300DB35F9 /* pyrun-2.7 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "pyrun-2.7"; path = "Resources/pyrun-2.7"; sourceTree = "<group>"; };
 		F103615B1A81B7DF00998E6B /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = Resources/images; sourceTree = "<group>"; };
 		F1720BEC1A79566700096453 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F1720BF01A7A343A00096453 /* local_settings.default */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = local_settings.default; sourceTree = "<group>"; };
@@ -94,6 +98,8 @@
 		F1DDD40F1A6E5DC10022F1C9 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				A73FAB931A84ADF300DB35F9 /* pyrun-2.7 */,
+				A73FAB911A84ADCF00DB35F9 /* ka-lite */,
 				F103615B1A81B7DF00998E6B /* images */,
 				F1720BF01A7A343A00096453 /* local_settings.default */,
 				F1DDD4101A6E5DC10022F1C9 /* Info.plist */,
@@ -201,6 +207,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F103615C1A81B7DF00998E6B /* images in Resources */,
+				A73FAB941A84ADF400DB35F9 /* pyrun-2.7 in Resources */,
+				A73FAB921A84ADCF00DB35F9 /* ka-lite in Resources */,
 				F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */,
 				F1E5A30B1A8041FD003FA650 /* MainMenu.xib in Resources */,
 				F1720BF11A7A343A00096453 /* local_settings.default in Resources */,

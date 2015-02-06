@@ -294,6 +294,12 @@ NSString *getUsernameChars() {
 }
 
 
+- (IBAction)setupAction:(id)sender {
+    [self setupKalite];
+}
+
+
+
 - (void)closeSplash {
     [splash orderOut:self];
 }
@@ -400,14 +406,18 @@ NSString *getUsernameChars() {
     
     [prefs setObject:self.username forKey:@"username"];
     [prefs setObject:encodedPassword forKey:@"password"];
+    [self setupKalite];
+}
 
+
+-(void)setupKalite {
     // Copy `local_settings.default` if no `local_settings.py` was found.
     NSString *localSettingsPath = getLocalSettingsPath();
     
     if (localSettingsPath == nil) {
         copyLocalSettings();
     }
-    
+
     // Automatically run `kalite manage setup` if no database was found.
     NSString *databasePath = getDatabasePath();
     if (databasePath == nil) {
