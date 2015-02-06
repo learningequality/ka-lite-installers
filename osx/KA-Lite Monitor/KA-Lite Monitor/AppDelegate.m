@@ -14,7 +14,7 @@
 
 @implementation AppDelegate
 
-@synthesize fusername, fpassword, fcpassword;
+@synthesize stringUsername, stringPassword, stringConfirmPassword;
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
 }
@@ -347,13 +347,14 @@ NSString *getUsernameChars() {
      4. Run `kalite manage setup` if no database was found.
      */
     
-    NSString *username = self.fusername.stringValue;
-    NSString *password = self.fpassword.stringValue;
-    NSString *cpassword = self.fcpassword.stringValue;
+    NSString *username = self.stringUsername.stringValue;
+    NSString *password = self.stringPassword.stringValue;
+    NSString *confirmPassword = self.stringConfirmPassword.stringValue;
+
     
     self.username = username;
     self.password = password;
-    self.confirmPassword = cpassword;
+    self.confirmPassword = confirmPassword;
 
     NSLog(@"==> saving preferences...");
     

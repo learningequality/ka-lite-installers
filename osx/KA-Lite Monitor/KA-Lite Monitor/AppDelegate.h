@@ -27,10 +27,10 @@
 @property (strong, nonatomic) IBOutlet NSString *password;
 @property (strong, nonatomic) IBOutlet NSString *confirmPassword;
 
-@property (weak) IBOutlet NSTextField *fusername;
-@property (weak) IBOutlet NSSecureTextField *fpassword;
-@property (weak) IBOutlet NSSecureTextField *fcpassword;
-
+// get the string from the user preferences textbox.
+@property (weak) IBOutlet NSTextField *stringUsername;
+@property (weak) IBOutlet NSSecureTextField *stringPassword;
+@property (weak) IBOutlet NSSecureTextField *stringConfirmPassword;
 
 enum kaliteStatus {
     statusOkRunning = 0,
