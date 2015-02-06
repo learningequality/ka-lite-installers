@@ -14,6 +14,8 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
+                <outlet property="fcpassword" destination="mHu-hs-5dX" id="zJU-KN-6Gk"/>
+                <outlet property="fpassword" destination="1Fb-vP-m1M" id="9Od-7e-bpt"/>
                 <outlet property="fusername" destination="URN-i2-B86" id="IZB-CW-VPx"/>
                 <outlet property="splash" destination="izD-1r-MWo" id="ax5-nI-Mu0"/>
                 <outlet property="statusMenu" destination="3js-7p-b5M" id="TSS-gO-zwP"/>

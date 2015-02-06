@@ -14,7 +14,7 @@
 
 @implementation AppDelegate
 
-@synthesize fusername;
+@synthesize fusername, fpassword, fcpassword;
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
 }
@@ -261,8 +261,6 @@ NSString *getUsernameChars() {
 
 - (IBAction)savePreferences:(id)sender {
     
-    NSString *username = self.fusername.stringValue;
-    self.username = username;
     [self savePreferences];
 }
 
@@ -307,10 +305,19 @@ NSString *getUsernameChars() {
      3. Copy local_settings_sample.py to local_settings.py
      4. Run `kalite manage setup` if no database was found.
      */
+    
+    NSString *username = self.fusername.stringValue;
+    NSString *password = self.fpassword.stringValue;
+    NSString *cpassword = self.fcpassword.stringValue;
+    
+    self.username = username;
+    self.password = password;
+    self.confirmPassword = cpassword;
 
     NSLog(@"==> saving preferences...");
     
-    if (self.username == nil) {
+    
+    if (self.username == nil || [self.username isEqualToString:@""]) {
         alert(@"Username must not be blank and can only contain letters, numbers and @/./+/-/_ characters.");
         return;
     }
@@ -326,7 +333,7 @@ NSString *getUsernameChars() {
         return;
     }
 
-    if (self.password == nil || self.confirmPassword == nil) {
+    if (self.password == nil || [self.password isEqualToString:@""]) {
         alert(@"Invalid password or the password does not match on both fields.");
         return;
     }

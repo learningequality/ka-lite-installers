@@ -28,6 +28,7 @@
 @property (strong, nonatomic) IBOutlet NSString *confirmPassword;
 
 @property (weak) IBOutlet NSTextField *fusername;
-
+@property (weak) IBOutlet NSSecureTextField *fpassword;
+@property (weak) IBOutlet NSSecureTextField *fcpassword;
 
 @end
