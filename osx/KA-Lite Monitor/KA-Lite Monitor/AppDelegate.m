@@ -315,7 +315,20 @@ NSString *getUsernameChars() {
 - (void)loadPreferences {
     // TODO(cpauya): If no preferences were found, we must prompt the preference dialog.
     NSLog(@"==> loading preferences...");
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     self.username = [self getUsernamePref];
+
+    NSString *password = [prefs stringForKey:@"password"];
+    if (password != nil || [password isNotEqualTo:@""]) {
+        // NSData from the Base64 encoded str
+        NSData *nsdataFromBase64String = [[NSData alloc]
+                                          initWithBase64EncodedString:password options:0];
+        // Decoded NSString from the NSData
+        NSString *decodePassword = [[NSString alloc]
+                                    initWithData:nsdataFromBase64String encoding:NSUTF8StringEncoding];
+        self.password = decodePassword;
+        self.confirmPassword = decodePassword;
+    }
     return;
 }
 
@@ -373,12 +386,20 @@ NSString *getUsernameChars() {
         return;
     }
     
-    // TODO(cpauya): Save the preferences.
+    // Save the preferences.
+    // REF: http://iosdevelopertips.com/core-services/encode-decode-using-base64.html
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    
+    // Get NSString from NSData object in Base64
+    NSData *nsdata = [self.password dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *encodedPassword = [nsdata base64EncodedStringWithOptions:0];
+    
     [prefs setObject:self.username forKey:@"username"];
+    [prefs setObject:encodedPassword forKey:@"password"];
 
     // Copy `local_settings.default` if no `local_settings.py` was found.
     NSString *localSettingsPath = getLocalSettingsPath();
+    
     if (localSettingsPath == nil) {
         copyLocalSettings();
     }
