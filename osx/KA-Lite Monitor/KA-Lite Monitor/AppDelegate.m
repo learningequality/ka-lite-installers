@@ -461,24 +461,27 @@ NSString *getUsernameChars() {
     // Automatically run `kalite manage setup` if no database was found.
     NSString *databasePath = getDatabasePath();
     if (databasePath == nil) {
-        [self setupKalite];
-    }
+        enum kaliteStatus status = [self setupKalite];
+        if (status != statusOkRunning) {
+            alert(@"Running 'manage setup' failed, please see Console.");
+            return;
+        }
     // TODO(cpauya): Must close the preferences dialog after successful save.
-    
+    }
+    [window orderOut:[window identifier]];
 }
 
 
--(void)setupKalite {
+-(enum kaliteStatus)setupKalite {
     // Get admin account credentials from preferences.
     showNotification(@"Running `kalite manage setup`.");
     NSString *cmd = [NSString stringWithFormat:@"manage setup --username %@ --password %@ --noinput",
                         self.username, self.password];
     enum kaliteStatus status = [self runKalite:cmd];
     if (status == statusOkRunning) {
-        [window orderOut:[window identifier]];
-    } else {
-        alert(@"Running 'manage setup' failed, please see Console.");
+        showNotification(@"Done running setup.");
     }
+    return status;
 }
 
 
