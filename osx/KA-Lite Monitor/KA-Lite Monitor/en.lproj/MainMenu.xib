@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="14C109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="13F34" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
@@ -15,28 +15,30 @@
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
                 <outlet property="splash" destination="izD-1r-MWo" id="ax5-nI-Mu0"/>
+                <outlet property="startKalite" destination="cmv-NE-Gmn" id="fGw-83-kM1"/>
                 <outlet property="statusMenu" destination="3js-7p-b5M" id="TSS-gO-zwP"/>
+                <outlet property="stopKalite" destination="mSX-Xb-gZb" id="0Jb-Lw-LGy"/>
                 <outlet property="stringConfirmPassword" destination="mHu-hs-5dX" id="iam-ar-XPH"/>
                 <outlet property="stringPassword" destination="1Fb-vP-m1M" id="ak0-0A-EBR"/>
                 <outlet property="stringUsername" destination="URN-i2-B86" id="gsg-KD-ggm"/>
                 <outlet property="window" destination="BCW-kl-SX8" id="jIg-Qn-PfW"/>
             </connections>
         </customObject>
-        <menu title="KA-Lite" id="3js-7p-b5M">
+        <menu title="KA-Lite" autoenablesItems="NO" id="3js-7p-b5M">
             <items>
-                <menuItem title="Start KA Lite" id="cmv-NE-Gmn">
+                <menuItem title="Start KA Lite" enabled="NO" id="cmv-NE-Gmn">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="start:" target="Voe-Tx-rLC" id="TB0-eh-2ON"/>
                     </connections>
                 </menuItem>
-                <menuItem title="Stop KA Lite" id="mSX-Xb-gZb">
+                <menuItem title="Stop KA Lite" enabled="NO" id="mSX-Xb-gZb">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="stop:" target="Voe-Tx-rLC" id="YlD-S5-gx8"/>
                     </connections>
                 </menuItem>
-                <menuItem title="Open in Browser" id="z2m-ls-Z0I">
+                <menuItem title="Open in Browser" enabled="NO" id="z2m-ls-Z0I">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="open:" target="Voe-Tx-rLC" id="lgo-Cb-7Rt"/>
@@ -62,7 +64,7 @@
         <window title="Starting KA-Lite..." allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="izD-1r-MWo">
             <windowStyleMask key="styleMask" titled="YES"/>
             <rect key="contentRect" x="565" y="404" width="216" height="135"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1366" height="746"/>
             <view key="contentView" id="X7G-oL-gsN">
                 <rect key="frame" x="0.0" y="0.0" width="216" height="135"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -92,7 +94,7 @@
             <windowStyleMask key="styleMask" titled="YES"/>
             <windowCollectionBehavior key="collectionBehavior" canJoinAllSpaces="YES"/>
             <rect key="contentRect" x="131" y="158" width="493" height="414"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1366" height="746"/>
             <view key="contentView" id="TP3-Cd-o99">
                 <rect key="frame" x="0.0" y="0.0" width="493" height="414"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -140,11 +142,10 @@ Gw
                         <tabViewItems>
                             <tabViewItem label="Preferences" identifier="1" id="bsG-cY-LW8">
                                 <view key="view" id="B8D-my-NmZ">
-                                    <rect key="frame" x="10" y="33" width="447" height="325"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Path for Database and Content" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
-                                            <rect key="frame" x="11" y="103" width="414" height="91"/>
+                                            <rect key="frame" x="11" y="-222" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -186,7 +187,7 @@ Gw
                                             <font key="titleFont" metaFont="systemBold"/>
                                         </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Application behavior" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
-                                            <rect key="frame" x="11" y="8" width="414" height="91"/>
+                                            <rect key="frame" x="11" y="-317" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -212,7 +213,7 @@ Gw
                                             <font key="titleFont" metaFont="systemBold"/>
                                         </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Administrator account" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="swH-Hn-WS9">
-                                            <rect key="frame" x="11" y="198" width="414" height="124"/>
+                                            <rect key="frame" x="11" y="-127" width="414" height="124"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="105"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

@@ -14,7 +14,7 @@
 
 @implementation AppDelegate
 
-@synthesize stringUsername, stringPassword, stringConfirmPassword;
+@synthesize stringUsername, stringPassword, stringConfirmPassword, startKalite, stopKalite;
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
 }
@@ -23,9 +23,6 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
     
-    // Set the default status.
-    self.status = statusCouldNotDetermineStatus;
-    
     // Setup the status menu item.
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
     [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
@@ -33,6 +30,10 @@
     [self.statusItem setHighlightMode:YES];
     [self.statusItem setToolTip:@"Click to show the KA-Lite menu items."];
 
+    // Set the default status.
+    self.status = statusCouldNotDetermineStatus;
+    [self getKaliteStatus];
+    
     // We need to show preferences if local_settings.py or database does not exist.
     bool mustShowPreferences = false;
     @try {
@@ -69,6 +70,7 @@
 
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
+
     // Insert code here to tear down your application
     // TODO(cpauya): Confirm quit action from user.
     NSLog(@"==> quitting...");
@@ -160,7 +162,7 @@ NSString *getDatabasePath() {
             NSLog(@"==> `bin/kalite %@` returned is %i... done.", command, status);
             // If command is not "status", run `kalite status` to get status of ka-lite.
             // We need this check because this may be called inside the monitor timer.
-            if (![command  isEqual: @"status"]) {
+            if ([command isNotEqualTo: @"status"]) {
                 // Run `kalite status` and return that because we want to
                 runCommand = [statusCmd UTF8String];
                 enum kaliteStatus status = system(runCommand);
@@ -237,12 +239,19 @@ NSString *getUsernameChars() {
 - (void)showStatus:(enum kaliteStatus)status {
     // TODO(cpauya): Enable/disable menu items based on status.
     switch (status) {
+        case statusStartingUp:
+            [self.startKalite setEnabled:NO];
+            [self.stopKalite setEnabled:NO];
         case statusOkRunning:
+            [self.startKalite setEnabled:NO];
+            [self.stopKalite setEnabled:YES];
             [self.statusItem setImage:[NSImage imageNamed:@"stop"]];
             [self.statusItem setToolTip:@"KA-Lite is running."];
             showNotification(@"You can now click on 'Open in Browser' menu");
             break;
         case statusStopped:
+            [self.startKalite setEnabled:YES];
+            [self.stopKalite setEnabled:NO];
             [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
             [self.statusItem setToolTip:@"KA-Lite is not running."];
             showNotification(@"Stopped");
@@ -258,6 +267,7 @@ NSString *getUsernameChars() {
 
 - (IBAction)start:(id)sender {
     NSLog(@"==> Starting...");
+    [self showStatus:statusStartingUp];
     showNotification(@"Starting...");
     [self runKalite:@"start"];
 }
@@ -423,6 +433,7 @@ NSString *getUsernameChars() {
     // TODO(cpauya): We need to auto-run setup ONLY if there's no database!
     [self setupKalite];
     // TODO(cpauya): Must close the preferences dialog after successful save.
+    
 }
 
 

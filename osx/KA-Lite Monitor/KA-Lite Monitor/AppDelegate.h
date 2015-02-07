@@ -32,6 +32,10 @@
 @property (weak) IBOutlet NSSecureTextField *stringPassword;
 @property (weak) IBOutlet NSSecureTextField *stringConfirmPassword;
 
+@property (weak) IBOutlet NSMenuItem *startKalite;
+@property (weak) IBOutlet NSMenuItem *stopKalite;
+
+
 enum kaliteStatus {
     statusOkRunning = 0,
     statusStopped = 1,
