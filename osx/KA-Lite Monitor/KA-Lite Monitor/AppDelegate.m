@@ -85,7 +85,7 @@
 
 void copyLocalSettings() {
     NSString *source = [[NSBundle mainBundle] pathForResource:@"local_settings" ofType:@"default"];
-    NSString *target = getResourcePath(@"ka-lite/kalite/local_settings.py");
+    NSString *target = getLocalSettingsPath();
     NSLog(@"==> Copying local_settings.default as local_settings.py to...%@.", target);
     BOOL isExists = [[NSFileManager defaultManager] fileExistsAtPath:source];
     if (isExists) {
@@ -463,7 +463,7 @@ NSString *getUsernameChars() {
     if (databasePath == nil) {
         enum kaliteStatus status = [self setupKalite];
         if (status != statusOkRunning) {
-            alert(@"Running 'manage setup' failed, please see Console.");
+//            alert(@"Running 'manage setup' failed, please see Console.");
             return;
         }
     // TODO(cpauya): Must close the preferences dialog after successful save.
