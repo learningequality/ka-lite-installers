@@ -430,35 +430,33 @@ NSString *getUsernameChars() {
     
     [prefs setObject:self.username forKey:@"username"];
     [prefs setObject:encodedPassword forKey:@"password"];
-    // TODO(cpauya): We need to auto-run setup ONLY if there's no database!
-    [self setupKalite];
+    
+    // Copy `local_settings.default` if no `local_settings.py` was found.
+    NSString *localSettingsPath = getLocalSettingsPath();
+    if (localSettingsPath == nil) {
+        copyLocalSettings();
+    }
+    
+    // Automatically run `kalite manage setup` if no database was found.
+    NSString *databasePath = getDatabasePath();
+    if (databasePath == nil) {
+        [self setupKalite];
+    }
     // TODO(cpauya): Must close the preferences dialog after successful save.
     
 }
 
 
 -(void)setupKalite {
-    // TODO(cpauya): Check if paths exists.
-
-    // Copy `local_settings.default` if no `local_settings.py` was found.
-    NSString *localSettingsPath = getLocalSettingsPath();
-    if (localSettingsPath == nil) {
-        copyLocalSettings();
-    }
-
-    // Automatically run `kalite manage setup` if no database was found.
-    NSString *databasePath = getDatabasePath();
-    if (databasePath == nil) {
-        // Get admin account credentials from preferences.
-        showNotification(@"Running `kalite manage setup`.");
-        NSString *cmd = [NSString stringWithFormat:@"manage setup --username %@ --password %@ --noinput",
-                         self.username, self.password];
-        enum kaliteStatus status = [self runKalite:cmd];
-        if (status == statusOkRunning) {
-            [window orderOut:[window identifier]];
-        } else {
-            alert(@"Running 'manage setup' failed, please see Console.");
-        }
+    // Get admin account credentials from preferences.
+    showNotification(@"Running `kalite manage setup`.");
+    NSString *cmd = [NSString stringWithFormat:@"manage setup --username %@ --password %@ --noinput",
+                        self.username, self.password];
+    enum kaliteStatus status = [self runKalite:cmd];
+    if (status == statusOkRunning) {
+        [window orderOut:[window identifier]];
+    } else {
+        alert(@"Running 'manage setup' failed, please see Console.");
     }
 }
 
