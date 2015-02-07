@@ -14,7 +14,7 @@
 
 @implementation AppDelegate
 
-@synthesize stringUsername, stringPassword, stringConfirmPassword, startKalite, stopKalite;
+@synthesize stringUsername, stringPassword, stringConfirmPassword, startKalite, stopKalite, openInBrowserMenu;
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
 }
@@ -149,7 +149,7 @@ NSString *getDatabasePath() {
                     kaliteDir, pyrun, kalitePath];
         
         finalCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, command];
-        statusCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, command];
+        statusCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, @"status"];
         
         // TODO(cpauya): Check if path exists.
         // REF: http://www.exampledb.com/objective-c-check-if-file-exists.htm
@@ -158,15 +158,24 @@ NSString *getDatabasePath() {
             // convert to objective-c string for use in `system` call
             const char *runCommand = [finalCmd UTF8String];
             //        NSLog(@"==> Running `kalite`... exportCommand %s", exportCommand);
-            enum kaliteStatus status = system(runCommand);
-            NSLog(@"==> `bin/kalite %@` returned is %i... done.", command, status);
+            int status = system(runCommand);
             // If command is not "status", run `kalite status` to get status of ka-lite.
             // We need this check because this may be called inside the monitor timer.
             if ([command isNotEqualTo: @"status"]) {
                 // Run `kalite status` and return that because we want to
                 runCommand = [statusCmd UTF8String];
-                enum kaliteStatus status = system(runCommand);
+                status = system(runCommand);
+                NSLog(@"====> before2 Result of `kalite status` inside runKalite()... %u", status);
+                if (status >= 255) {
+                    status = status >> 8;
+                }
                 NSLog(@"====> Result of `kalite status` inside runKalite()... %u", status);
+            } else {
+                NSLog(@"==> before `bin/kalite %@` returned is %i... done.", command, status);
+                if (status >= 255) {
+                    status = status >> 8;
+                }
+                NSLog(@"==> `bin/kalite %@` returned is %i... done.", command, status);
             }
             self.status = status;
             NSLog(@"==> `bin/kalite status` is %i... done.", status);
@@ -239,12 +248,20 @@ NSString *getUsernameChars() {
 - (void)showStatus:(enum kaliteStatus)status {
     // TODO(cpauya): Enable/disable menu items based on status.
     switch (status) {
+        case statusFailedToStart:
+            [self.startKalite setEnabled:YES];
+            [self.stopKalite setEnabled:NO];
+            [self.openInBrowserMenu setEnabled:NO];
+            break;
         case statusStartingUp:
             [self.startKalite setEnabled:NO];
             [self.stopKalite setEnabled:NO];
+            [self.openInBrowserMenu setEnabled:NO];
+            break;
         case statusOkRunning:
             [self.startKalite setEnabled:NO];
             [self.stopKalite setEnabled:YES];
+            [self.openInBrowserMenu setEnabled:YES];
             [self.statusItem setImage:[NSImage imageNamed:@"stop"]];
             [self.statusItem setToolTip:@"KA-Lite is running."];
             showNotification(@"You can now click on 'Open in Browser' menu");
@@ -252,11 +269,15 @@ NSString *getUsernameChars() {
         case statusStopped:
             [self.startKalite setEnabled:YES];
             [self.stopKalite setEnabled:NO];
+            [self.openInBrowserMenu setEnabled:NO];
             [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
             [self.statusItem setToolTip:@"KA-Lite is not running."];
             showNotification(@"Stopped");
             break;
         default:
+            [self.startKalite setEnabled:NO];
+            [self.stopKalite setEnabled:NO];
+            [self.openInBrowserMenu setEnabled:NO];
             [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
             [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
             showNotification(@"Has encountered an error, pls check the Console.");

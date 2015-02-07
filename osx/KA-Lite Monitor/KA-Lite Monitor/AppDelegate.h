@@ -34,6 +34,7 @@
 
 @property (weak) IBOutlet NSMenuItem *startKalite;
 @property (weak) IBOutlet NSMenuItem *stopKalite;
+@property (weak) IBOutlet NSMenuItem *openInBrowserMenu;
 
 
 enum kaliteStatus {
