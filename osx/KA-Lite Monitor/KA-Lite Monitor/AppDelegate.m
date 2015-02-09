@@ -129,6 +129,20 @@ BOOL pathExists(NSString *path) {
     return exists;
 }
 
+
+BOOL kaliteExists() {
+    NSString *kaliteDir;
+    NSString *kalitePath;
+    kaliteDir = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ka-lite"];
+    kaliteDir = [kaliteDir stringByStandardizingPath];
+    kalitePath = [kaliteDir stringByAppendingString:@"/bin/kalite"];
+    if (pathExists(kalitePath)){
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
 // REF: http://stackoverflow.com/a/10284037/845481
 // convert const char* to NSString * and convert back - _NSAutoreleaseNoPool()
 - (enum kaliteStatus)runKalite:(NSString *)command {
@@ -170,6 +184,7 @@ BOOL pathExists(NSString *path) {
             // We need this check because this may be called inside the monitor timer.
             if ([command isNotEqualTo: @"status"]) {
                 // Run `kalite status` and return that because we want to
+                NSLog(@"Fetching `bin/kalite status`...");
                 runCommand = [statusCmd UTF8String];
                 status = system(runCommand);
 //                NSLog(@"====> before2 Result of `kalite status` inside runKalite()... %u", status);
@@ -185,7 +200,7 @@ BOOL pathExists(NSString *path) {
 //                NSLog(@"==> `bin/kalite %@` returned is %i... done.", command, status);
             }
             self.status = status;
-            NSLog(@"==> `bin/kalite status` is %i... done.", status);
+//            NSLog(@"==> `bin/kalite status` is %i... done.", status);
         } else {
             self.status = statusCouldNotDetermineStatus;
             [self showStatus:self.status];
@@ -298,7 +313,11 @@ NSString *getUsernameChars() {
             [self.startKalite setEnabled:NO];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
-            [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
+            if (kaliteExists()){
+                [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
+            }else{
+                [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
+            }
             [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
             showNotification(@"Has encountered an error, pls check the Console.");
             break;
