@@ -70,7 +70,6 @@
 
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-
     // Insert code here to tear down your application
     // TODO(cpauya): Confirm quit action from user.
     showNotification(@"Stopping and quitting the application...");
@@ -173,17 +172,17 @@ BOOL pathExists(NSString *path) {
                 // Run `kalite status` and return that because we want to
                 runCommand = [statusCmd UTF8String];
                 status = system(runCommand);
-                NSLog(@"====> before2 Result of `kalite status` inside runKalite()... %u", status);
+//                NSLog(@"====> before2 Result of `kalite status` inside runKalite()... %u", status);
                 if (status >= 255) {
                     status = status >> 8;
                 }
-                NSLog(@"====> Result of `kalite status` inside runKalite()... %u", status);
+//                NSLog(@"====> Result of `kalite status` inside runKalite()... %u", status);
             } else {
-                NSLog(@"==> before `bin/kalite %@` returned is %i... done.", command, status);
+//                NSLog(@"==> before `bin/kalite %@` returned is %i... done.", command, status);
                 if (status >= 255) {
                     status = status >> 8;
                 }
-                NSLog(@"==> `bin/kalite %@` returned is %i... done.", command, status);
+//                NSLog(@"==> `bin/kalite %@` returned is %i... done.", command, status);
             }
             self.status = status;
             NSLog(@"==> `bin/kalite status` is %i... done.", status);
@@ -200,7 +199,7 @@ BOOL pathExists(NSString *path) {
     if (oldStatus != self.status) {
         [self showStatus:self.status];
     }
-    NSLog(@"==> oldstatus == %u and current status == %u", oldStatus, self.status);
+//    NSLog(@"==> oldstatus == %u and current status == %u", oldStatus, self.status);
     return self.status;
 }
 
@@ -213,7 +212,7 @@ void alert(NSString *message) {
 }
 
 
- BOOL confirm(NSString *message) {
+BOOL confirm(NSString *message) {
     NSAlert *confirm = [[NSAlert alloc] init];
     [confirm addButtonWithTitle:@"OK"];
     [confirm addButtonWithTitle:@"Cancel"];
@@ -221,7 +220,7 @@ void alert(NSString *message) {
     if ([confirm runModal] == NSAlertFirstButtonReturn) {
         return TRUE;
     }
-     return FALSE;
+    return FALSE;
 }
 
 
@@ -484,6 +483,7 @@ NSString *getUsernameChars() {
     // Automatically run `kalite manage setup` if no database was found.
     NSString *databasePath = getDatabasePath();
     if (databasePath == nil) {
+        alert(@"Will now run KA-Lite setup, it will take a few minutes, wait until prompted that setup is done.");
         enum kaliteStatus status = [self setupKalite];
         if (status != statusOkRunning) {
 //            alert(@"Running 'manage setup' failed, please see Console.");
