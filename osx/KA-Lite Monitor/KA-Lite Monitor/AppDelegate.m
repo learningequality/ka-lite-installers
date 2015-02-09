@@ -72,8 +72,10 @@
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
     // TODO(cpauya): Confirm quit action from user.
-    showNotification(@"Stopping and quitting the application...");
-    [self runKalite:@"stop"];
+    if (kaliteExists()) {
+        showNotification(@"Stopping and quitting the application...");
+        [self runKalite:@"stop"];
+    }
 }
 
 
@@ -84,13 +86,9 @@
 
 void copyLocalSettings() {
     NSString *source = [[NSBundle mainBundle] pathForResource:@"local_settings" ofType:@"default"];
-    NSString *target = getResourcePath(@"ka-lite/kalite/local_settings.py");
-//    NSLog(@"==> Copying local_settings.default as local_settings.py to...%@.", target);
     if (pathExists(source)) {
-//        NSLog(@"====> local_settings.default: %@", source);
+        NSString *target = getResourcePath(@"ka-lite/kalite/local_settings.py");
         NSString *command = [NSString stringWithFormat:@"cp \"%@\" \"%@\"", source, target];
-//        NSLog(@"====> Running command: %@", command);
-        
         const char *cmd = [command UTF8String];
         int i = system(cmd);
         if (i == 0) {
@@ -99,7 +97,7 @@ void copyLocalSettings() {
             showNotification(@"Failed to copy `local_settings.default` to `local_settings.py`!");
         }
     } else {
-//        NSLog(@"====> `ka-lite` folder does not exist!");
+        showNotification(@"The `bin/kalite` executable does not exist!");
     }
 }
 
@@ -113,7 +111,6 @@ NSString *getResourcePath(NSString *pathToAppend) {
 
 NSString *getLocalSettingsPath() {
     NSString *localSettings = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/local_settings" ofType:@"py"];
-//    NSLog(@"==> localSettings %@", localSettings);
     return localSettings;
 }
 
@@ -125,6 +122,7 @@ NSString *getDatabasePath() {
 
 
 BOOL pathExists(NSString *path) {
+    // REF: http://www.exampledb.com/objective-c-check-if-file-exists.htm
     BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
     return exists;
 }
@@ -143,12 +141,15 @@ BOOL kaliteExists() {
 }
 
 
-// REF: http://stackoverflow.com/a/10284037/845481
-// convert const char* to NSString * and convert back - _NSAutoreleaseNoPool()
 - (enum kaliteStatus)runKalite:(NSString *)command {
     // It needs the `KALITE_DIR` and `KALITE_PYTHON` environment variables, so we set them here for every call.
-    // TODO(cpauya): We must prompt user on a preferences dialog and persist these perhaps on `local_settings.py`?
-    // Updates status if old status is not the same as current.
+    // TODO(cpauya): Must prompt user on preferences dialog and persist these perhaps on `local_settings.py`?
+
+    // If command != `status`, we also call `bin/kalite status` so we auto-update the
+    // menu and icon status for every call to this function.
+    
+    // Returns the status of `bin/kalite status`.
+    // TODO(cpauya): Need a flag so this function can return the result of the `system()` call.
     NSString *kaliteDir;
     NSString *pyrun;
     NSString *kalitePath;
@@ -166,55 +167,49 @@ BOOL kaliteExists() {
         
         kalitePath = [kaliteDir stringByAppendingString:@"/bin/kalite"];
         
-        
         kaliteCmd = [NSString stringWithFormat: @"export KALITE_DIR=\"%@\"; export KALITE_PYTHON=\"%@\"; \"%@\"",
                     kaliteDir, pyrun, kalitePath];
         
         finalCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, command];
         statusCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, @"status"];
         
-        // Check if path exists.
-        // REF: http://www.exampledb.com/objective-c-check-if-file-exists.htm
-        if (pathExists(kalitePath)) {
-            // convert to objective-c string for use in `system` call
+        if (kaliteExists()) {
+            // REF: http://stackoverflow.com/a/10284037/845481
+            // Convert const char* to NSString * and convert back - _NSAutoreleaseNoPool().
             const char *runCommand = [finalCmd UTF8String];
-            //        NSLog(@"==> Running `kalite`... exportCommand %s", exportCommand);
             int status = system(runCommand);
+            
             // If command is not "status", run `kalite status` to get status of ka-lite.
             // We need this check because this may be called inside the monitor timer.
             if ([command isNotEqualTo: @"status"]) {
-                // Run `kalite status` and return that because we want to
                 NSLog(@"Fetching `bin/kalite status`...");
                 runCommand = [statusCmd UTF8String];
                 status = system(runCommand);
-//                NSLog(@"====> before2 Result of `kalite status` inside runKalite()... %u", status);
+                // MUST: The result is on the 9th bit of the returned value.  Not sure why this
+                // is but maybe because of the returned values from the `system()` call.  For now
+                // we shift 8 bits to the right until we figure this one out.  TODO(cpauya): fix later
                 if (status >= 255) {
                     status = status >> 8;
                 }
-//                NSLog(@"====> Result of `kalite status` inside runKalite()... %u", status);
             } else {
-//                NSLog(@"==> before `bin/kalite %@` returned is %i... done.", command, status);
                 if (status >= 255) {
                     status = status >> 8;
                 }
-//                NSLog(@"==> `bin/kalite %@` returned is %i... done.", command, status);
             }
             self.status = status;
-//            NSLog(@"==> `bin/kalite status` is %i... done.", status);
         } else {
             self.status = statusCouldNotDetermineStatus;
             [self showStatus:self.status];
-            NSLog(@"==> `bin/kalite` does not exist!");
+            showNotification(@"The `bin/kalite` executable does not exist!");
         }
     }
     @catch (NSException *ex) {
         self.status = statusCouldNotDetermineStatus;
-        NSLog(@"==> Error running `bin/kalite` %@", ex);
+        NSLog(@"Error running `bin/kalite` %@", ex);
     }
     if (oldStatus != self.status) {
         [self showStatus:self.status];
     }
-//    NSLog(@"==> oldstatus == %u and current status == %u", oldStatus, self.status);
     return self.status;
 }
 
@@ -246,8 +241,9 @@ void showNotification(NSString *subtitle) {
     notification.title = @"KA-Lite Monitor";
     notification.subtitle = subtitle;
     notification.soundName = @"Basso.aiff";
-//    notification.informativeText = @"informative text here";
     [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
+    // The notification may be optional (based on user preferences) but we must show it on the logs.
+    NSLog(subtitle);
 }
 
 
@@ -280,8 +276,7 @@ NSString *getUsernameChars() {
 
 
 - (void)showStatus:(enum kaliteStatus)status {
-    // TODO(cpauya): Enable/disable menu items based on status.
-    NSLog(@"==> showStatus() %d", status);
+    // Enable/disable menu items based on status.
     switch (status) {
         case statusFailedToStart:
             [self.startKalite setEnabled:YES];
@@ -306,7 +301,7 @@ NSString *getUsernameChars() {
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
             [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
-            [self.statusItem setToolTip:@"KA-Lite is not running."];
+            [self.statusItem setToolTip:@"KA-Lite is stopped."];
             showNotification(@"Stopped");
             break;
         default:
@@ -326,29 +321,25 @@ NSString *getUsernameChars() {
 
 
 - (IBAction)start:(id)sender {
-    NSLog(@"==> Starting...");
-    [self showStatus:statusStartingUp];
     showNotification(@"Starting...");
+    [self showStatus:statusStartingUp];
     [self runKalite:@"start"];
 }
 
 
 - (IBAction)stop:(id)sender {
-    NSLog(@"==> Stopping...");
     showNotification(@"Stopping...");
     [self runKalite:@"stop"];
 }
 
 
 - (IBAction)open:(id)sender {
-//    NSLog(@"==> Opening KA-Lite in browser...");
     // TODO(cpauya): Get the ip address and port from `local_settings.py` or preferences.
     // REF: http://stackoverflow.com/a/7129543/845481
-    // Open URL with Safari no matter what system browser is set to
     NSURL *url = [NSURL URLWithString:@"http://127.0.0.1:8008/"];
     if( ![[NSWorkspace sharedWorkspace] openURL:url] ) {
-//        NSLog(@"==> Failed to open url: %@",[url description]);
-        showNotification([NSString stringWithFormat:@" Failed to open url: %@",[url description]]);
+        NSString *msg = [NSString stringWithFormat:@" Failed to open url: %@",[url description]];
+        showNotification(msg);
     }
 }
 
@@ -364,7 +355,6 @@ NSString *getUsernameChars() {
 
 
 - (IBAction)hidePreferences:(id)sender {
-//    NSLog(@"==> hiding preferences...");
     [window orderOut:[window identifier]];
 }
 
@@ -380,9 +370,13 @@ NSString *getUsernameChars() {
 
 
 - (IBAction)setupAction:(id)sender {
-    NSString *message = @"Are you sure you want to run setup?";
-    if (confirm(message) == TRUE) {
-        [self setupKalite];
+    if (kaliteExists()) {
+        NSString *message = @"Are you sure you want to run setup?  This will take a few minutes to complete.";
+        if (confirm(message)) {
+            [self setupKalite];
+        }
+    } else {
+        alert(@"Sorry but the `bin/kalite` executable is not found!");
     }
 }
 
@@ -394,7 +388,6 @@ NSString *getUsernameChars() {
 
 - (void)showPreferences {
     [splash orderOut:self];
-//    NSLog(@"==> showing preferences...");
     [self loadPreferences];
     [window makeKeyAndOrderFront:self];
     [NSApp activateIgnoringOtherApps:YES];
@@ -409,11 +402,10 @@ NSString *getUsernameChars() {
 
 
 - (void)loadPreferences {
-    // TODO(cpauya): If no preferences were found, we must prompt the preference dialog.
-//    NSLog(@"==> loading preferences...");
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     self.username = [self getUsernamePref];
 
+    // TODO(cpauya): We must encrypt the password!
     NSString *password = [prefs stringForKey:@"password"];
     if (password != nil || [password isNotEqualTo:@""]) {
         // NSData from the Base64 encoded str
@@ -425,7 +417,6 @@ NSString *getUsernameChars() {
         self.password = decodePassword;
         self.confirmPassword = decodePassword;
     }
-    return;
 }
 
 
@@ -435,7 +426,7 @@ NSString *getUsernameChars() {
         * username length max of 30 characters
         * password length max of 128 characters
         * username allowed characters are "letters, numbers and @/./+/-/_ characters" based on django.contrib.auth.models.AbstractUser
-     2. TODO(cpauya): Save the preferences: REF: http://stackoverflow.com/questions/10148788/xcode-cocoa-app-preferences
+     2. Save the preferences: REF: http://stackoverflow.com/questions/10148788/xcode-cocoa-app-preferences
      3. Copy local_settings_sample.py to local_settings.py
      4. Run `kalite manage setup` if no database was found.
      */
@@ -443,14 +434,11 @@ NSString *getUsernameChars() {
     NSString *username = self.stringUsername.stringValue;
     NSString *password = self.stringPassword.stringValue;
     NSString *confirmPassword = self.stringConfirmPassword.stringValue;
-
     
     self.username = username;
     self.password = password;
     self.confirmPassword = confirmPassword;
 
-//    NSLog(@"==> saving preferences...");
-    
     if (self.username == nil || [self.username isEqualToString:@""]) {
         alert(@"Username must not be blank and can only contain letters, numbers and @/./+/-/_ characters.");
         return;
@@ -502,14 +490,18 @@ NSString *getUsernameChars() {
     // Automatically run `kalite manage setup` if no database was found.
     NSString *databasePath = getDatabasePath();
     if (databasePath == nil) {
-        alert(@"Will now run KA-Lite setup, it will take a few minutes, wait until prompted that setup is done.");
-        enum kaliteStatus status = [self setupKalite];
-        if (status != statusOkRunning) {
-//            alert(@"Running 'manage setup' failed, please see Console.");
-            return;
+        if (kaliteExists()) {
+            alert(@"Will now run KA-Lite setup, it will take a few minutes.  Please wait until prompted that setup is done.");
+            enum kaliteStatus status = [self setupKalite];
+            // TODO(cpauya): Get the result of running `bin/kalite manage setup` not the
+            // default result of `bin/kalite status` so we can alert the user that setup failed.
+            //        if (status != statusStopped) {
+            //            alert(@"Running 'manage setup' failed, please see Console.");
+            //            return;
+            //        }
         }
-    // TODO(cpauya): Must close the preferences dialog after successful save.
     }
+    // Close the preferences dialog after successful save.
     [window orderOut:[window identifier]];
 }
 
@@ -520,15 +512,12 @@ NSString *getUsernameChars() {
     NSString *cmd = [NSString stringWithFormat:@"manage setup --username %@ --password %@ --noinput",
                         self.username, self.password];
     enum kaliteStatus status = [self runKalite:cmd];
-    if (status == statusOkRunning) {
-        showNotification(@"Done running setup.");
-    }
+    [self getKaliteStatus];
     return status;
 }
 
 
 - (void)discardPreferences {
-//    NSLog(@"==> discarding changes in preferences...");
     // TODO(cpauya): Discard changes and load the saved preferences.
     [window orderOut:[window identifier]];
 }
@@ -548,15 +537,13 @@ NSString *getUsernameChars() {
                                        userInfo:nil
                                         repeats:YES];
     } else {
-//        NSLog(@"==> Not running timer because no preferences yet.");
+        NSLog(@"Not running timer because there are no preferences yet.");
     }
 }
 
 
-- (void)getKaliteStatus {
-    // Method to get run `kalite status` then update the icon and menu items.
-//    NSLog(@"==> Monitoring KA-Lite status...");
-    [self runKalite:@"status"];
+- (enum kaliteStatus)getKaliteStatus {
+    return [self runKalite:@"status"];
 }
 
 
