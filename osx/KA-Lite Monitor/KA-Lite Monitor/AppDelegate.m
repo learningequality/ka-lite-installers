@@ -61,7 +61,7 @@
     
     void *sel = @selector(closeSplash);
     if (mustShowPreferences == true) {
-        NSLog(@"==> must show preferences");
+//        NSLog(@"==> must show preferences");
         sel = @selector(showPreferences);
     }
     [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:sel userInfo:nil repeats:NO];
@@ -86,11 +86,11 @@
 void copyLocalSettings() {
     NSString *source = [[NSBundle mainBundle] pathForResource:@"local_settings" ofType:@"default"];
     NSString *target = getResourcePath(@"ka-lite/kalite/local_settings.py");
-    NSLog(@"==> Copying local_settings.default as local_settings.py to...%@.", target);
+//    NSLog(@"==> Copying local_settings.default as local_settings.py to...%@.", target);
     if (pathExists(source)) {
-        NSLog(@"====> local_settings.default: %@", source);
+//        NSLog(@"====> local_settings.default: %@", source);
         NSString *command = [NSString stringWithFormat:@"cp \"%@\" \"%@\"", source, target];
-        NSLog(@"====> Running command: %@", command);
+//        NSLog(@"====> Running command: %@", command);
         
         const char *cmd = [command UTF8String];
         int i = system(cmd);
@@ -100,7 +100,7 @@ void copyLocalSettings() {
             showNotification(@"Failed to copy `local_settings.default` to `local_settings.py`!");
         }
     } else {
-        NSLog(@"====> `ka-lite` folder does not exist!");
+//        NSLog(@"====> `ka-lite` folder does not exist!");
     }
 }
 
@@ -114,7 +114,7 @@ NSString *getResourcePath(NSString *pathToAppend) {
 
 NSString *getLocalSettingsPath() {
     NSString *localSettings = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/local_settings" ofType:@"py"];
-    NSLog(@"==> localSettings %@", localSettings);
+//    NSLog(@"==> localSettings %@", localSettings);
     return localSettings;
 }
 
@@ -323,13 +323,13 @@ NSString *getUsernameChars() {
 
 
 - (IBAction)open:(id)sender {
-    NSLog(@"==> Opening KA-Lite in browser...");
+//    NSLog(@"==> Opening KA-Lite in browser...");
     // TODO(cpauya): Get the ip address and port from `local_settings.py` or preferences.
     // REF: http://stackoverflow.com/a/7129543/845481
     // Open URL with Safari no matter what system browser is set to
     NSURL *url = [NSURL URLWithString:@"http://127.0.0.1:8008/"];
     if( ![[NSWorkspace sharedWorkspace] openURL:url] ) {
-        NSLog(@"==> Failed to open url: %@",[url description]);
+//        NSLog(@"==> Failed to open url: %@",[url description]);
         showNotification([NSString stringWithFormat:@" Failed to open url: %@",[url description]]);
     }
 }
@@ -346,7 +346,7 @@ NSString *getUsernameChars() {
 
 
 - (IBAction)hidePreferences:(id)sender {
-    NSLog(@"==> hiding preferences...");
+//    NSLog(@"==> hiding preferences...");
     [window orderOut:[window identifier]];
 }
 
@@ -376,7 +376,7 @@ NSString *getUsernameChars() {
 
 - (void)showPreferences {
     [splash orderOut:self];
-    NSLog(@"==> showing preferences...");
+//    NSLog(@"==> showing preferences...");
     [self loadPreferences];
     [window makeKeyAndOrderFront:self];
     [NSApp activateIgnoringOtherApps:YES];
@@ -392,7 +392,7 @@ NSString *getUsernameChars() {
 
 - (void)loadPreferences {
     // TODO(cpauya): If no preferences were found, we must prompt the preference dialog.
-    NSLog(@"==> loading preferences...");
+//    NSLog(@"==> loading preferences...");
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     self.username = [self getUsernamePref];
 
@@ -431,7 +431,7 @@ NSString *getUsernameChars() {
     self.password = password;
     self.confirmPassword = confirmPassword;
 
-    NSLog(@"==> saving preferences...");
+//    NSLog(@"==> saving preferences...");
     
     if (self.username == nil || [self.username isEqualToString:@""]) {
         alert(@"Username must not be blank and can only contain letters, numbers and @/./+/-/_ characters.");
@@ -509,7 +509,7 @@ NSString *getUsernameChars() {
 
 
 - (void)discardPreferences {
-    NSLog(@"==> discarding changes in preferences...");
+//    NSLog(@"==> discarding changes in preferences...");
     // TODO(cpauya): Discard changes and load the saved preferences.
     [window orderOut:[window identifier]];
 }
@@ -529,14 +529,14 @@ NSString *getUsernameChars() {
                                        userInfo:nil
                                         repeats:YES];
     } else {
-        NSLog(@"==> Not running timer because no preferences yet.");
+//        NSLog(@"==> Not running timer because no preferences yet.");
     }
 }
 
 
 - (void)getKaliteStatus {
     // Method to get run `kalite status` then update the icon and menu items.
-    NSLog(@"==> Monitoring KA-Lite status...");
+//    NSLog(@"==> Monitoring KA-Lite status...");
     [self runKalite:@"status"];
 }
 
