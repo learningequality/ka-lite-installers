@@ -73,7 +73,7 @@
 
     // Insert code here to tear down your application
     // TODO(cpauya): Confirm quit action from user.
-    NSLog(@"==> quitting...");
+    showNotification(@"Stopping and quitting the application...");
     [self runKalite:@"stop"];
 }
 
@@ -85,17 +85,20 @@
 
 void copyLocalSettings() {
     NSString *source = [[NSBundle mainBundle] pathForResource:@"local_settings" ofType:@"default"];
-    NSString *target = getLocalSettingsPath();
+    NSString *target = getResourcePath(@"ka-lite/kalite/local_settings.py");
     NSLog(@"==> Copying local_settings.default as local_settings.py to...%@.", target);
-    BOOL isExists = [[NSFileManager defaultManager] fileExistsAtPath:source];
-    if (isExists) {
+    if (pathExists(source)) {
         NSLog(@"====> local_settings.default: %@", source);
         NSString *command = [NSString stringWithFormat:@"cp \"%@\" \"%@\"", source, target];
         NSLog(@"====> Running command: %@", command);
         
         const char *cmd = [command UTF8String];
         int i = system(cmd);
-        showNotification(@"Copied local_settings.default to local_settings.py.");
+        if (i == 0) {
+            showNotification(@"Copied local_settings.default to local_settings.py.");
+        } else {
+            showNotification(@"Failed to copy `local_settings.default` to `local_settings.py`!");
+        }
     } else {
         NSLog(@"====> `ka-lite` folder does not exist!");
     }
@@ -111,6 +114,7 @@ NSString *getResourcePath(NSString *pathToAppend) {
 
 NSString *getLocalSettingsPath() {
     NSString *localSettings = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/local_settings" ofType:@"py"];
+    NSLog(@"==> localSettings %@", localSettings);
     return localSettings;
 }
 
@@ -120,6 +124,11 @@ NSString *getDatabasePath() {
     return database;
 }
 
+
+BOOL pathExists(NSString *path) {
+    BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
+    return exists;
+}
 
 // REF: http://stackoverflow.com/a/10284037/845481
 // convert const char* to NSString * and convert back - _NSAutoreleaseNoPool()
@@ -151,10 +160,9 @@ NSString *getDatabasePath() {
         finalCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, command];
         statusCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, @"status"];
         
-        // TODO(cpauya): Check if path exists.
+        // Check if path exists.
         // REF: http://www.exampledb.com/objective-c-check-if-file-exists.htm
-        BOOL isExists = [[NSFileManager defaultManager] fileExistsAtPath:kalitePath];
-        if (isExists) {
+        if (pathExists(kalitePath)) {
             // convert to objective-c string for use in `system` call
             const char *runCommand = [finalCmd UTF8String];
             //        NSLog(@"==> Running `kalite`... exportCommand %s", exportCommand);
@@ -247,6 +255,7 @@ NSString *getUsernameChars() {
 
 - (void)showStatus:(enum kaliteStatus)status {
     // TODO(cpauya): Enable/disable menu items based on status.
+    NSLog(@"==> showStatus() %d", status);
     switch (status) {
         case statusFailedToStart:
             [self.startKalite setEnabled:YES];
