@@ -65,7 +65,7 @@
         <window title="Starting KA-Lite..." allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="izD-1r-MWo">
             <windowStyleMask key="styleMask" titled="YES"/>
             <rect key="contentRect" x="565" y="404" width="216" height="135"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1366" height="746"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="878"/>
             <view key="contentView" id="X7G-oL-gsN">
                 <rect key="frame" x="0.0" y="0.0" width="216" height="135"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -95,7 +95,7 @@
             <windowStyleMask key="styleMask" titled="YES"/>
             <windowCollectionBehavior key="collectionBehavior" canJoinAllSpaces="YES"/>
             <rect key="contentRect" x="131" y="158" width="493" height="414"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1366" height="746"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="878"/>
             <view key="contentView" id="TP3-Cd-o99">
                 <rect key="frame" x="0.0" y="0.0" width="493" height="414"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -306,7 +306,7 @@ Gw
                                     </subviews>
                                 </view>
                             </tabViewItem>
-                            <tabViewItem label="Advance" identifier="2" id="a88-uU-pNE">
+                            <tabViewItem label="Advanced" identifier="2" id="a88-uU-pNE">
                                 <view key="view" id="VVZ-XB-ata">
                                     <rect key="frame" x="10" y="33" width="447" height="325"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -319,7 +319,7 @@ Gw
                                                 <subviews>
                                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZZ9-Mn-1Uq">
                                                         <rect key="frame" x="6" y="36" width="242" height="34"/>
-                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="This will run kalite manage setup. Warning! your data might lose." id="J7r-g1-X1B">
+                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="This will run kalite manage setup. Warning! your data might be lost." id="J7r-g1-X1B">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

@@ -213,6 +213,18 @@ void alert(NSString *message) {
 }
 
 
+ BOOL confirm(NSString *message) {
+    NSAlert *confirm = [[NSAlert alloc] init];
+    [confirm addButtonWithTitle:@"OK"];
+    [confirm addButtonWithTitle:@"Cancel"];
+    [confirm setMessageText:message];
+    if ([confirm runModal] == NSAlertFirstButtonReturn) {
+        return TRUE;
+    }
+     return FALSE;
+}
+
+
 void showNotification(NSString *subtitle) {
     // REF: http://stackoverflow.com/questions/12267357/nsusernotification-with-custom-soundname?rq=1
     // TODO(cpauya): These must be ticked by user on preferences if they want notifications, sounds, or not.
@@ -350,9 +362,11 @@ NSString *getUsernameChars() {
 
 
 - (IBAction)setupAction:(id)sender {
-    [self setupKalite];
+    NSString *message = @"Are you sure you want to run setup?";
+    if (confirm(message) == TRUE) {
+        [self setupKalite];
+    }
 }
-
 
 
 - (void)closeSplash {
