@@ -130,6 +130,20 @@ BOOL pathExists(NSString *path) {
     return exists;
 }
 
+
+BOOL kalitePath() {
+    NSString *kaliteDir;
+    NSString *kalitePath;
+    kaliteDir = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ka-lite"];
+    kaliteDir = [kaliteDir stringByStandardizingPath];
+    kalitePath = [kaliteDir stringByAppendingString:@"/bin/kalite"];
+    if (pathExists(kalitePath)){
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
 // REF: http://stackoverflow.com/a/10284037/845481
 // convert const char* to NSString * and convert back - _NSAutoreleaseNoPool()
 - (enum kaliteStatus)runKalite:(NSString *)command {
@@ -299,7 +313,11 @@ NSString *getUsernameChars() {
             [self.startKalite setEnabled:NO];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
-            [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
+            if (kalitePath()){
+                [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
+            }else{
+                [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
+            }
             [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
             showNotification(@"Has encountered an error, pls check the Console.");
             break;
