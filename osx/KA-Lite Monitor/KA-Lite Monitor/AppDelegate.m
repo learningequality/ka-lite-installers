@@ -16,9 +16,6 @@
 
 @synthesize stringUsername, stringPassword, stringConfirmPassword, startKalite, stopKalite, openInBrowserMenu;
 
-- (void)applicationWillFinishLaunching:(NSNotification *)notification {
-}
-
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
@@ -52,16 +49,14 @@
         } else {
             NSLog(@"FOUND database!");
         }
-        NSLog(@"KA Lite Monitor is now loaded.");
-        showNotification(@"KA Lite Monitor is now loaded.");
+        showNotification(@"KA Lite is now loaded.");
     }
     @catch (NSException *ex) {
         NSLog(@"KA Lite had an Error: %@", ex);
     }
     
     void *sel = @selector(closeSplash);
-    if (mustShowPreferences == true) {
-//        NSLog(@"==> must show preferences");
+    if (mustShowPreferences) {
         sel = @selector(showPreferences);
     }
     [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:sel userInfo:nil repeats:NO];
