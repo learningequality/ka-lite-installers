@@ -15,6 +15,17 @@ requirements = [
     "Python>=2.7",
 ]
 
+#############################
+# DATA FILES
+#############################
+# To read more about this, please refer to:
+# https://pythonhosted.org/setuptools/setuptools.html#including-data-files
+#
+# The bundled python-packages are considered data-files because they are
+# platform independent and because they are not supposed to live in the general
+# site-packages directory.
+
+
 setup(
     name="kalite",
     version=kalite.VERSION,
