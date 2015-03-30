@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KA Lite", "KA Lite\KA Lite.vcxproj", "{FFBC0B6C-0017-40B7-82B6-7CCA7A8E0C11}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FFBC0B6C-0017-40B7-82B6-7CCA7A8E0C11}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FFBC0B6C-0017-40B7-82B6-7CCA7A8E0C11}.Debug|Win32.Build.0 = Debug|Win32
+		{FFBC0B6C-0017-40B7-82B6-7CCA7A8E0C11}.Release|Win32.ActiveCfg = Release|Win32
+		{FFBC0B6C-0017-40B7-82B6-7CCA7A8E0C11}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
