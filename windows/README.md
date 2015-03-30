@@ -23,7 +23,7 @@ This project provides a smoother way to install and run KA Lite in a Windows Mac
 ---
 #### Instructions to build "KALiteSetup.exe" in Windows:
 * Clone this repository;
-* Replace `ka-lite` folder from this repository with `ka-lite` folder from KA Lite repository;
+* Copy `ka-lite` folder from KA Lite's repository, to the root of this repository;
 * Run `make.vbs` and wait until the output file is built;
 * The output file named "KALiteSetup-X.X.X.exe" will appear within this project folder.
 
