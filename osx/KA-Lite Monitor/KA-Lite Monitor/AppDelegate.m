@@ -488,6 +488,7 @@ NSString *getUsernameChars() {
         if (kaliteExists()) {
             alert(@"Will now run KA-Lite setup, it will take a few minutes.  Please wait until prompted that setup is done.");
             enum kaliteStatus status = [self setupKalite];
+            showNotification(@"Setup is finished!  You can now start KA-Lite.");
             // TODO(cpauya): Get the result of running `bin/kalite manage setup` not the
             // default result of `bin/kalite status` so we can alert the user that setup failed.
             //        if (status != statusStopped) {
