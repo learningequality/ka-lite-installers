@@ -8,12 +8,16 @@
 # 3. Download PyRun thru `install-pyrun` script.
 # 4. Download KA-Lite zip based on develop branch.
 # 5. Extract KA-Lite and move into `ka-lite` folder.
-# 6. Copy the extracted ka-lite and pyrun folders to the Xcode Resources folder.
-# 7. TODO(cpauya): Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py`.
-# 8. TODO(cpauya): Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py`.
+# 6. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
+# 7. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
+# 8. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
+# 9. Build the Xcode project.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of mktemp which is "subject to race conditions"
+
+# References:
+# 1. REF: http://stackoverflow.com/questions/1371351/add-files-to-an-xcode-project-from-a-script
 
 # REF: http://stackoverflow.com/questions/3601515/how-to-check-if-a-variable-is-set-in-bash
 if [ -z ${TMPDIR+0} ]; then
@@ -22,7 +26,7 @@ if [ -z ${TMPDIR+0} ]; then
 fi
 
 STEP=1
-STEPS=7
+STEPS=9
 
 # TODO(cpauya): This works but the problem is it creates the temporary directory everytime 
 # script is run... so during devt, we will comment this for now.
@@ -38,7 +42,11 @@ echo "$STEP/$STEPS. Creating temporary directory..."
 # TODO(cpauya): Delete when done debugging.  No time to wait for downloads, let's re-use what we have.
 WORKING_DIR="."
 
-echo "  Using temporary directory $WORKING_DIR..."
+KA_LITE_MONITOR_PROJECT_DIR="./KA-Lite Monitor"
+KA_LITE_MONITOR_DIR="$KA_LITE_MONITOR_PROJECT_DIR/KA-Lite Monitor"
+KA_LITE_MONITOR_RESOURCES_DIR="$KA_LITE_MONITOR_DIR/Resources"
+KA_LITE_MONITOR_BUILD_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release/KA-Lite Monitor.app"
+
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
 PYRUN_DIR="$WORKING_DIR/pyrun-2.7"
 PYRUN="$PYRUN_DIR/bin/pyrun"
@@ -47,8 +55,12 @@ KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/zipball/develop/"
-KA_LITE_MONITOR_RESOURCES_DIR="./KA-Lite Monitor/KA-Lite Monitor/Resources"
 KA_LITE_EXECUTABLE="$KA_LITE_MONITOR_RESOURCES_DIR/$KA_LITE/kalite/bin/kalite"
+
+LOCAL_SETTINGS_DEFAULT_PATH="$KA_LITE_MONITOR_DIR/local_settings.default"
+LOCAL_SETTINGS_TARGET_PATH="$KA_LITE_DIR/kalite/local_settings.py"
+
+echo "  Using temporary directory $WORKING_DIR..."
 
 # Install PyRun.
 # REF: http://askubuntu.com/questions/385528/how-to-increment-a-variable-in-bash#385532
@@ -109,6 +121,11 @@ else
     mv learningequality* $KA_LITE_DIR
 fi
 
+# Create a `ka-lite/kalite/local_settings.py`
+((STEP++))
+echo "$STEP/$STEPS. Creating '$LOCAL_SETTINGS_TARGET_PATH' from '$LOCAL_SETTINGS_DEFAULT_PATH'..."
+cp "$LOCAL_SETTINGS_DEFAULT_PATH" "$LOCAL_SETTINGS_TARGET_PATH"
+
 # Run PyRun's pip install for `requirements.txt`
 ((STEP++))
 echo "$STEP/$STEPS. Running 'pip install -r requirements.txt'... on '$KA_LITE_DIR' "
@@ -121,11 +138,23 @@ if ! [ -d "$KA_LITE_MONITOR_RESOURCES_DIR" ]; then
     mkdir "$KA_LITE_MONITOR_RESOURCES_DIR"
     echo "  Created Xcode Resources folder..."
 fi
+# Copy ka-lite...
 echo "  cp $KA_LITE_DIR $KA_LITE_MONITOR_RESOURCES_DIR"
 cp -R "$KA_LITE_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"
-
+# Copy pyrun...
 echo "  cp $PYRUN_DIR $KA_LITE_MONITOR_RESOURCES_DIR"
 cp -R "$PYRUN_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"
+
+# Build the Xcode project.
+((STEP++))
+echo "$STEP/$STEPS. Building the Xcode project to $KA_LITE_MONITOR_BUILD_PATH..."
+if [ -d "$KA_LITE_MONITOR_PROJECT_DIR" ]; then
+    pwd
+    cd "$KA_LITE_MONITOR_PROJECT_DIR"
+    pwd
+    xcodebuild clean build
+    cd ..
+fi
 
 # Clean-up
 # TODO(cpauya): 
@@ -136,4 +165,4 @@ if [ $WORKING_DIR != '.' ]; then
 fi
 
 echo "Done!"
-echo "Now you can add the 'pyrun-2.7' and 'ka-lite' directories to the Xcode project."
+echo "You can now test the built app at $KA_LITE_MONITOR_BUILD_PATH."
