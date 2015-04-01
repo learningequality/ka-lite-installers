@@ -487,7 +487,7 @@ NSString *getUsernameChars() {
     if (databasePath == nil) {
         if (kaliteExists()) {
             alert(@"Will now run KA-Lite setup, it will take a few minutes.  Please wait until prompted that setup is done.");
-            // enum kaliteStatus status = [self setupKalite];
+            enum kaliteStatus status = [self setupKalite];
             // TODO(cpauya): Get the result of running `bin/kalite manage setup` not the
             // default result of `bin/kalite status` so we can alert the user that setup failed.
             //        if (status != statusStopped) {
