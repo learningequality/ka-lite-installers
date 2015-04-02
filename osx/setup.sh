@@ -11,13 +11,15 @@
 # 6. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
 # 7. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
 # 8. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
-# 9. Build the Xcode project.
+# 9. Build the Xcode project to produce the .app.
+# 10. Build the .dmg.
 #
 # TODO(cpauya):
-# * use `tempfile.py` instead of mktemp which is "subject to race conditions"
+# * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
 
 # References:
-# 1. REF: http://stackoverflow.com/questions/1371351/add-files-to-an-xcode-project-from-a-script
+# 1. http://stackoverflow.com/questions/1371351/add-files-to-an-xcode-project-from-a-script
+# 1. https://github.com/andreyvit/create-dmg forked to https://github.com/mrpau/create-dmg
 
 # REF: http://stackoverflow.com/questions/3601515/how-to-check-if-a-variable-is-set-in-bash
 if [ -z ${TMPDIR+0} ]; then
@@ -26,7 +28,7 @@ if [ -z ${TMPDIR+0} ]; then
 fi
 
 STEP=1
-STEPS=9
+STEPS=10
 
 # TODO(cpauya): This works but the problem is it creates the temporary directory everytime 
 # script is run... so during devt, we will comment this for now.
@@ -39,18 +41,24 @@ echo "$STEP/$STEPS. Creating temporary directory..."
 #   exit 1
 # fi
 
-# TODO(cpauya): Delete when done debugging.  No time to wait for downloads, let's re-use what we have.
-WORKING_DIR="."
+# TODO(cpauya): Delete when done debugging.  
+# No time to wait for downloads, let's re-use what we have.
+WORKING_DIR="./temp"
+if ! [ -d "$WORKING_DIR" ]; then
+  mkdir "$WORKING_DIR"
+fi
 
 KA_LITE_MONITOR_PROJECT_DIR="./KA-Lite Monitor"
 KA_LITE_MONITOR_DIR="$KA_LITE_MONITOR_PROJECT_DIR/KA-Lite Monitor"
 KA_LITE_MONITOR_RESOURCES_DIR="$KA_LITE_MONITOR_DIR/Resources"
-KA_LITE_MONITOR_BUILD_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release/KA-Lite Monitor.app"
+KA_LITE_MONITOR_APP_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release/KA-Lite Monitor.app"
+KA_LITE_LOGO_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite-logo.png"
 
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
 PYRUN_DIR="$WORKING_DIR/pyrun-2.7"
 PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
+
 KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
@@ -59,6 +67,11 @@ KA_LITE_EXECUTABLE="$KA_LITE_MONITOR_RESOURCES_DIR/$KA_LITE/kalite/bin/kalite"
 
 LOCAL_SETTINGS_DEFAULT_PATH="$KA_LITE_MONITOR_DIR/local_settings.default"
 LOCAL_SETTINGS_TARGET_PATH="$KA_LITE_DIR/kalite/local_settings.py"
+
+OUTPUT_PATH="$WORKING_DIR/output"
+DMG_PATH="$OUTPUT_PATH/KA-Lite Monitor.dmg"
+DMG_BUILDER_PATH="$WORKING_DIR/create-dmg"
+CREATE_DMG="$DMG_BUILDER_PATH/create-dmg"
 
 echo "  Using temporary directory $WORKING_DIR..."
 
@@ -128,7 +141,7 @@ cp "$LOCAL_SETTINGS_DEFAULT_PATH" "$LOCAL_SETTINGS_TARGET_PATH"
 
 # Run PyRun's pip install for `requirements.txt`
 ((STEP++))
-echo "$STEP/$STEPS. Running 'pip install -r requirements.txt'... on '$KA_LITE_DIR' "
+echo "$STEP/$STEPS. Running '$PYRUN_PIP install -r requirements.txt'... on '$KA_LITE_DIR' "
 $PYRUN_PIP install -r "$KA_LITE_DIR/requirements.txt"
 
 # Copy the extracted folders to the Xcode Resources folder
@@ -147,22 +160,52 @@ cp -R "$PYRUN_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"
 
 # Build the Xcode project.
 ((STEP++))
-echo "$STEP/$STEPS. Building the Xcode project to $KA_LITE_MONITOR_BUILD_PATH..."
+echo "$STEP/$STEPS. Building the Xcode project to $KA_LITE_MONITOR_APP_PATH..."
 if [ -d "$KA_LITE_MONITOR_PROJECT_DIR" ]; then
-    pwd
+    # xcodebuild needs to be on the same directory as the .xcodeproj file
     cd "$KA_LITE_MONITOR_PROJECT_DIR"
-    pwd
     xcodebuild clean build
     cd ..
 fi
-
-# Clean-up
-# TODO(cpauya): 
-if [ $WORKING_DIR != '.' ]; then
-    # rmdir -rf "$WORKING_DIR"
-    echo "  Removing temporary directory '$WORKING_DIR'..."
-    rm -rf "$WORKING_DIR"
+if ! [ -d "$KA_LITE_MONITOR_APP_PATH" ]; then
+  echo "Build of '$KA_LITE_MONITOR_APP_PATH' failed!"
+  exit 2
 fi
 
+# Build the .dmg file.
+((STEP++))
+echo "$STEP/$STEPS. Building the .dmg file at '$OUTPUT_PATH'..."
+if ! [ -d "$OUTPUT_PATH" ]; then
+  mkdir "$OUTPUT_PATH"
+fi
+
+# Remove the .dmg if it exists.
+if [ -e "$DMG_PATH" ]; then
+  rm "$DMG_PATH"
+fi
+
+# clone the .dmg builder if non-existent
+if ! [ -d $DMG_BUILDER_PATH ]; then
+  git clone https://github.com/mrpau/create-dmg.git $DMG_BUILDER_PATH
+fi
+
+# let's create the .dmg
+$CREATE_DMG \
+  --app-drop-link \
+  --background "$KA_LITE_LOGO_PATH" \
+  --volname "KA-Lite Monitor Installer" \
+  --icon-size 128 \
+  "$DMG_PATH" \
+  "$KA_LITE_MONITOR_APP_PATH"
+
+# Clean-up, only remove if using temporary directory made by `mktemp`.
+# TODO(cpauya): remove when done debugging
+# if [ $WORKING_DIR != './temp' ]; then
+#     echo "  Removing temporary directory '$WORKING_DIR'..."
+#     rm -rf "$WORKING_DIR"
+# fi
+
 echo "Done!"
-echo "You can now test the built app at $KA_LITE_MONITOR_BUILD_PATH."
+if [ -e "$DMG_PATH" ]; then
+  echo "You can now test the built installer at '$DMG_PATH'."
+fi
