@@ -48,11 +48,15 @@ if ! [ -d "$WORKING_DIR" ]; then
   mkdir "$WORKING_DIR"
 fi
 
+SETUP_FILES_DIR="./setup-files"
 KA_LITE_MONITOR_PROJECT_DIR="./KA-Lite Monitor"
 KA_LITE_MONITOR_DIR="$KA_LITE_MONITOR_PROJECT_DIR/KA-Lite Monitor"
 KA_LITE_MONITOR_RESOURCES_DIR="$KA_LITE_MONITOR_DIR/Resources"
 KA_LITE_MONITOR_APP_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release/KA-Lite Monitor.app"
-KA_LITE_LOGO_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite-logo.png"
+RELEASE_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release"
+KA_LITE_LOGO_PATH="$SETUP_FILES_DIR/ka-lite-logo-full.png"
+KA_LITE_ICNS_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite.icns"
+KA_LITE_README_PATH="$SETUP_FILES_DIR/README.md"
 
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
 PYRUN_DIR="$WORKING_DIR/pyrun-2.7"
@@ -175,28 +179,32 @@ fi
 # Build the .dmg file.
 ((STEP++))
 echo "$STEP/$STEPS. Building the .dmg file at '$OUTPUT_PATH'..."
-if ! [ -d "$OUTPUT_PATH" ]; then
-  mkdir "$OUTPUT_PATH"
-fi
-
-# Remove the .dmg if it exists.
-if [ -e "$DMG_PATH" ]; then
-  rm "$DMG_PATH"
-fi
+test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
 # clone the .dmg builder if non-existent
 if ! [ -d $DMG_BUILDER_PATH ]; then
   git clone https://github.com/mrpau/create-dmg.git $DMG_BUILDER_PATH
 fi
 
-# let's create the .dmg
+# Remove the .dmg if it exists.
+test -e "$DMG_PATH" && rm "$DMG_PATH"
+# Add the README.md to the package.
+cp "$KA_LITE_README_PATH" "$RELEASE_PATH"
+# Clean-up the package.
+test -x "$RELEASE_PATH/KA-Lite Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite Monitor.app.dSYM"
+# Let's create the .dmg.
 $CREATE_DMG \
-  --app-drop-link \
-  --background "$KA_LITE_LOGO_PATH" \
   --volname "KA-Lite Monitor Installer" \
-  --icon-size 128 \
+  --volicon "$KA_LITE_ICNS_PATH" \
+  --window-size 700 400 \
+  --icon "KA-Lite Monitor.app" 150 200 \
+  --app-drop-link 500 200 \
+  --background "$KA_LITE_LOGO_PATH" \
   "$DMG_PATH" \
-  "$KA_LITE_MONITOR_APP_PATH"
+  "$RELEASE_PATH"
+
+  # --icon-size 64 \
+  # --text-size 16 \
 
 # Clean-up, only remove if using temporary directory made by `mktemp`.
 # TODO(cpauya): remove when done debugging
@@ -208,4 +216,6 @@ $CREATE_DMG \
 echo "Done!"
 if [ -e "$DMG_PATH" ]; then
   echo "You can now test the built installer at '$DMG_PATH'."
+else
+  echo "Sorry, something went wrong trying to build the installer at '$DMG_PATH'."
 fi
