@@ -1,0 +1,7 @@
+ka-lite/
+pyrun-2.7/
+*.zip
+Build/
+xcuserdata
+xcshareddata
+temp/
