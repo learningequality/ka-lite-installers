@@ -43,13 +43,20 @@ echo "$STEP/$STEPS. Creating temporary directory..."
 
 # TODO(cpauya): Delete when done debugging.  
 # No time to wait for downloads, let's re-use what we have.
-WORKING_DIR="./temp"
+
+# REF: http://stackoverflow.com/a/4774063/845481
+# Reliable way for a bash script to get the full path to itself?
+pushd `dirname $0` > /dev/null
+SCRIPTPATH=`pwd`
+popd > /dev/null
+
+WORKING_DIR="$SCRIPTPATH/temp"
 if ! [ -d "$WORKING_DIR" ]; then
   mkdir "$WORKING_DIR"
 fi
 
-SETUP_FILES_DIR="./setup-files"
-KA_LITE_MONITOR_PROJECT_DIR="./KA-Lite Monitor"
+SETUP_FILES_DIR="$SCRIPTPATH/setup-files"
+KA_LITE_MONITOR_PROJECT_DIR="$SCRIPTPATH/KA-Lite Monitor"
 KA_LITE_MONITOR_DIR="$KA_LITE_MONITOR_PROJECT_DIR/KA-Lite Monitor"
 KA_LITE_MONITOR_RESOURCES_DIR="$KA_LITE_MONITOR_DIR/Resources"
 KA_LITE_MONITOR_APP_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release/KA-Lite Monitor.app"
