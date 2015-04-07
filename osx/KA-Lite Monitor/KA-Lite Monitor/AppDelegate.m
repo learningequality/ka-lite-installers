@@ -300,7 +300,7 @@ NSString *getUsernameChars() {
             showNotification(@"Stopped");
             break;
         default:
-            [self.startKalite setEnabled:NO];
+            [self.startKalite setEnabled:YES];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
             if (kaliteExists()){
