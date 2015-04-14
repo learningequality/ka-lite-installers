@@ -62,26 +62,45 @@ Type: Files; Name: "{app}\ka-lite\kalite\updates\utils.*"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\ka-lite\python-packages"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\foo"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\ab_testing"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\basetests"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\caching"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\central"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\coachreports"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\config"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\contact"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\control_panel"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\contentload"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\distributed"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\django_cherrypy_wsgiserver"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\dynamic_assets"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\facility"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\faq"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\foo"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\i18n"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\khanload"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\knowledgemap"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\loadtesting"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\main"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\management"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\playlist"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\registration"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\remoteadmin"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\securesync"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\shared"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\static"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\store"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\student_testing"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\templatetags"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\templates"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\tests"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\testing"
+Type: filesandordirs; Name: "{app}\ka-lite\kalite\topic_tools"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\updates"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\utils"
+Type: Files; Name: "{app}\ka-lite\run_command.bat"
+Type: Files; Name: "{app}\ka-lite\start.bat"
+Type: Files; Name: "{app}\ka-lite\stop.bat"
 Type: Files; Name: "{app}\ka-lite\kalite\*.pyc"
 Type: Files; Name: "{userstartup}\KA Lite.lnk"
 Type: Files; Name: "{app}\CONFIG.dat"
@@ -168,23 +187,24 @@ begin
     end;
 end;
 
-procedure HandleExistentDatabase(isOldInstallation : Boolean; targetPath : String);
+procedure RemoveOldInstallation(targetPath : String);
+begin
+    if Not Exec(ExpandConstant('{cmd}'),'/C ( dir /b "unins***.exe" | findstr /r "unins[0-9][0-9][0-9].exe" ) > tempu & ( for /f "delims=" %A in ( tempu ) do call %A /SILENT /SUPPRESSMSGBOXES ) & del tempu', targetPath, SW_HIDE, ewWaitUntilTerminated, uninstallError) then
+    begin
+        Exec(ExpandConstant('{cmd}'),'/C mkdir '+ExpandConstant('{tmp}')+'\ka-lite\kalite\database & xcopy /y /s ka-lite\kalite\database\data.sqlite '+ExpandConstant('{tmp}')+'\ka-lite\kalite\database', targetPath, SW_HIDE, ewWaitUntilTerminated, saveDatabaseTemp);
+        Exec(ExpandConstant('{cmd}'),'/C cd .. & del /q "'+targetPath+'\*" & for /d %x in ( "'+targetPath+'\*" ) do @rd /s /q "%x"', targetPath, SW_HIDE, ewWaitUntilTerminated, cleanOldKaliteFolder);
+        Exec(ExpandConstant('{cmd}'),'/C mkdir ka-lite\kalite\database & xcopy /y /s '+ExpandConstant('{tmp}')+'\ka-lite\kalite\database\data.sqlite ka-lite\kalite\database', targetPath, SW_HIDE, ewWaitUntilTerminated, restoreDatabaseTemp);
+    end;
+end;
+
+procedure HandleExistentDatabase(targetPath : String);
 begin 
     if FileExists(targetPath + '\ka-lite\kalite\database\data.sqlite') then
     begin           
         if MsgBox('We have detected an existing KA Lite installation; would you like to upgrade?', mbInformation,  MB_YESNO or MB_DEFBUTTON1) = IDYES then
         begin        
             existDatabase := True;
-            isUpgrade := True;           
-            if isOldInstallation then
-            begin
-                if Not Exec(ExpandConstant('{cmd}'),'/C ( dir /b "unins***.exe" | findstr /r "unins[0-9][0-9][0-9].exe" ) > tempu & ( for /f "delims=" %A in ( tempu ) do start %A /SILENT /SUPPRESSMSGBOXES ) & del tempu', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, uninstallError) then
-                begin
-                    Exec(ExpandConstant('{cmd}'),'/C mkdir '+ExpandConstant('{tmp}')+'\ka-lite\kalite\database & xcopy /y /s ka-lite\kalite\database\data.sqlite '+ExpandConstant('{tmp}')+'\ka-lite\kalite\database', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, saveDatabaseTemp);
-                    Exec(ExpandConstant('{cmd}'),'/C cd .. & del /q "'+ExpandConstant('{app}')+'\*" & for /d %x in ( "'+ExpandConstant('{app}')+'\*" ) do @rd /s /q "%x"', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, cleanOldKaliteFolder);
-                    Exec(ExpandConstant('{cmd}'),'/C mkdir ka-lite\kalite\database & xcopy /y /s '+ExpandConstant('{tmp}')+'\ka-lite\kalite\database\data.sqlite ka-lite\kalite\database', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, restoreDatabaseTemp);
-                end;   
-            end;           
+            isUpgrade := True;
         end
         else if MsgBox('Installing fresh will delete all of your existing data; is this what you really want to do?', mbInformation,  MB_YESNO or MB_DEFBUTTON2) = IDYES then
         begin
@@ -201,7 +221,8 @@ begin
         begin
             existDatabase := True;
             isUpgrade := True;
-        end;               
+        end;
+        RemoveOldInstallation(targetPath);
     end;
 end;
 
@@ -281,11 +302,9 @@ begin
     
     if CurPageID = wpLicense then
     begin
-        existDatabase := False;
-        isUpgrade := False;
         if WizardForm.PrevAppDir <> nil then
         begin
-            HandleExistentDatabase(False, WizardForm.PrevAppDir);
+            HandleExistentDatabase(WizardForm.PrevAppDir);
         end;
     end;
     
@@ -293,7 +312,7 @@ begin
     begin
         if Not existDatabase and Not isUpgrade then
         begin
-            HandleExistentDatabase(True, ExpandConstant('{app}'));
+            HandleExistentDatabase(ExpandConstant('{app}'));
         end; 
     end;  
 end;
@@ -410,10 +429,6 @@ begin
         if installFlag then
         begin
             setupCommand := 'manage.py setup --noinput -o "'+ServerInformationPage.Values[0]+'" -d "'+ServerInformationPage.Values[1]+'" -u "'+UserInformationPage.Values[0]+'" -p "'+UserInformationPage.Values[1]+'"';
-            if existDatabase then 
-            begin
-                setupCommand := setupCommand + ' --noinput';
-            end;
             
             MsgBox('Setup will now configure the database. This operation may take a few minutes. Please be patient.', mbInformation, MB_OK);
       
