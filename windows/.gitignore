@@ -19,3 +19,6 @@
 
 # Compiled executable
 KALiteSetup.exe
+
+# KA Lite source folder
+ka-lite/
