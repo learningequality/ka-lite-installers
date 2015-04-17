@@ -8,11 +8,12 @@
 # 3. Download PyRun thru `install-pyrun` script.
 # 4. Download KA-Lite zip based on develop branch.
 # 5. Extract KA-Lite and move into `ka-lite` folder.
-# 6. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
-# 7. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
-# 8. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
-# 9. Build the Xcode project to produce the .app.
-# 10. Build the .dmg.
+# 6. If specified, download the assessment items package to the `ka-lite/data/` folder.
+# 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
+# 8. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
+# 9. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
+# 10. Build the Xcode project to produce the .app.
+# 11. Build the .dmg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
@@ -29,6 +30,18 @@ fi
 
 STEP=1
 STEPS=10
+
+# Check if download_assessment_items_package argument is set.
+DOWNLOAD_ASSESSMENT_ITEMS_PACKAGE=false
+# REF: http://stackoverflow.com/questions/8968752/how-to-check-that-a-parameter-was-supplied-to-a-bash-script#8968775
+for i in "$@" ; do
+    if [[ $i == "download_assessment_items_package" ]] ; then
+        echo "SWITCH for download_assessment_items_package is set!"
+        STEPS=11
+        DOWNLOAD_ASSESSMENT_ITEMS_PACKAGE=true
+        break
+    fi
+done
 
 # TODO(cpauya): This works but the problem is it creates the temporary directory everytime 
 # script is run... so during devt, we will comment this for now.
@@ -76,6 +89,9 @@ KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/zipball/develop/"
 KA_LITE_EXECUTABLE="$KA_LITE_MONITOR_RESOURCES_DIR/$KA_LITE/kalite/bin/kalite"
 
+ASSESSMENT_ITEMS_PACKAGE_URL="http://eslgenie.com/media/assessment_item_resources.zip"
+ASSESSMENT_ITEMS_PACKAGE_PATH="$KA_LITE_DIR/data/assessment_item_resources.zip"
+
 LOCAL_SETTINGS_DEFAULT_PATH="$KA_LITE_MONITOR_DIR/local_settings.default"
 LOCAL_SETTINGS_TARGET_PATH="$KA_LITE_DIR/kalite/local_settings.py"
 
@@ -118,7 +134,7 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Downloading '$KA_LITE_ZIP' file from '$KA_LITE_REPO_ZIP'..."
 if [ -e "$KA_LITE_ZIP" ]; then
-	echo "  Found '$KA_LITE_ZIP' file so will not re-download.  Delete this file to re-download."
+      echo "  Found '$KA_LITE_ZIP' file so will not re-download.  Delete this file to re-download."
 else
     # REF: http://stackoverflow.com/a/18222354/84548ƒ®1
     # How to download source in .zip format from GitHub?
@@ -134,7 +150,7 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Extracting '$KA_LITE_ZIP'..."
 if [ -d "$KA_LITE_DIR" ]; then
-	echo "  Found ka-lite directory '$KA_LITE_DIR' so will not extract."
+    echo "  Found ka-lite directory '$KA_LITE_DIR' so will not extract."
 else
     tar -xf $KA_LITE_ZIP
     if [ $? -ne 0 ]; then
@@ -143,6 +159,22 @@ else
     fi
     # Rename the extracted folder.
     mv learningequality* $KA_LITE_DIR
+fi
+
+if [ "$DOWNLOAD_ASSESSMENT_ITEMS_PACKAGE" = true ]; then
+    # Download assessment items package and copy to the `ka-lite/data/` folder.
+    # from http://eslgenie.com/media/assessment_item_resources.zip.
+    ((STEP++))
+    echo "$STEP/$STEPS. Downloading the assessment items package from $ASSESSMENT_ITEMS_PACKAGE_URL..."
+    if [ -e "$ASSESSMENT_ITEMS_PACKAGE_PATH" ]; then
+        echo "  Found '$ASSESSMENT_ITEMS_PACKAGE_PATH' file so will not re-download.  Delete this file to re-download."
+    else
+        curl -c -L -o $ASSESSMENT_ITEMS_PACKAGE_PATH $ASSESSMENT_ITEMS_PACKAGE_URL
+        if [ $? -ne 0 ]; then
+            echo "  $0: Can't download '$ASSESSMENT_ITEMS_PACKAGE_URL', exiting..."
+            exit 1
+        fi
+    fi
 fi
 
 # Create a `ka-lite/kalite/local_settings.py`
