@@ -79,15 +79,18 @@ KA_LITE_ICNS_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite.icns"
 KA_LITE_README_PATH="$SETUP_FILES_DIR/README.md"
 
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
-PYRUN_DIR="$WORKING_DIR/pyrun-2.7"
+PYRUN_2_7="pyrun-2.7"
+PYRUN_DIR="$WORKING_DIR/$PYRUN_2_7"
 PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
+PYRUN_RESOURCES_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$PYRUN_2_7/"
 
 KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/zipball/develop/"
 KA_LITE_EXECUTABLE="$KA_LITE_MONITOR_RESOURCES_DIR/$KA_LITE/kalite/bin/kalite"
+KA_LITE_RESOURCES_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$KA_LITE/"
 
 LOCAL_SETTINGS_DEFAULT_PATH="$KA_LITE_MONITOR_DIR/local_settings.default"
 LOCAL_SETTINGS_TARGET_PATH="$KA_LITE_DIR/kalite/local_settings.py"
@@ -203,9 +206,23 @@ if ! [ -d "$KA_LITE_MONITOR_RESOURCES_DIR" ]; then
     mkdir "$KA_LITE_MONITOR_RESOURCES_DIR"
     echo "  Created Xcode Resources folder..."
 fi
+
+# Delete existing ka-lite directory inside the Resources directory so we don't
+# use old files/folders.
+if [ -d "$KA_LITE_RESOURCES_DIR" ]; then
+    echo "  Deleting old $KA_LITE directory with 'rm -rf $KA_LITE_RESOURCES_DIR'..."
+    rm -rf "$KA_LITE_RESOURCES_DIR"
+fi
 # Copy ka-lite...
 echo "  cp $KA_LITE_DIR $KA_LITE_MONITOR_RESOURCES_DIR"
 cp -R "$KA_LITE_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"
+
+# Delete existing pyrun directory inside the Resources directory so we don't
+# use old files/folders.
+if [ -d "$PYRUN_RESOURCES_DIR" ]; then
+    echo "  Deleting old $PYRUN_2_7 directory with 'rm -rf $PYRUN_RESOURCES_DIR'..."
+    rm -rf "$PYRUN_RESOURCES_DIR"
+fi
 # Copy pyrun...
 echo "  cp $PYRUN_DIR $KA_LITE_MONITOR_RESOURCES_DIR"
 cp -R "$PYRUN_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"
