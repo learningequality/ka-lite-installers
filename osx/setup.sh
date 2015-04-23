@@ -89,9 +89,6 @@ KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/zipball/develop/"
 KA_LITE_EXECUTABLE="$KA_LITE_MONITOR_RESOURCES_DIR/$KA_LITE/kalite/bin/kalite"
 
-ASSESSMENT_ITEMS_PACKAGE_URL="http://eslgenie.com/media/assessment_item_resources.zip"
-ASSESSMENT_ITEMS_PACKAGE_PATH="$KA_LITE_DIR/data/assessment_item_resources.zip"
-
 LOCAL_SETTINGS_DEFAULT_PATH="$KA_LITE_MONITOR_DIR/local_settings.default"
 LOCAL_SETTINGS_TARGET_PATH="$KA_LITE_DIR/kalite/local_settings.py"
 
@@ -161,22 +158,6 @@ else
     mv learningequality* $KA_LITE_DIR
 fi
 
-if [ "$DOWNLOAD_ASSESSMENT_ITEMS_PACKAGE" = true ]; then
-    # Download assessment items package and copy to the `ka-lite/data/` folder.
-    # from http://eslgenie.com/media/assessment_item_resources.zip.
-    ((STEP++))
-    echo "$STEP/$STEPS. Downloading the assessment items package from $ASSESSMENT_ITEMS_PACKAGE_URL..."
-    if [ -e "$ASSESSMENT_ITEMS_PACKAGE_PATH" ]; then
-        echo "  Found '$ASSESSMENT_ITEMS_PACKAGE_PATH' file so will not re-download.  Delete this file to re-download."
-    else
-        curl -c -L -o $ASSESSMENT_ITEMS_PACKAGE_PATH $ASSESSMENT_ITEMS_PACKAGE_URL
-        if [ $? -ne 0 ]; then
-            echo "  $0: Can't download '$ASSESSMENT_ITEMS_PACKAGE_URL', exiting..."
-            exit 1
-        fi
-    fi
-fi
-
 # Create a `ka-lite/kalite/local_settings.py`
 ((STEP++))
 echo "$STEP/$STEPS. Creating '$LOCAL_SETTINGS_TARGET_PATH' from '$LOCAL_SETTINGS_DEFAULT_PATH'..."
@@ -186,6 +167,34 @@ cp "$LOCAL_SETTINGS_DEFAULT_PATH" "$LOCAL_SETTINGS_TARGET_PATH"
 ((STEP++))
 echo "$STEP/$STEPS. Running '$PYRUN_PIP install -r requirements.txt'... on '$KA_LITE_DIR' "
 $PYRUN_PIP install -r "$KA_LITE_DIR/requirements.txt"
+
+if [ "$DOWNLOAD_ASSESSMENT_ITEMS_PACKAGE" = true ]; then
+    ((STEP++))
+    echo "$STEP/$STEPS. Downloading the assessment items package from $ASSESSMENT_ITEMS_PACKAGE_URL..."
+    # TODO(cpauya): Re-use the settings.ASSESSMENT_ITEMS_ZIP_URL later.  
+    # For now, use the version.SHORTVERSION instead of worrying about importing the 
+    # Django settings modules.
+    # Get the version from the ka-lite repo to form the versioned assessment package url using pyrun.
+    export PYTHONPATH="$KA_LITE_DIR/python-packages/:$KA_LITE_DIR/:$PYTHONPATH"
+    SHORTVERSION=`$PYRUN -c 'from kalite import version; print version.SHORTVERSION,'`
+    ASSESSMENT_ITEMS_PACKAGE_URL="https://learningequality.org/downloads/ka-lite/$SHORTVERSION/content/assessment.zip"
+    ASSESSMENT_ITEMS_PACKAGE_PATH="$KA_LITE_DIR/data/assessment.zip"
+    # Download assessment items package from
+    # https://learningequality.org/downloads/ka-lite/<SHORTVERSION>/content/assessment.zip
+    # and copy to the `ka-lite/data/` folder.
+    if [ -e "$ASSESSMENT_ITEMS_PACKAGE_PATH" ]; then
+        echo "  Found '$ASSESSMENT_ITEMS_PACKAGE_PATH' file so will not re-download.  Delete this file to re-download."
+    else
+        if [ -e "$ASSESSMENT_ITEMS_PACKAGE_URL" ]; then
+            echo "  $0: Can't find $ASSESSMENT_ITEMS_PACKAGE_URL for version $SHORTVERSION."
+        else
+            curl --fail -c -L -o $ASSESSMENT_ITEMS_PACKAGE_PATH $ASSESSMENT_ITEMS_PACKAGE_URL
+            if [ $? -ne 0 ]; then
+                echo "  $0: FAIL!  Can't download '$ASSESSMENT_ITEMS_PACKAGE_URL'."
+            fi
+        fi
+    fi
+fi
 
 # Copy the extracted folders to the Xcode Resources folder
 ((STEP++))
