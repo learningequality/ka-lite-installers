@@ -18,7 +18,7 @@ bool isServerStarting = false;
 
 void startServerAction()
 {
-	if(!runShellScript("kalite.bat", "start", "ka-lite\\bin\\windows\\"))
+	if(!runShellScript("start.bat", NULL, "ka-lite\\"))
 	{
 		// Handle error.
 		printConsole("Failed to run the script.\n");
@@ -37,7 +37,7 @@ void startServerAction()
 
 void stopServerAction()
 {
-	if(!runShellScript("kalite.bat", "stop", "ka-lite\\bin\\windows\\"))
+	if(!runShellScript("stop.bat", NULL, "ka-lite\\"))
 	{
 		// Handle error.
 		printConsole("Failed to run the script.\n");
