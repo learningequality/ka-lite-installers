@@ -8,11 +8,12 @@
 # 3. Download PyRun thru `install-pyrun` script.
 # 4. Download KA-Lite zip based on develop branch.
 # 5. Extract KA-Lite and move into `ka-lite` folder.
-# 6. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
-# 7. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
-# 8. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
-# 9. Build the Xcode project to produce the .app.
-# 10. Build the .dmg.
+# 6. If specified, download the assessment items package to the `ka-lite/data/` folder.
+# 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
+# 8. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
+# 9. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
+# 10. Build the Xcode project to produce the .app.
+# 11. Build the .dmg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
@@ -29,6 +30,18 @@ fi
 
 STEP=1
 STEPS=10
+
+# Check if download_assessment_items_package argument is set.
+DOWNLOAD_ASSESSMENT_ITEMS_PACKAGE=false
+# REF: http://stackoverflow.com/questions/8968752/how-to-check-that-a-parameter-was-supplied-to-a-bash-script#8968775
+for i in "$@" ; do
+    if [[ $i == "download_assessment_items_package" ]] ; then
+        echo "SWITCH for download_assessment_items_package is set!"
+        STEPS=11
+        DOWNLOAD_ASSESSMENT_ITEMS_PACKAGE=true
+        break
+    fi
+done
 
 # TODO(cpauya): This works but the problem is it creates the temporary directory everytime 
 # script is run... so during devt, we will comment this for now.
@@ -66,15 +79,18 @@ KA_LITE_ICNS_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite.icns"
 KA_LITE_README_PATH="$SETUP_FILES_DIR/README.md"
 
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
-PYRUN_DIR="$WORKING_DIR/pyrun-2.7"
+PYRUN_2_7="pyrun-2.7"
+PYRUN_DIR="$WORKING_DIR/$PYRUN_2_7"
 PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
+PYRUN_RESOURCES_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$PYRUN_2_7/"
 
 KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/zipball/develop/"
 KA_LITE_EXECUTABLE="$KA_LITE_MONITOR_RESOURCES_DIR/$KA_LITE/kalite/bin/kalite"
+KA_LITE_RESOURCES_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$KA_LITE/"
 
 LOCAL_SETTINGS_DEFAULT_PATH="$KA_LITE_MONITOR_DIR/local_settings.default"
 LOCAL_SETTINGS_TARGET_PATH="$KA_LITE_DIR/kalite/local_settings.py"
@@ -118,7 +134,7 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Downloading '$KA_LITE_ZIP' file from '$KA_LITE_REPO_ZIP'..."
 if [ -e "$KA_LITE_ZIP" ]; then
-	echo "  Found '$KA_LITE_ZIP' file so will not re-download.  Delete this file to re-download."
+      echo "  Found '$KA_LITE_ZIP' file so will not re-download.  Delete this file to re-download."
 else
     # REF: http://stackoverflow.com/a/18222354/84548ƒ®1
     # How to download source in .zip format from GitHub?
@@ -134,7 +150,7 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Extracting '$KA_LITE_ZIP'..."
 if [ -d "$KA_LITE_DIR" ]; then
-	echo "  Found ka-lite directory '$KA_LITE_DIR' so will not extract."
+    echo "  Found ka-lite directory '$KA_LITE_DIR' so will not extract."
 else
     tar -xf $KA_LITE_ZIP
     if [ $? -ne 0 ]; then
@@ -155,6 +171,34 @@ cp "$LOCAL_SETTINGS_DEFAULT_PATH" "$LOCAL_SETTINGS_TARGET_PATH"
 echo "$STEP/$STEPS. Running '$PYRUN_PIP install -r requirements.txt'... on '$KA_LITE_DIR' "
 $PYRUN_PIP install -r "$KA_LITE_DIR/requirements.txt"
 
+if [ "$DOWNLOAD_ASSESSMENT_ITEMS_PACKAGE" = true ]; then
+    ((STEP++))
+    echo "$STEP/$STEPS. Downloading the assessment items package from $ASSESSMENT_ITEMS_PACKAGE_URL..."
+    # TODO(cpauya): Re-use the settings.ASSESSMENT_ITEMS_ZIP_URL later.  
+    # For now, use the version.SHORTVERSION instead of worrying about importing the 
+    # Django settings modules.
+    # Get the version from the ka-lite repo to form the versioned assessment package url using pyrun.
+    export PYTHONPATH="$KA_LITE_DIR/python-packages/:$KA_LITE_DIR/:$PYTHONPATH"
+    SHORTVERSION=`$PYRUN -c 'from kalite import version; print version.SHORTVERSION,'`
+    ASSESSMENT_ITEMS_PACKAGE_URL="https://learningequality.org/downloads/ka-lite/$SHORTVERSION/content/assessment.zip"
+    ASSESSMENT_ITEMS_PACKAGE_PATH="$KA_LITE_DIR/data/assessment.zip"
+    # Download assessment items package from
+    # https://learningequality.org/downloads/ka-lite/<SHORTVERSION>/content/assessment.zip
+    # and copy to the `ka-lite/data/` folder.
+    if [ -e "$ASSESSMENT_ITEMS_PACKAGE_PATH" ]; then
+        echo "  Found '$ASSESSMENT_ITEMS_PACKAGE_PATH' file so will not re-download.  Delete this file to re-download."
+    else
+        if [ -e "$ASSESSMENT_ITEMS_PACKAGE_URL" ]; then
+            echo "  $0: Can't find $ASSESSMENT_ITEMS_PACKAGE_URL for version $SHORTVERSION."
+        else
+            curl --fail -c -L -o $ASSESSMENT_ITEMS_PACKAGE_PATH $ASSESSMENT_ITEMS_PACKAGE_URL
+            if [ $? -ne 0 ]; then
+                echo "  $0: FAIL!  Can't download '$ASSESSMENT_ITEMS_PACKAGE_URL'."
+            fi
+        fi
+    fi
+fi
+
 # Copy the extracted folders to the Xcode Resources folder
 ((STEP++))
 echo "$STEP/$STEPS. Copy extracted folders to the Xcode Resources folder."
@@ -162,9 +206,23 @@ if ! [ -d "$KA_LITE_MONITOR_RESOURCES_DIR" ]; then
     mkdir "$KA_LITE_MONITOR_RESOURCES_DIR"
     echo "  Created Xcode Resources folder..."
 fi
+
+# Delete existing ka-lite directory inside the Resources directory so we don't
+# use old files/folders.
+if [ -d "$KA_LITE_RESOURCES_DIR" ]; then
+    echo "  Deleting old $KA_LITE directory with 'rm -rf $KA_LITE_RESOURCES_DIR'..."
+    rm -rf "$KA_LITE_RESOURCES_DIR"
+fi
 # Copy ka-lite...
 echo "  cp $KA_LITE_DIR $KA_LITE_MONITOR_RESOURCES_DIR"
 cp -R "$KA_LITE_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"
+
+# Delete existing pyrun directory inside the Resources directory so we don't
+# use old files/folders.
+if [ -d "$PYRUN_RESOURCES_DIR" ]; then
+    echo "  Deleting old $PYRUN_2_7 directory with 'rm -rf $PYRUN_RESOURCES_DIR'..."
+    rm -rf "$PYRUN_RESOURCES_DIR"
+fi
 # Copy pyrun...
 echo "  cp $PYRUN_DIR $KA_LITE_MONITOR_RESOURCES_DIR"
 cp -R "$PYRUN_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"
