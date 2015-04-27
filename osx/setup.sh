@@ -28,7 +28,7 @@ if [ -z ${TMPDIR+0} ]; then
 fi
 
 STEP=1
-STEPS=10
+STEPS=9
 
 # TODO(cpauya): This works but the problem is it creates the temporary directory everytime 
 # script is run... so during devt, we will comment this for now.
@@ -37,8 +37,8 @@ echo "$STEP/$STEPS. Creating temporary directory..."
 # BASE_DIR=`basename $0`
 # WORKING_DIR=`mktemp -d -t ${BASE_DIR}` || exit 1
 # if [ $? -ne 0 ]; then
-#   echo "  $0: Can't create temp directory, exiting..."
-#   exit 1
+#     echo "  $0: Can't create temp directory, exiting..."
+#     exit 1
 # fi
 
 # TODO(cpauya): Delete when done debugging.  
@@ -52,7 +52,7 @@ popd > /dev/null
 
 WORKING_DIR="$SCRIPTPATH/temp"
 if ! [ -d "$WORKING_DIR" ]; then
-  mkdir "$WORKING_DIR"
+    mkdir "$WORKING_DIR"
 fi
 
 SETUP_FILES_DIR="$SCRIPTPATH/setup-files"
@@ -109,37 +109,38 @@ if [ -d "$PYRUN_DIR" ]; then
 else
     $INSTALL_PYRUN --python=2.7 $PYRUN_DIR
     if [ $? -ne 0 ]; then
-      echo "  $0: Can't install minimal PyRun, exiting..."
-      exit 1
+        echo "  $0: Can't install minimal PyRun, exiting..."
+        exit 1
     fi
 fi
 
-# Get KA-Lite repo
+# Don't download the KA-Lite repo if there's already a `ka-lite` directory.
 ((STEP++))
 echo "$STEP/$STEPS. Downloading '$KA_LITE_ZIP' file from '$KA_LITE_REPO_ZIP'..."
-if [ -e "$KA_LITE_ZIP" ]; then
-	echo "  Found '$KA_LITE_ZIP' file so will not re-download.  Delete this file to re-download."
-else
-    # REF: http://stackoverflow.com/a/18222354/84548ƒ®1
-    # How to download source in .zip format from GitHub?
-    # TODO(cpauya): Download from `master` branch NOT from `develop`.
-    curl -L -o $KA_LITE_ZIP $KA_LITE_REPO_ZIP
-    if [ $? -ne 0 ]; then
-      echo "  $0: Can't download 'ka-lite' source, exiting..."
-      exit 1
-    fi
-fi
-
-# Extract KA-Lite
-((STEP++))
-echo "$STEP/$STEPS. Extracting '$KA_LITE_ZIP'..."
 if [ -d "$KA_LITE_DIR" ]; then
-	echo "  Found ka-lite directory '$KA_LITE_DIR' so will not extract."
+    echo "  Found ka-lite directory '$KA_LITE_DIR' so will not download repo zip."
 else
+    # Get KA-Lite repo
+    echo "  Downloading '$KA_LITE_ZIP' file from '$KA_LITE_REPO_ZIP'..."
+    if [ -e "$KA_LITE_ZIP" ]; then
+        echo "  Found '$KA_LITE_ZIP' file so will not re-download.  Delete this file to re-download."
+    else
+        # REF: http://stackoverflow.com/a/18222354/84548ƒ®1
+        # How to download source in .zip format from GitHub?
+        # TODO(cpauya): Download from `master` branch NOT from `develop`.
+        curl -L -o $KA_LITE_ZIP $KA_LITE_REPO_ZIP
+        if [ $? -ne 0 ]; then
+            echo "  $0: Can't download 'ka-lite' source, exiting..."
+            exit 1
+        fi
+    fi
+
+    # Extract KA-Lite
+    echo "  Extracting '$KA_LITE_ZIP'..."
     tar -xf $KA_LITE_ZIP
     if [ $? -ne 0 ]; then
-      echo "  $0: Can't extract '$KA_LITE_ZIP', exiting..."
-      exit 1
+        echo "  $0: Can't extract '$KA_LITE_ZIP', exiting..."
+        exit 1
     fi
     # Rename the extracted folder.
     mv learningequality* $KA_LITE_DIR
@@ -148,7 +149,11 @@ fi
 # Create a `ka-lite/kalite/local_settings.py`
 ((STEP++))
 echo "$STEP/$STEPS. Creating '$LOCAL_SETTINGS_TARGET_PATH' from '$LOCAL_SETTINGS_DEFAULT_PATH'..."
-cp "$LOCAL_SETTINGS_DEFAULT_PATH" "$LOCAL_SETTINGS_TARGET_PATH"
+if [ -e "$LOCAL_SETTINGS_TARGET_PATH" ]; then
+    echo "  Found $LOCAL_SETTINGS_TARGET_PATH so will not overwrite it."
+else
+    cp "$LOCAL_SETTINGS_DEFAULT_PATH" "$LOCAL_SETTINGS_TARGET_PATH"
+fi
 
 # Run PyRun's pip install for `requirements.txt`
 ((STEP++))
@@ -179,8 +184,8 @@ if [ -d "$KA_LITE_MONITOR_PROJECT_DIR" ]; then
     cd ..
 fi
 if ! [ -d "$KA_LITE_MONITOR_APP_PATH" ]; then
-  echo "Build of '$KA_LITE_MONITOR_APP_PATH' failed!"
-  exit 2
+    echo "Build of '$KA_LITE_MONITOR_APP_PATH' failed!"
+    exit 2
 fi
 
 # Build the .dmg file.
@@ -190,7 +195,7 @@ test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
 # clone the .dmg builder if non-existent
 if ! [ -d $DMG_BUILDER_PATH ]; then
-  git clone https://github.com/mrpau/create-dmg.git $DMG_BUILDER_PATH
+    git clone https://github.com/mrpau/create-dmg.git $DMG_BUILDER_PATH
 fi
 
 # Remove the .dmg if it exists.
@@ -199,19 +204,19 @@ test -e "$DMG_PATH" && rm "$DMG_PATH"
 cp "$KA_LITE_README_PATH" "$RELEASE_PATH"
 # Clean-up the package.
 test -x "$RELEASE_PATH/KA-Lite Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite Monitor.app.dSYM"
+
 # Let's create the .dmg.
 $CREATE_DMG \
-  --volname "KA-Lite Monitor Installer" \
-  --volicon "$KA_LITE_ICNS_PATH" \
-  --window-size 700 400 \
-  --icon "KA-Lite Monitor.app" 150 200 \
-  --app-drop-link 500 200 \
-  --background "$KA_LITE_LOGO_PATH" \
-  "$DMG_PATH" \
-  "$RELEASE_PATH"
-
-  # --icon-size 64 \
-  # --text-size 16 \
+    --volname "KA-Lite Monitor Installer" \
+    --volicon "$KA_LITE_ICNS_PATH" \
+    --window-size 700 400 \
+    --icon "KA-Lite Monitor.app" 150 200 \
+    --app-drop-link 500 200 \
+    --background "$KA_LITE_LOGO_PATH" \
+    "$DMG_PATH" \
+    "$RELEASE_PATH"
+    # --icon-size 64 \
+    # --text-size 16 \
 
 # Clean-up, only remove if using temporary directory made by `mktemp`.
 # TODO(cpauya): remove when done debugging
@@ -222,7 +227,8 @@ $CREATE_DMG \
 
 echo "Done!"
 if [ -e "$DMG_PATH" ]; then
-  echo "You can now test the built installer at '$DMG_PATH'."
+    echo "You can now test the built installer at '$DMG_PATH'."
 else
-  echo "Sorry, something went wrong trying to build the installer at '$DMG_PATH'."
+    echo "Sorry, something went wrong trying to build the installer at '$DMG_PATH'."
+    exit 1
 fi
