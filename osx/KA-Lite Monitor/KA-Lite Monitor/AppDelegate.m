@@ -92,7 +92,7 @@ void copyLocalSettings() {
             showNotification(@"Failed to copy `local_settings.default` to `local_settings.py`!");
         }
     } else {
-        showNotification(@"The `bin/kalite` executable does not exist!");
+        showNotification(@"The `local_settings.default` file does not exist!");
     }
 }
 
@@ -118,21 +118,55 @@ NSString *getDatabasePath() {
 
 BOOL pathExists(NSString *path) {
     // REF: http://www.exampledb.com/objective-c-check-if-file-exists.htm
+    // REF: http://www.digitaledgesw.com/node/31
     BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
     return exists;
 }
 
 
-BOOL kaliteExists() {
+NSString *getKaliteDir() {
+    // Returns the path of `ka-lite` directory if it exists or an empty string otherwise.
     NSString *kaliteDir;
-    NSString *kalitePath;
     kaliteDir = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ka-lite"];
     kaliteDir = [kaliteDir stringByStandardizingPath];
-    kalitePath = [kaliteDir stringByAppendingString:@"/bin/kalite"];
-    if (pathExists(kalitePath)){
-        return TRUE;
+    if (pathExists(kaliteDir)){
+        return kaliteDir;
     }
-    return FALSE;
+    return @"";
+}
+
+
+NSString *getKaliteBinPath() {
+    // Returns the path of `bin/kalite` if it exists or an empty string otherwise.
+    NSString *kaliteDir = getKaliteDir();
+    NSString *kalitePath = [kaliteDir stringByAppendingString:@"/bin/kalite"];
+    if (pathExists(kalitePath)){
+        return kalitePath;
+    }
+    return @"";
+}
+
+
+NSString *getPyrunBinPath() {
+    // Returns the path of `pyrun` binary if it exists or an empty string otherwise.
+    NSString *pyrun = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"pyrun-2.7/bin/pyrun"];
+    pyrun = [pyrun stringByStandardizingPath];
+    if (pathExists(pyrun)){
+        return pyrun;
+    }
+    return @"";
+}
+
+
+BOOL kaliteExists() {
+    NSString *kalitePath = getKaliteBinPath();
+    return pathExists(kalitePath);
+}
+
+
+BOOL pyrunExists() {
+    NSString *pyrun = getPyrunBinPath();
+    return pathExists(pyrun);
 }
 
 
@@ -154,16 +188,17 @@ BOOL kaliteExists() {
     enum kaliteStatus oldStatus = self.status;
     
     @try {
-        kaliteDir = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ka-lite"];
-        kaliteDir = [kaliteDir stringByStandardizingPath];
+        pyrun = getPyrunBinPath();
+
+        kaliteDir = getKaliteDir();
+        kalitePath = getKaliteBinPath();
         
-        pyrun = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"pyrun-2.7/bin/pyrun"];
-        pyrun = [pyrun stringByStandardizingPath];
-        
-        kalitePath = [kaliteDir stringByAppendingString:@"/bin/kalite"];
+        // TODO(cpauya): make sure the pyrun and kalite binaries are not empty
         
         kaliteCmd = [NSString stringWithFormat: @"export KALITE_DIR=\"%@\"; export KALITE_PYTHON=\"%@\"; \"%@\"",
-                    kaliteDir, pyrun, kalitePath];
+                     kaliteDir, pyrun, kalitePath];
+        
+        kaliteCmd = [NSString stringWithFormat: @"\"%@\"", kalitePath];
         
         finalCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, command];
         statusCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, @"status"];
@@ -262,6 +297,45 @@ NSString *getUsernameChars() {
             return NO;
     }
     return YES;
+}
+
+
+void putEnv(NSString *env, NSString *value) {
+}
+
+
+BOOL setEnvVars() {
+    // Set environment variables on /etc/launchd.conf using the `launchctl setenv` command.
+    // REF: http://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x/588442#588442
+    showNotification(@"Setting KALITE_DIR environment variable on /etc/launchd.conf...");
+    if (kaliteExists()) {
+        NSString *kaliteDir = getKaliteDir();
+        NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_DIR \"%@\"", kaliteDir];
+        const char *cmd = [command UTF8String];
+        int i = system(cmd);
+        if (i == 0) {
+            NSString *msg = [NSString stringWithFormat:@"Successfully set KALITE_DIR env to %@.", kaliteDir];
+            showNotification(msg);
+        } else {
+            showNotification(@"Failed to set KALITE_DIR env.");
+            return FALSE;
+        }
+    }
+    showNotification(@"Setting KALITE_PYTHON environment variable on /etc/launchd.conf...");
+    if (pyrunExists()) {
+        NSString *pyrun = getPyrunBinPath();
+        NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_PYTHON \"%@\"", pyrun];
+        const char *cmd = [command UTF8String];
+        int i = system(cmd);
+        if (i == 0) {
+            NSString *msg = [NSString stringWithFormat:@"Successfully set KALITE_PYTHON env to %@.", pyrun];
+            showNotification(msg);
+        } else {
+            showNotification(@"Failed to set KALITE_PYTHON env.");
+            return FALSE;
+        }
+    }
+    return TRUE;
 }
 
 
@@ -481,6 +555,8 @@ NSString *getUsernameChars() {
     if (localSettingsPath == nil) {
         copyLocalSettings();
     }
+
+    setEnvVars();
     
     // Automatically run `kalite manage setup` if no database was found.
     NSString *databasePath = getDatabasePath();
