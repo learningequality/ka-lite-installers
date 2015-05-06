@@ -8,6 +8,8 @@
 
 #import "AppDelegate.h"
 
+@import Foundation;
+
 @interface AppDelegate ()
 //    @property (weak) IBOutlet NSWindow *window;
 @end
@@ -140,6 +142,7 @@ NSString *getKaliteBinPath() {
     // Returns the path of `bin/kalite` if it exists or an empty string otherwise.
     NSString *kaliteDir = getKaliteDir();
     NSString *kalitePath = [kaliteDir stringByAppendingString:@"/bin/kalite"];
+    kalitePath = [kalitePath stringByStandardizingPath];
     if (pathExists(kalitePath)){
         return kalitePath;
     }
@@ -300,12 +303,52 @@ NSString *getUsernameChars() {
 }
 
 
-void putEnv(NSString *env, NSString *value) {
+BOOL symlinkKalite() {
+    // TODO(cpauya): run as root!
+    // REF: http://stackoverflow.com/questions/4599447/cocoa-gaining-root-access-for-nsfilemanager
+    // REF: https://developer.apple.com/library/mac/samplecode/EvenBetterAuthorizationSample/Introduction/Intro.html
+    NSString *msg;
+    if (kaliteExists()) {
+        NSString *kalitePath = getKaliteBinPath();
+        NSString *target = @"/usr/local/bin";
+        NSFileManager *fileMgr;
+        NSError *err;
+
+        msg = [NSString stringWithFormat:@"Symlinking %@ to %@...", kalitePath, target];
+        showNotification(msg);
+        
+        NSDictionary *errorInfo;
+        NSString *command = [NSString stringWithFormat:@"ln -f u'%@' '%@'", kalitePath, target];
+        command = [NSString stringWithFormat:@"do shell script \"%@\" with administrator privileges", command];
+        command = [NSString stringWithFormat:@"%@", command];
+        // command = @"do shell script \"ln '/Users/cyril/w/fle/ka-lite/ka-lite-src/bin/kalite' /usr/local/bin/\" with administrator privileges";
+        BOOL result = [[[NSAppleScript alloc]initWithSource:command] executeAndReturnError:&errorInfo];
+        NSLog([NSString stringWithFormat:@"RESULT %@ --> AppleScript: %@", result, errorInfo]);
+
+        // TODO(cpauya): This was supposed to be the approach but doesn't work since we need
+        // admin privileges for symlinking to the target /usr/local/bin/.
+        // This seemed hard, so resorted to running an Apple script for now.
+        // REF: http://stackoverflow.com/questions/4599447/cocoa-gaining-root-access-for-nsfilemanager
+
+//        BOOL result = [fileMgr linkItemAtPath:kalitePath toPath:target error:&err];
+//        BOOL result = [fileMgr createSymbolicLinkAtPath:kalitePath withDestinationPath:target error:&err];
+//        msg = [NSString stringWithFormat:@"RESULT: %hhd, ERROR: %@", result, err];
+//        NSLog(msg);
+//        if (result != YES) {
+//            msg = [NSString stringWithFormat:@"FAILED symlinking %@ to %@.", kalitePath, target];
+//            showNotification(msg);
+//            return FALSE;
+//        }
+        msg = [NSString stringWithFormat:@"Done symlinking %@ to %@.", kalitePath, target];
+        showNotification(msg);
+    }
+    return TRUE;
 }
 
 
 BOOL setEnvVars() {
-    // Set environment variables on /etc/launchd.conf using the `launchctl setenv` command.
+    // TODO(cpauya): Set environment variables on /etc/launchd.conf so it is persisted.
+    // Set environment variables using the `launchctl setenv` command for immediate use.
     // REF: http://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x/588442#588442
     showNotification(@"Setting KALITE_DIR environment variable on /etc/launchd.conf...");
     if (kaliteExists()) {
@@ -320,6 +363,9 @@ BOOL setEnvVars() {
             showNotification(@"Failed to set KALITE_DIR env.");
             return FALSE;
         }
+    } else {
+        showNotification(@"Failed to set KALITE_DIR env, kalite does not exist!");
+        return FALSE;
     }
     showNotification(@"Setting KALITE_PYTHON environment variable on /etc/launchd.conf...");
     if (pyrunExists()) {
@@ -334,8 +380,11 @@ BOOL setEnvVars() {
             showNotification(@"Failed to set KALITE_PYTHON env.");
             return FALSE;
         }
+    } else {
+        showNotification(@"Failed to set KALITE_PYTHON env, pyrun does not exist!");
+        return FALSE;
     }
-    return TRUE;
+    return symlinkKalite();
 }
 
 
@@ -549,6 +598,8 @@ BOOL setEnvVars() {
     
     [prefs setObject:self.username forKey:@"username"];
     [prefs setObject:encodedPassword forKey:@"password"];
+    // REF: https://github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
+    [prefs synchronize];
     
     // Copy `local_settings.default` if no `local_settings.py` was found.
     NSString *localSettingsPath = getLocalSettingsPath();
@@ -556,7 +607,10 @@ BOOL setEnvVars() {
         copyLocalSettings();
     }
 
-    setEnvVars();
+    if (!setEnvVars()) {
+        alert(@"Either the set environment variables or symlink of bin/kalite failed to complete!  Please check the Console.");
+        return;
+    }
     
     // Automatically run `kalite manage setup` if no database was found.
     NSString *databasePath = getDatabasePath();
