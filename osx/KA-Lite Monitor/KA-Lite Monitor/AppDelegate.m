@@ -82,9 +82,16 @@
 
 
 void copyLocalSettings() {
+    // Use the KALITE_DIR environment variable if set.
     NSString *source = [[NSBundle mainBundle] pathForResource:@"local_settings" ofType:@"default"];
     if (pathExists(source)) {
-        NSString *target = getResourcePath(@"ka-lite/kalite/local_settings.py");
+        NSString *target;
+        NSString *kaliteDir = getEnvVar(@"KALITE_DIR");
+        if (kaliteDir) {
+            target = [kaliteDir stringByAppendingString:@"/kalite/local_settings.py"];
+        } else {
+            target = getResourcePath(@"ka-lite/kalite/local_settings.py");
+        }
         NSString *command = [NSString stringWithFormat:@"cp \"%@\" \"%@\"", source, target];
         const char *cmd = [command UTF8String];
         int i = system(cmd);
@@ -107,13 +114,27 @@ NSString *getResourcePath(NSString *pathToAppend) {
 
 
 NSString *getLocalSettingsPath() {
-    NSString *localSettings = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/local_settings" ofType:@"py"];
+    // Use the KALITE_DIR environment variable if set.
+    NSString *localSettings;
+    NSString *kaliteDir = getEnvVar(@"KALITE_DIR");
+    if (kaliteDir) {
+        localSettings = [kaliteDir stringByAppendingString:@"/kalite/local_settings.py"];
+    } else {
+        localSettings = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/local_settings" ofType:@"py"];
+    }
     return localSettings;
 }
 
 
 NSString *getDatabasePath() {
-    NSString *database = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/database/data" ofType:@"sqlite"];
+    // Use the KALITE_DIR environment variable if set.
+    NSString *database;
+    NSString *kaliteDir = getEnvVar(@"KALITE_DIR");
+    if (kaliteDir) {
+        database = [kaliteDir stringByAppendingString:@"/kalite/database/data.sqlite"];
+    } else {
+        database = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/database/data" ofType:@"sqlite"];
+    }
     return database;
 }
 
@@ -126,10 +147,22 @@ BOOL pathExists(NSString *path) {
 }
 
 
+NSString *thisOrOther(NSString *this, NSString *other) {
+    // Accepts two arguments and returns the first if it has a value, else the other.
+    if (this.length > 0) {
+        return this;
+    }
+    return other;
+}
+
+
 NSString *getKaliteDir() {
     // Returns the path of `ka-lite` directory if it exists or an empty string otherwise.
+    // Use the KALITE_DIR environment variable if set.
     NSString *kaliteDir;
-    kaliteDir = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ka-lite"];
+    NSString *var = getEnvVar(@"KALITE_DIR");
+    NSString *other = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ka-lite"];
+    kaliteDir = thisOrOther(var, other);
     kaliteDir = [kaliteDir stringByStandardizingPath];
     if (pathExists(kaliteDir)){
         return kaliteDir;
@@ -152,7 +185,10 @@ NSString *getKaliteBinPath() {
 
 NSString *getPyrunBinPath() {
     // Returns the path of `pyrun` binary if it exists or an empty string otherwise.
+    // Use the KALITE_DIR environment variable if set.
     NSString *pyrun = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"pyrun-2.7/bin/pyrun"];
+    NSString *var = getEnvVar(@"KALITE_PYTHON");
+    pyrun = thisOrOther(var, pyrun);
     pyrun = [pyrun stringByStandardizingPath];
     if (pathExists(pyrun)){
         return pyrun;
@@ -310,7 +346,7 @@ BOOL symlinkKalite() {
     NSString *msg;
     if (kaliteExists()) {
         NSString *kalitePath = getKaliteBinPath();
-        NSString *target = @"/usr/local/bin";
+        NSString *target = @"/usr/local/bin/kalite";
         NSFileManager *fileMgr;
         NSError *err;
 
@@ -318,27 +354,26 @@ BOOL symlinkKalite() {
         showNotification(msg);
         
         NSDictionary *errorInfo;
-        NSString *command = [NSString stringWithFormat:@"ln -f u'%@' '%@'", kalitePath, target];
+        NSString *command = [NSString stringWithFormat:@"ln -f '%@' '%@'", kalitePath, target];
         command = [NSString stringWithFormat:@"do shell script \"%@\" with administrator privileges", command];
         command = [NSString stringWithFormat:@"%@", command];
         // command = @"do shell script \"ln '/Users/cyril/w/fle/ka-lite/ka-lite-src/bin/kalite' /usr/local/bin/\" with administrator privileges";
-        BOOL result = [[[NSAppleScript alloc]initWithSource:command] executeAndReturnError:&errorInfo];
-        NSLog([NSString stringWithFormat:@"RESULT %@ --> AppleScript: %@", result, errorInfo]);
+        [[[NSAppleScript alloc]initWithSource:command] executeAndReturnError:&errorInfo];
+        //        NSLog([NSString stringWithFormat:@"AppleScript: %@", errorInfo]);
+        if (errorInfo != nil) {
+            msg = [NSString stringWithFormat:@"FAILED symlink with: %@", errorInfo];
+            showNotification(msg);
+            return FALSE;
+        }
 
         // TODO(cpauya): This was supposed to be the approach but doesn't work since we need
         // admin privileges for symlinking to the target /usr/local/bin/.
         // This seemed hard, so resorted to running an Apple script for now.
         // REF: http://stackoverflow.com/questions/4599447/cocoa-gaining-root-access-for-nsfilemanager
-
 //        BOOL result = [fileMgr linkItemAtPath:kalitePath toPath:target error:&err];
 //        BOOL result = [fileMgr createSymbolicLinkAtPath:kalitePath withDestinationPath:target error:&err];
 //        msg = [NSString stringWithFormat:@"RESULT: %hhd, ERROR: %@", result, err];
 //        NSLog(msg);
-//        if (result != YES) {
-//            msg = [NSString stringWithFormat:@"FAILED symlinking %@ to %@.", kalitePath, target];
-//            showNotification(msg);
-//            return FALSE;
-//        }
         msg = [NSString stringWithFormat:@"Done symlinking %@ to %@.", kalitePath, target];
         showNotification(msg);
     }
@@ -346,11 +381,19 @@ BOOL symlinkKalite() {
 }
 
 
+
+NSString *getEnvVar(NSString *var) {
+    // Get environment variables as per var argument.
+    NSString *path = [[[NSProcessInfo processInfo]environment]objectForKey:var];
+    return path;
+}
+
+
 BOOL setEnvVars() {
     // TODO(cpauya): Set environment variables on /etc/launchd.conf so it is persisted.
     // Set environment variables using the `launchctl setenv` command for immediate use.
     // REF: http://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x/588442#588442
-    showNotification(@"Setting KALITE_DIR environment variable on /etc/launchd.conf...");
+    showNotification(@"Setting KALITE_DIR environment variable...");
     if (kaliteExists()) {
         NSString *kaliteDir = getKaliteDir();
         NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_DIR \"%@\"", kaliteDir];
@@ -367,7 +410,7 @@ BOOL setEnvVars() {
         showNotification(@"Failed to set KALITE_DIR env, kalite does not exist!");
         return FALSE;
     }
-    showNotification(@"Setting KALITE_PYTHON environment variable on /etc/launchd.conf...");
+    showNotification(@"Setting KALITE_PYTHON environment variable...");
     if (pyrunExists()) {
         NSString *pyrun = getPyrunBinPath();
         NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_PYTHON \"%@\"", pyrun];
@@ -608,7 +651,7 @@ BOOL setEnvVars() {
     }
 
     if (!setEnvVars()) {
-        alert(@"Either the set environment variables or symlink of bin/kalite failed to complete!  Please check the Console.");
+        alert(@"Either the set environment variables or symlink of kalite failed to complete!  Please check the Console.");
         return;
     }
     
