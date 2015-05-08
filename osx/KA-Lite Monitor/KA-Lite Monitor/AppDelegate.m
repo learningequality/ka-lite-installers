@@ -6,6 +6,11 @@
 //  Copyright (c) 2015 FLE. All rights reserved.
 //
 
+// 
+// Notes: Possible issues with OSX 10.10 or higher:
+// * http://www.dowdandassociates.com/blog/content/howto-set-an-environment-variable-in-mac-os-x-slash-etc-slash-launchd-dot-conf/
+// 
+
 #import "AppDelegate.h"
 
 @import Foundation;
