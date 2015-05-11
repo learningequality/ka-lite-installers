@@ -159,6 +159,10 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Running '$PYRUN_PIP install -r requirements.txt'... on '$KA_LITE_DIR' "
 $PYRUN_PIP install -r "$KA_LITE_DIR/requirements.txt"
+if [ $? -ne 0 ]; then
+    echo "  $0: Error/s encountered running '$PYRUN_PIP -install -r requirements.txt', exiting..."
+    exit 1
+fi
 
 # Copy the extracted folders to the Xcode Resources folder
 ((STEP++))
