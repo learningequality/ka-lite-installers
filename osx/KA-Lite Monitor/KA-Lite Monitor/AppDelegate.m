@@ -42,19 +42,19 @@
     bool mustShowPreferences = false;
     @try {
         NSString *localSettings = getLocalSettingsPath();
-        if (localSettings == nil) {
+        if (!pathExists(localSettings)) {
             NSLog(@"local_settings.py not found, must show preferences...");
             mustShowPreferences = true;
         } else {
-            NSLog(@"FOUND local_settings.py!");
+            NSLog([NSString stringWithFormat:@"FOUND local_settings.py at %@!", localSettings]);
         }
         
         NSString *database = getDatabasePath();
-        if (database == nil) {
+        if (!pathExists(database)) {
             NSLog(@"Database not found, must show preferences.");
             mustShowPreferences = true;
         } else {
-            NSLog(@"FOUND database!");
+            NSLog([NSString stringWithFormat:@"FOUND database at %@!", database]);
         }
         showNotification(@"KA Lite is now loaded.");
     }
@@ -651,7 +651,7 @@ BOOL setEnvVars() {
     
     // Copy `local_settings.default` if no `local_settings.py` was found.
     NSString *localSettingsPath = getLocalSettingsPath();
-    if (localSettingsPath == nil) {
+    if (!pathExists(localSettingsPath)) {
         copyLocalSettings();
     }
 
@@ -662,7 +662,7 @@ BOOL setEnvVars() {
     
     // Automatically run `kalite manage setup` if no database was found.
     NSString *databasePath = getDatabasePath();
-    if (databasePath == nil) {
+    if (!pathExists(databasePath)) {
         if (kaliteExists()) {
             alert(@"Will now run KA-Lite setup, it will take a few minutes.  Please wait until prompted that setup is done.");
             enum kaliteStatus status = [self setupKalite];
