@@ -24,6 +24,7 @@
 @synthesize stringUsername, stringPassword, stringConfirmPassword, startKalite, stopKalite, openInBrowserMenu;
 
 
+//<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
     
@@ -41,6 +42,14 @@
     // We need to show preferences if local_settings.py or database does not exist.
     bool mustShowPreferences = false;
     @try {
+        NSString *kaliteDir = getKaliteDir(true);
+        NSString *pyrun = getPyrunBinPath(true);
+        if (kaliteDir) {
+            NSLog([NSString stringWithFormat:@"KA-Lite Location: ", kaliteDir]);
+        }
+        if (pyrun) {
+            NSLog([NSString stringWithFormat:@"Pyrun Location: ", pyrun]);
+        }
         NSString *localSettings = getLocalSettingsPath();
         if (!pathExists(localSettings)) {
             NSLog(@"local_settings.py not found, must show preferences...");
@@ -87,11 +96,11 @@
 
 
 void copyLocalSettings() {
-    // Use the KALITE_DIR environment variable if set.
     NSString *source = [[NSBundle mainBundle] pathForResource:@"local_settings" ofType:@"default"];
     if (pathExists(source)) {
         NSString *target;
-        NSString *kaliteDir = getEnvVar(@"KALITE_DIR");
+        NSString *kaliteDir = getKaliteDir(true);
+//        NSLog([NSString stringWithFormat:@"KALITE_DIR 2 == %@", kaliteDir]);
         if (kaliteDir) {
             target = [kaliteDir stringByAppendingString:@"/kalite/local_settings.py"];
         } else {
@@ -121,12 +130,13 @@ NSString *getResourcePath(NSString *pathToAppend) {
 NSString *getLocalSettingsPath() {
     // Use the KALITE_DIR environment variable if set.
     NSString *localSettings;
-    NSString *kaliteDir = getEnvVar(@"KALITE_DIR");
+    NSString *kaliteDir = getKaliteDir(true);
     if (kaliteDir) {
         localSettings = [kaliteDir stringByAppendingString:@"/kalite/local_settings.py"];
     } else {
         localSettings = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/local_settings" ofType:@"py"];
     }
+//    NSLog([NSString stringWithFormat:@"KALITE_DIR 2 == %@", kaliteDir]);
     return localSettings;
 }
 
@@ -134,12 +144,13 @@ NSString *getLocalSettingsPath() {
 NSString *getDatabasePath() {
     // Use the KALITE_DIR environment variable if set.
     NSString *database;
-    NSString *kaliteDir = getEnvVar(@"KALITE_DIR");
+    NSString *kaliteDir = getKaliteDir(true);
     if (kaliteDir) {
         database = [kaliteDir stringByAppendingString:@"/kalite/database/data.sqlite"];
     } else {
         database = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/database/data" ofType:@"sqlite"];
     }
+//    NSLog([NSString stringWithFormat:@"KALITE_DIR 2 == %@", kaliteDir]);
     return database;
 }
 
@@ -161,14 +172,21 @@ NSString *thisOrOther(NSString *this, NSString *other) {
 }
 
 
-NSString *getKaliteDir() {
+//<##>getKaliteDir
+
+NSString *getKaliteDir(BOOL useEnvVar) {
     // Returns the path of `ka-lite` directory if it exists or an empty string otherwise.
-    // Use the KALITE_DIR environment variable if set.
-    NSString *kaliteDir;
-    NSString *var = getEnvVar(@"KALITE_DIR");
-    NSString *other = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ka-lite"];
-    kaliteDir = thisOrOther(var, other);
+    // If `useEnvVar` is set, get the `KALITE_DIR` from the environment variables and use it if valid.
+    NSString *kaliteDir = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ka-lite"];
+    if (useEnvVar) {
+        // Use the KALITE_DIR environment variable if set.
+        NSString *var = getEnvVar(@"KALITE_DIR");
+        if (pathExists(var)) {
+            kaliteDir = var;
+        }
+    }
     kaliteDir = [kaliteDir stringByStandardizingPath];
+//    NSLog([NSString stringWithFormat:@"KALITE_DIR 2 == %@", kaliteDir]);
     if (pathExists(kaliteDir)){
         return kaliteDir;
     }
@@ -178,7 +196,7 @@ NSString *getKaliteDir() {
 
 NSString *getKaliteBinPath() {
     // Returns the path of `bin/kalite` if it exists or an empty string otherwise.
-    NSString *kaliteDir = getKaliteDir();
+    NSString *kaliteDir = getKaliteDir(true);
     NSString *kalitePath = [kaliteDir stringByAppendingString:@"/bin/kalite"];
     kalitePath = [kalitePath stringByStandardizingPath];
     if (pathExists(kalitePath)){
@@ -188,13 +206,19 @@ NSString *getKaliteBinPath() {
 }
 
 
-NSString *getPyrunBinPath() {
+NSString *getPyrunBinPath(BOOL useEnvVar) {
     // Returns the path of `pyrun` binary if it exists or an empty string otherwise.
-    // Use the KALITE_DIR environment variable if set.
+    // If `useEnvVar` is set, get the `KALITE_PYTHON` from the environment variables and use it if valid.
     NSString *pyrun = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"pyrun-2.7/bin/pyrun"];
-    NSString *var = getEnvVar(@"KALITE_PYTHON");
-    pyrun = thisOrOther(var, pyrun);
+    if (useEnvVar) {
+        // Use the KALITE_PYTHON environment variable if set.
+        NSString *var = getEnvVar(@"KALITE_PYTHON");
+        if (pathExists(var) ) {
+            pyrun = var;
+        }
+    }
     pyrun = [pyrun stringByStandardizingPath];
+//    NSLog([NSString stringWithFormat:@"KALITE_PYTHON 2 == %@", pyrun]);
     if (pathExists(pyrun)){
         return pyrun;
     }
@@ -209,7 +233,7 @@ BOOL kaliteExists() {
 
 
 BOOL pyrunExists() {
-    NSString *pyrun = getPyrunBinPath();
+    NSString *pyrun = getPyrunBinPath(true);
     return pathExists(pyrun);
 }
 
@@ -232,15 +256,15 @@ BOOL pyrunExists() {
     enum kaliteStatus oldStatus = self.status;
     
     @try {
-        pyrun = getPyrunBinPath();
+        pyrun = getPyrunBinPath(true);
 
-        kaliteDir = getKaliteDir();
+        kaliteDir = getKaliteDir(true);
         kalitePath = getKaliteBinPath();
         
         // TODO(cpauya): make sure the pyrun and kalite binaries are not empty
         
-        kaliteCmd = [NSString stringWithFormat: @"export KALITE_DIR=\"%@\"; export KALITE_PYTHON=\"%@\"; \"%@\"",
-                     kaliteDir, pyrun, kalitePath];
+//        kaliteCmd = [NSString stringWithFormat: @"export KALITE_DIR=\"%@\"; export KALITE_PYTHON=\"%@\"; \"%@\"",
+//                     kaliteDir, pyrun, kalitePath];
         
         kaliteCmd = [NSString stringWithFormat: @"\"%@\"", kalitePath];
         
@@ -344,41 +368,85 @@ NSString *getUsernameChars() {
 }
 
 
+//<##>runRootCommands
+BOOL runRootCommands(NSString *command) {
+    NSString *msg = [NSString stringWithFormat:@"Running root command/s: %@...", command];
+    showNotification(msg);
+    
+    NSDictionary *errorInfo = runAsRoot(command);
+    if (errorInfo != nil) {
+        msg = [NSString stringWithFormat:@"FAILED command/s %@ with ERROR: %@", command, errorInfo];
+        showNotification(msg);
+        return FALSE;
+    }
+    msg = [NSString stringWithFormat:@"Done running root command/s %@.", command];
+    showNotification(msg);
+    return TRUE;
+}
+
+
+//<##>setLaunchDaemon
+NSString *getLaunchDaemonCommand(NSString *source, NSString *target) {
+    if (pathExists(source)) {
+        return [NSString stringWithFormat:@"cp '%@' '%@'", source, target];
+    }
+    return nil;
+}
+
+// Not used for now but is useful to re-run the command individually later.
+BOOL setLaunchDaemon(NSString *source, NSString *target) {
+    // Needs to run as root.
+    NSString *msg;
+    if (pathExists(source)) {
+        msg = [NSString stringWithFormat:@"Copying %@ to %@...", source, target];
+        showNotification(msg);
+        
+        NSString *command = [NSString stringWithFormat:@"cp '%@' '%@'", source, target];
+        NSDictionary *errorInfo = runAsRoot(command);
+        if (errorInfo != nil) {
+            msg = [NSString stringWithFormat:@"FAILED command %@ with ERROR: %@", command, errorInfo];
+            showNotification(msg);
+            return FALSE;
+        }
+        msg = [NSString stringWithFormat:@"Done copying %@ to %@.", source, target];
+        showNotification(msg);
+    } else {
+        msg = [NSString stringWithFormat:@"Source %@ OR target: %@ does not exist!", source, target];
+        showNotification(msg);
+        return FALSE;
+    }
+    return TRUE;
+}
+
+
+//<##>symlinkKalite
+NSString *getSymlinkKaliteCommand() {
+    if (kaliteExists()) {
+        NSString *kalitePath = getKaliteBinPath();
+        NSString *target = @"/usr/local/bin/kalite";
+        NSString *command = [NSString stringWithFormat:@"ln -f '%@' '%@'", kalitePath, target];
+        return command;
+    }
+    return nil;
+}
+
+// Not used for now but is useful to re-run the command individually later.
 BOOL symlinkKalite() {
-    // TODO(cpauya): run as root!
-    // REF: http://stackoverflow.com/questions/4599447/cocoa-gaining-root-access-for-nsfilemanager
-    // REF: https://developer.apple.com/library/mac/samplecode/EvenBetterAuthorizationSample/Introduction/Intro.html
     NSString *msg;
     if (kaliteExists()) {
         NSString *kalitePath = getKaliteBinPath();
         NSString *target = @"/usr/local/bin/kalite";
-        NSFileManager *fileMgr;
-        NSError *err;
-
+        
         msg = [NSString stringWithFormat:@"Symlinking %@ to %@...", kalitePath, target];
         showNotification(msg);
         
-        NSDictionary *errorInfo;
         NSString *command = [NSString stringWithFormat:@"ln -f '%@' '%@'", kalitePath, target];
-        command = [NSString stringWithFormat:@"do shell script \"%@\" with administrator privileges", command];
-        command = [NSString stringWithFormat:@"%@", command];
-        // command = @"do shell script \"ln '/Users/cyril/w/fle/ka-lite/ka-lite-src/bin/kalite' /usr/local/bin/\" with administrator privileges";
-        [[[NSAppleScript alloc]initWithSource:command] executeAndReturnError:&errorInfo];
-        //        NSLog([NSString stringWithFormat:@"AppleScript: %@", errorInfo]);
+        NSDictionary *errorInfo = runAsRoot(command);
         if (errorInfo != nil) {
-            msg = [NSString stringWithFormat:@"FAILED symlink with: %@", errorInfo];
+            msg = [NSString stringWithFormat:@"FAILED command %@ with ERROR: %@", command, errorInfo];
             showNotification(msg);
             return FALSE;
         }
-
-        // TODO(cpauya): This was supposed to be the approach but doesn't work since we need
-        // admin privileges for symlinking to the target /usr/local/bin/.
-        // This seemed hard, so resorted to running an Apple script for now.
-        // REF: http://stackoverflow.com/questions/4599447/cocoa-gaining-root-access-for-nsfilemanager
-//        BOOL result = [fileMgr linkItemAtPath:kalitePath toPath:target error:&err];
-//        BOOL result = [fileMgr createSymbolicLinkAtPath:kalitePath withDestinationPath:target error:&err];
-//        msg = [NSString stringWithFormat:@"RESULT: %hhd, ERROR: %@", result, err];
-//        NSLog(msg);
         msg = [NSString stringWithFormat:@"Done symlinking %@ to %@.", kalitePath, target];
         showNotification(msg);
     }
@@ -386,21 +454,51 @@ BOOL symlinkKalite() {
 }
 
 
+NSDictionary *runAsRoot(NSString *command) {
+    // This will run an AppleScript command with admin privileges, thereby prompting the user to
+    // input the admin password so script can continue.
+    // REF: http://stackoverflow.com/questions/4599447/cocoa-gaining-root-access-for-nsfilemanager
+    // REF: https://developer.apple.com/library/mac/samplecode/EvenBetterAuthorizationSample/Introduction/Intro.html
+    
+    // TODO(cpauya): This was supposed to be the approach but doesn't work since we need
+    // admin privileges for symlinking to the target /usr/local/bin/.
+    // This seemed hard, so resorted to running an Apple script for now.
+    // REF: http://stackoverflow.com/questions/4599447/cocoa-gaining-root-access-for-nsfilemanager
+    //        BOOL result = [fileMgr linkItemAtPath:kalitePath toPath:target error:&err];
+    //        BOOL result = [fileMgr createSymbolicLinkAtPath:kalitePath withDestinationPath:target error:&err];
+    //        msg = [NSString stringWithFormat:@"RESULT: %hhd, ERROR: %@", result, err];
+    //        NSLog(msg);
+    NSString *msg;
+    NSDictionary *errorInfo;
+    command = [NSString stringWithFormat:@"do shell script \"%@\" with administrator privileges", command];
+    command = [NSString stringWithFormat:@"%@", command];
+    [[[NSAppleScript alloc]initWithSource:command] executeAndReturnError:&errorInfo];
+    if (errorInfo != nil) {
+        return errorInfo;
+    }
+    return nil;
+}
+
 
 NSString *getEnvVar(NSString *var) {
     // Get environment variables as per var argument.
     NSString *path = [[[NSProcessInfo processInfo]environment]objectForKey:var];
+//    NSLog([NSString stringWithFormat:@"ENV VAR: %@ == %@", var, path]);
     return path;
 }
 
 
+//<##>setEnvVars
 BOOL setEnvVars() {
-    // TODO(cpauya): Set environment variables on /etc/launchd.conf so it is persisted.
+    // TODO(cpauya): For now, get the values from current .app Resources folder.  In the future,
+    // it must be taken from user-defined values on the Preferences dialog.
+
     // Set environment variables using the `launchctl setenv` command for immediate use.
     // REF: http://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x/588442#588442
+    
     showNotification(@"Setting KALITE_DIR environment variable...");
+    NSString *kaliteDir = getKaliteDir(false);
     if (kaliteExists()) {
-        NSString *kaliteDir = getKaliteDir();
         NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_DIR \"%@\"", kaliteDir];
         const char *cmd = [command UTF8String];
         int i = system(cmd);
@@ -415,9 +513,10 @@ BOOL setEnvVars() {
         showNotification(@"Failed to set KALITE_DIR env, kalite does not exist!");
         return FALSE;
     }
+
     showNotification(@"Setting KALITE_PYTHON environment variable...");
-    if (pyrunExists()) {
-        NSString *pyrun = getPyrunBinPath();
+    NSString *pyrun = getPyrunBinPath(false);
+    if (pyrun) {
         NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_PYTHON \"%@\"", pyrun];
         const char *cmd = [command UTF8String];
         int i = system(cmd);
@@ -432,7 +531,59 @@ BOOL setEnvVars() {
         showNotification(@"Failed to set KALITE_PYTHON env, pyrun does not exist!");
         return FALSE;
     }
-    return symlinkKalite();
+    
+    /*
+     MUST: Let's create a org.learningequality.kalite.plist at the /tmp/ folder
+     then use an AppleScript script to combine it with the symlink script
+     with admin privileges so we only ask for the root password once.
+     
+     This is the format:
+
+     NSString *str = [NSString stringWithFormat:@"<?xml version='1.0' encoding='UTF-8'?>" \
+     "    <!DOCTYPE plist PUBLIC '-//Apple//DTD PLIST 1.0//EN' 'http://www.apple.com/DTDs/PropertyList-1.0.dtd'>" \
+     "    <plist version='1.0'>" \
+     "    <dict>" \
+     "      <key>Label</key>" \
+     "      <string>org.learningequality.kalite</string>" \
+     "      <key>ProgramArguments</key>" \
+     "      <array>" \
+     "          <string>sh</string>" \
+     "          <string>-c</string>" \
+     "          <string>" \
+     "              launchctl setenv KALITE_DIR %@" \
+     "              launchctl setenv KALITE_PYTHON" \
+     "          </string>" \
+     "      </array>" \
+     "      <key>RunAtLoad</key>" \
+     "      <true/>" \
+     "    </dict>" \
+     "    </plist>", kaliteDir];
+     */
+    NSString *org = @"org.learningequality.kalite";
+    NSString *path = [NSString stringWithFormat:@"/tmp/%@.plist", org];
+    NSString *target = [NSString stringWithFormat:@"/Library/LaunchDaemons/%@.plist", org];
+    NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] init];
+    [plistDict setObject:org forKey:@"Label"];
+    NSString *launchStr = [NSString stringWithFormat:@"%@;%@",
+                           [NSString stringWithFormat:@"launchctl setenv KALITE_DIR \"%@\"", kaliteDir],
+                           [NSString stringWithFormat:@"launchctl setenv KALITE_PYTHON \"%@\"", pyrun]
+                          ];
+    NSArray *arr = @[@"sh", @"-c", launchStr];
+    [plistDict setObject:arr forKey:@"ProgramArguments"];
+    [plistDict setObject:[NSNumber numberWithBool:TRUE] forKey:@"RunAtLoad"];
+    showNotification([NSString stringWithFormat:@"Setting KALITE_DIR and KALITE_PYTHON environment variables... %@", plistDict]);
+    BOOL ret = [plistDict writeToFile:path atomically: YES];
+    if (ret == YES) {
+        NSLog([NSString stringWithFormat:@"SAVED initial .plist file to %@", path]);
+    } else {
+        NSLog([NSString stringWithFormat:@"CANNOT save initial .plist file!  Result: %hhd", ret]);
+    }
+    
+    //TODO(cpauya): As root, copy the .plist into /Library/LaunchDaemons/
+    NSString *launchDaemonCommand = getLaunchDaemonCommand(path, target);
+    NSString *symlinkCommand = getSymlinkKaliteCommand();
+    NSString *command = [NSString stringWithFormat:@"%@; %@;", launchDaemonCommand, symlinkCommand];
+    return runRootCommands(command);
 }
 
 
