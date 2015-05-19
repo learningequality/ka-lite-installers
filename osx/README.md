@@ -24,6 +24,7 @@ There are two ways to build the installer, automated or manually.
     1.6. Build the `KA-Lite Monitor.dmg` package.  The output can be found at the `temp/output/KA-Lite Monitor.dmg`.
 2. To build the .dmg manually - refer to the README-FOR-DMG.md document.
 
+
 ### To manually build and test the application
 
 1. Run `setup.sh` so it will download the `ka-lite` repository and `pyrun`.
@@ -41,3 +42,10 @@ There are two ways to build the installer, automated or manually.
 
     * KA-Lite repo on `develop` branch
     * PyRun version 2.7
+
+
+## References
+
+1. [??? Installing Tomcat on Mac OS X](http://www.joel.lopes-da-silva.com/2008/05/13/installing-tomcat-on-mac-os-x/)
+1. [??? Using launchd](http://trac.buildbot.net/wiki/UsingLaunchd)
+1. [??? HowTo: Set an Environment Variable in Mac OS X](http://www.dowdandassociates.com/blog/content/howto-set-an-environment-variable-in-mac-os-x/)
