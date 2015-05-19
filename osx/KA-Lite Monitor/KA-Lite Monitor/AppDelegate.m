@@ -100,7 +100,6 @@ void copyLocalSettings() {
     if (pathExists(source)) {
         NSString *target;
         NSString *kaliteDir = getKaliteDir(true);
-//        NSLog([NSString stringWithFormat:@"KALITE_DIR 2 == %@", kaliteDir]);
         if (kaliteDir) {
             target = [kaliteDir stringByAppendingString:@"/kalite/local_settings.py"];
         } else {
@@ -136,7 +135,6 @@ NSString *getLocalSettingsPath() {
     } else {
         localSettings = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/local_settings" ofType:@"py"];
     }
-//    NSLog([NSString stringWithFormat:@"KALITE_DIR 2 == %@", kaliteDir]);
     return localSettings;
 }
 
@@ -150,7 +148,6 @@ NSString *getDatabasePath() {
     } else {
         database = [[NSBundle mainBundle] pathForResource:@"ka-lite/kalite/database/data" ofType:@"sqlite"];
     }
-//    NSLog([NSString stringWithFormat:@"KALITE_DIR 2 == %@", kaliteDir]);
     return database;
 }
 
@@ -186,7 +183,6 @@ NSString *getKaliteDir(BOOL useEnvVar) {
         }
     }
     kaliteDir = [kaliteDir stringByStandardizingPath];
-//    NSLog([NSString stringWithFormat:@"KALITE_DIR 2 == %@", kaliteDir]);
     if (pathExists(kaliteDir)){
         return kaliteDir;
     }
@@ -218,7 +214,6 @@ NSString *getPyrunBinPath(BOOL useEnvVar) {
         }
     }
     pyrun = [pyrun stringByStandardizingPath];
-//    NSLog([NSString stringWithFormat:@"KALITE_PYTHON 2 == %@", pyrun]);
     if (pathExists(pyrun)){
         return pyrun;
     }
@@ -483,7 +478,6 @@ NSDictionary *runAsRoot(NSString *command) {
 NSString *getEnvVar(NSString *var) {
     // Get environment variables as per var argument.
     NSString *path = [[[NSProcessInfo processInfo]environment]objectForKey:var];
-//    NSLog([NSString stringWithFormat:@"ENV VAR: %@ == %@", var, path]);
     return path;
 }
 
