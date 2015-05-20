@@ -91,23 +91,17 @@
 BOOL checkEnvVars() {
     // MUST: Check the KALITE_DIR and KALITE_PYTHON environment variables
     // and default it to the .app Resources folder if not yet set.
-    BOOL mustSetEnvVars = FALSE;
-    NSString *var = getEnvVar(@"KALITE_DIR");
-    if (!pathExists(var)) {
-        mustSetEnvVars = TRUE;
-    }
-    var = getEnvVar(@"KALITE_PYTHON");
-    if (!pathExists(var)) {
-        mustSetEnvVars = TRUE;
-    }
-    if (mustSetEnvVars) {
+    NSString *kaliteDir = getEnvVar(@"KALITE_DIR");
+    NSString *pyrun = getEnvVar(@"KALITE_PYTHON");
+    if (!(pathExists(kaliteDir) && pathExists(pyrun))) {
         if (!setEnvVars(FALSE)) {
+            NSString *msg = @"FAILED to set environment variables!";
+            showNotification(msg);
             return FALSE;
         };
     }
-
-    NSString *kaliteDir = getKaliteDir(true);
-    NSString *pyrun = getPyrunBinPath(true);
+    kaliteDir = getKaliteDir(true);
+    pyrun = getPyrunBinPath(true);
     NSLog([NSString stringWithFormat:@"KA-Lite value: %@", kaliteDir]);
     NSLog([NSString stringWithFormat:@"Pyrun value: %@", pyrun]);
     return TRUE;
