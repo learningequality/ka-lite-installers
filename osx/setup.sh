@@ -30,7 +30,7 @@ fi
 STEP=1
 STEPS=9
 
-# TODO(cpauya): This works but the problem is it creates the temporary directory everytime 
+# TODO(cpauya): This works but the problem is it creates the temporary directory everytime
 # script is run... so during devt, we will comment this for now.
 # Create temporary directory.
 echo "$STEP/$STEPS. Creating temporary directory..."
@@ -41,7 +41,7 @@ echo "$STEP/$STEPS. Creating temporary directory..."
 #     exit 1
 # fi
 
-# TODO(cpauya): Delete when done debugging.  
+# TODO(cpauya): Delete when done debugging.
 # No time to wait for downloads, let's re-use what we have.
 
 # REF: http://stackoverflow.com/a/4774063/845481
@@ -192,6 +192,9 @@ if ! [ -d "$KA_LITE_MONITOR_APP_PATH" ]; then
     exit 2
 fi
 
+# sign the .app file
+codesign -s "Foundation for Learning Equality, Inc." --force "$KA_LITE_MONITOR_APP_PATH"
+
 # Build the .dmg file.
 ((STEP++))
 echo "$STEP/$STEPS. Building the .dmg file at '$OUTPUT_PATH'..."
@@ -231,6 +234,8 @@ $CREATE_DMG \
 
 echo "Done!"
 if [ -e "$DMG_PATH" ]; then
+    # codesign the built DMG file
+    codesign -s "Foundation for Learning Equality, Inc." --force "$DMG_PATH"
     echo "You can now test the built installer at '$DMG_PATH'."
 else
     echo "Sorry, something went wrong trying to build the installer at '$DMG_PATH'."
