@@ -42,14 +42,7 @@
     // We need to show preferences if local_settings.py or database does not exist.
     bool mustShowPreferences = false;
     @try {
-        NSString *kaliteDir = getKaliteDir(true);
-        NSString *pyrun = getPyrunBinPath(true);
-        if (kaliteDir) {
-            NSLog([NSString stringWithFormat:@"KA-Lite Location: ", kaliteDir]);
-        }
-        if (pyrun) {
-            NSLog([NSString stringWithFormat:@"Pyrun Location: ", pyrun]);
-        }
+        checkEnvVars();
         NSString *localSettings = getLocalSettingsPath();
         if (!pathExists(localSettings)) {
             NSLog(@"local_settings.py not found, must show preferences...");
@@ -93,6 +86,32 @@
 /********************
   Useful Methods
 ********************/
+
+
+BOOL checkEnvVars() {
+    // MUST: Check the KALITE_DIR and KALITE_PYTHON environment variables
+    // and default it to the .app Resources folder if not yet set.
+    BOOL mustSetEnvVars = FALSE;
+    NSString *var = getEnvVar(@"KALITE_DIR");
+    if (!pathExists(var)) {
+        mustSetEnvVars = TRUE;
+    }
+    var = getEnvVar(@"KALITE_PYTHON");
+    if (!pathExists(var)) {
+        mustSetEnvVars = TRUE;
+    }
+    if (mustSetEnvVars) {
+        if (!setEnvVars(FALSE)) {
+            return FALSE;
+        };
+    }
+
+    NSString *kaliteDir = getKaliteDir(true);
+    NSString *pyrun = getPyrunBinPath(true);
+    NSLog([NSString stringWithFormat:@"KA-Lite value: %@", kaliteDir]);
+    NSLog([NSString stringWithFormat:@"Pyrun value: %@", pyrun]);
+    return TRUE;
+}
 
 
 void copyLocalSettings() {
@@ -170,7 +189,6 @@ NSString *thisOrOther(NSString *this, NSString *other) {
 
 
 //<##>getKaliteDir
-
 NSString *getKaliteDir(BOOL useEnvVar) {
     // Returns the path of `ka-lite` directory if it exists or an empty string otherwise.
     // If `useEnvVar` is set, get the `KALITE_DIR` from the environment variables and use it if valid.
@@ -258,8 +276,10 @@ BOOL pyrunExists() {
         
         // TODO(cpauya): make sure the pyrun and kalite binaries are not empty
         
-//        kaliteCmd = [NSString stringWithFormat: @"export KALITE_DIR=\"%@\"; export KALITE_PYTHON=\"%@\"; \"%@\"",
-//                     kaliteDir, pyrun, kalitePath];
+        // MUST: This will make sure the process to run has access to the environment variables
+        // because the .app may be loaded the first time.
+        kaliteCmd = [NSString stringWithFormat: @"export KALITE_DIR=\"%@\"; export KALITE_PYTHON=\"%@\"; \"%@\"",
+                     kaliteDir, pyrun, kalitePath];
         
         kaliteCmd = [NSString stringWithFormat: @"\"%@\"", kalitePath];
         
@@ -483,7 +503,7 @@ NSString *getEnvVar(NSString *var) {
 
 
 //<##>setEnvVars
-BOOL setEnvVars() {
+BOOL setEnvVars(BOOL createPlist) {
     // TODO(cpauya): For now, get the values from current .app Resources folder.  In the future,
     // it must be taken from user-defined values on the Preferences dialog.
 
@@ -526,6 +546,10 @@ BOOL setEnvVars() {
         return FALSE;
     }
     
+    if (!createPlist) {
+        NSLog(@"Not creating a .plist file, this may be the first time the .app is loaded.");
+        return TRUE;
+    }
     /*
      MUST: Let's create a org.learningequality.kalite.plist at the /tmp/ folder
      then use an AppleScript script to combine it with the symlink script
@@ -800,7 +824,7 @@ BOOL setEnvVars() {
         copyLocalSettings();
     }
 
-    if (!setEnvVars()) {
+    if (!setEnvVars(TRUE)) {
         alert(@"Either the set environment variables or symlink of kalite failed to complete!  Please check the Console.");
         return;
     }
