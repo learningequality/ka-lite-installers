@@ -572,7 +572,7 @@ BOOL setEnvVars(BOOL createPlist) {
      */
     NSString *org = @"org.learningequality.kalite";
     NSString *path = [NSString stringWithFormat:@"/tmp/%@.plist", org];
-    NSString *target = [NSString stringWithFormat:@"/Library/LaunchDaemons/%@.plist", org];
+    NSString *target = [NSString stringWithFormat:@"/Library/LaunchAgents/%@.plist", org];
     NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] init];
     [plistDict setObject:org forKey:@"Label"];
     NSString *launchStr = [NSString stringWithFormat:@"%@;%@",
