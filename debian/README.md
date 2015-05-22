@@ -3,13 +3,15 @@ Debian installer
 
 The Debian installer is based on [stdeb](https://github.com/astraw/stdeb) which
 is a tool that automatically converts a normal *setup.py*-based package to a
-Debian package structure. This means that there are two ways to install the
-source of kalite on a Debian system:
+Debian package structure. There are two equivilent ways of installing KA Lite:
 
-  1. `python setup.py sdist && pip install dist/xxx.tar.gz` - invokes the setup.py file in the current directory
-  1. `dpkg -i NAME_OF_PACKAGE.deb` - installs as a usual .deb file
+  1. `pip install ka-lite-static` -- installs KA Lite from PyPi with all dependencies builtin ("static").
+  1. `dpkg -i NAME_OF_PACKAGE.deb` - installs KA Lite from a Debian package.
 
-NB! Please note that the following method will not render a correct result:
+The Debian package essentially uses the same distribution script (setup.py)
+as the other installers and hence does as little platform-specific work as
+possible.
+
 
 Introduction
 ------------
@@ -21,13 +23,7 @@ Introduction
 
 **Building / developing**
 
-  1. From the root example (the one containing setup.py), link the following contents from your ka-lite source tree:
-     1. `bin`
-     1. `data`
-     1. `kalite`
-     1. `locale`
-     1. `python-packages`
-     1. `sphinx-docs`
+  1. From the root example (the one containing setup.py), link your ka-lite source tree.
   1. Run `./build_dsc.sh` which does the following:
      1. Invokes `py2dsc`
      1. Builds documentation
@@ -57,7 +53,7 @@ Choices
  - **Python 2.7** requirement has been chosen because we do not expect systems
    to be running on lower versions of Python anymore, and we need this to
    eventually convert to Python 3 down the road.
- - Everything is done through a debian-specific setup.py file using distutils,
+ - Everything is done through a debian-specific setup.py file using setuptools,
    and this should work even without the .deb configuration. This is the
    basis of having a workable .deb
 
@@ -77,23 +73,3 @@ Success criteria
 
  * Should be installable in a virtualenv <- This means that we can't just put
    files in system-wide directories by default.
-
-
-### Directory layout
-
-TODO: Document how data files are placed, reflecting the setuptools method.
-
-The main executable:
-- `/usr/bin/kalite`
-
-The `kalite` python module will likely end up here:
-
--  `/usr/lib/pythonX.X/dist-packages/`
-
-
-Build requirements
-------------------
-
-Use apt-get to retrieve the following packages:
-
-- python-stdeb
