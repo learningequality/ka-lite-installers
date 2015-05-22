@@ -19,7 +19,6 @@ Introduction
   1. stdeb - `pip install stdeb`
   1. setuptools - If you have pip, you have it :)
 
-
 **Building / developing**
 
   1. From the root example (the one containing setup.py), link the following contents from your ka-lite source tree:
@@ -34,6 +33,11 @@ Introduction
      1. Builds documentation
      1. Copies documentation to debian source
      1. Builds .deb for all architectures
+
+
+**Signing**
+
+TODO - we need GPG signing
 
 
 **Resources:**
@@ -57,23 +61,27 @@ Choices
    and this should work even without the .deb configuration. This is the
    basis of having a workable .deb
 
+
+Setuptools vs distutils
+-----------------------
+
+It would be really great to be packaging with Python was easy, however it's not.
+
+It's therefore very important to highlight:
+
+**THIS PACKAGING EFFORT IS USING SETUPTOOLS AND NOT DISTUTILS!!!**
+
+
+Success criteria
+----------------
+
+ * Should be installable in a virtualenv <- This means that we can't just put
+   files in system-wide directories by default.
+
+
 ### Directory layout
 
-
-- `/var/kalite` for everything -- except binaries, data, and kalite python module
-- `/var/kalite/djangoproject/` for `settings` and `local_settings`,
-  `kalitectl.py`, and `manage.py` (TO BE REMOVED!).
-- `/var/kalite/python-packages` -- this should exist in the static deb, and once
-  we get our external dependencies sorted out, we can get a dynamic deb as
-  well which doesn't include this.
-- `/var/kalite/database/` for the database
-
-* Everything in /var/kalite/srv* should be served by a webserver.
-
-- `/var/kalite/srv/media/` for everything in the MEDIA_ROOT.
-- `/var/kalite/srv/static/` for everything in the STATIC_ROOT.
-- `/var/kalite/srv/content/` for everything in the STATIC_ROOT.
-- `/var/kalite/srv/data/` for everything in the STATIC_ROOT.
+TODO: Document how data files are placed, reflecting the setuptools method.
 
 The main executable:
 - `/usr/bin/kalite`
@@ -89,17 +97,3 @@ Build requirements
 Use apt-get to retrieve the following packages:
 
 - python-stdeb
-
-
-Building
---------
-
-### Build a normal python sdist tarball
-
-Before creating the Debian package, you can verify that distutils can correctly
-build a python package through the setup.py script. This is standard stuff,
-but the setup.py file is only (at the moment!) intended to work on a Linux
-system.
-
-
-
