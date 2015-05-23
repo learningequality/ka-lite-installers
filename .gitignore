@@ -1,6 +1,6 @@
 # Debian installer build stuff
 debian/ka-lite
-debian/kalite
+debian/deb_dist
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
