@@ -1,6 +1,12 @@
 #!/bin/bash
 
+set -e
+
+# Version from commandline arg
 VERSION=$1
+# This is the debian way of writing version numbers...
+DEBIAN_VERSION=`echo "$VERSION" | sed -e 's/\([0-9]*\.[0-9]*\)\.\([.]*\)/\1\~\2/g'`
+# Where to find the source tarball
 SOURCE_TARBALL="ka-lite/dist/ka-lite-static-$VERSION.tar.gz"
 THIS_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
@@ -44,14 +50,14 @@ confirm () {
 if [ ! -f $SOURCE_TARBALL ]
 then
     echo "Version $VERSION does not seem to exist, do you want to build the latest source?"
-    if confirm "Do you want to build it now [Y/n]"
+    if confirm "Do you want to build it now [y/N]"
     then
         cd ka-lite
         
         if [ -d ka_lite_static.egg-info ]
         then
             echo "Build ka-lite is more safe if you clean out all existing build files."
-            if confirm "Do you want to clean the source directory's build stuff? [Y/n]"
+            if confirm "Do you want to clean the source directory's build stuff? [y/N]"
             then
                 echo "Cleaning..."
                 python setup.py clean --all
@@ -61,7 +67,8 @@ then
         fi
         
         python setup.py sdist --static
-        if [ ! -f $SOURCE_TARBALL ]
+        cd $THIS_DIR
+        if [ ! -f "$SOURCE_TARBALL" ]
         then
             echo "Built the wrong version, no file $SOURCE_TARBALL"
             exit 1
@@ -72,8 +79,10 @@ then
     fi
 else
     echo "It's already built but do you need to clean everything and rebuild?"
-    if confirm "Yes, clean and rebuild [Y/n]"
+    if confirm "Yes, clean and rebuild [y/N]"
     then
+        rm "$SOURCE_TARBALL"
+        rm -rf "deb_dist/tmp_py2dsc/ka-lite-static-$VERSION"
         cd ka-lite
         python setup.py clean --all
         python setup.py sdist --static
@@ -87,12 +96,12 @@ cd $THIS_DIR
 # Build the static package
 py2dsc $SOURCE_TARBALL
 
-DEBIAN_VERSION=echo "$VERSION" | sed -e 's/\([0-9]*\.[0-9]*\)\.\([.]*\)/\1\~\2/g'
+cd deb_dist/ka-lite-static-$DEBIAN_VERSION
+dpkg-buildpackage -rfakeroot -uc -us
+cd $THIS_DIR
 
 echo "Sources created"
-echo "You should commit relevant files to the repo, because we do track old releases. But this does not include the source code."
+echo "You should commit relevant files to the repo, because we track old releases."
+echo "TODO: Figure out which files should be tracked"
 echo ""
-echo "To compile debian package, run:"
-echo ""
-echo "    cd deb_dist/ka-lite-static-$DEBIAN_VERSION"
-echo "    dpkg-buildpackage -rfakeroot -uc -us"
+echo "A new .deb file is now available in deb_dist/"
