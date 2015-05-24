@@ -84,6 +84,7 @@ else
         rm "$SOURCE_TARBALL"
         rm -rf "deb_dist/tmp_py2dsc/ka-lite-static-$VERSION"
         cd ka-lite
+        rm -rf dist-packages
         python setup.py clean --all
         python setup.py sdist --static
     else
