@@ -11,26 +11,24 @@ This project provides a smoother way to install and run KA Lite in a Windows Mac
 
 ---
 #### Instructions to update Microsoft Visual Studio 2012
-###### Steps to update:
+##### Steps to update:
 * Click on TOOLS menu
 * Select Extensions and Updates... then another dialog will appear.
 * Click on Update.
 
-###### Install the downloaded update in your machine
-* Click on BUILD.
-* Select Build Solution.
-
 ---
 #### Instructions to build "KALiteSetup.exe" in Windows:
+* Clone the `ka-lite` repository.
 * Clone this repository;
-* Copy `ka-lite` folder from KA Lite's repository, to the root of this repository;
-* Run `make.vbs` and wait until the output file is built;
+* Copy `ka-lite` folder from `ka-lite` repository, to the `installers/windows` of this repository;
+* Run `installers/windows/make.vbs` and wait until the output file is built;
 * The output file named "KALiteSetup-X.X.X.exe" will appear within this project folder.
 
 ---
-##### To clone this repository, run the following line:
-    git clone https://github.com/learningequality/installers.git
-######
+#### To clone ka-lite and this repository, run the following line:
+* git clone https://github.com/learningequality/ka-lite.git
+* git clone https://github.com/learningequality/installers.git
+####
 
 ---
 ##### Instructions to build "KALiteSetup-X.X.X.exe" in Linux:
