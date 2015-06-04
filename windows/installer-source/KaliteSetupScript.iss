@@ -327,8 +327,8 @@ var
 begin
     if(MsgBox('Python error' #13#13 'Python 2.6+ is required to run KA Lite; do you wish to first install Python 2.7.9, before continuing with the installation of KA Lite?', mbConfirmation, MB_YESNO) = idYes) then
     begin
-        ExtractTemporaryFile('python-2.7.9.msi');
-        ShellExec('open', ExpandConstant('{tmp}')+'\python-2.7.9.msi', '', '', SW_SHOWNORMAL, ewWaitUntilTerminated, installPythonErrorCode);  
+        ExtractTemporaryFile('python-2.7.10.msi');
+        ShellExec('open', ExpandConstant('{tmp}')+'\python-2.7.10.msi', '', '', SW_SHOWNORMAL, ewWaitUntilTerminated, installPythonErrorCode);
     end
     else begin
         MsgBox('Error' #13#13 'You must have Python 2.6+ installed to proceed! Installation will now exit.', mbError, MB_OK);
