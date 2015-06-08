@@ -325,15 +325,34 @@ procedure HandlePythonSetup;
 var
     installPythonErrorCode : Integer;
 begin
-    if(MsgBox('Python error' #13#13 'Python 2.6+ is required to run KA Lite; do you wish to first install Python 2.7.9, before continuing with the installation of KA Lite?', mbConfirmation, MB_YESNO) = idYes) then
+    if(MsgBox('Python error' #13#13 'Python 2.6+ is required to run KA Lite; do you wish to first install Python 2.7.10, before continuing with the installation of KA Lite?', mbConfirmation, MB_YESNO) = idYes) then
     begin
-        ExtractTemporaryFile('python-2.7.9.msi');
-        ShellExec('open', ExpandConstant('{tmp}')+'\python-2.7.9.msi', '', '', SW_SHOWNORMAL, ewWaitUntilTerminated, installPythonErrorCode);  
+        ExtractTemporaryFile('python-2.7.10.msi');
+        ShellExec('open', ExpandConstant('{tmp}')+'\python-2.7.10.msi', '', '', SW_SHOWNORMAL, ewWaitUntilTerminated, installPythonErrorCode);
     end
     else begin
         MsgBox('Error' #13#13 'You must have Python 2.6+ installed to proceed! Installation will now exit.', mbError, MB_OK);
         forceCancel := True;
         WizardForm.Close;
+    end;
+end;
+
+procedure HandlePipSetup;
+var
+    PipCommand: string;
+    PipPath: string;
+    ErrorCode: integer;
+
+begin
+    PipPath := 'C:\Python27\Scripts\pip.exe';
+    PipCommand := 'install ' + '"' + ExpandConstant('{app}') + '\ka-lite\dist\ka-lite-static-0.14.dev10.zip' + '"';
+
+    MsgBox('Setup will now configure Pip dependencies.', mbInformation, MB_OK);
+    if not ShellExec('open', PipPath, PipCommand, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
+    begin
+      MsgBox('Critical error.' #13#13 'Pip dependemcies has failed to install. Error Number:' + IntToStr(ErrorCode), mbInformation, MB_OK);
+      forceCancel := True;
+      WizardForm.Close;
     end;
 end;
 
@@ -434,6 +453,7 @@ begin
     begin
         if installFlag then
         begin
+            HandlePipSetup();
             setupCommand := 'manage.py setup --noinput -o "'+ServerInformationPage.Values[0]+'" -d "'+ServerInformationPage.Values[1]+'" -u "'+UserInformationPage.Values[0]+'" -p "'+UserInformationPage.Values[1]+'"';
             
             MsgBox('Setup will now configure the database. This operation may take a few minutes. Please be patient.', mbInformation, MB_OK);
