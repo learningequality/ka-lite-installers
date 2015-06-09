@@ -21,20 +21,22 @@ This project provides a smoother way to install and run KA Lite in a Windows Mac
 * Select Build Solution.
 
 ---
-#### Instructions to build "KALiteSetup.exe" in Windows:
+#### Instructions to build "KALiteSetup.exe":
+To build in Linux, first install `wine`.
 * Clone this repository;
 * Copy `ka-lite` folder from KA Lite's repository, to the root of this repository;
-* Run `make.vbs` and wait until the output file is built;
+* Ensure the assessment items have been unpacked in the `ka-lite` directory.
+* In Windows, run the following command from this directory:
+```
+> make.vbs
+```
+* In Linux, run the following command in this directory using `wine`:
+```bash
+> wine inno-compiler/ISCC.exe installer-source/KaliteSetupScript.iss
+```
 * The output file named "KALiteSetup-X.X.X.exe" will appear within this project folder.
 
 ---
 ##### To clone this repository, run the following line:
     git clone https://github.com/learningequality/installers.git
 ######
-
----
-##### Instructions to build "KALiteSetup-X.X.X.exe" in Linux:
-First, install `wine`. Then in the base directory run the following commands:
-```bash
-> wine inno-compiler/ISCC.exe installer-source/KaliteSetupScript.iss
-```
