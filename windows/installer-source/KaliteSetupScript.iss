@@ -98,9 +98,6 @@ Type: filesandordirs; Name: "{app}\ka-lite\kalite\testing"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\topic_tools"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\updates"
 Type: filesandordirs; Name: "{app}\ka-lite\kalite\utils"
-Type: Files; Name: "{app}\ka-lite\run_command.bat"
-Type: Files; Name: "{app}\ka-lite\start.bat"
-Type: Files; Name: "{app}\ka-lite\stop.bat"
 Type: Files; Name: "{app}\ka-lite\kalite\*.pyc"
 Type: Files; Name: "{userstartup}\KA Lite.lnk"
 Type: Files; Name: "{app}\CONFIG.dat"
@@ -132,7 +129,7 @@ begin
     begin
         ShellExec('open', 'taskkill.exe', '/F /T /im "KA Lite.exe"', '', SW_HIDE, ewWaitUntilTerminated, stopServerCode);
         ShellExec('open', 'tskill.exe', '"KA Lite"', '', SW_HIDE, ewWaitUntilTerminated, stopServerCode);
-        Exec(ExpandConstant('{cmd}'),'/C ka-lite\scripts\stop.bat', WizardForm.PrevAppDir, SW_HIDE, ewWaitUntilTerminated, stopServerCode);
+        Exec(ExpandConstant('{cmd}'),'/C ka-lite\bin\windows\kalite.bat stop', WizardForm.PrevAppDir, SW_HIDE, ewWaitUntilTerminated, stopServerCode);
         Exec(ExpandConstant('{cmd}'),'/C del winshortcut.vbs', WizardForm.PrevAppDir, SW_HIDE, ewWaitUntilTerminated, removeOldGuiTool);
     end;
     
@@ -389,7 +386,7 @@ ErrorCode: Integer;
 begin
   ShellExec('open', 'taskkill.exe', '/F /T /im "KA Lite.exe"', '', SW_HIDE, ewWaitUntilTerminated, ErrorCode);
   ShellExec('open', 'tskill.exe', '"KA Lite"', '', SW_HIDE, ewWaitUntilTerminated, ErrorCode);
-  ShellExec('open', ExpandConstant('{app}') + '\ka-lite\stop.bat', '', '', SW_HIDE, ewWaitUntilTerminated, ErrorCode);
+  ShellExec('open', ExpandConstant('{app}') + '\ka-lite\bin\windows\kalite.bat stop', '', '', SW_HIDE, ewWaitUntilTerminated, ErrorCode);
   result := True;
 end;
 
@@ -412,7 +409,7 @@ begin
         
         ShellExec('open', 'taskkill.exe', '/F /T /im "KA Lite.exe"', '', SW_HIDE, ewWaitUntilTerminated, stopServerCode);
         ShellExec('open', 'tskill.exe', '"KA Lite"', '', SW_HIDE, ewWaitUntilTerminated, stopServerCode);
-        Exec(ExpandConstant('{cmd}'),'/C ka-lite\scripts\stop.bat', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, stopServerCode);
+        Exec(ExpandConstant('{cmd}'),'/C ka-lite\bin\windows\kalite.bat stop', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, stopServerCode);
         Exec(ExpandConstant('{cmd}'),'/C del winshortcut.vbs', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, removeOldGuiTool);
     
         if DirExists(ExpandConstant('{app}') + '\kalite') then
