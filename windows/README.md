@@ -42,6 +42,6 @@ To build in Linux, first install `wine`.
 * The output file named "KALiteSetup-X.X.X.exe" will appear within this project folder.
 
 ---
-##### To clone this repository, run the following lines:
+#### To clone ka-lite and this repository, run the following lines:
 * git clone https://github.com/learningequality/ka-lite.git
 * git clone https://github.com/learningequality/installers.git
