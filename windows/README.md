@@ -11,14 +11,19 @@ This project provides a smoother way to install and run KA Lite in a Windows Mac
 
 ---
 #### Instructions to update Microsoft Visual Studio 2012
-###### Steps to update:
+##### Steps to update:
 * Click on TOOLS menu
 * Select Extensions and Updates... then another dialog will appear.
 * Click on Update.
 
-###### Install the downloaded update in your machine
-* Click on BUILD.
-* Select Build Solution.
+---
+#### Instructions to download pip dependency zip files.
+* Clone the `ka-lite` repository.
+* Clone this repository.
+* Install `python-2.7.10.msi` at `/installer/windows/python-setup` directory.
+* Add `python path` to your windows Environment Variables.
+* On your command line navigate to `ka-lite` directory that contain `setup.py`.
+* Run this command `python setup.py sdist --static` to download zip files .
 
 ---
 #### Instructions to build "KALiteSetup.exe":
@@ -37,6 +42,6 @@ To build in Linux, first install `wine`.
 * The output file named "KALiteSetup-X.X.X.exe" will appear within this project folder.
 
 ---
-##### To clone this repository, run the following line:
-    git clone https://github.com/learningequality/installers.git
-######
+##### To clone this repository, run the following lines:
+* git clone https://github.com/learningequality/ka-lite.git
+* git clone https://github.com/learningequality/installers.git
