@@ -104,7 +104,7 @@ sed -i 's/\${python:Depends}//g' "deb_dist/ka-lite-source-${DEBIAN_VERSION}/debi
 
 echo "Building final debian package for all architectures..."
 cd deb_dist/ka-lite-source-$DEBIAN_VERSION
-dpkg-buildpackage -rfakeroot -uc -us
+dpkg-buildpackage -rfakeroot -pgpg -k1EC66E61
 cd $THIS_DIR
 
 echo "Sources created"
