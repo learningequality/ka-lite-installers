@@ -1,0 +1,17 @@
+ka-lite-source (0.14~dev14-1ubuntu2) precise; urgency=medium
+
+  * Removing {misc:Depends} from debian/control Requires
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 15 Jun 2015 18:47:55 +0200
+
+ka-lite-source (0.14~dev14-1ubuntu1) precise; urgency=medium
+
+  * Changes to stdeb dependencies
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 15 Jun 2015 17:50:26 +0200
+
+ka-lite-source (0.14~dev14-1) precise; urgency=low
+
+  * source package automatically created by stdeb 0.8.5
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 15 Jun 2015 16:22:09 +0200
