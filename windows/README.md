@@ -6,22 +6,29 @@ This project provides a smoother way to install and run KA Lite in a Windows Mac
 ---
 #### This project was built using the following software:
 * Inno Setup 5.5.3 [Download] (http://files.jrsoftware.org/is/5/)
-* Microsoft Visual Studio Express 2012 [Download] (https://www.microsoft.com/en-us/download/details.aspx?id=34673)
+* Microsoft Visual Studio Community 2015 [Website] (https://www.visualstudio.com/)
 * Git (note: install with the option to place the `git` executable in the path, so it can be run within `cmd`)
 
 ---
-#### Instructions to update Microsoft Visual Studio 2012
-##### Steps to update:
-* Click on TOOLS menu
-* Select Extensions and Updates... then another dialog will appear.
-* Click on Update.
+#### Instructions to build the GUI:
+* Open `gui-source/KA Lite.sln` using Visual Studio.
+* Click on the "Build" menu and then choose the "Build Solution" option.
+* Copy the resulting `KA Lite.exe` from its output location to `gui-packed/KA Lite.exe`
+
+Note: If you have made no changes to `gui-source`, you don't have to build `KA Lite.exe`. Just use the version in this repo.
+
+Note: If you *do* make changes to anything in `gui-source`, be sure to build and commit `KA Lite.exe`.
 
 ---
-#### Instructions to download pip dependency zip files.
+#### Instructions to download pip dependency zip files using Windows.
 * Clone the `ka-lite` repository.
 * Clone this repository.
 * Install `python-2.7.10.msi` at `/installer/windows/python-setup` directory.
-* Add `python path` to your windows Environment Variables.
+* Make sure `python.exe` is in your path, or you will have to invoke it using an absolute path below.
+* On your command line navigate to `ka-lite` directory that contain `setup.py`.
+* Run this command `python.exe setup.py sdist --static` to download zip files .
+
+On Linux, ensure you have python 2.7 installed, then:
 * On your command line navigate to `ka-lite` directory that contain `setup.py`.
 * Run this command `python setup.py sdist --static` to download zip files .
 
