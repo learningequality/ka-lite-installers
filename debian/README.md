@@ -13,8 +13,24 @@ as the other installers and hence does as little platform-specific work as
 possible.
 
 
-Introduction
-------------
+Normality: How to create an updated .deb:
+-----------------------------------------
+
+Say there is a change and you wish to update our sources, here's what you do:
+
+  1. Make sure you have the PPA of our sources: `sudo apt-add-repository --enable-source ppa:benjaoming/ka-lite`
+  1. CD to a new directory, `my_code/ka-lite-debian`
+  1. Fetch the source package "apt-get source ka-lite"
+  1. Now copy to a new source dir: `cp -R ka-lite-source-X/ ka-lite-source-0.Y`
+  1. Fetch a python sdist source tarball of the updated version: https://pypi.python.org/pypi/ka-lite-static
+  1. Unpack the new sources on top of the old source dir
+  1. Run `dch` and add new comment about the update -- remember to use a valid email for PGP signing
+  1. Run `dpkg-buildpackage -S` to build new sources, they will be located in the parent dir and signed
+  1. Use `dput ppa:benjamin/ka-lite blahblah.changes` to upload to Launchpad
+
+
+Introduction - Reproducing the build technique
+----------------------------------------------
 
 **Requirements**
 
@@ -24,17 +40,14 @@ Introduction
 **Building / developing**
 
   1. From the root example (the one containing setup.py), link your ka-lite source tree.
-  1. Run `./build_dsc.sh` which does the following:
-     1. Invokes `py2dsc`
-     1. Builds documentation
-     1. Copies documentation to debian source
-     1. Builds .deb for all architectures
-
+  1. Run `./build.sh` which does the following:
+     1. Invokes `py2dsc`, then either choose (at the end of the build):
+        * Build your own unsigned .deb for all architectures
+        * Create and sign a new PPA for benjaoming's Launchpad PPA
 
 **Signing**
 
-TODO - we need GPG signing
-
+Everything is signed with benjaoming's PGP.
 
 **Resources:**
 
@@ -66,6 +79,12 @@ It would be really great to be packaging with Python was easy, however it's not.
 It's therefore very important to highlight:
 
 **THIS PACKAGING EFFORT IS USING SETUPTOOLS AND NOT DISTUTILS!!!**
+
+
+Wheel
+-----
+
+Because of problems with the way that Wheel handles data files, we are not currently using it. bdist_wheel raises an exception for that purpose.
 
 
 Success criteria
