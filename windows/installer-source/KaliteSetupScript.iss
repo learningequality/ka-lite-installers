@@ -28,6 +28,7 @@ Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=admin
 UsePreviousAppDir=yes
+﻿ChangesEnvironment=True
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -101,6 +102,10 @@ Type: filesandordirs; Name: "{app}\ka-lite\kalite\utils"
 Type: Files; Name: "{app}\ka-lite\kalite\*.pyc"
 Type: Files; Name: "{userstartup}\KA Lite.lnk"
 Type: Files; Name: "{app}\CONFIG.dat"
+
+[Registry]
+; set PATH
+Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"KALITE_DIR"; ValueData:"{app}\ka-lite" ; Flags: preservestringtype ;
 
 [Code]
 var
@@ -342,7 +347,7 @@ var
 
 begin
     PipPath := 'C:\Python27\Scripts\pip.exe';
-    PipCommand := 'install ' + '"' + ExpandConstant('{app}') + '\ka-lite\dist\ka-lite-static-0.14.dev10.zip' + '"';
+    PipCommand := 'install ' + '"' + ExpandConstant('{app}') + '﻿\ka-lite\dist\ka-lite-static-0.14.dev11.zip' + '"';
 
     MsgBox('Setup will now configure Pip dependencies.', mbInformation, MB_OK);
     if not ShellExec('open', PipPath, PipCommand, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
