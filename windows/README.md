@@ -20,7 +20,7 @@ Note: If you have made no changes to `gui-source`, you don't have to build `KA L
 Note: If you *do* make changes to anything in `gui-source`, be sure to build and commit `KA Lite.exe`.
 
 ---
-#### Instructions to download pip dependency zip files using Windows.
+#### Instructions to download pip dependency zip files
 * Clone the `ka-lite` repository.
 * Clone this repository.
 * Install `python-2.7.10.msi` at `/installer/windows/python-setup` directory.
@@ -38,6 +38,7 @@ To build in Linux, first install `wine`.
 * Clone this repository;
 * Copy `ka-lite` folder from KA Lite's repository, to the root of this repository;
 * Ensure the assessment items have been unpacked in the `ka-lite` directory.
+* Follow the _Instructions to download pip dependency zip files_ above
 * In Windows, run the following command from this directory:
 ```
 > make.vbs
