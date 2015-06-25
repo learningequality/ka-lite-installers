@@ -347,7 +347,7 @@ var
 
 begin
     PipPath := 'C:\Python27\Scripts\pip.exe';
-    PipCommand := 'install ' + '"' + ExpandConstant('{app}') + '﻿\ka-lite\dist\ka-lite-static-0.14.dev11.zip' + '"';
+    ﻿PipCommand := 'install ' + '"' + ExpandConstant('{app}\ka-lite\dist\ka-lite-static-')  + '{#MyVersion}' + '.zip' + '"';
 
     MsgBox('Setup will now configure Pip dependencies.', mbInformation, MB_OK);
     if not ShellExec('open', PipPath, PipCommand, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
