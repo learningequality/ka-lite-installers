@@ -36,6 +36,7 @@
 @property (weak) IBOutlet NSMenuItem *stopKalite;
 @property (weak) IBOutlet NSMenuItem *openInBrowserMenu;
 
+@property (weak) IBOutlet NSButton *resetAppAction;
 
 enum kaliteStatus {
     statusOkRunning = 0,
