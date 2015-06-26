@@ -495,39 +495,6 @@ NSString *getEnvVar(NSString *var) {
 }
 
 
-BOOL unsetEnvVars() {
-    // This unsets the KALITE_DIR and KALITE_PYTHON environment variables used by the app.
-    NSString *command = @"launchctl unsetenv KALITE_DIR; launchctl unsetenv KALITE_PYTHON;";
-    const char *cmd = [command UTF8String];
-    int i = system(cmd);
-    if (i == 0) {
-        NSString *msg = @"Successfully unset KALITE_DIR and KALITE_PYTHON env vars.";
-        showNotification(msg);
-        return TRUE;
-    }
-    showNotification(@"Failed to unset KALITE_DIR and KALITE_PYTHON env vars.");
-    return FALSE;
-}
-
-
-BOOL deletePlists() {
-    // Delete the .plist files.
-    NSString *org = @"org.learningequality.kalite";
-    NSString *tempPath = [NSString stringWithFormat:@"/tmp/%@.plist", org];
-    NSString *agentPath = [NSString stringWithFormat:@"/Library/LaunchAgents/%@.plist", org];
-    NSString *command = [NSString stringWithFormat:@"rm %@; rm %@;", tempPath, agentPath];
-    return runRootCommands(command);
-}
-
-
-BOOL deleteKaliteSymlink() {
-    // Delete the symlinked `kalite` executable.
-    NSString *path = @"/usr/local/bin/kalite";
-    NSString *command = [NSString stringWithFormat:@"rm %@;", path];
-    return runRootCommands(command);
-}
-
-
 //<##>setEnvVars
 BOOL setEnvVars(BOOL createPlist) {
     // TODO(cpauya): For now, get the values from current .app Resources folder.  In the future,
@@ -743,7 +710,7 @@ BOOL setEnvVars(BOOL createPlist) {
 
 
 - (IBAction)resetAppAction:(id)sender {
-    NSString *message = @"This will reset the user preferences and .plist file for the app.  Are you sure?";
+    NSString *message = @"This will reset app.  Are you sure?";
     if (confirm(message)) {
         [self resetApp];
     }
@@ -885,31 +852,57 @@ BOOL setEnvVars(BOOL createPlist) {
 
 -(enum kaliteStatus)setupKalite {
     // Get admin account credentials from preferences.
-    showNotification(@"Running `kalite manage setup`.");
-    NSString *cmd = [NSString stringWithFormat:@"manage setup --username %@ --password %@ --noinput",
+    
+    // MUST: The order of the arguments must be followed or the username / password
+    // will not have the same value!
+    NSString *cmd = [NSString stringWithFormat:@"manage setup --username=%@ --password=%@ --noinput",
                      self.username, self.password];
+    NSString *msg = [NSString stringWithFormat:@"Running `kalite manage setup` with %@", cmd];
+    showNotification(msg);
     enum kaliteStatus status = [self runKalite:cmd];
     [self getKaliteStatus];
     return status;
 }
 
 
--(void)resetApp {
-    // TODO(cpauya):
+-(BOOL)resetApp {
+    // This will reset the app like it was never installed.
     // 1. reset the environment variables: KALITE_DIR, KALITE_PYTHON
     // 2. remove the .plist file, need admin
     // 3. delete the symlinked /usr/local/bin/kalite command, need admin
+    // 4. TODO(cpauya): delete/reset the user preferences
+
     showNotification(@"Resetting the app...");
     NSString *msg;
-    if (!unsetEnvVars()) {
-        showNotification(@"Failed to unset environment variables!");
+
+    // This unsets the KALITE_DIR and KALITE_PYTHON environment variables used by the app.
+    NSString *command = @"launchctl unsetenv KALITE_DIR; launchctl unsetenv KALITE_PYTHON;";
+    const char *cmd = [command UTF8String];
+    int i = system(cmd);
+    if (i != 0) {
+        showNotification(@"Failed to unset KALITE_DIR and KALITE_PYTHON env vars.");
+        return FALSE;
     }
-    if (!deletePlists()) {
-        showNotification(@"Failed to delete the .plist files!");
+
+    // MUST: Run the root commands as one so it only prompts the user once.
+
+    // Delete the .plist files.
+    NSString *org = @"org.learningequality.kalite";
+    NSString *tempPath = [NSString stringWithFormat:@"/tmp/%@.plist", org];
+    NSString *agentPath = [NSString stringWithFormat:@"/Library/LaunchAgents/%@.plist", org];
+    NSString *deletePlistCommand = [NSString stringWithFormat:@"rm %@; rm %@;", tempPath, agentPath];
+
+    // Delete the symlinked `kalite` executable.
+    NSString *path = @"/usr/local/bin/kalite";
+    NSString *deleteSymlinkCommand = [NSString stringWithFormat:@"rm %@;", path];
+
+    command = [NSString stringWithFormat:@"%@ %@", deletePlistCommand, deleteSymlinkCommand];
+    if (!runRootCommands(command)) {
+        showNotification(@"Failed to delete .plist or symlinked kalite executable.");
+        return FALSE;
     }
-    if (!deleteKaliteSymlink()) {
-        showNotification(@"Failed to delete the symlinked `kalite` executable.!");
-    }
+    showNotification(@"Done resetting the app.");
+    return TRUE;
 }
 
 

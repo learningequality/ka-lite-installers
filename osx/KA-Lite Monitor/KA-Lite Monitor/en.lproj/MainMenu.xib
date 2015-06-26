@@ -342,21 +342,22 @@ Gw
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="R3g-tg-TV7">
-                                            <rect key="frame" x="6" y="13" width="435" height="211"/>
+                                            <rect key="frame" x="6" y="5" width="435" height="232"/>
                                             <view key="contentView">
-                                                <rect key="frame" x="1" y="1" width="433" height="195"/>
+                                                <rect key="frame" x="1" y="1" width="433" height="216"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="i3l-SV-9sX">
-                                                        <rect key="frame" x="6" y="34" width="427" height="163"/>
+                                                        <rect key="frame" x="6" y="31" width="427" height="187"/>
                                                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="Yms-9g-Z2D">
                                                             <font key="font" metaFont="system"/>
                                                             <string key="title">WARNING:  Do this only if you know what you are doing.  
 
-This will remove the installer files to simulate a clean environment:
-1. delete the stored user preferences
-2. delete the .plist file
+This will remove the installer files to set a clean environment:
+1. remove the KALITE_DIR and KALITE_PYTHON environment variables
+2. delete the .plist file which auto-sets the above env vars
 3. delete the symlinked /usr/local/bin/kalite executable
+4. (TODO) delete the stored user preferences
 
 Click the Apply button to re-create the installation files mentioned above.</string>
                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
