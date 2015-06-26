@@ -855,7 +855,7 @@ BOOL setEnvVars(BOOL createPlist) {
     
     // MUST: The order of the arguments must be followed or the username / password
     // will not have the same value!
-    NSString *cmd = [NSString stringWithFormat:@"manage setup -o '' -d '' -u %@ -p %@ --noinput",
+    NSString *cmd = [NSString stringWithFormat:@"manage setup --username=%@ --password=%@ --noinput",
                      self.username, self.password];
     NSString *msg = [NSString stringWithFormat:@"Running `kalite manage setup` with %@", cmd];
     showNotification(msg);
