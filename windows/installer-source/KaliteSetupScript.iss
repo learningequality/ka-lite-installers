@@ -3,10 +3,10 @@
 #define MyAppURL "http://learningequality.org/"
 #define MyAppExeName "KA Lite.exe"
 
-#define getKALiteVerion() \
+#define getKALiteVersion() \
     Local[1] = Exec(SourcePath+"\getversion.bat") == 0 ? StringChange(FileRead(FileOpen(SourcePath+"\version.temp")), " ", "") : "null"
 
-#define MyVersion = getKALiteVerion();
+#define MyVersion = getKALiteVersion();
 
 #expr DeleteFile(SourcePath+"\version.temp")
 
@@ -342,7 +342,7 @@ var
 
 begin
     PipPath := 'C:\Python27\Scripts\pip.exe';
-    PipCommand := 'install ' + '"' + ExpandConstant('{app}') + '\ka-lite\dist\ka-lite-static-0.14.dev10.zip' + '"';
+    ﻿PipCommand := 'install ' + '"' + ExpandConstant('{app}\ka-lite\dist\ka-lite-static-')  + '{#MyVersion}' + '.zip' + '"';
 
     MsgBox('Setup will now configure Pip dependencies.', mbInformation, MB_OK);
     if not ShellExec('open', PipPath, PipCommand, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
