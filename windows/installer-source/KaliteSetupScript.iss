@@ -36,7 +36,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\ka-lite\*"; DestDir: "{app}\ka-lite"; Excludes: "data.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\ka-lite\*"; DestDir: "{app}\ka-lite"; Excludes: "data.sqlite,.KALITE_SOURCE_DIR"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\ka-lite\content\*"; DestDir: "{app}\ka-lite\content"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 Source: "..\ka-lite\kalite\database\*"; DestDir: "{app}\ka-lite\kalite\database"; Excludes: "data.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -451,7 +451,7 @@ begin
         if installFlag then
         begin
             HandlePipSetup();
-            setupCommand := 'manage.py setup --noinput -o "'+ServerInformationPage.Values[0]+'" -d "'+ServerInformationPage.Values[1]+'" -u "'+UserInformationPage.Values[0]+'" -p "'+UserInformationPage.Values[1]+'"';
+            setupCommand := 'bin\kalite manage setup --noinput -o "'+ServerInformationPage.Values[0]+'" -d "'+ServerInformationPage.Values[1]+'" -u "'+UserInformationPage.Values[0]+'" -p "'+UserInformationPage.Values[1]+'"';
             
             MsgBox('Setup will now configure the database. This operation may take a few minutes. Please be patient.', mbInformation, MB_OK);
       
