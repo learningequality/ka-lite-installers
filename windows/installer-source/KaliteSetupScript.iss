@@ -6,14 +6,14 @@
 #define getKALiteVersion() \
     Local[1] = Exec(SourcePath+"\getversion.bat") == 0 ? StringChange(FileRead(FileOpen(SourcePath+"\version.temp")), " ", "") : "null"
 
-#define MyVersion = getKALiteVersion();
+#define TargetVersion = getKALiteVersion();
 
 #expr DeleteFile(SourcePath+"\version.temp")
 
 [Setup]
 AppId={#MyAppName}-{#MyAppPublisher}
 AppName={#MyAppName}
-AppVersion={#MyVersion}
+AppVersion={#TargetVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
@@ -22,7 +22,7 @@ DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 LicenseFile=..\ka-lite\LICENSE
 OutputDir=..\
-OutputBaseFilename=KALiteSetup-{#MyVersion}
+OutputBaseFilename=KALiteSetup-{#TargetVersion}
 SetupIconFile=logo48.ico
 Compression=lzma
 SolidCompression=yes
@@ -342,7 +342,7 @@ var
 
 begin
     PipPath := 'C:\Python27\Scripts\pip.exe';
-    PipCommand := 'install ' + '"' + ExpandConstant('{app}\ka-lite\dist\ka-lite-static-')  + '{#MyVersion}' + '.zip' + '"';
+    PipCommand := 'install ' + '"' + ExpandConstant('{app}\ka-lite\dist\ka-lite-static-')  + '{#TargetVersion}' + '.zip' + '"';
 
     MsgBox('Setup will now configure Pip dependencies.', mbInformation, MB_OK);
     if not ShellExec('open', PipPath, PipCommand, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
