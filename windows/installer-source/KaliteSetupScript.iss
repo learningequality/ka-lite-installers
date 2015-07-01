@@ -36,7 +36,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\ka-lite\*"; DestDir: "{app}\ka-lite"; Excludes: "data.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\ka-lite\*"; DestDir: "{app}\ka-lite"; Excludes: "data.sqlite,.KALITE_SOURCE_DIR"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\ka-lite\content\*"; DestDir: "{app}\ka-lite\content"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 Source: "..\ka-lite\kalite\database\*"; DestDir: "{app}\ka-lite\kalite\database"; Excludes: "data.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -342,7 +342,7 @@ var
 
 begin
     PipPath := 'C:\Python27\Scripts\pip.exe';
-    ﻿PipCommand := 'install ' + '"' + ExpandConstant('{app}\ka-lite\dist\ka-lite-static-')  + '{#MyVersion}' + '.zip' + '"';
+    PipCommand := 'install ' + '"' + ExpandConstant('{app}\ka-lite\dist\ka-lite-static-')  + '{#MyVersion}' + '.zip' + '"';
 
     MsgBox('Setup will now configure Pip dependencies.', mbInformation, MB_OK);
     if not ShellExec('open', PipPath, PipCommand, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
@@ -451,11 +451,11 @@ begin
         if installFlag then
         begin
             HandlePipSetup();
-            setupCommand := 'manage.py setup --noinput -o "'+ServerInformationPage.Values[0]+'" -d "'+ServerInformationPage.Values[1]+'" -u "'+UserInformationPage.Values[0]+'" -p "'+UserInformationPage.Values[1]+'"';
-            
+            setupCommand := 'kalite manage setup --noinput --hostname="'+ServerInformationPage.Values[0]+'" --description="'+ServerInformationPage.Values[1]+'" --username="'+UserInformationPage.Values[0]+'" --password="'+UserInformationPage.Values[1]+'"';
+
             MsgBox('Setup will now configure the database. This operation may take a few minutes. Please be patient.', mbInformation, MB_OK);
       
-            if Not ShellExec('open', 'python.exe', setupCommand, ExpandConstant('{app}')+'\ka-lite\kalite', SW_HIDE, ewWaitUntilTerminated, ServerNameDescriptionCode) then
+            if Not ShellExec('open', 'python.exe', setupCommand, ExpandConstant('{app}')+'\ka-lite\bin', SW_HIDE, ewWaitUntilTerminated, ServerNameDescriptionCode) then
             begin
                 MsgBox('Critical error.' #13#13 'Setup has failed to initialize the database; aborting the install.', mbInformation, MB_OK);
                 forceCancel := True;
