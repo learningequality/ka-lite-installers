@@ -198,32 +198,42 @@ begin
     WizardForm.Show;
 end;
 
-procedure HandleExistentDatabase(targetPath : String);
-begin 
+procedure HandleUpgrade(targetPath : String);
+begin
     if FileExists(targetPath + '\ka-lite\kalite\database\data.sqlite') then
-    begin           
-        if MsgBox('We have detected an existing KA Lite installation; would you like to upgrade?', mbInformation,  MB_YESNO or MB_DEFBUTTON1) = IDYES then
-        begin        
-            existDatabase := True;
-            isUpgrade := True;
-        end
-        else if MsgBox('Installing fresh will delete all of your existing data; is this what you really want to do?', mbInformation,  MB_YESNO or MB_DEFBUTTON2) = IDYES then
+    begin
+        ConfirmUpgradeDialog;
+        if Not isUpgrade then
         begin
-            existDatabase := False;
-            isUpgrade := False;
             if Not DeleteFile(targetPath + '\ka-lite\kalite\database\data.sqlite') then
             begin
                 MsgBox('Error' #13#13 'Failed to delete the old database as requested; aborting the install.', mbError, MB_OK);
                 forceCancel := True;
                 WizardForm.Close;
             end;
-        end
-        else
-        begin
-            existDatabase := True;
-            isUpgrade := True;
         end;
-        RemoveOldInstallation(targetPath);
+    { TODO: Grab old version number before removing the old installation }
+    RemoveOldInstallation(targetPath);
+    end;
+end;
+
+procedure ConfirmUpgradeDialog;
+begin
+    if MsgBox('We have detected an existing KA Lite installation; would you like to upgrade?', mbInformation,  MB_YESNO or MB_DEFBUTTON1) = IDYES then
+    begin
+        { TODO: Find where these variables are used... and give them better names }
+        existDatabase := True;
+        isUpgrade := True;
+    end
+    else if MsgBox('Installing fresh will delete all of your existing data; is this what you really want to do?', mbInformation,  MB_YESNO or MB_DEFBUTTON2) = IDYES then
+    begin
+        existDatabase := False;
+        isUpgrade := False;
+    end
+    else
+    begin
+        existDatabase := True;
+        isUpgrade := True;
     end;
 end;
 
@@ -304,18 +314,14 @@ begin
     if CurPageID = wpLicense then
     begin
         if WizardForm.PrevAppDir <> nil then
-        begin
-            HandleExistentDatabase(WizardForm.PrevAppDir);
-        end;
+            HandleUpgrade(WizardForm.PrevAppDir);
     end;
     
     if CurPageID = wpSelectDir then
     begin
         if Not existDatabase and Not isUpgrade then
-        begin
-            HandleExistentDatabase(ExpandConstant('{app}'));
-        end; 
-    end;  
+            HandleUpgrade(ExpandConstant('{app}'));
+    end;
 end;
 
 procedure HandlePythonSetup;
@@ -347,7 +353,7 @@ begin
     MsgBox('Setup will now configure Pip dependencies.', mbInformation, MB_OK);
     if not ShellExec('open', PipPath, PipCommand, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
     begin
-      MsgBox('Critical error.' #13#13 'Pip dependemcies has failed to install. Error Number:' + IntToStr(ErrorCode), mbInformation, MB_OK);
+      MsgBox('Critical error.' #13#13 'Pip dependencies have failed to install. Error Number:' + IntToStr(ErrorCode), mbInformation, MB_OK);
       forceCancel := True;
       WizardForm.Close;
     end;
