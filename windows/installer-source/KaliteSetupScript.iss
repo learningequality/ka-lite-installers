@@ -109,7 +109,6 @@ var
   ServerInformationPage : TInputQueryWizardPage;
   UserInformationPage : TInputQueryWizardPage;
   StartupPage : TInputOptionWizardPage;
-  existDatabase : boolean;
   isUpgrade : boolean;
   stopServerCode: integer;
   removeOldGuiTool: integer;
@@ -121,7 +120,6 @@ var
 
 procedure InitializeWizard;
 begin
-    existDatabase := False;
     isUpgrade := False;
     forceCancel := False;
     
@@ -222,17 +220,14 @@ begin
     if MsgBox('We have detected an existing KA Lite installation; would you like to upgrade?', mbInformation,  MB_YESNO or MB_DEFBUTTON1) = IDYES then
     begin
         { TODO: Find where these variables are used... and give them better names }
-        existDatabase := True;
         isUpgrade := True;
     end
     else if MsgBox('Installing fresh will delete all of your existing data; is this what you really want to do?', mbInformation,  MB_YESNO or MB_DEFBUTTON2) = IDYES then
     begin
-        existDatabase := False;
         isUpgrade := False;
     end
     else
     begin
-        existDatabase := True;
         isUpgrade := True;
     end;
 end;
@@ -319,7 +314,8 @@ begin
     
     if CurPageID = wpSelectDir then
     begin
-        if Not existDatabase and Not isUpgrade then
+        { Unclear what the logic here is. This is only executed if HandleUpgrade was not previously run. }
+        if Not isUpgrade then
             HandleUpgrade(ExpandConstant('{app}'));
     end;
 end;
