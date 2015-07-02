@@ -43,6 +43,7 @@ Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\images\logo48.ico"; DestDir: "{app}\images"; Flags: ignoreversion
 Source: "..\python-setup\*"; DestDir: "{app}\python-setup"; Flags: ignoreversion
+Source: "get_previous_version.bat"; DestDir: "{app}"; AfterInstall: GetPreviousVersion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -117,6 +118,7 @@ var
   cleanOldKaliteFolder : integer;
   restoreDatabaseTemp : integer;
   forceCancel : boolean;
+  prevVerStr : string;
 
 procedure InitializeWizard;
 begin
@@ -196,6 +198,30 @@ begin
     WizardForm.Show;
 end;
 
+procedure GetPreviousVersion;
+begin
+    if WizardForm.PrevAppDir <> null then
+    begin
+        prevVerStr := Exec(ExpandConstant('{app}') + '\get_previous_version.bat ' + WizardForm.PrevAppDir) == 0 ? StringChange(FileRead(FileOpen(+"\prev_version.temp")), " ", "") : "null"
+    end;
+end;
+
+procedure ConfirmUpgradeDialog;
+begin
+    if MsgBox('We have detected an existing KA Lite installation; would you like to upgrade?', mbInformation,  MB_YESNO or MB_DEFBUTTON1) = IDYES then
+    begin
+        isUpgrade := True;
+    end
+    else if MsgBox('Installing fresh will delete all of your existing data; is this what you really want to do?', mbInformation,  MB_YESNO or MB_DEFBUTTON2) = IDYES then
+    begin
+        isUpgrade := False;
+    end
+    else
+    begin
+        isUpgrade := True;
+    end;
+end;
+
 procedure HandleUpgrade(targetPath : String);
 begin
     if FileExists(targetPath + '\ka-lite\kalite\database\data.sqlite') then
@@ -210,25 +236,7 @@ begin
                 WizardForm.Close;
             end;
         end;
-    { TODO: Grab old version number before removing the old installation }
     RemoveOldInstallation(targetPath);
-    end;
-end;
-
-procedure ConfirmUpgradeDialog;
-begin
-    if MsgBox('We have detected an existing KA Lite installation; would you like to upgrade?', mbInformation,  MB_YESNO or MB_DEFBUTTON1) = IDYES then
-    begin
-        { TODO: Find where these variables are used... and give them better names }
-        isUpgrade := True;
-    end
-    else if MsgBox('Installing fresh will delete all of your existing data; is this what you really want to do?', mbInformation,  MB_YESNO or MB_DEFBUTTON2) = IDYES then
-    begin
-        isUpgrade := False;
-    end
-    else
-    begin
-        isUpgrade := True;
     end;
 end;
 
