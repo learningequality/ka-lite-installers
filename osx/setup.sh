@@ -193,6 +193,8 @@ if ! [ -d "$KA_LITE_MONITOR_APP_PATH" ]; then
 fi
 
 # sign the .app file
+# unlock the keychain first so we can access the private key
+security unlock-keychain -p $KEYCHAIN_PASSWORD
 codesign -s "Foundation for Learning Equality, Inc." --force "$KA_LITE_MONITOR_APP_PATH"
 
 # Build the .dmg file.
@@ -235,6 +237,8 @@ $CREATE_DMG \
 echo "Done!"
 if [ -e "$DMG_PATH" ]; then
     # codesign the built DMG file
+    # unlock the keychain first so we can access the private key
+    security unlock-keychain -p $KEYCHAIN_PASSWORD
     codesign -s "Foundation for Learning Equality, Inc." --force "$DMG_PATH"
     echo "You can now test the built installer at '$DMG_PATH'."
 else
