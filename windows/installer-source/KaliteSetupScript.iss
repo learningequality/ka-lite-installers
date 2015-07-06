@@ -43,7 +43,6 @@ Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\images\logo48.ico"; DestDir: "{app}\images"; Flags: ignoreversion
 Source: "..\python-setup\*"; DestDir: "{app}\python-setup"; Flags: ignoreversion
-Source: "get_previous_version.bat"; DestDir: "{app}"; AfterInstall: GetPreviousVersion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -198,11 +197,27 @@ begin
     WizardForm.Show;
 end;
 
+{ Get the previous version number by checking the uninstall key registry values. }
+{ IS writes quite a bit of information to the registry by default: https://github.com/jrsoftware/issrc/blob/5203240a7de9b83c5432bee0b5b09d467869a02b/Projects/Install.pas#L434 }
 procedure GetPreviousVersion;
+var
+    subkey : String;
 begin
-    if WizardForm.PrevAppDir <> null then
+    subkey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\KA Lite-Foundation for Learning Equality_is1';
+    prevVerStr := ''
+    { 32-bit programs have a virtualized registry on 64-bit windows. So check all possible root keys. }
+    if Not RegQueryStringValue(HKLM, subkey, 'DisplayVersion', prevVerStr) then
     begin
-        prevVerStr := Exec(ExpandConstant('{app}') + '\get_previous_version.bat ' + WizardForm.PrevAppDir) == 0 ? StringChange(FileRead(FileOpen(+"\prev_version.temp")), " ", "") : "null"
+        if Not RegQueryStringValue(HKLM64, subkey, 'DisplayVersion', prevVerStr) then
+        begin
+            if Not RegQueryStringValue(HKCU, subkey, 'DisplayVersion', prevVerStr) then
+            begin
+                if Not RegQueryStringValue(HKCU64, subkey, 'DisplayVersion', prevVerStr) then
+                begin
+                    { Couldn't determine the previous version, so prevVerStr is '' }
+                end;
+            end;
+        end;
     end;
 end;
 
@@ -224,6 +239,7 @@ end;
 
 procedure HandleUpgrade(targetPath : String);
 begin
+    GetPreviousVersion;
     if FileExists(targetPath + '\ka-lite\kalite\database\data.sqlite') then
     begin
         ConfirmUpgradeDialog;
@@ -235,6 +251,10 @@ begin
                 forceCancel := True;
                 WizardForm.Close;
             end;
+        end
+        else
+        begin
+            { Do something here }
         end;
     RemoveOldInstallation(targetPath);
     end;
