@@ -118,11 +118,14 @@ var
   restoreDatabaseTemp : integer;
   forceCancel : boolean;
   prevVerStr : string;
+  prevAppBackupDir : string;
+  runGitmigrate : boolean;
 
 procedure InitializeWizard;
 begin
     isUpgrade := False;
     forceCancel := False;
+    runGitmigrate := False;
     
     if WizardForm.PrevAppDir <> nil then
     begin
@@ -237,6 +240,44 @@ begin
     end;
 end;
 
+procedure Backup013Files;
+var
+    prevDBDir, prevContentDir: String;
+    resCode: integer;
+begin
+    { Copy the old database and content folders, preserving the dir structure, then after installing then new files... }
+    { ...run gitmigrate management command and delete the old stuff. }
+    prevAppBackupDir := ExpandConstant('{tmp}') + '\prev-ka-lite';  // Expand this when we use it, instead of earlier.
+    prevDBDir := WizardForm.PrevAppDir + '\ka-lite\kalite\database';
+    prevContentDir := WizardForm.PrevAppDir + '\ka-lite\content';
+
+    if Not ForceDirectories(prevAppBackupDir + '\kalite\') then
+    begin
+        MsgBox('Fatal error' #13#13 'Failed to create backup directories at: ' + prevAppBackupDir, mbError, MB_OK);
+        forceCancel := True;
+        WizardForm.Close;
+    end;
+
+    MsgBox('Setup will now copy your prior user data for migration. If you have a lot of data, this may take some time!', mbInformation, MB_OK);
+
+    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + prevDBDir + '" "' + prevAppBackupDir + '\kalite\database\" /E "', '', SW_HIDE, ewWaitUntilTerminated, resCode);
+    if resCode <> 0 then
+    begin
+        MsgBox('Fatal error' #13#13 'Failed to backup database directory.', mbError, MB_OK);
+        forceCancel := True;
+        WizardForm.Close;
+    end;
+    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + prevContentDir + '" "' + prevAppBackupDir + '\content\" /E"', '', SW_HIDE, ewWaitUntilTerminated, resCode);
+    if resCode <> 0 then
+    begin
+        MsgBox('Fatal error' #13#13 'Failed to backup content directory.', mbError, MB_OK);
+        forceCancel := True;
+        WizardForm.Close;
+    end;
+
+    runGitmigrate := True;
+end;
+
 procedure HandleUpgrade(targetPath : String);
 begin
     GetPreviousVersion;
@@ -254,9 +295,18 @@ begin
         end
         else
         begin
-            { Do something here }
+            { This is where version-specific migration stuff should happen. }
+            if CompareStr(prevVerStr, '0.13.99') < 0 then
+            begin
+                if CompareStr('{#TargetVersion}', '0.14.0') >= 0 then
+                begin
+                    Backup013Files;
+                end;
+            end;
         end;
-    RemoveOldInstallation(targetPath);
+    { forceCancel will be true if something went awry in Backup013Files... abort instead of trampling the user's data. }
+    if Not forceCancel then
+        RemoveOldInstallation(targetPath);
     end;
 end;
 
@@ -420,9 +470,40 @@ begin
   result := True;
 end;
 
+{ Runs the gitmigrate management command introduced in 0.14 on the backup of a 0.13 installation }
+procedure DoGitMigrate;
+var
+    retCodeContent, retCodeDB, retCode : integer;
+begin
+    MsgBox('Migrating old data to current user''s %USERPROFILE%\.kalite\ directory.', mbInformation, MB_OK);
+    Exec(ExpandConstant('{cmd}'), '/S /C "mkdir "%USERPROFILE%\.kalite""', '', SW_SHOW, ewWaitUntilTerminated, retCode);
+    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + prevAppBackupDir + '\content" "%USERPROFILE%\.kalite\content\" /E /Y"', '', SW_SHOW, ewWaitUntilTerminated, retCodeContent);
+    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + prevAppBackupDir + '\kalite\database" "%USERPROFILE%\.kalite\database\" /E /Y"', '', SW_SHOW, ewWaitUntilTerminated, retCodeDB);
+    if (retCodeContent <> 0) or (retCodeDB <> 0) then
+    begin
+        Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + prevAppBackupDir + '" "' + ExpandConstant('{app}') + '\kalite-backup\" /E /Y"', '', SW_SHOW, ewWaitUntilTerminated, retCode);
+        MsgBox('Unable to migrate your data. Your data is still backed up at the directory: ' + ExpandConstant('{app}') + '\kalite-backup', mbError, MB_OK);
+    end;
+end;
+
+{ Create a brand new database using the setup management command }
+procedure DoSetup;
+var
+    setupCommand: string;
+    retCode: integer;
+begin
+    MsgBox('Setup will now configure the database. This operation may take a few minutes. Please be patient.', mbInformation, MB_OK);
+    setupCommand := 'kalite manage setup --noinput --hostname="'+ServerInformationPage.Values[0]+'" --description="'+ServerInformationPage.Values[1]+'" --username="'+UserInformationPage.Values[0]+'" --password="'+UserInformationPage.Values[1]+'"';
+    if Not ShellExec('open', 'python.exe', setupCommand, ExpandConstant('{app}')+'\ka-lite\bin', SW_HIDE, ewWaitUntilTerminated, retCode) then
+    begin
+        MsgBox('Critical error.' #13#13 'Setup has failed to initialize the database; aborting the install.', mbInformation, MB_OK);
+        forceCancel := True;
+        WizardForm.Close;
+    end;
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 var
-  ServerNameDescriptionCode: integer;
   StartupCode: integer;
   moveKaliteFolderTemp: integer;
   moveContentFolderTemp: integer;
@@ -430,8 +511,7 @@ var
   restoreKaliteFolder: integer;
   restoreContentFolder: integer;
   informationBoxFlagged: boolean;
-  setupCommand: string;
-  
+
 begin
     if CurStep = ssInstall then
     begin
@@ -481,16 +561,16 @@ begin
         if installFlag then
         begin
             HandlePipSetup();
-            setupCommand := 'kalite manage setup --noinput --hostname="'+ServerInformationPage.Values[0]+'" --description="'+ServerInformationPage.Values[1]+'" --username="'+UserInformationPage.Values[0]+'" --password="'+UserInformationPage.Values[1]+'"';
 
-            MsgBox('Setup will now configure the database. This operation may take a few minutes. Please be patient.', mbInformation, MB_OK);
-      
-            if Not ShellExec('open', 'python.exe', setupCommand, ExpandConstant('{app}')+'\ka-lite\bin', SW_HIDE, ewWaitUntilTerminated, ServerNameDescriptionCode) then
+            { Migrate old database if applicable, otherwise create a new one }
+            if runGitmigrate and Not forceCancel then
             begin
-                MsgBox('Critical error.' #13#13 'Setup has failed to initialize the database; aborting the install.', mbInformation, MB_OK);
-                forceCancel := True;
-                WizardForm.Close;
-            end;   
+                DoGitMigrate;
+            end
+            else
+            begin
+                DoSetup;
+            end;
       
             if StartupPage.SelectedValueIndex = 0 then
             begin
