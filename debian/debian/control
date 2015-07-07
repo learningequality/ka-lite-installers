@@ -10,10 +10,14 @@ X-Python-Version: >= 2.7
 
 Package: ka-lite
 Architecture: all
-Depends: python (>= 2.7), python (<< 2.8)
+Pre-Depends: debconf
+Depends: python (>= 2.7), python (<< 2.8), ucf
 Recommends: ka-lite-gtk
-Description: KA Lite is a light-weight web server for viewing and interac
-
+Description: KA Lite
+ A lightweight web server for serving core
+ Khan Academy content (videos and exercises)
+ without needing internet connectivity
+Homepage: https://learningequality.org/ka-lite/
 
 
 

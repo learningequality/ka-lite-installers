@@ -1,3 +1,18 @@
+ka-lite-source (0.14.alpha3-0ubuntu2) precise; urgency=medium
+
+  * Prompt user about startup script
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 07 Jul 2015 00:47:09 +0200
+
+ka-lite-source (0.14.alpha3-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+  * Add init script
+  * Add ka-lite user that runs the default server
+  * Fix shortened description
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 06 Jul 2015 18:23:09 +0200
+
 ka-lite-source (0.14.alpha2-0ubuntu1) precise; urgency=medium
 
   * New upstream release
