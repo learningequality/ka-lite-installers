@@ -1,3 +1,27 @@
+ka-lite-source (0.14.alpha7-0ubuntu1) precise; urgency=medium
+
+  * New upstream release, hopefully fixing the last languagepack data location
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 07 Jul 2015 07:20:43 +0200
+
+ka-lite-source (0.14.alpha6-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 07 Jul 2015 06:59:45 +0200
+
+ka-lite-source (0.14.alpha5-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 07 Jul 2015 06:50:43 +0200
+
+ka-lite-source (0.14.alpha4-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 07 Jul 2015 06:13:27 +0200
+
 ka-lite-source (0.14.alpha3-0ubuntu2) precise; urgency=medium
 
   * Prompt user about startup script
