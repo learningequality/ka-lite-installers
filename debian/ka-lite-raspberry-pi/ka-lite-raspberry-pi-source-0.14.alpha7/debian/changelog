@@ -1,0 +1,70 @@
+ka-lite-source (0.14.alpha7-0ubuntu1) precise; urgency=medium
+
+  * New upstream release, hopefully fixing the last languagepack data location
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 07 Jul 2015 07:20:43 +0200
+
+ka-lite-source (0.14.alpha6-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 07 Jul 2015 06:59:45 +0200
+
+ka-lite-source (0.14.alpha5-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 07 Jul 2015 06:50:43 +0200
+
+ka-lite-source (0.14.alpha4-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 07 Jul 2015 06:13:27 +0200
+
+ka-lite-source (0.14.alpha3-0ubuntu2) precise; urgency=medium
+
+  * Prompt user about startup script
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 07 Jul 2015 00:47:09 +0200
+
+ka-lite-source (0.14.alpha3-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+  * Add init script
+  * Add ka-lite user that runs the default server
+  * Fix shortened description
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 06 Jul 2015 18:23:09 +0200
+
+ka-lite-source (0.14.alpha2-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+  * Added copyright file (work in progress)
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 03 Jul 2015 00:45:31 +0200
+
+ka-lite-source (0.14.alpha1-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+  * First alpha release, fixes upstream bugs that made 0.14.dev14 useless
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 02 Jul 2015 00:45:41 +0200
+
+ka-lite-source (0.14~dev14-1ubuntu2) precise; urgency=medium
+
+  * Removing {misc:Depends} from debian/control Requires
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 15 Jun 2015 18:47:55 +0200
+
+ka-lite-source (0.14~dev14-1ubuntu1) precise; urgency=medium
+
+  * Changes to stdeb dependencies
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 15 Jun 2015 17:50:26 +0200
+
+ka-lite-source (0.14~dev14-1) precise; urgency=low
+
+  * source package automatically created by stdeb 0.8.5
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 15 Jun 2015 16:22:09 +0200
