@@ -424,13 +424,14 @@ var
     ErrorCode: integer;
 
 begin
-    PipPath := 'C:\Python27\Scripts\pip.exe';
+    { Don't specify drive letter. Just let "start" figure it out below. }
+    PipPath := '\Python27\Scripts\pip.exe';
     PipCommand := 'install ' + '"' + ExpandConstant('{app}\ka-lite\dist\ka-lite-static-')  + '{#TargetVersion}' + '.zip' + '"';
 
-    MsgBox('Setup will now configure Pip dependencies.', mbInformation, MB_OK);
-    if not ShellExec('open', PipPath, PipCommand, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
+    MsgBox('Setup will now unpack dependencies for your installation.', mbInformation, MB_OK);
+    if not Exec(ExpandConstant('{cmd}'), '/S /C "start /b ' + PipPath + ' ' + PipCommand + '"', '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
     begin
-      MsgBox('Critical error.' #13#13 'Pip dependencies have failed to install. Error Number:' + IntToStr(ErrorCode), mbInformation, MB_OK);
+      MsgBox('Critical error.' #13#13 'Dependencies have failed to install. Error Number: ' + IntToStr(ErrorCode), mbInformation, MB_OK);
       forceCancel := True;
       WizardForm.Close;
     end;
