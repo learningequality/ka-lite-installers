@@ -414,6 +414,38 @@ begin
     end;
 end;
 
+{ Used in GetPipPath below }
+const
+    DEFAULT_PATH = '\Python27\Scripts\pip.exe';
+
+{ Returns the path of pip.exe on the system. }
+{ Tries several different locations before prompting user. }
+function GetPipPath: string;
+var
+    path : string;
+    i : integer;
+begin
+    for i := Ord('C') to Ord('H') do
+    begin
+        path := Chr(i) + ':' + DEFAULT_PATH;
+        if FileExists(path) then
+        begin
+            Result := path;
+            exit;
+        end;
+    end;
+    MsgBox('Could not find pip.exe. Please select the location of pip.exe to continue installation.', mbInformation, MB_OK);
+    if GetOpenFileName('Please select pip.exe', path, '', 'All files (*.*)|*.*', 'exe') then
+    begin
+        Result := path;
+    end
+    else begin
+        MsgBox('Fatal error'#13#13'Please install pip and try again.', mbError, MB_OK);
+        forceCancel := True;
+        Result := '';
+    end;
+end;
+
 procedure HandlePipSetup;
 var
     PipCommand: string;
@@ -421,12 +453,13 @@ var
     ErrorCode: integer;
 
 begin
-    { Don't specify drive letter. Just let "start" figure it out below. }
-    PipPath := '\Python27\Scripts\pip.exe';
-    PipCommand := 'install ' + '"' + ExpandConstant('{app}\ka-lite\dist\ka-lite-static-')  + '{#TargetVersion}' + '.zip' + '"';
+    PipPath := GetPipPath;
+    if PipPath = '' then
+        exit;
+    PipCommand := 'install "' + ExpandConstant('{app}\ka-lite\dist\ka-lite-static-')  + '{#TargetVersion}' + '.zip"';
 
     MsgBox('Setup will now unpack dependencies for your installation.', mbInformation, MB_OK);
-    if not Exec(ExpandConstant('{cmd}'), '/S /C "start /b ' + PipPath + ' ' + PipCommand + '"', '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
+    if not ShellExec('open', PipPath, PipCommand, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
     begin
       MsgBox('Critical error.' #13#13 'Dependencies have failed to install. Error Number: ' + IntToStr(ErrorCode), mbInformation, MB_OK);
       forceCancel := True;
@@ -568,7 +601,7 @@ begin
             begin
                 DoGitMigrate;
             end
-            else
+            else if Not forceCancel then
             begin
                 DoSetup;
             end;
