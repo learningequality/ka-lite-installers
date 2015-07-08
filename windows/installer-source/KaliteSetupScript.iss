@@ -36,9 +36,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\ka-lite\*"; DestDir: "{app}\ka-lite"; Excludes: "data.sqlite,.KALITE_SOURCE_DIR"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\ka-lite\*"; DestDir: "{app}\ka-lite"; Excludes: ".KALITE_SOURCE_DIR"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\ka-lite\content\*"; DestDir: "{app}\ka-lite\content"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
-Source: "..\ka-lite\kalite\database\*"; DestDir: "{app}\ka-lite\kalite\database"; Excludes: "data.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\images\logo48.ico"; DestDir: "{app}\images"; Flags: ignoreversion
@@ -486,12 +485,14 @@ begin
     end;
 end;
 
-{ Create a brand new database using the setup management command }
+{ Completes the setup with bundled empty database file. }
 procedure DoSetup;
 var
     setupCommand: string;
     retCode: integer;
 begin
+    { Copy the bundled empty db to the proper location. }
+    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + ExpandConstant('{app}') + '\ka-lite\kalite\database" "%USERPROFILE%\.kalite\database\" /E /Y"', '', SW_HIDE, ewWaitUntilTerminated, retCode);
     MsgBox('Setup will now configure the database. This operation may take a few minutes. Please be patient.', mbInformation, MB_OK);
     setupCommand := 'kalite manage setup --noinput --hostname="'+ServerInformationPage.Values[0]+'" --description="'+ServerInformationPage.Values[1]+'" --username="'+UserInformationPage.Values[0]+'" --password="'+UserInformationPage.Values[1]+'"';
     if Not ShellExec('open', 'python.exe', setupCommand, ExpandConstant('{app}')+'\ka-lite\bin', SW_HIDE, ewWaitUntilTerminated, retCode) then

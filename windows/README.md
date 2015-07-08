@@ -39,6 +39,7 @@ To build in Linux, first install `wine`.
 * Copy `ka-lite` folder from KA Lite's repository, to the root of this repository;
 * Ensure the assessment items have been unpacked in the `ka-lite` directory.
 * Follow the _Instructions to download pip dependency zip files_ above
+* Create an empty db for distribution as per the section _Creating an Empty DB_
 * In Windows, run the following command from this directory:
 ```
 > make.vbs
@@ -48,6 +49,19 @@ To build in Linux, first install `wine`.
 > wine inno-compiler/ISCC.exe installer-source/KaliteSetupScript.iss
 ```
 * The output file named "KALiteSetup-X.X.X.exe" will appear within this project folder.
+
+---
+#### Creating an Empty DB
+After installing `ka-lite`:
+* Ensure the file `ka-lite/kalite/database/data.sqlite` doesn't already exist.
+* Run the command `kalite manage syncdb`. You will see this prompt:
+
+    You just installed Django's auth system, which means you don't have any superusers defined.
+    Would you like to create one now? (yes/no):
+
+* Choose "no".
+* Run the command `kalite manage migrate`.
+* This should create the file `ka-lite/kalite/database/data.sqlite`, which will be copied to the target system by the installer.
 
 ---
 #### To clone ka-lite and this repository, run the following lines:
