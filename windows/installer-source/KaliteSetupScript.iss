@@ -211,13 +211,16 @@ begin
     { 32-bit programs have a virtualized registry on 64-bit windows. So check all possible root keys. }
     if Not RegQueryStringValue(HKLM, subkey, 'DisplayVersion', prevVerStr) then
     begin
-        if Not RegQueryStringValue(HKLM64, subkey, 'DisplayVersion', prevVerStr) then
+        if Not RegQueryStringValue(HKCU, subkey, 'DisplayVersion', prevVerStr) then
         begin
-            if Not RegQueryStringValue(HKCU, subkey, 'DisplayVersion', prevVerStr) then
+            if IsWin64 then
             begin
-                if Not RegQueryStringValue(HKCU64, subkey, 'DisplayVersion', prevVerStr) then
+                if Not RegQueryStringValue(HKLM64, subkey, 'DisplayVersion', prevVerStr) then
                 begin
-                    { Couldn't determine the previous version, so prevVerStr is '' }
+                    if Not RegQueryStringValue(HKCU64, subkey, 'DisplayVersion', prevVerStr) then
+                    begin
+                        { Couldn't determine the previous version, so prevVerStr is '' }
+                    end;
                 end;
             end;
         end;
