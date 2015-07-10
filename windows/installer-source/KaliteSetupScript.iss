@@ -28,6 +28,7 @@ Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=admin
 UsePreviousAppDir=yes
+ChangesEnvironment=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
