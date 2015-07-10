@@ -1,10 +1,23 @@
-Source: ka-lite-raspberry-pi-source
+Source: ka-lite-source
 Maintainer: Benjamin Bach <benjamin@learningequality.org>
 Section: python
 Priority: optional
 Build-Depends: python-setuptools (>= 0.6b3), python-all (>= 2.6.6-3), debhelper (>= 7.4.3)
 Standards-Version: 3.9.1
 X-Python-Version: >= 2.7
+
+
+
+Package: ka-lite
+Architecture: all
+Pre-Depends: debconf
+Depends: python (>= 2.7), python (<< 2.8), ucf
+Recommends: ka-lite-gtk
+Description: KA Lite
+ A lightweight web server for serving core
+ Khan Academy content (videos and exercises)
+ without needing internet connectivity
+Homepage: https://learningequality.org/ka-lite/
 
 
 
