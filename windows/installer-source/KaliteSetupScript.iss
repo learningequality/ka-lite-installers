@@ -106,7 +106,6 @@ var
   installFlag : boolean;
   startupFlag : string;
   ServerInformationPage : TInputQueryWizardPage;
-  UserInformationPage : TInputQueryWizardPage;
   StartupPage : TInputOptionWizardPage;
   isUpgrade : boolean;
   stopServerCode: integer;
@@ -140,17 +139,9 @@ begin
     'Please specify the server name and a description, then click Next. (you can leave blank both fields if you want to use the default server name or if you do not want to insert a description)');
     ServerInformationPage.Add('Server name:', False);
     ServerInformationPage.Add('Server description:', False);
-    
-    // Admin user creation
-    UserInformationPage := CreateInputQueryPage(ServerInformationPage.ID,
-    'Admin Information', 'Create admin user',
-    'Please specify username and password to create an admin, then click Next.');
-    UserInformationPage.Add('Username:', False);
-    UserInformationPage.Add('Password:', True);
-    UserInformationPage.Add('Confirm Password:', True);
-  
+
     // Run at windows startup.
-    StartupPage := CreateInputOptionPage(UserInformationPage.ID,
+    StartupPage := CreateInputOptionPage(ServerInformationPage.ID,
     'Server Configuration', 'Startup configuration',
     'The server can run automatically. You may choose one of the following options:', True, False);
     StartupPage.Add('Run the server at windows startup');
@@ -173,10 +164,6 @@ begin
     if isUpgrade = True then
     begin
         if PageID = ServerInformationPage.ID then
-        begin
-            result := True;
-        end;
-        if PageID = UserInformationPage.ID then
         begin
             result := True;
         end;
@@ -312,80 +299,10 @@ begin
     end;
 end;
 
-const
-    UCASE_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    LCASE_LETTERS = 'abcdefghijklmnopqrstuvwxyz';
-    NUMBERS = '1234567890';
-    SPECIAL_CHARS = '@.+-_';
-    USERNAME_CHARACTERS = UCASE_LETTERS + LCASE_LETTERS + NUMBERS + SPECIAL_CHARS;
-    USERNAME_LENGTH = 30; // REF:   https://github.com/learningequality/ka-lite/blob/master/python-packages/django/contrib/auth/models.py#L377
-    PASSWORD_LENGTH = 128;  // REF: https://github.com/learningequality/ka-lite/blob/master/python-packages/django/contrib/auth/models.py#L200
-
-function ValidateUserInformationFields(): Boolean;
-var
-    username : string;
-    pass1 : string;
-    pass2 : string;
-    i: integer;
-    s: string;
-begin
-    result := False;
-    // From KA-Lite django.contrib.auth.models.AbstractUser: 
-    //   Required. 30 characters or fewer. Letters, numbers and @/./+/-/_ characters.
-    username := UserInformationPage.Values[0];
-    pass1 := UserInformationPage.Values[1];
-    pass2 := UserInformationPage.Values[2];
-    if username <> nil then
-    begin
-        if (Length(username) > USERNAME_LENGTH) then
-        begin
-            MsgBox('Error' #13#13 'Username must be at most ' + IntToStr(USERNAME_LENGTH) + ' characters.', mbError, MB_OK);
-            result := False;
-        end
-        else begin
-            // check username for valid characters
-            for i := 0 to Length(username) do
-            begin
-                s := Copy(username, i, 1);
-                if Pos(s, USERNAME_CHARACTERS) = 0 then
-                begin
-                     MsgBox('Username must only contain letters, numbers and @/./+/-/_ characters.'#13#13 'It has an invalid character: "' + s + '".', mbError, MB_OK);
-                     result := False;
-                     exit;
-                end;
-            end;
-            if (pass1 = pass2) And (pass1 <> nil) And (pass2 <> nil) then
-            begin
-                if Length(pass1) > PASSWORD_LENGTH then
-                begin
-                    MsgBox('Error' #13#13 'Password must be at most ' + IntToStr(PASSWORD_LENGTH) + ' characters.', mbError, MB_OK);
-                    result := False;
-                end
-                else begin
-                    result := True;
-                end;
-            end
-            else begin
-                MsgBox('Error' #13#13 'Invalid password or the password does not match on both fields.', mbError, MB_OK);
-                result := False;
-            end;
-        end;
-    end
-    else begin
-        MsgBox('Error' #13#13 'Invalid username. You must enter a non-empty username.', mbError, MB_OK);
-        result := False;
-    end;
-end;
-
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
     result := True;
-    
-    if CurPageID = UserInformationPage.ID then
-    begin
-        result := ValidateUserInformationFields();
-    end;
-    
+
     if CurPageID = wpLicense then
     begin
         if WizardForm.PrevAppDir <> nil then
@@ -531,7 +448,7 @@ begin
     { Copy the bundled empty db to the proper location. }
     Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + ExpandConstant('{app}') + '\ka-lite\kalite\database" "%USERPROFILE%\.kalite\database\" /E /Y"', '', SW_HIDE, ewWaitUntilTerminated, retCode);
     MsgBox('Setup will now configure the database. This operation may take a few minutes. Please be patient.', mbInformation, MB_OK);
-    setupCommand := 'kalite manage setup --noinput --hostname="'+ServerInformationPage.Values[0]+'" --description="'+ServerInformationPage.Values[1]+'" --username="'+UserInformationPage.Values[0]+'" --password="'+UserInformationPage.Values[1]+'"';
+    setupCommand := 'kalite manage setup --noinput --hostname="'+ServerInformationPage.Values[0]+'" --description="'+ServerInformationPage.Values[1]+'"';
     if Not ShellExec('open', 'python.exe', setupCommand, ExpandConstant('{app}')+'\ka-lite\bin', SW_HIDE, ewWaitUntilTerminated, retCode) then
     begin
         MsgBox('Critical error.' #13#13 'Setup has failed to initialize the database; aborting the install.', mbInformation, MB_OK);
