@@ -34,6 +34,15 @@ case "$1" in
     echo $KALITE_USER > /etc/ka-lite/conf.d/username
     if ! getent passwd $KALITE_USER >/dev/null; then
       adduser --system --home /var/$KALITE_USER $KALITE_USER
+      USER_CONFIG_DIR=`su -s /bin/sh $KALITE_USER -c "echo \$HOME"`/.kalite
+      mkdir -p "$USER_CONFIG_DIR"
+      USER_CONFIG="$USER_CONFIG_DIR/settings.py"
+      touch "$USER_CONFIG"
+      if ! grep -Pq "^from kalite.project.settings.raspberry_pi" "$USER_CONFIG"
+      then
+        echo "Changing user config to use raspberry pi settings: $USER_CONFIG"
+        echo "from kalite.project.settings.raspberry_pi import *" > $USER_CONFIG
+      fi
     fi
 
     db_get ka-lite/init

@@ -1,3 +1,0 @@
-debian/init-service /usr/share/kalite/
-debian/kalite.conf /etc/nginx/sites-available/
-nginx.conf /etc/nginx/
