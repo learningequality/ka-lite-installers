@@ -1,0 +1,7 @@
+#!/bin/sh
+
+
+# Ensure that we can over-write the nginx config
+dpkg-divert --add --package ka-lite-raspberry-pi --rename \
+    --divert /etc/nginx/nginx.conf.orig \
+    /etc/nginx/nginx.conf

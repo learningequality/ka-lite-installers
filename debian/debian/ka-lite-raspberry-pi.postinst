@@ -31,7 +31,7 @@ case "$1" in
     # Set up our config for lighttpd
     db_get ka-lite/user
     KALITE_USER="$RET"
-    echo $KALITE_USER > /etc/ka-lite/conf.d/username
+    echo $KALITE_USER > /etc/ka-lite/username
     if ! getent passwd $KALITE_USER >/dev/null; then
       adduser --system --home /var/$KALITE_USER $KALITE_USER
       USER_CONFIG_DIR=`su -s /bin/sh $KALITE_USER -c "echo \$HOME"`/.kalite
@@ -49,13 +49,16 @@ case "$1" in
     if [ "${RET}" != "false" ];
     then
         # Install init script using `ucf`
-        ucf --debconf-ok /usr/share/kalite/init-service /etc/init.d/ka-lite
+        ucf --debconf-ok /usr/share/kalite/init-service-raspberry-pi /etc/init.d/ka-lite
 
         # Register init script as service
         update-rc.d ka-lite defaults
 
         # Start service
         invoke-rc.d ka-lite start
+
+        # Restart nginx
+        invoke-rc.d nginx restart
     fi
 
   ;;

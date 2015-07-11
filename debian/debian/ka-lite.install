@@ -1,1 +1,2 @@
-debian/init-service /usr/share/kalite/
+#!/usr/bin/dh-exec
+debian/etc/init-service => /usr/share/kalite/init-service

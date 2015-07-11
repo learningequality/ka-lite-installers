@@ -31,7 +31,7 @@ case "$1" in
     # Set up our config for lighttpd
     db_get ka-lite/user
     KALITE_USER="$RET"
-    echo $KALITE_USER > /etc/ka-lite/conf.d/username
+    echo $KALITE_USER > /etc/ka-lite/username
     if ! getent passwd $KALITE_USER >/dev/null; then
       adduser --system --home /var/$KALITE_USER $KALITE_USER
     fi
