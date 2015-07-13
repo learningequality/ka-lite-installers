@@ -40,6 +40,7 @@ To build in Linux, first install `wine`.
 * Ensure the assessment items have been unpacked in the `ka-lite` directory.
 * Follow the _Instructions to download pip dependency zip files_ above
 * Create an empty db for distribution as per the section _Creating an Empty DB_
+* Run `kalite manage collectstatic` to create the `ka-lite/static-libraries` directory; this is a work-around until the windows installer uses setuptools.
 * In Windows, run the following command from this directory:
 ```
 > make.vbs
