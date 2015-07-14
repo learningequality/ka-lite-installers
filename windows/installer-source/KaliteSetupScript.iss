@@ -28,6 +28,7 @@ Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=admin
 UsePreviousAppDir=yes
+ChangesEnvironment=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -599,6 +600,15 @@ begin
         if installFlag then
         begin
             HandlePipSetup();
+
+            { Add KALITE_ROOT_DATA_PATH to environment variables. A workaround for setting kalite.ROOT_DATA_PATH }
+            { In the future, the windows installer should use setuptools to avoid OS-dependent workarounds like this. }
+            RegWriteStringValue(
+                HKLM,
+                'System\CurrentControlSet\Control\Session Manager\Environment',
+                'KALITE_ROOT_DATA_PATH',
+                ExpandConstant('{app}\ka-lite\')
+            );
 
             { Migrate old database if applicable, otherwise create a new one }
             if runGitmigrate and Not forceCancel then
