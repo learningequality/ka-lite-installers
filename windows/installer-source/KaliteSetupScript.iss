@@ -322,13 +322,13 @@ procedure HandlePythonSetup;
 var
     installPythonErrorCode : Integer;
 begin
-    if(MsgBox('Python error' #13#13 'Python 2.6+ is required to run KA Lite; do you wish to first install Python 2.7.10, before continuing with the installation of KA Lite?', mbConfirmation, MB_YESNO) = idYes) then
+    if(MsgBox('Python error' #13#13 'Python 2.7.9+ is required to install KA Lite on Windows; do you wish to first install Python 2.7.10, before continuing with the installation of KA Lite?', mbConfirmation, MB_YESNO) = idYes) then
     begin
         ExtractTemporaryFile('python-2.7.10.msi');
         ShellExec('open', ExpandConstant('{tmp}')+'\python-2.7.10.msi', '', '', SW_SHOWNORMAL, ewWaitUntilTerminated, installPythonErrorCode);
     end
     else begin
-        MsgBox('Error' #13#13 'You must have Python 2.6+ installed to proceed! Installation will now exit.', mbError, MB_OK);
+        MsgBox('Error' #13#13 'You must have Python 2.7.9+ installed to proceed! Installation will now exit.', mbError, MB_OK);
         forceCancel := True;
         WizardForm.Close;
     end;
@@ -401,7 +401,7 @@ begin
 
     RegDeleteValue(HKCU, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Run', ExpandConstant('{#MyAppName}'));
    
-    if ShellExec('open', 'python.exe','-c "import sys; sys.version_info[0]==2 and sys.version_info[1] >= 6 and sys.exit(0) or sys.exit(1)"', '', SW_HIDE, ewWaitUntilTerminated, PythonVersionCodeCheck) then
+    if ShellExec('open', 'python.exe','-c "import sys; (sys.version_info >= (2, 7, 9,) and sys.version_info < (3,) and sys.exit(0)) or sys.exit(1)"', '', SW_HIDE, ewWaitUntilTerminated, PythonVersionCodeCheck) then
     begin
         if PythonVersionCodeCheck = 1 then
         begin
