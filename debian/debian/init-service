@@ -15,6 +15,12 @@
 
 set -e
 
+if !(whoami | grep "root" -q)
+then
+	echo "You need to be root"
+	exit 1
+fi
+
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 
 . /lib/lsb/init-functions
@@ -24,16 +30,16 @@ PATH=/bin:/usr/bin:/sbin:/usr/sbin
 case "$1" in
   start)
     # run ka-lite as another user, the one who generated this file
-    su $KALITE_USER -s /bin/sh -c "$KALITE_COMMAND start"
+    su $KALITE_USER -s /bin/sh -c "$KALITE_COMMAND start $KALITE_OPTS"
     ;;
   stop)
-    su $KALITE_USER -s /bin/sh -c "$KALITE_COMMAND stop"
+    su $KALITE_USER -s /bin/sh -c "$KALITE_COMMAND stop $KALITE_OPTS"
     ;;
   restart)
-    su $KALITE_USER -s /bin/sh -c "$KALITE_COMMAND restart"
+    su $KALITE_USER -s /bin/sh -c "$KALITE_COMMAND restart $KALITE_OPTS"
     ;;
   status)
-    su $KALITE_USER -s /bin/sh -c "$KALITE_COMMAND status"
+    su $KALITE_USER -s /bin/sh -c "$KALITE_COMMAND status $KALILTE_OPTS"
     ;;
   *)
     log_success_msg "Usage: /etc/init.d/kalite {start|stop|restart|status}"

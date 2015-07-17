@@ -36,6 +36,14 @@ case "$1" in
       adduser --system --home /var/$KALITE_USER $KALITE_USER
     fi
 
+    db_get ka-lite/download-assessment-items
+    if [ "${RET}" != "false" ]
+    then
+        wget https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip -O /tmp/assessment_items.zip --no-clobber
+        mkdir -p /usr/share/kalite/assessment/khan
+        unzip /tmp/assessment_items.zip -d /usr/share/kalite/assessment/khan
+    fi
+
     db_get ka-lite/init
     if [ "${RET}" != "false" ];
     then

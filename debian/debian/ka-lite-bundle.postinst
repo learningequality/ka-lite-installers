@@ -34,15 +34,6 @@ case "$1" in
     echo $KALITE_USER > /etc/ka-lite/username
     if ! getent passwd $KALITE_USER >/dev/null; then
       adduser --system --home /var/$KALITE_USER $KALITE_USER
-      USER_CONFIG_DIR=`su -s /bin/sh $KALITE_USER -c "echo \$HOME"`/.kalite
-      mkdir -p "$USER_CONFIG_DIR"
-      USER_CONFIG="$USER_CONFIG_DIR/settings.py"
-      touch "$USER_CONFIG"
-      if ! grep -Pq "^from kalite.project.settings.raspberry_pi" "$USER_CONFIG"
-      then
-        echo "Changing user config to use raspberry pi settings: $USER_CONFIG"
-        echo "from kalite.project.settings.raspberry_pi import *" > $USER_CONFIG
-      fi
     fi
 
     db_get ka-lite/init
@@ -56,17 +47,6 @@ case "$1" in
 
         # Start service
         invoke-rc.d ka-lite start
-
-        # Restart nginx
-        invoke-rc.d nginx restart
-    fi
-
-    db_get ka-lite/download-assessment-items
-    if [ "${RET}" != "false" ]
-    then
-        wget https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip -O /tmp/assessment_items.zip --no-clobber
-        mkdir -p /usr/share/kalite/assessment/khan
-        unzip /tmp/assessment_items.zip -d /usr/share/kalite/assessment/khan
     fi
 
   ;;

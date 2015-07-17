@@ -25,8 +25,21 @@ Package: ka-lite-raspberry-pi
 Architecture: all
 Pre-Depends: debconf, bash
 Depends: python (>= 2.7), python (<< 2.8), ucf, python-m2crypto, python-psutil, nginx
-Conflicts: ka-lite
+Conflicts: ka-lite, ka-lite-all
 Description: KA Lite (raspberry pi)
+ A lightweight web server for serving core
+ Khan Academy content (videos and exercises)
+ without needing internet connectivity
+Homepage: https://learningequality.org/ka-lite/
+
+
+
+Package: ka-lite-bundle
+Architecture: all
+Pre-Depends: debconf, bash
+Depends: python (>= 2.7), python (<< 2.8), ucf
+Conflicts: ka-lite, ka-lite-raspberry-pi
+Description: KA Lite (all meta/exercise data bundled)
  A lightweight web server for serving core
  Khan Academy content (videos and exercises)
  without needing internet connectivity

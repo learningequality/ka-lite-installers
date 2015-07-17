@@ -5,6 +5,15 @@ Description: Do you wish to run KA Lite on start-up?
  This will add a system script /etc/init.d/ka-lite which is automatically
  when your computer boots.
 
+Template: ka-lite/download-assessment-items
+Type: boolean
+Default: true
+Description: Download exercise data (~500 MB)?
+ This is required if you want to provide exercises for students.
+ The download is big, but it will be preserved across upgrades of
+ your current version of KA Lite. When major version changes occurred,
+ you may be prompted to fetch new exercise data.
+
 Template: ka-lite/user
 Type: string
 Default: ka-lite
@@ -16,9 +25,10 @@ Description: Which user account should own the KA Lite server?
  desktop user, to have easier access to KA Lite data without having
  to change privileges.
 
-Template: ka-lite/manual
+Template: ka-lite/manual-instructions
 Type: note
-Description: You have chosen not to run KA Lite as a system
+Description: Running KA Lite manually:
+ You have chosen not to run KA Lite as a system
  service and that means you should run it manually. Do this
  by running the following command to setup KA Lite:
  .
@@ -27,3 +37,15 @@ Description: You have chosen not to run KA Lite as a system
  Starting the server is done with:
  .
    kalite start
+
+Template: ka-lite/init-instructions
+Type: note
+Description: The KA Lite system service
+ You have chosen to run KA Lite as a system
+ service and it has been started automatically. You can
+ start/stop/restart ka-lite with the following command
+ .
+   service ka-lite [start, stop, restart]
+ .
+ If you are not familiar with the command line, you can
+ install the package called 'ka-lite-gtk' for a basic and easy UI.

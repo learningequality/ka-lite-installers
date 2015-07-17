@@ -1,3 +1,9 @@
+ka-lite-source (0.14.alpha8-0ubuntu1) precise; urgency=medium
+
+  * New upstream alpha8
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 16 Jul 2015 16:08:28 +0200
+
 ka-lite-source (0.14.alpha7-0ubuntu3) precise; urgency=medium
 
   * Fixing nginx configuration for ka-lite-raspberry-pi

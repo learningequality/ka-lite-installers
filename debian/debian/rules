@@ -22,8 +22,11 @@ override_dh_auto_install:
 	# Build ka-lite
 	python setup.py install --force --root=debian/ka-lite --no-compile -O0 --install-layout=deb  
 	# Copy the ka-lite build to ka-lite-raspberry-pi instead of re-building
-	cp -r debian/ka-lite/usr debian/ka-lite-raspberry-pi/
-	# python setup.py install --force --root=debian/ka-lite-raspberry-pi --no-compile -O0 --install-layout=deb  
+	cp -rup debian/ka-lite/usr debian/ka-lite-raspberry-pi/
+	# Copy the ka-lite build to ka-lite-bundle instead of re-building
+	cp -rup debian/ka-lite/usr debian/ka-lite-bundle/
+	# Prepare assessment items
+	bash -c debian/prepare_assessment_items.sh
 
 
 

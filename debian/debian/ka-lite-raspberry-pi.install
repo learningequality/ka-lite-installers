@@ -1,5 +1,6 @@
 #!/usr/bin/dh-exec
 debian/kalite.conf => /etc/nginx/sites-available/kalite.conf
 debian/nginx.conf => /etc/nginx/nginx.conf
-debian/etc/init-service-raspberry-pi => /usr/share/kalite/init-service-raspberry-pi
+debian/init-service => /usr/share/kalite/init-service
+debian/etc-default => /etc/default/ka-lite
 debian/ka-lite-raspberry-pi.server_options => /etc/ka-lite/server_options
