@@ -14,6 +14,12 @@ Description: Download exercise data (~500 MB)?
  your current version of KA Lite. When major version changes occurred,
  you may be prompted to fetch new exercise data.
 
+Template: ka-lite/download-assessment-items-manual
+Type: note
+Description: Downloading assessment items manually:
+ After installing, you should run the "kalite manage setup" command
+ to fetch assessment items manually.
+
 Template: ka-lite/user
 Type: string
 Default: ka-lite

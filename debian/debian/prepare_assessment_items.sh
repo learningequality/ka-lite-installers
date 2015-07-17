@@ -14,5 +14,8 @@ then
 	echo "Assessment items already in place, skipping"
 else
 	mkdir -p $output_dir
+        cd $output_dir
+        umask 022
 	unzip debian/assessment.zip -d $output_dir
+        cd -
 fi

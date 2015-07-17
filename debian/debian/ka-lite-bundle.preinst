@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+# Ask for user name, default is ka-lite
+if [ "$SUDO_USER" ]; then
+    echo "ka-lite-bundle ka-lite/user select $SUDO_USER" | debconf-set-selections
+    echo "ka-lite-bundle ka-lite/user seen false" | debconf-set-selections
+fi

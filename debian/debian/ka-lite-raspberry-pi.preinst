@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Ask for user name, default is ka-lite
+if [ "$SUDO_USER" ]; then
+    echo "ka-lite-raspberry-pi ka-lite/user select $SUDO_USER" | debconf-set-selections
+    echo "ka-lite-raspberry-pi ka-lite/user seen false" | debconf-set-selections
+fi
 
 # Ensure that we can over-write the nginx config
 dpkg-divert --add --package ka-lite-raspberry-pi --rename \

@@ -28,7 +28,8 @@ fi
 case "$1" in
 
   configure)
-    # Set up our config for lighttpd
+
+    # Create user for ka-lite if it doesn't exist
     db_get ka-lite/user
     KALITE_USER="$RET"
     echo $KALITE_USER > /etc/ka-lite/username
@@ -36,22 +37,36 @@ case "$1" in
       adduser --system --home /var/$KALITE_USER $KALITE_USER
     fi
 
+    # Download assessment items if chosen
     db_get ka-lite/download-assessment-items
-    if [ "${RET}" != "false" ]
-    then
-        wget https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip -O /tmp/assessment_items.zip --no-clobber
-        mkdir -p /usr/share/kalite/assessment/khan
-        unzip /tmp/assessment_items.zip -d /usr/share/kalite/assessment/khan
-        chown $KALITE_USER /usr/share/kalite/assessment/khan
-        chown $KALITE_USER /usr/share/kalite/assessment/khan/assessmentitems.sqlite
+    if [ "${RET}" != "false" ]; then
+        assessment_dir=/usr/share/kalite/assessment/khan
+        version_file=$assessment_dir/assessmentitems.version
+        if [ -f $version_file ]; then
+            old_version=cat $version_file
+        else
+            old_version=""
+        fi
+        if [ "$old_version" != "0.14" ]; then
+            wget https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip -O /tmp/assessment_items.zip --no-clobber
+            mkdir -p $assessment_dir
+            cd $assessment_dir
+            umask 022
+            unzip /tmp/assessment_items.zip -d $assessment_dir
+            chown $KALITE_USER $assessment_dir
+            chown $KALITE_USER $assessment_dir/assessmentitems.sqlite
+            cd -
+        fi
     fi
 
+
+    # Create init script
     db_get ka-lite/init
+    # Install init script using `ucf` no matter what, users might activate it later
+    ucf --debconf-ok /usr/share/kalite/init-service /etc/init.d/ka-lite
+
     if [ "${RET}" != "false" ];
     then
-        # Install init script using `ucf`
-        ucf --debconf-ok /usr/share/kalite/init-service /etc/init.d/ka-lite
-
         # Register init script as service
         update-rc.d ka-lite defaults
 
