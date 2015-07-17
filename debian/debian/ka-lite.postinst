@@ -42,6 +42,8 @@ case "$1" in
         wget https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip -O /tmp/assessment_items.zip --no-clobber
         mkdir -p /usr/share/kalite/assessment/khan
         unzip /tmp/assessment_items.zip -d /usr/share/kalite/assessment/khan
+        chown $KALITE_USER /usr/share/kalite/assessment/khan
+        chown $KALITE_USER /usr/share/kalite/assessment/khan/assessmentitems.sqlite
     fi
 
     db_get ka-lite/init
