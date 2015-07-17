@@ -70,10 +70,12 @@ PYRUN_DIR="$WORKING_DIR/pyrun-2.7"
 PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
 
+GITHUB_ACCOUNT="learningequality"
+
 KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
-KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/zipball/develop/"
+KA_LITE_REPO_ZIP="https://github.com/$GITHUB_ACCOUNT/ka-lite/zipball/develop/"
 KA_LITE_EXECUTABLE="$KA_LITE_MONITOR_RESOURCES_DIR/$KA_LITE/kalite/bin/kalite"
 
 LOCAL_SETTINGS_DEFAULT_PATH="$KA_LITE_MONITOR_DIR/local_settings.default"
@@ -137,13 +139,13 @@ else
 
     # Extract KA-Lite
     echo "  Extracting '$KA_LITE_ZIP'..."
-    tar -xf $KA_LITE_ZIP
+    tar -xf $KA_LITE_ZIP -C $WORKING_DIR
     if [ $? -ne 0 ]; then
         echo "  $0: Can't extract '$KA_LITE_ZIP', exiting..."
         exit 1
     fi
     # Rename the extracted folder.
-    mv learningequality* $KA_LITE_DIR
+    mv $WORKING_DIR/$GITHUB_ACCOUNT* $KA_LITE_DIR
 fi
 
 # Create a `ka-lite/kalite/local_settings.py`
