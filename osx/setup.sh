@@ -8,11 +8,12 @@
 # 3. Download PyRun thru `install-pyrun` script.
 # 4. Download KA-Lite zip based on develop branch.
 # 5. Extract KA-Lite and move into `ka-lite` folder.
-# 6. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
-# 7. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
-# 8. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
-# 9. Build the Xcode project to produce the .app.
-# 10. Build the .dmg.
+# 6. Make ka-lite repo production-ready (delete .KALITE_SOURCE_DIR, etc).
+# 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
+# 8. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
+# 9. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
+# 10. Build the Xcode project to produce the .app.
+# 11. Build the .dmg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
@@ -28,7 +29,7 @@ if [ -z ${TMPDIR+0} ]; then
 fi
 
 STEP=1
-STEPS=9
+STEPS=11
 
 # TODO(cpauya): This works but the problem is it creates the temporary directory everytime
 # script is run... so during devt, we will comment this for now.
@@ -66,17 +67,24 @@ KA_LITE_ICNS_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite.icns"
 KA_LITE_README_PATH="$SETUP_FILES_DIR/README.md"
 
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
-PYRUN_DIR="$WORKING_DIR/pyrun-2.7"
+PYRUN_NAME="pyrun-2.7"
+PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
 PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
 
 GITHUB_ACCOUNT="learningequality"
+GITHUB_ACCOUNT="mrpau"
 
 KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 KA_LITE_REPO_ZIP="https://github.com/$GITHUB_ACCOUNT/ka-lite/zipball/develop/"
+KA_LITE_REPO_ZIP="https://github.com/$GITHUB_ACCOUNT/ka-lite/zipball/hotfix/3704-cannot-connect-to-server-for-downloading-video-files-from-current-development-installs"
 KA_LITE_EXECUTABLE="$KA_LITE_MONITOR_RESOURCES_DIR/$KA_LITE/kalite/bin/kalite"
+KA_LITE_SOURCE_DIR_FILE="$KA_LITE_DIR/.KALITE_SOURCE_DIR"
+
+KA_LITE_MONITOR_RESOURCES_KA_LITE_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$KA_LITE"
+KA_LITE_MONITOR_RESOURCES_PYRUN_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$PYRUN_NAME"
 
 LOCAL_SETTINGS_DEFAULT_PATH="$KA_LITE_MONITOR_DIR/local_settings.default"
 LOCAL_SETTINGS_TARGET_PATH="$KA_LITE_DIR/kalite/local_settings.py"
@@ -148,6 +156,16 @@ else
     mv $WORKING_DIR/$GITHUB_ACCOUNT* $KA_LITE_DIR
 fi
 
+# Make the ka-lite repo production ready...
+((STEP++))
+echo "$STEP/$STEPS. Making the ka-lite repo production ready..."
+if [ -e "$KA_LITE_SOURCE_DIR_FILE" ]; then
+    echo "  Deleting $KA_LITE_SOURCE_DIR_FILE..."
+    rm "$KA_LITE_SOURCE_DIR_FILE"
+else
+    echo "  Did not find $KA_LITE_SOURCE_DIR_FILE!"
+fi
+
 # Create a `ka-lite/kalite/local_settings.py`
 ((STEP++))
 echo "$STEP/$STEPS. Creating '$LOCAL_SETTINGS_TARGET_PATH' from '$LOCAL_SETTINGS_DEFAULT_PATH'..."
@@ -156,6 +174,21 @@ if [ -e "$LOCAL_SETTINGS_TARGET_PATH" ]; then
 else
     cp "$LOCAL_SETTINGS_DEFAULT_PATH" "$LOCAL_SETTINGS_TARGET_PATH"
 fi
+
+# Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
+((STEP++))
+echo "$STEP/$STEPS. Running '$PYRUN setup.py install .'... on '$KA_LITE_DIR'"
+KA_LITE_SETUP_PY="$KALITE_DIRsetup.py"
+cd "$KA_LITE_DIR"
+pwd
+$PYRUN setup.py install
+if [ $? -ne 0 ]; then
+    echo "  $0: Error/s encountered running '$PYRUN setup.py install', exiting..."
+    exit 1
+fi
+cd "$WORKING_DIR/.."
+
+# exit 10
 
 # Run PyRun's pip install for `requirements.txt`
 ((STEP++))
@@ -173,6 +206,19 @@ if ! [ -d "$KA_LITE_MONITOR_RESOURCES_DIR" ]; then
     mkdir "$KA_LITE_MONITOR_RESOURCES_DIR"
     echo "  Created Xcode Resources folder..."
 fi
+
+# Delete and re-create the destination folders to make sure we don't leave orphaned files.
+echo "  Checking $KA_LITE_MONITOR_RESOURCES_KA_LITE_DIR..."
+if [ -d "$KA_LITE_MONITOR_RESOURCES_KA_LITE_DIR" ]; then
+    echo "    Deleting $KA_LITE_MONITOR_RESOURCES_KA_LITE_DIR..."
+    rm -rf "$KA_LITE_MONITOR_RESOURCES_KA_LITE_DIR"
+fi
+echo "  Checking $KA_LITE_MONITOR_RESOURCES_PYRUN_DIR..."
+if [ -d "$KA_LITE_MONITOR_RESOURCES_PYRUN_DIR" ]; then
+    echo "    Deleting $KA_LITE_MONITOR_RESOURCES_PYRUN_DIR..."
+    rm -rf "$KA_LITE_MONITOR_RESOURCES_PYRUN_DIR"
+fi
+
 # Copy ka-lite...
 echo "  cp $KA_LITE_DIR $KA_LITE_MONITOR_RESOURCES_DIR"
 cp -R "$KA_LITE_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"
