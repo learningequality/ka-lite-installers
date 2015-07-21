@@ -2,7 +2,7 @@ Source: ka-lite-source
 Maintainer: Benjamin Bach <benjamin@learningequality.org>
 Section: python
 Priority: optional
-Build-Depends: python-setuptools (>= 0.6b3), python-all (>= 2.6.6-3), debhelper (>= 7.4.3), dh-exec
+Build-Depends: python-setuptools (>= 0.6b3), python-all (>= 2.6.6-3), debhelper (>= 7.4.3), dh-exec, unzip
 Standards-Version: 3.9.1
 X-Python-Version: >= 2.7
 
@@ -10,8 +10,8 @@ X-Python-Version: >= 2.7
 
 Package: ka-lite
 Architecture: all
-Pre-Depends: debconf
-Depends: python (>= 2.7), python (<< 2.8), ucf
+Pre-Depends: debconf, bash, wget
+Depends: python (>= 2.7), python (<< 2.8), ucf, wget
 Recommends: ka-lite-gtk
 Description: KA Lite
  A lightweight web server for serving core
@@ -23,7 +23,7 @@ Homepage: https://learningequality.org/ka-lite/
 
 Package: ka-lite-raspberry-pi
 Architecture: all
-Pre-Depends: debconf, bash
+Pre-Depends: debconf, bash, wget
 Depends: python (>= 2.7), python (<< 2.8), ucf, python-m2crypto, python-psutil, nginx
 Conflicts: ka-lite, ka-lite-all
 Description: KA Lite (raspberry pi)

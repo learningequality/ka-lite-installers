@@ -13,7 +13,7 @@ fi
 
 if [ -f /etc/ka-lite/server_options ]
 then
-  export KALITE_OPTS=`cat /etc/ka-lite/server_options | tr '\n' ' '`
+  export KALITE_OPTS="`cat /etc/ka-lite/server_options | tr '\n' ' '`"
 else
   export KALITE_OPTS=""
 fi

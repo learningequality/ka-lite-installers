@@ -16,6 +16,7 @@ else
 	mkdir -p $output_dir
         cd $output_dir
         umask 022
-	unzip debian/assessment.zip -d $output_dir
         cd -
+	unzip debian/assessment.zip -d $output_dir
+        chmod -R ugo+r $output_dir
 fi

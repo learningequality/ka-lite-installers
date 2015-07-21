@@ -36,7 +36,8 @@ case "$1" in
     su $KALITE_USER -s /bin/sh -c "$KALITE_COMMAND stop $KALITE_OPTS"
     ;;
   restart)
-    su $KALITE_USER -s /bin/sh -c "$KALITE_COMMAND restart $KALITE_OPTS"
+    su $KALITE_USER -s /bin/sh -c "$KALITE_COMMAND stop $KALITE_OPTS"
+    su $KALITE_USER -s /bin/sh -c "$KALITE_COMMAND start $KALITE_OPTS"
     ;;
   status)
     su $KALITE_USER -s /bin/sh -c "$KALITE_COMMAND status $KALILTE_OPTS"

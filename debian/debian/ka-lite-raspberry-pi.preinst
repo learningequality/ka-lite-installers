@@ -6,7 +6,18 @@ if [ "$SUDO_USER" ]; then
     echo "ka-lite-raspberry-pi ka-lite/user seen false" | debconf-set-selections
 fi
 
-# Ensure that we can over-write the nginx config
-dpkg-divert --add --package ka-lite-raspberry-pi --rename \
-    --divert /etc/nginx/nginx.conf.orig \
-    /etc/nginx/nginx.conf
+
+# Diversion for /etc/nginx/nginx.conf
+# https://wiki.debian.org/Adding%20and%20removing%20diversions
+pkg=ka-lite-raspberry-pi
+diversion_added_version=0.14
+this_version=0.14
+
+if
+        test "$1" = install ||
+        dpkg --compare-versions "$2" lt "$diversion_added_version" ||
+        dpkg --compare-versions "$this_version" lt "$2"
+then
+        dpkg-divert --package "$pkg" --add --rename \
+                --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
+fi

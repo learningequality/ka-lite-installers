@@ -33,16 +33,26 @@ case "$1" in
     KALITE_USER="$RET"
     echo $KALITE_USER > /etc/ka-lite/username
     if ! getent passwd $KALITE_USER >/dev/null; then
+      echo "Adding new user"
       adduser --system --home /var/$KALITE_USER $KALITE_USER
     fi
+
+    # Ensure permissions of assessment items are for the user running kalite
+    assessment_dir=/usr/share/kalite/assessment/khan
+    echo "Setting ownership to $KALITE_USER for assessment item database"
+    chown $KALITE_USER $assessment_dir
+    chown $KALITE_USER $assessment_dir/assessmentitems.sqlite
+
+    # Install init script using `ucf`
+    echo "Copying init.d script"
+    ucf --debconf-ok /usr/share/kalite/init-service /etc/init.d/ka-lite
 
     db_get ka-lite/init
     if [ "${RET}" != "false" ];
     then
-        # Install init script using `ucf`
-        ucf --debconf-ok /usr/share/kalite/init-service /etc/init.d/ka-lite
 
         # Register init script as service
+        echo "Adding script to startup"
         update-rc.d ka-lite defaults
 
         # Start service

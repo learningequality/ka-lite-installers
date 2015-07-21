@@ -6,6 +6,9 @@ set -e
 if [ "$1" = "purge" ];
 then
 
+    # Remove assessment items since they might be overwritten by other packages
+    rm -rf /usr/share/kalite/assessment
+
     # Source debconf library.
     . /usr/share/debconf/confmodule
     # Remove my changes to the db.

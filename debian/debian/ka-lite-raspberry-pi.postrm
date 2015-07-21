@@ -3,9 +3,32 @@
 # Make sure this script fails if any unexpected errors happen
 set -e
 
-# Restore the original nginx file
-dpkg-divert --remove --package ka-lite-raspberry-pi --rename \
-    /etc/nginx/nginx.conf.orig
+# Restore diversion for /etc/nginx/nginx.conf
+# https://wiki.debian.org/Adding%20and%20removing%20diversions
+pkg=ka-lite-raspberry-pi
+diversion_added_version=0.14
+this_version=0.14
+
+losing_diversion=n
+
+if test "$1" = failed-upgrade
+then
+        dpkg --compare-versions "$2" le-nl "$this_version" ||
+        # An upgrade from a newer version failed.
+        # There is no way for us to know enough to take over from here,
+        # so abort the upgrade.
+        exit 1
+elif dpkg --compare-versions "$2" lt-nl "$diversion_added_version"
+then
+        losing_diversion=y
+fi
+
+case "$1,$losing_diversion" in
+remove,*|abort-install,*|disappear,*|*,y)
+        dpkg-divert --package "$pkg" --remove --rename \
+                --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
+        ;;
+esac
 
 
 if [ "$1" = "purge" ];

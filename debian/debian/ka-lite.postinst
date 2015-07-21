@@ -39,24 +39,29 @@ case "$1" in
 
     # Download assessment items if chosen
     db_get ka-lite/download-assessment-items
+    assessment_dir=/usr/share/kalite/assessment/khan
     if [ "${RET}" != "false" ]; then
-        assessment_dir=/usr/share/kalite/assessment/khan
         version_file=$assessment_dir/assessmentitems.version
         if [ -f $version_file ]; then
-            old_version=cat $version_file
+            old_version="`cat $version_file`"
         else
             old_version=""
         fi
         if [ "$old_version" != "0.14" ]; then
-            wget https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip -O /tmp/assessment_items.zip --no-clobber
+            wget https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip -O /tmp/assessment_items.zip -c
             mkdir -p $assessment_dir
-            cd $assessment_dir
-            umask 022
             unzip /tmp/assessment_items.zip -d $assessment_dir
-            chown $KALITE_USER $assessment_dir
-            chown $KALITE_USER $assessment_dir/assessmentitems.sqlite
-            cd -
+            chmod -R uog+r $assessment_dir  # Necessary because assessment.zip has wrong permissions
+        echo
+            echo "Assessment items already installed"
         fi
+    fi
+
+    if [ -d $assessment_dir ]; then
+        chown $KALITE_USER $assessment_dir
+    fi
+    if [ -f $assessment_dir/assessmentitems.sqlite ]; then
+        chown $KALITE_USER $assessment_dir/assessmentitems.sqlite
     fi
 
 
