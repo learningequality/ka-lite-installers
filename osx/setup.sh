@@ -80,14 +80,8 @@ KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 KA_LITE_REPO_ZIP="https://github.com/$GITHUB_ACCOUNT/ka-lite/zipball/develop/"
 KA_LITE_REPO_ZIP="https://github.com/$GITHUB_ACCOUNT/ka-lite/zipball/hotfix/3704-cannot-connect-to-server-for-downloading-video-files-from-current-development-installs"
-KA_LITE_EXECUTABLE="$KA_LITE_MONITOR_RESOURCES_DIR/$KA_LITE/kalite/bin/kalite"
-KA_LITE_SOURCE_DIR_FILE="$KA_LITE_DIR/.KALITE_SOURCE_DIR"
 
-KA_LITE_MONITOR_RESOURCES_KA_LITE_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$KA_LITE"
 KA_LITE_MONITOR_RESOURCES_PYRUN_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$PYRUN_NAME"
-
-LOCAL_SETTINGS_DEFAULT_PATH="$KA_LITE_MONITOR_DIR/local_settings.default"
-LOCAL_SETTINGS_TARGET_PATH="$KA_LITE_DIR/kalite/local_settings.py"
 
 OUTPUT_PATH="$WORKING_DIR/output"
 DMG_PATH="$OUTPUT_PATH/KA-Lite Monitor.dmg"
@@ -156,46 +150,25 @@ else
     mv $WORKING_DIR/$GITHUB_ACCOUNT* $KA_LITE_DIR
 fi
 
-# Make the ka-lite repo production ready...
-((STEP++))
-echo "$STEP/$STEPS. Making the ka-lite repo production ready..."
-if [ -e "$KA_LITE_SOURCE_DIR_FILE" ]; then
-    echo "  Deleting $KA_LITE_SOURCE_DIR_FILE..."
-    rm "$KA_LITE_SOURCE_DIR_FILE"
-else
-    echo "  Did not find $KA_LITE_SOURCE_DIR_FILE!"
-fi
-
-# Create a `ka-lite/kalite/local_settings.py`
-((STEP++))
-echo "$STEP/$STEPS. Creating '$LOCAL_SETTINGS_TARGET_PATH' from '$LOCAL_SETTINGS_DEFAULT_PATH'..."
-if [ -e "$LOCAL_SETTINGS_TARGET_PATH" ]; then
-    echo "  Found $LOCAL_SETTINGS_TARGET_PATH so will not overwrite it."
-else
-    cp "$LOCAL_SETTINGS_DEFAULT_PATH" "$LOCAL_SETTINGS_TARGET_PATH"
-fi
-
 # Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
 ((STEP++))
 echo "$STEP/$STEPS. Running '$PYRUN setup.py install .'... on '$KA_LITE_DIR'"
 KA_LITE_SETUP_PY="$KALITE_DIRsetup.py"
 cd "$KA_LITE_DIR"
 pwd
-$PYRUN setup.py install
+$PYRUN setup.py install --static
 if [ $? -ne 0 ]; then
     echo "  $0: Error/s encountered running '$PYRUN setup.py install', exiting..."
     exit 1
 fi
 cd "$WORKING_DIR/.."
 
-# exit 10
-
 # Run PyRun's pip install for `requirements.txt`
 ((STEP++))
 echo "$STEP/$STEPS. Running '$PYRUN_PIP install -r requirements.txt'... on '$KA_LITE_DIR' "
 $PYRUN_PIP install -r "$KA_LITE_DIR/requirements.txt"
 if [ $? -ne 0 ]; then
-    echo "  $0: Error/s encountered running '$PYRUN_PIP -install -r requirements.txt', exiting..."
+    echo "  $0: Error/s encountered running '$PYRUN_PIP install -r requirements.txt', exiting..."
     exit 1
 fi
 
@@ -208,20 +181,12 @@ if ! [ -d "$KA_LITE_MONITOR_RESOURCES_DIR" ]; then
 fi
 
 # Delete and re-create the destination folders to make sure we don't leave orphaned files.
-echo "  Checking $KA_LITE_MONITOR_RESOURCES_KA_LITE_DIR..."
-if [ -d "$KA_LITE_MONITOR_RESOURCES_KA_LITE_DIR" ]; then
-    echo "    Deleting $KA_LITE_MONITOR_RESOURCES_KA_LITE_DIR..."
-    rm -rf "$KA_LITE_MONITOR_RESOURCES_KA_LITE_DIR"
-fi
 echo "  Checking $KA_LITE_MONITOR_RESOURCES_PYRUN_DIR..."
 if [ -d "$KA_LITE_MONITOR_RESOURCES_PYRUN_DIR" ]; then
     echo "    Deleting $KA_LITE_MONITOR_RESOURCES_PYRUN_DIR..."
     rm -rf "$KA_LITE_MONITOR_RESOURCES_PYRUN_DIR"
 fi
 
-# Copy ka-lite...
-echo "  cp $KA_LITE_DIR $KA_LITE_MONITOR_RESOURCES_DIR"
-cp -R "$KA_LITE_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"
 # Copy pyrun...
 echo "  cp $PYRUN_DIR $KA_LITE_MONITOR_RESOURCES_DIR"
 cp -R "$PYRUN_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"
