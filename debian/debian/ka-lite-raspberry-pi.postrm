@@ -34,6 +34,9 @@ esac
 if [ "$1" = "purge" ];
 then
 
+    # Remove assessment items since they might be overwritten by other packages
+    rm -rf /usr/share/kalite/assessment
+
     # Source debconf library.
     . /usr/share/debconf/confmodule
     # Remove my changes to the db.
@@ -47,4 +50,11 @@ then
 
     # Remove service file by hand (in case the above failed somehow)
     rm -f "/etc/init.d/ka-lite"
+fi
+
+# Reload nginx because the configuration for ka-lite and
+# occupying port 8008 stops
+if [ -f /etc/init.d/nginx ]
+then
+    service nginx reload
 fi
