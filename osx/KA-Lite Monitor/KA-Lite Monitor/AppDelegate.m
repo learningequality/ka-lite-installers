@@ -221,11 +221,17 @@ BOOL pyrunExists() {
         // MUST: This will make sure the process to run has access to the environment variables
         // because the .app may be loaded the first time.
         kaliteCmd = [NSString stringWithFormat: @"export KALITE_PYTHON=\"%@\"; \"%@\"", pyrun, kalitePath];
-        NSLog([NSString stringWithFormat:@"COMMAND ==> %@", kaliteCmd]);
-        
         finalCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, command];
         statusCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, @"status"];
+
+        //        finalCmd = [NSString stringWithFormat:@"kalite %@", command];
+        //        statusCmd = [NSString stringWithFormat:@"kalite %@", @"status"];
+
+        finalCmd = [NSString stringWithFormat:@"%@ %@", getUsrBinKalite(), command];
+        statusCmd = [NSString stringWithFormat:@"%@ %@", getUsrBinKalite(), @"status"];
         
+        NSLog([NSString stringWithFormat:@"COMMAND ==> %@", finalCmd]);
+
         if (kaliteExists()) {
             // REF: http://stackoverflow.com/a/10284037/845481
             // Convert const char* to NSString * and convert back - _NSAutoreleaseNoPool().
@@ -374,16 +380,16 @@ BOOL setLaunchAgent(NSString *source, NSString *target) {
 }
 
 
-NSString *getUsrLocalBinKalite() {
-    return @"/usr/local/bin/kalite";
+NSString *getUsrBinKalite() {
+    return @"/usr/bin/kalite";
 }
 
 //<##>symlinkKalite
 NSString *getSymlinkKaliteCommand() {
     if (kaliteExists()) {
         NSString *kalitePath = getKaliteBinPath();
-        NSString *target = getUsrLocalBinKalite();
-        NSString *command = [NSString stringWithFormat:@"ln -f '%@' '%@'", kalitePath, target];
+        NSString *target = getUsrBinKalite();
+        NSString *command = [NSString stringWithFormat:@"ln -f -s '%@' '%@'", kalitePath, target];
         return command;
     }
     return nil;
@@ -394,12 +400,12 @@ BOOL symlinkKalite() {
     NSString *msg;
     if (kaliteExists()) {
         NSString *kalitePath = getKaliteBinPath();
-        NSString *target = getUsrLocalBinKalite();
+        NSString *target = getUsrBinKalite();
         
         msg = [NSString stringWithFormat:@"Symlinking %@ to %@...", kalitePath, target];
         showNotification(msg);
         
-        NSString *command = [NSString stringWithFormat:@"ln -f '%@' '%@'", kalitePath, target];
+        NSString *command = [NSString stringWithFormat:@"ln -f -s '%@' '%@'", kalitePath, target];
         NSDictionary *errorInfo = runAsRoot(command);
         if (errorInfo != nil) {
             msg = [NSString stringWithFormat:@"FAILED command %@ with ERROR: %@", command, errorInfo];
@@ -792,7 +798,7 @@ BOOL setEnvVars(BOOL createPlist) {
 
 -(BOOL)resetApp {
     // This will reset the app like it was never installed.
-    // 1. reset the environment variables: KALITE_DIR, KALITE_PYTHON
+    // 1. reset the environment variable: KALITE_PYTHON
     // 2. remove the .plist file, need admin
     // 3. delete the symlinked /usr/local/bin/kalite command, need admin
     // 4. TODO(cpauya): delete/reset the user preferences
@@ -800,12 +806,12 @@ BOOL setEnvVars(BOOL createPlist) {
     showNotification(@"Resetting the app...");
     NSString *msg;
 
-    // This unsets the KALITE_DIR and KALITE_PYTHON environment variables used by the app.
-    NSString *command = @"launchctl unsetenv KALITE_DIR; launchctl unsetenv KALITE_PYTHON;";
+    // This unsets the KALITE_PYTHON environment variable used by the app.
+    NSString *command = @"launchctl unsetenv KALITE_PYTHON;";
     const char *cmd = [command UTF8String];
     int i = system(cmd);
     if (i != 0) {
-        showNotification(@"Failed to unset KALITE_DIR and KALITE_PYTHON env vars.");
+        showNotification(@"Failed to unset KALITE_PYTHON env var.");
         return FALSE;
     }
 
