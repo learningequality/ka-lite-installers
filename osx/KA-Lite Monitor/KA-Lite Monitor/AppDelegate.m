@@ -39,7 +39,9 @@
     self.status = statusCouldNotDetermineStatus;
     [self getKaliteStatus];
     
-    // We need to show preferences if database does not exist so when the
+    // We need to show preferences if the following does not exist:
+    // 1. database does not exist
+    // 2. symlinked `kalite` executable
     // Apply button is clicked, we run `kalite manage setup`.
     bool mustShowPreferences = false;
     @try {
@@ -50,6 +52,14 @@
             mustShowPreferences = true;
         } else {
             NSLog([NSString stringWithFormat:@"FOUND database at %@!", database]);
+        }
+
+        NSString *kalite = getUsrBinKalite();
+        if (!pathExists(kalite)) {
+            NSLog(@"kalite executable not found, must show preferences.");
+            mustShowPreferences = true;
+        } else {
+            NSLog([NSString stringWithFormat:@"FOUND kalite at %@!", kalite]);
         }
         showNotification(@"KA Lite is now loaded.");
     }
@@ -215,20 +225,18 @@ BOOL pyrunExists() {
     
     @try {
         pyrun = getPyrunBinPath(true);
-        kalitePath = getKaliteBinPath();
+        // MUST: Let's use the symlinked `/usr/bin/kalite` instead of the
+        // one at `pyrun-2.7/bin/kalite` because it can be found on the PATH
+        // of the app.
+        kalitePath = getUsrBinKalite();
+
         // TODO(cpauya): make sure the pyrun and kalite binaries are not empty
-        
-        // MUST: This will make sure the process to run has access to the environment variables
+
+        // MUST: This will make sure the process to run has access to the environment variable
         // because the .app may be loaded the first time.
         kaliteCmd = [NSString stringWithFormat: @"export KALITE_PYTHON=\"%@\"; \"%@\"", pyrun, kalitePath];
         finalCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, command];
         statusCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, @"status"];
-
-        //        finalCmd = [NSString stringWithFormat:@"kalite %@", command];
-        //        statusCmd = [NSString stringWithFormat:@"kalite %@", @"status"];
-
-        finalCmd = [NSString stringWithFormat:@"%@ %@", getUsrBinKalite(), command];
-        statusCmd = [NSString stringWithFormat:@"%@ %@", getUsrBinKalite(), @"status"];
         
         NSLog([NSString stringWithFormat:@"COMMAND ==> %@", finalCmd]);
 
@@ -460,6 +468,8 @@ BOOL setEnvVars(BOOL createPlist) {
     // Set environment variables using the `launchctl setenv` command for immediate use.
     // REF: http://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x/588442#588442
     
+    // MUST: symlink the `pyrun-2.7/bin/kalite` to `/usr/bin/kalite` so the app can run it.
+    
     showNotification(@"Setting KALITE_PYTHON environment variable...");
     NSString *pyrun = getPyrunBinPath(false);
     if (pyrun) {
@@ -527,7 +537,7 @@ BOOL setEnvVars(BOOL createPlist) {
         NSLog([NSString stringWithFormat:@"CANNOT save initial .plist file!  Result: %hhd", ret]);
     }
     
-    //TODO(cpauya): As root, copy the .plist into /Library/LaunchAgents/
+    // As root, copy the .plist into /Library/LaunchAgents/
     NSString *launchAgentCommand = getLaunchAgentCommand(path, target);
     NSString *symlinkCommand = getSymlinkKaliteCommand();
     NSString *command = [NSString stringWithFormat:@"%@; %@;", launchAgentCommand, symlinkCommand];
@@ -800,7 +810,7 @@ BOOL setEnvVars(BOOL createPlist) {
     // This will reset the app like it was never installed.
     // 1. reset the environment variable: KALITE_PYTHON
     // 2. remove the .plist file, need admin
-    // 3. delete the symlinked /usr/local/bin/kalite command, need admin
+    // 3. delete the symlinked /usr/bin/kalite command, need admin
     // 4. TODO(cpauya): delete/reset the user preferences
 
     showNotification(@"Resetting the app...");
@@ -824,7 +834,7 @@ BOOL setEnvVars(BOOL createPlist) {
     NSString *deletePlistCommand = [NSString stringWithFormat:@"rm %@; rm %@;", tempPath, agentPath];
 
     // Delete the symlinked `kalite` executable.
-    NSString *path = @"/usr/local/bin/kalite";
+    NSString *path = getUsrBinKalite();
     NSString *deleteSymlinkCommand = [NSString stringWithFormat:@"rm %@;", path];
 
     command = [NSString stringWithFormat:@"%@ %@", deletePlistCommand, deleteSymlinkCommand];
