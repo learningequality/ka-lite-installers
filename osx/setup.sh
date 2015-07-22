@@ -34,7 +34,6 @@ STEPS=11
 # TODO(cpauya): This works but the problem is it creates the temporary directory everytime
 # script is run... so during devt, we will comment this for now.
 # Create temporary directory.
-echo "$STEP/$STEPS. Creating temporary directory..."
 # BASE_DIR=`basename $0`
 # WORKING_DIR=`mktemp -d -t ${BASE_DIR}` || exit 1
 # if [ $? -ne 0 ]; then
@@ -53,6 +52,7 @@ popd > /dev/null
 
 WORKING_DIR="$SCRIPTPATH/temp"
 if ! [ -d "$WORKING_DIR" ]; then
+    echo "$STEP/$STEPS. Creating temporary directory..."
     mkdir "$WORKING_DIR"
 fi
 
@@ -72,14 +72,30 @@ PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
 PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
 
-GITHUB_ACCOUNT="learningequality"
-GITHUB_ACCOUNT="mrpau"
-
 KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
-KA_LITE_REPO_ZIP="https://github.com/$GITHUB_ACCOUNT/ka-lite/zipball/develop/"
-KA_LITE_REPO_ZIP="https://github.com/$GITHUB_ACCOUNT/ka-lite/zipball/hotfix/3704-cannot-connect-to-server-for-downloading-video-files-from-current-development-installs"
+
+# MUST: Use the archive link, defaults to develop branch, so that the folder name
+# starts with the repo name like these examples:
+#    ka-lite-develop
+#    ka-lite-0.14.x.zip
+KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/develop.zip"
+
+# Check if an argument was passed as URL for the script and use that instead.
+if [ "$1" != "" ]; then
+    # MUST: Check if valid url!
+    # REF: http://stackoverflow.com/a/20988182/845481
+    #      How do I determine if a web page exists with shell scripting?
+    if curl --output /dev/null --silent --head --fail "$1"
+    then
+        # Use the argument as the ka-lite repo zip.
+        KA_LITE_REPO_ZIP=$1
+    else
+        echo "The $1 argument is not a valid URL!"
+        exit 1
+    fi
+fi
 
 KA_LITE_MONITOR_RESOURCES_PYRUN_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$PYRUN_NAME"
 
@@ -146,8 +162,14 @@ else
         echo "  $0: Can't extract '$KA_LITE_ZIP', exiting..."
         exit 1
     fi
+    
     # Rename the extracted folder.
-    mv $WORKING_DIR/$GITHUB_ACCOUNT* $KA_LITE_DIR
+    echo "  Renaming '$WORKING_DIR/$KA_LITE-*' to $KA_LITE_DIR'..."
+    mv $WORKING_DIR/$KA_LITE-* $KA_LITE_DIR
+    if ! [ -d "$KA_LITE_DIR" ]; then
+        echo "  $0: Did not successfully rename '$WORKING_DIR/$KA_LITE-*' to '$KA_LITE_DIR', exiting..."
+        exit 1
+    fi
 fi
 
 # Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
