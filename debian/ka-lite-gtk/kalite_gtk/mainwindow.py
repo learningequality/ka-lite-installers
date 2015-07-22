@@ -8,7 +8,7 @@ import subprocess
 def run_async(func):
     """
     http://code.activestate.com/recipes/576684-simple-threading-decorator/
-    
+
         run_async(func)
             function decorator, intended to make "func" run in a separate
             thread (asynchronously).
@@ -34,7 +34,7 @@ def run_async(func):
 
     @wraps(func)
     def async_func(*args, **kwargs):
-        func_hl = Thread(target = func, args = args, kwargs = kwargs)
+        func_hl = Thread(target=func, args=args, kwargs=kwargs)
         func_hl.start()
         return func_hl
 
@@ -42,10 +42,10 @@ def run_async(func):
 
 
 class Handler:
-    
+
     def __init__(self, mainwindow):
         self.mainwindow = mainwindow
-    
+
     def on_delete_window(self, *args):
         Gtk.main_quit(*args)
 
@@ -64,7 +64,7 @@ class Handler:
         self.process.wait()
         stdout = self.process.stdout.readline()
         gobject.idle_add(self.mainwindow.log_message, stdout)
-    
+
 
 class MainWindow:
 
@@ -73,18 +73,20 @@ class MainWindow:
         self.builder = Gtk.Builder()
         glade_file = resource_filename(__name__, "glade/mainwindow.glade")
         self.builder.add_from_file(glade_file)
-        
+
         self.window = self.builder.get_object("mainwindow")
         self.builder.connect_signals(Handler(self))
-        
+
         self.window.show_all()
 
         self.log_textview = self.builder.get_object("log_textview")
         self.log = self.builder.get_object("log")
-        
+
         # Style the log like a terminal
-        self.log_textview.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 1))
-        self.log_textview.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(1, 1, 1, 1))
+        self.log_textview.override_background_color(
+            Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 1))
+        self.log_textview.override_color(
+            Gtk.StateFlags.NORMAL, Gdk.RGBA(1, 1, 1, 1))
 
     def log_message(self, msg):
         self.log.insert_at_cursor(msg)
