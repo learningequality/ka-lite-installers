@@ -354,10 +354,10 @@ Gw
                                                             <string key="title">WARNING:  Do this only if you know what you are doing.  
 
 This will remove the installer files to set a clean environment:
-1. remove the KALITE_PYTHON environment variable
-2. delete the .plist file which auto-sets the above env var
-3. delete the symlinked /usr/local/bin/kalite executable
-4. (TODO) delete the stored user preferences
+1. Remove the KALITE_PYTHON environment variable.
+2. Delete the /Library/LaunchAgents/org.learningequality.kalite.plist file which auto-sets the above env var on computer boot.
+3. Delete the symlinked /usr/bin/kalite executable.
+4. Delete the stored user preferences.
 
 Click the Apply button to re-create the installation files mentioned above.</string>
                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>

@@ -552,9 +552,10 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (void)showStatus:(enum kaliteStatus)status {
     // Enable/disable menu items based on status.
+    BOOL canStart = pathExists(getUsrBinKalite()) > 0 ? YES : NO;
     switch (status) {
         case statusFailedToStart:
-            [self.startKalite setEnabled:YES];
+            [self.startKalite setEnabled:canStart];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
             break;
@@ -572,7 +573,7 @@ BOOL setEnvVars(BOOL createPlist) {
             showNotification(@"You can now click on 'Open in Browser' menu");
             break;
         case statusStopped:
-            [self.startKalite setEnabled:YES];
+            [self.startKalite setEnabled:canStart];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
             [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
@@ -580,7 +581,7 @@ BOOL setEnvVars(BOOL createPlist) {
             showNotification(@"Stopped");
             break;
         default:
-            [self.startKalite setEnabled:YES];
+            [self.startKalite setEnabled:canStart];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
             if (kaliteExists()){
@@ -703,6 +704,20 @@ BOOL setEnvVars(BOOL createPlist) {
 }
 
 
+- (void)resetPreferences {
+    NSString *blank = @"";
+    self.username = blank;
+    self.password = blank;
+
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    [prefs setObject:blank forKey:@"username"];
+    [prefs setObject:blank forKey:@"password"];
+    // REF: https://github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
+    [prefs synchronize];
+    [self loadPreferences];
+}
+
+
 - (void)savePreferences {
     /*
      1. Validate the following:
@@ -710,8 +725,7 @@ BOOL setEnvVars(BOOL createPlist) {
         * password length max of 128 characters
         * username allowed characters are "letters, numbers and @/./+/-/_ characters" based on django.contrib.auth.models.AbstractUser
      2. Save the preferences: REF: http://stackoverflow.com/questions/10148788/xcode-cocoa-app-preferences
-     3. Copy local_settings_sample.py to local_settings.py
-     4. Run `kalite manage setup` if no database was found.
+     3. Run `kalite manage setup` if no database was found.
      */
     
     NSString *username = self.stringUsername.stringValue;
@@ -811,8 +825,10 @@ BOOL setEnvVars(BOOL createPlist) {
     // 1. reset the environment variable: KALITE_PYTHON
     // 2. remove the .plist file, need admin
     // 3. delete the symlinked /usr/bin/kalite command, need admin
-    // 4. TODO(cpauya): delete/reset the user preferences
+    // 4. Reset the user preferences.
 
+    BOOL result = TRUE;
+    
     showNotification(@"Resetting the app...");
     NSString *msg;
 
@@ -822,12 +838,12 @@ BOOL setEnvVars(BOOL createPlist) {
     int i = system(cmd);
     if (i != 0) {
         showNotification(@"Failed to unset KALITE_PYTHON env var.");
-        return FALSE;
+        result = FALSE;
     }
 
     // MUST: Run the root commands as one so it only prompts the user once.
 
-    // Delete the .plist files.
+    // Delete the .plist file
     NSString *org = @"org.learningequality.kalite";
     NSString *tempPath = [NSString stringWithFormat:@"/tmp/%@.plist", org];
     NSString *agentPath = [NSString stringWithFormat:@"/Library/LaunchAgents/%@.plist", org];
@@ -840,10 +856,14 @@ BOOL setEnvVars(BOOL createPlist) {
     command = [NSString stringWithFormat:@"%@ %@", deletePlistCommand, deleteSymlinkCommand];
     if (!runRootCommands(command)) {
         showNotification(@"Failed to delete .plist or symlinked kalite executable.");
-        return FALSE;
+        result = FALSE;
     }
-    showNotification(@"Done resetting the app.");
-    return TRUE;
+    
+    // Delete/reset the user preferences.
+    [self resetPreferences];
+    
+    showNotification(@"Done resetting the app.  Please click the Apply button to repeat the install process.");
+    return result;
 }
 
 
