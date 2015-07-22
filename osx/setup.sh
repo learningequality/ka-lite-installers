@@ -8,11 +8,12 @@
 # 3. Download PyRun thru `install-pyrun` script.
 # 4. Download KA-Lite zip based on develop branch.
 # 5. Extract KA-Lite and move into `ka-lite` folder.
-# 6. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
-# 7. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
-# 8. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
-# 9. Build the Xcode project to produce the .app.
-# 10. Build the .dmg.
+# 6. Make ka-lite repo production-ready (delete .KALITE_SOURCE_DIR, etc).
+# 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
+# 8. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
+# 9. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
+# 10. Build the Xcode project to produce the .app.
+# 11. Build the .dmg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
@@ -28,12 +29,11 @@ if [ -z ${TMPDIR+0} ]; then
 fi
 
 STEP=1
-STEPS=9
+STEPS=11
 
 # TODO(cpauya): This works but the problem is it creates the temporary directory everytime
 # script is run... so during devt, we will comment this for now.
 # Create temporary directory.
-echo "$STEP/$STEPS. Creating temporary directory..."
 # BASE_DIR=`basename $0`
 # WORKING_DIR=`mktemp -d -t ${BASE_DIR}` || exit 1
 # if [ $? -ne 0 ]; then
@@ -52,6 +52,7 @@ popd > /dev/null
 
 WORKING_DIR="$SCRIPTPATH/temp"
 if ! [ -d "$WORKING_DIR" ]; then
+    echo "$STEP/$STEPS. Creating temporary directory..."
     mkdir "$WORKING_DIR"
 fi
 
@@ -66,18 +67,37 @@ KA_LITE_ICNS_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite.icns"
 KA_LITE_README_PATH="$SETUP_FILES_DIR/README.md"
 
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
-PYRUN_DIR="$WORKING_DIR/pyrun-2.7"
+PYRUN_NAME="pyrun-2.7"
+PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
 PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
 
 KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
-KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/zipball/develop/"
-KA_LITE_EXECUTABLE="$KA_LITE_MONITOR_RESOURCES_DIR/$KA_LITE/kalite/bin/kalite"
 
-LOCAL_SETTINGS_DEFAULT_PATH="$KA_LITE_MONITOR_DIR/local_settings.default"
-LOCAL_SETTINGS_TARGET_PATH="$KA_LITE_DIR/kalite/local_settings.py"
+# MUST: Use the archive link, defaults to develop branch, so that the folder name
+# starts with the repo name like these examples:
+#    ka-lite-develop
+#    ka-lite-0.14.x.zip
+KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/develop.zip"
+
+# Check if an argument was passed as URL for the script and use that instead.
+if [ "$1" != "" ]; then
+    # MUST: Check if valid url!
+    # REF: http://stackoverflow.com/a/20988182/845481
+    #      How do I determine if a web page exists with shell scripting?
+    if curl --output /dev/null --silent --head --fail "$1"
+    then
+        # Use the argument as the ka-lite repo zip.
+        KA_LITE_REPO_ZIP=$1
+    else
+        echo "The $1 argument is not a valid URL!"
+        exit 1
+    fi
+fi
+
+KA_LITE_MONITOR_RESOURCES_PYRUN_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$PYRUN_NAME"
 
 OUTPUT_PATH="$WORKING_DIR/output"
 DMG_PATH="$OUTPUT_PATH/KA-Lite Monitor.dmg"
@@ -137,30 +157,40 @@ else
 
     # Extract KA-Lite
     echo "  Extracting '$KA_LITE_ZIP'..."
-    tar -xf $KA_LITE_ZIP
+    tar -xf $KA_LITE_ZIP -C $WORKING_DIR
     if [ $? -ne 0 ]; then
         echo "  $0: Can't extract '$KA_LITE_ZIP', exiting..."
         exit 1
     fi
+    
     # Rename the extracted folder.
-    mv learningequality* $KA_LITE_DIR
+    echo "  Renaming '$WORKING_DIR/$KA_LITE-*' to $KA_LITE_DIR'..."
+    mv $WORKING_DIR/$KA_LITE-* $KA_LITE_DIR
+    if ! [ -d "$KA_LITE_DIR" ]; then
+        echo "  $0: Did not successfully rename '$WORKING_DIR/$KA_LITE-*' to '$KA_LITE_DIR', exiting..."
+        exit 1
+    fi
 fi
 
-# Create a `ka-lite/kalite/local_settings.py`
+# Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
 ((STEP++))
-echo "$STEP/$STEPS. Creating '$LOCAL_SETTINGS_TARGET_PATH' from '$LOCAL_SETTINGS_DEFAULT_PATH'..."
-if [ -e "$LOCAL_SETTINGS_TARGET_PATH" ]; then
-    echo "  Found $LOCAL_SETTINGS_TARGET_PATH so will not overwrite it."
-else
-    cp "$LOCAL_SETTINGS_DEFAULT_PATH" "$LOCAL_SETTINGS_TARGET_PATH"
+echo "$STEP/$STEPS. Running '$PYRUN setup.py install .'... on '$KA_LITE_DIR'"
+KA_LITE_SETUP_PY="$KALITE_DIRsetup.py"
+cd "$KA_LITE_DIR"
+pwd
+$PYRUN setup.py install --static
+if [ $? -ne 0 ]; then
+    echo "  $0: Error/s encountered running '$PYRUN setup.py install', exiting..."
+    exit 1
 fi
+cd "$WORKING_DIR/.."
 
 # Run PyRun's pip install for `requirements.txt`
 ((STEP++))
 echo "$STEP/$STEPS. Running '$PYRUN_PIP install -r requirements.txt'... on '$KA_LITE_DIR' "
 $PYRUN_PIP install -r "$KA_LITE_DIR/requirements.txt"
 if [ $? -ne 0 ]; then
-    echo "  $0: Error/s encountered running '$PYRUN_PIP -install -r requirements.txt', exiting..."
+    echo "  $0: Error/s encountered running '$PYRUN_PIP install -r requirements.txt', exiting..."
     exit 1
 fi
 
@@ -171,9 +201,14 @@ if ! [ -d "$KA_LITE_MONITOR_RESOURCES_DIR" ]; then
     mkdir "$KA_LITE_MONITOR_RESOURCES_DIR"
     echo "  Created Xcode Resources folder..."
 fi
-# Copy ka-lite...
-echo "  cp $KA_LITE_DIR $KA_LITE_MONITOR_RESOURCES_DIR"
-cp -R "$KA_LITE_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"
+
+# Delete and re-create the destination folders to make sure we don't leave orphaned files.
+echo "  Checking $KA_LITE_MONITOR_RESOURCES_PYRUN_DIR..."
+if [ -d "$KA_LITE_MONITOR_RESOURCES_PYRUN_DIR" ]; then
+    echo "    Deleting $KA_LITE_MONITOR_RESOURCES_PYRUN_DIR..."
+    rm -rf "$KA_LITE_MONITOR_RESOURCES_PYRUN_DIR"
+fi
+
 # Copy pyrun...
 echo "  cp $PYRUN_DIR $KA_LITE_MONITOR_RESOURCES_DIR"
 cp -R "$PYRUN_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"

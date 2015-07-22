@@ -16,25 +16,26 @@ To install:
 1. Logs terminal messages so they are accessible at the Console app.
 
 
-## Use of the .app
+## Use of the app
 
-The .app shows an icon at the system status menu and a Preferences dialog as it's interfaces.
+When the app is run, it will automatically show the preferences dialog if the following do not exist:
 
-The .app uses User Preferences saved at `~/Library/Preferences/FLE.KA-Lite-Monitor.plist` to save the following:
+1. `/usr/bin/kalite` symlink
+2. database at `~/.kalite/database/data.sqlite` - the `~/.kalite/` location can be overridden by setting a `KALITE_HOME` environment variable
+
+The app shows an icon at the system status menu and it uses User Preferences saved at `~/Library/Preferences/FLE.KA-Lite-Monitor.plist` to save the following:
 
 1. admin username
 2. admin password (encoded)
-3. (TODO) KALITE_DIR environment variable - defaults to the `<Resources directory>/ka-lite/` folder.
-4. (TODO) KALITE_PYTHON environment variable - defaults to the `<Resources directory>/pyrun-2.7/bin/pyrun`.
+3. (TODO) KALITE_PYTHON environment variable - defaults to the `<Resources directory>/pyrun-2.7/bin/pyrun`.
 
-When the .app is run, it will automatically show the preferences dialog if the following do not exist:
-
-* database at `KALITE_DIR/kalite/database/data.sqlite`
-* local settings at `KALITE_DIR/kalite/local_settings.py`
+Note that the "Start KA Lite" menu is disabled if the `/usr/bin/kalite` cannot be found.
 
 
 ### Use of the preferences dialog
 
-When the `Apply` button is clicked, the .app will ask for an admin password so it can symlink the `KALITE_DIR/bin/kalite` executable to `/usr/local/bin/kalite` to make it runnable from anywhere on the Mac.
+When the `Apply` button is clicked, the app will ask for an admin password so it can symlink the `<pyrun-directory>/bin/kalite` executable to `/usr/bin/kalite` to make it runnable from anywhere on the Mac.
 
-Click on the `Setup` button at the `Advanced` tab to repeat the setup process.  This will call `kalite manage setup --username %@ --password %@ --noinput` with the username and password values coming from the textboxes.
+Click on the `Setup` button at the `Advanced` tab to repeat the setup process.  This will call `kalite manage setup --username=%@ --password=%@ --noinput` with the username and password values coming from the textboxes.
+
+The `Reset App` button at the `Advanced` tab will reset all files/settings as if the app was never installed.
