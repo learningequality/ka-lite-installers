@@ -57,10 +57,10 @@ if ! [ -d "$WORKING_DIR" ]; then
 fi
 
 SETUP_FILES_DIR="$SCRIPTPATH/setup-files"
-KA_LITE_MONITOR_PROJECT_DIR="$SCRIPTPATH/KA-Lite Monitor"
-KA_LITE_MONITOR_DIR="$KA_LITE_MONITOR_PROJECT_DIR/KA-Lite Monitor"
+KA_LITE_MONITOR_PROJECT_DIR="$SCRIPTPATH/KA-Lite-Monitor"
+KA_LITE_MONITOR_DIR="$KA_LITE_MONITOR_PROJECT_DIR/KA-Lite-Monitor"
 KA_LITE_MONITOR_RESOURCES_DIR="$KA_LITE_MONITOR_DIR/Resources"
-KA_LITE_MONITOR_APP_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release/KA-Lite Monitor.app"
+KA_LITE_MONITOR_APP_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release/KA-Lite-Monitor.app"
 RELEASE_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release"
 KA_LITE_LOGO_PATH="$SETUP_FILES_DIR/ka-lite-logo-full.png"
 KA_LITE_ICNS_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite.icns"
@@ -100,7 +100,7 @@ fi
 KA_LITE_MONITOR_RESOURCES_PYRUN_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$PYRUN_NAME"
 
 OUTPUT_PATH="$WORKING_DIR/output"
-DMG_PATH="$OUTPUT_PATH/KA-Lite Monitor.dmg"
+DMG_PATH="$OUTPUT_PATH/KA-Lite-Monitor.dmg"
 DMG_BUILDER_PATH="$WORKING_DIR/create-dmg"
 CREATE_DMG="$DMG_BUILDER_PATH/create-dmg"
 
@@ -247,14 +247,14 @@ test -e "$DMG_PATH" && rm "$DMG_PATH"
 # Add the README.md to the package.
 cp "$KA_LITE_README_PATH" "$RELEASE_PATH"
 # Clean-up the package.
-test -x "$RELEASE_PATH/KA-Lite Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite Monitor.app.dSYM"
+test -x "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM"
 
 # Let's create the .dmg.
 $CREATE_DMG \
-    --volname "KA-Lite Monitor Installer" \
+    --volname "KA-Lite-Monitor Installer" \
     --volicon "$KA_LITE_ICNS_PATH" \
     --window-size 700 400 \
-    --icon "KA-Lite Monitor.app" 150 200 \
+    --icon "KA-Lite-Monitor.app" 150 200 \
     --app-drop-link 500 200 \
     --background "$KA_LITE_LOGO_PATH" \
     "$DMG_PATH" \

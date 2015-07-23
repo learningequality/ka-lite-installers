@@ -27,14 +27,13 @@
 - (int) checkShebang{
     NSString *command;
     NSString *resourcePath;
-    NSString *pyrun;
+    NSString *binPath;
     
-    pyrun = getPyrunBinPath(true);
+    binPath = getResourcePath(@"pyrun-2.7/bin/");
     resourcePath = getResourcePath(@"scripts/shebangcheck.py");
-    command = [NSString stringWithFormat:@"%@ '%@' '%@'", @"python", resourcePath, pyrun];
+    command = [NSString stringWithFormat:@"%@ '%@' '%@'", @"python", resourcePath, binPath];
     
-    NSLog(@"Running shebang script");
-    NSLog(@"kalite monitor resource path: %@", command);
+    NSLog(@"Running shebang script & command: %@", command);
 
     const char *runCommand = [command UTF8String];
     int run = system(runCommand);
