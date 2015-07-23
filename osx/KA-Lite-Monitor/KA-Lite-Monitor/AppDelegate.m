@@ -24,9 +24,28 @@
 @synthesize stringUsername, stringPassword, stringConfirmPassword, startKalite, stopKalite, openInBrowserMenu;
 
 
+- (int) checkShebang{
+    NSString *command;
+    NSString *resourcePath;
+    NSString *binPath;
+    
+    binPath = getResourcePath(@"pyrun-2.7/bin/");
+    resourcePath = getResourcePath(@"scripts/shebangcheck.py");
+    command = [NSString stringWithFormat:@"%@ '%@' '%@'", @"python", resourcePath, binPath];
+    
+    NSLog(@"Running shebang script & command: %@", command);
+
+    const char *runCommand = [command UTF8String];
+    int run = system(runCommand);
+    return run;
+}
+
+
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
+    
+    [self checkShebang];
     
     // Setup the status menu item.
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
@@ -339,17 +358,17 @@ NSString *getUsernameChars() {
 
 //<##>runRootCommands
 BOOL runRootCommands(NSString *command) {
-    NSString *msg = [NSString stringWithFormat:@"Running root command/s: %@...", command];
-    showNotification(msg);
+//    NSString *msg = [NSString stringWithFormat:@"Running root command/s: %@...", command];
+//    showNotification(msg);
     
     NSDictionary *errorInfo = runAsRoot(command);
     if (errorInfo != nil) {
-        msg = [NSString stringWithFormat:@"FAILED command/s %@ with ERROR: %@", command, errorInfo];
-        showNotification(msg);
+//        msg = [NSString stringWithFormat:@"FAILED command/s %@ with ERROR: %@", command, errorInfo];
+//        showNotification(msg);
         return FALSE;
     }
-    msg = [NSString stringWithFormat:@"Done running root command/s %@.", command];
-    showNotification(msg);
+//    msg = [NSString stringWithFormat:@"Done running root command/s %@.", command];
+//    showNotification(msg);
     return TRUE;
 }
 
@@ -589,8 +608,8 @@ BOOL setEnvVars(BOOL createPlist) {
             }else{
                 [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
             }
-            [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
-            showNotification(@"Has encountered an error, pls check the Console.");
+//            [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
+//            showNotification(@"Has encountered an error, pls check the Console.");
             break;
     }
 }
