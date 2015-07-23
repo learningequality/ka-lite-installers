@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D0E72B151B6101F00005635A /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = D0E72B141B6101EF0005635A /* scripts */; };
 		F103615C1A81B7DF00998E6B /* images in Resources */ = {isa = PBXBuildFile; fileRef = F103615B1A81B7DF00998E6B /* images */; };
 		F1720BED1A79566700096453 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = F1720BEC1A79566700096453 /* README.md */; };
 		F1720BF11A7A343A00096453 /* local_settings.default in Resources */ = {isa = PBXBuildFile; fileRef = F1720BF01A7A343A00096453 /* local_settings.default */; };
@@ -29,6 +30,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D0E72B141B6101EF0005635A /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = Resources/scripts; sourceTree = "<group>"; };
 		F103615B1A81B7DF00998E6B /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = Resources/images; sourceTree = "<group>"; };
 		F1720BEC1A79566700096453 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F1720BF01A7A343A00096453 /* local_settings.default */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = local_settings.default; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 		F1DDD40F1A6E5DC10022F1C9 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D0E72B141B6101EF0005635A /* scripts */,
 				F1B308381ACBD09400008AF1 /* pyrun-2.7 */,
 				F103615B1A81B7DF00998E6B /* images */,
 				F1720BF01A7A343A00096453 /* local_settings.default */,
@@ -208,6 +211,7 @@
 				F103615C1A81B7DF00998E6B /* images in Resources */,
 				F1B308391ACBD09500008AF1 /* pyrun-2.7 in Resources */,
 				F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */,
+				D0E72B151B6101F00005635A /* scripts in Resources */,
 				F1E5A30B1A8041FD003FA650 /* MainMenu.xib in Resources */,
 				F1720BF11A7A343A00096453 /* local_settings.default in Resources */,
 			);
