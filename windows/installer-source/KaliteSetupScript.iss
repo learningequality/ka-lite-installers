@@ -322,7 +322,7 @@ procedure HandlePythonSetup;
 var
     installPythonErrorCode : Integer;
 begin
-    if(MsgBox('Python error' #13#13 'Python 2.7.9+ is required to install KA Lite on Windows; do you wish to first install Python 2.7.10, before continuing with the installation of KA Lite?', mbConfirmation, MB_YESNO) = idYes) then
+    if(MsgBox('Python 2.7.9+ is required to install KA Lite on Windows; do you wish to first install Python 2.7.10, before continuing with the installation of KA Lite?', mbConfirmation, MB_YESNO) = idYes) then
     begin
         ExtractTemporaryFile('python-2.7.10.msi');
         ShellExec('open', ExpandConstant('{tmp}')+'\python-2.7.10.msi', '', '', SW_SHOWNORMAL, ewWaitUntilTerminated, installPythonErrorCode);
