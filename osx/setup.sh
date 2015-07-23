@@ -178,7 +178,7 @@ echo "$STEP/$STEPS. Running '$PYRUN setup.py install .'... on '$KA_LITE_DIR'"
 KA_LITE_SETUP_PY="$KALITE_DIRsetup.py"
 cd "$KA_LITE_DIR"
 pwd
-$PYRUN setup.py install --static
+$PYRUN setup.py install
 if [ $? -ne 0 ]; then
     echo "  $0: Error/s encountered running '$PYRUN setup.py install', exiting..."
     exit 1
