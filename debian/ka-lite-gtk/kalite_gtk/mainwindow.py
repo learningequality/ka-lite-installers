@@ -60,8 +60,9 @@ class Handler:
     @run_async
     def on_start_button_clicked(self, button):
         self.mainwindow.log_message("Starting KA Lite...")
-        for stdout, stderr in cli.stream_kalite_command("start"):
-            GLib.idle_add(self.mainwindow.log_message, stdout)
+        for stdout, stderr in cli.start():
+            if stdout:
+                GLib.idle_add(self.mainwindow.log_message, stdout)
         if stderr:
             GLib.idle_add(self.mainwindow.log_message, stderr)
         GLib.idle_add(self.mainwindow.update_status)
@@ -69,7 +70,7 @@ class Handler:
     @run_async
     def on_stop_button_clicked(self, button):
         self.mainwindow.log_message("Stopping KA Lite...")
-        for stdout, stderr in cli.stream_kalite_command("stop"):
+        for stdout, stderr in cli.stop():
             if stdout:
                 GLib.idle_add(self.mainwindow.log_message, stdout)
         if stderr:

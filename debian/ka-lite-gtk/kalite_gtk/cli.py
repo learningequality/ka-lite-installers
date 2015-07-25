@@ -13,6 +13,7 @@ from distutils.spawn import find_executable
 
 from .exceptions import ValidationError
 from . import validators
+import shlex
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,7 @@ DEBIAN_INIT_SCRIPT = '/etc/init.d/ka-lite'
 DEBIAN_USERNAME_FILE = '/etc/ka-lite/username'
 DEBIAN_OPTIONS_FILE = '/etc/ka-lite/server_options'
 
+SUDO_COMMAND = 'pkexec --user {username}' if find_executable('pkexec') else 'gksudo -u {username}'
 
 # KA Lite Debian convention
 # Set new default values from debian system files
@@ -81,6 +83,18 @@ if os.path.isfile(KALITE_GTK_SETTINGS_FILE):
         logger.error("Parsing error in {}".format(KALITE_GTK_SETTINGS_FILE))
 
 
+def get_command(kalite_command):
+    return [settings['command']] + kalite_command.split(" ")
+
+
+def sudo_needed(cmd):
+    """Decorator indicating that sudo access is needed before running
+    run_kalite_command or stream_kalite_command"""
+    if settings['user'] != getpass.getuser():
+        return shlex.split(SUDO_COMMAND.format(username=settings['user'])) + cmd
+    return cmd
+
+
 def run_kalite_command(cmd):
     """
     Blocking:
@@ -93,10 +107,9 @@ def run_kalite_command(cmd):
     """
     env = os.environ.copy()
     env['KALITE_HOME'] = settings['home']
-    command = [settings['command']] + cmd.split(" ")
-    logger.debug("Running command: {}, KALITE_HOME={}".format(command, str(settings['home'])))
+    logger.debug("Running command: {}, KALITE_HOME={}".format(cmd, str(settings['home'])))
     p = subprocess.Popen(
-        command,
+        cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env=env
@@ -119,18 +132,17 @@ def stream_kalite_command(cmd):
     """
     env = os.environ.copy()
     env['KALITE_HOME'] = settings['home']
-    command = [settings['command']] + cmd.split(" ")
-    logger.debug("Streaming command: {}, KALITE_HOME={}".format(command, str(settings['home'])))
+    logger.debug("Streaming command: {}, KALITE_HOME={}".format(cmd, str(settings['home'])))
     p = subprocess.Popen(
-        command,
+        cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env=env
     )
-    for line in iter(p.stdout.readline, ''):
+    for line in iter(p.stdout.readline, None):
         if line is None:
             break
-        yield line.read(), None
+        yield line, None
     yield None, p.stderr.read() if p.stderr is not None else None
 
 
@@ -143,19 +155,29 @@ def remove():
 
 
 def start():
-    pass
+    """
+    Streaming:
+    Starts the server
+    """
+    for val in stream_kalite_command(sudo_needed(get_command('start'))):
+        yield val
 
 
 def stop():
-    stdout, err = run_kalite_command('status')
-    return stdout, err
+    """
+    Streaming:
+    Stops the server
+    """
+    for val in stream_kalite_command(sudo_needed(get_command('stop'))):
+        yield val
 
 
 def status():
     """
+    Blocking:
     Fetches server's current status as a string
     """
-    __, err = run_kalite_command('status')
+    __, err = run_kalite_command(get_command('status'))
     return err
 
 
