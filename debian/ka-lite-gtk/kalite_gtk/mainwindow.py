@@ -1,8 +1,14 @@
-from gi.repository import Gtk, Gdk
-from pkg_resources import resource_filename
-import gobject
-import shlex
-import subprocess
+from __future__ import print_function
+from __future__ import unicode_literals
+
+from gi.repository import Gtk, Gdk, GLib
+from pkg_resources import resource_filename  # @UnresolvedImport
+import logging
+
+from . import cli
+
+
+logger = logging.getLogger(__name__)
 
 
 def run_async(func):
@@ -36,7 +42,9 @@ def run_async(func):
     def async_func(*args, **kwargs):
         func_hl = Thread(target=func, args=args, kwargs=kwargs)
         func_hl.start()
-        return func_hl
+        # Never return anything, idle_add will think it should re-run the
+        # function because it's a non-False value.
+        return None
 
     return async_func
 
@@ -49,21 +57,33 @@ class Handler:
     def on_delete_window(self, *args):
         Gtk.main_quit(*args)
 
-    def on_start_button_pressed(self, button):
-        self.mainwindow.log_message("Starting KA Lite...")
-        self.exec_and_log("kalite start")
-
     @run_async
-    def exec_and_log(self, cmd, shell=False):
-        if not shell:
-            args = shlex.split(cmd)
-        else:
-            args = cmd
-        self.process = subprocess.Popen(args, stdout=subprocess.PIPE,
-                                        stderr=subprocess.STDOUT, shell=shell,)
-        self.process.wait()
-        stdout = self.process.stdout.readline()
-        gobject.idle_add(self.mainwindow.log_message, stdout)
+    def on_start_button_clicked(self, button):
+        self.mainwindow.log_message("Starting KA Lite...")
+        for stdout, stderr in cli.stream_kalite_command("start"):
+            GLib.idle_add(self.mainwindow.log_message, stdout)
+        if stderr:
+            GLib.idle_add(self.mainwindow.log_message, stderr)
+        GLib.idle_add(self.mainwindow.update_status)
+    
+    @run_async
+    def on_stop_button_clicked(self, button):
+        self.mainwindow.log_message("Stopping KA Lite...")
+        for stdout, stderr in cli.stream_kalite_command("stop"):
+            if stdout:
+                GLib.idle_add(self.mainwindow.log_message, stdout)
+        if stderr:
+            GLib.idle_add(self.mainwindow.log_message, stderr)
+        GLib.idle_add(self.mainwindow.update_status)
+
+    def on_main_notebook_change_current_page(self, *args, **kwargs):
+        print(args, kwargs)
+
+    def settings_changed(self, widget):
+        """
+        We should make individual handlers for widgets, but this is easier...
+        """
+        cli.save_settings()
 
 
 class MainWindow:
@@ -88,8 +108,42 @@ class MainWindow:
         self.log_textview.override_color(
             Gtk.StateFlags.NORMAL, Gdk.RGBA(1, 1, 1, 1))
 
+        self.diagnose_textview = self.builder.get_object("diagnose_textview")
+        self.diagnostics = self.builder.get_object("diagnostics")
+
+        # Style the log like a terminal
+        self.diagnose_textview.override_background_color(
+            Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 1))
+        self.diagnose_textview.override_color(
+            Gtk.StateFlags.NORMAL, Gdk.RGBA(1, 1, 1, 1))
+        
+        self.set_from_settings()
+        
+        GLib.idle_add(self.update_status)
+        GLib.timeout_add(60 * 1000, lambda: self.update_status or True)
+        
+        self.status_entry = self.builder.get_object('status_label')
+
     def log_message(self, msg):
         self.log.insert_at_cursor(msg)
+    
+    def set_from_settings(self):
+        default_user_radio_button = self.builder.get_object('radiobutton_user_default')
+        label = default_user_radio_button.get_label()
+        label = label.replace('{default}', cli.DEFAULT_USER)
+        default_user_radio_button.set_label(label)
+        
+        if cli.DEFAULT_USER != cli.settings['user']:
+            self.builder.get_object('username_entry').set_text(cli.settings['user'])
+            self.builder.get_object('radiobutton_username').set_active(True)
+    
+    @run_async
+    def update_status(self):
+        GLib.idle_add(self.set_status, "Updating status...")
+        GLib.idle_add(self.set_status, "Server status: " + (cli.status() or "Error fetching status").split("\n")[0])
+    
+    def set_status(self, status):
+        self.status_entry.set_label(status)
 
 
 if __name__ == "__main__":
