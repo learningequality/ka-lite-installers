@@ -26,15 +26,33 @@
 
 - (int) checkShebang{
     NSString *command;
-    NSString *resourcePath;
+    NSString *scriptPath;
     NSString *binPath;
     
     binPath = getResourcePath(@"pyrun-2.7/bin/");
-    resourcePath = getResourcePath(@"scripts/shebangcheck.py");
-    command = [NSString stringWithFormat:@"%@ '%@' '%@'", @"python", resourcePath, binPath];
+    scriptPath = getResourcePath(@"scripts/shebangcheck.py");
+    command = [NSString stringWithFormat:@"%@ '%@' '%@'", @"python", scriptPath, binPath];
     
     NSLog(@"Running shebang script & command: %@", command);
 
+    const char *runCommand = [command UTF8String];
+    int run = system(runCommand);
+    return run;
+}
+
+- (int) extractAssessment{
+    NSString *command;
+    NSString *scriptPath;
+    NSString *assessmentPath;
+    NSString *kaliteContentPath;
+    
+    kaliteContentPath = [@"~/.kalite/" stringByStandardizingPath];
+    assessmentPath = getResourcePath(@"assessment");
+    scriptPath = getResourcePath(@"scripts/copy-assessment.py");
+    command = [NSString stringWithFormat:@"%@ %@ '%@' '%@'", @"python", scriptPath, assessmentPath, kaliteContentPath];
+    
+    NSLog(@"Running assessment script & command: %@", command);
+    
     const char *runCommand = [command UTF8String];
     int run = system(runCommand);
     return run;
@@ -663,6 +681,9 @@ BOOL setEnvVars(BOOL createPlist) {
     [self discardPreferences];
 }
 
+- (IBAction)extractAssessment:(id)sender {
+    [self extractAssessment];
+}
 
 - (IBAction)setupAction:(id)sender {
     if (kaliteExists()) {
