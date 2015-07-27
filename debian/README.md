@@ -12,25 +12,32 @@ The Debian package essentially uses the same distribution script (setup.py)
 as the other installers and hence does as little platform-specific work as
 possible.
 
+Notice that `setup.py` is run while BUILDING the .deb and not while installing
+the .deb.
+
 
 Normality: How to create an updated .deb:
 -----------------------------------------
 
 Say there is a change and you wish to update our sources, here's what you do:
 
+  1. Assumption: The latest release of KA Lite is already on PyPi !
   1. Make sure you have the PPA of our sources: `sudo apt-add-repository --enable-source ppa:benjaoming/ka-lite`
-  1. CD to a new directory, `my_code/ka-lite-debian`
+  1. Go to a new directory, `my_code/ka-lite-debian`
   1. Fetch the source package "apt-get source ka-lite"
-  1. Now copy to a new source dir: `cp -R ka-lite-source-X/ ka-lite-source-0.Y`
   1. Fetch a python sdist source tarball of the updated version: https://pypi.python.org/pypi/ka-lite-static
-  1. Unpack the new sources on top of the old source dir
+  1. `cd ka-lite-source-x.x/`
+  1. `uupdate -v NEW_VERSION ../ka-lite-static-x.x.tar.gz` where NEW_VERSION is a DEBIAN formatted version. 0.14a1 becomes 0.14~a1.
+     This is important because it decides package order. If your version isn't considered strictly greater
+     than the previous version, Launchpad will reject it.
   1. Run `dch` and add new comment about the update -- remember to use a valid email for PGP signing
   1. Run `dpkg-buildpackage -S` to build new sources, they will be located in the parent dir and signed
-  1. Use `dput ppa:benjamin/ka-lite blahblah.changes` to upload to Launchpad
+  1. Use `dput ppa:learningequality/ka-lite blahblah.changes` to upload to Launchpad
 
 
-Introduction - Reproducing the build technique
-----------------------------------------------
+
+Historic notes - Reproducing the build technique
+------------------------------------------------
 
 **Requirements**
 
