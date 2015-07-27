@@ -52,7 +52,7 @@ case "$1" in
             mkdir -p $assessment_dir
             unzip /tmp/assessment_items.zip -d $assessment_dir
             chmod -R uog+r $assessment_dir  # Necessary because assessment.zip has wrong permissions
-        echo
+        else
             echo "Assessment items already installed"
         fi
     fi
