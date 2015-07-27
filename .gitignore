@@ -1,10 +1,6 @@
 # Backup files
 *~
 
-# Debian installer build stuff
-debian/ka-lite
-debian/deb_dist
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -20,7 +16,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
-build/
+# build/
 develop-eggs/
 dist/
 downloads/
