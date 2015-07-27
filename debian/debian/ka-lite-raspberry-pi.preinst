@@ -6,6 +6,13 @@ if [ "$SUDO_USER" ]; then
     echo "ka-lite-raspberry-pi ka-lite/user seen false" | debconf-set-selections
 fi
 
+# Remove pyc files from previous installations
+if [ -d usr/share/kalite/python-packages ]; then
+    find /usr/share/kalite/python-packages -name '*pyc' -exec rm {} \;
+fi
+if [ -d usr/share/kalite/dist-packages ]; then
+    find /usr/share/kalite/dist-packages -name '*pyc' -exec rm {} \;
+fi
 
 # Diversion for /etc/nginx/nginx.conf
 # https://wiki.debian.org/Adding%20and%20removing%20diversions
