@@ -37,8 +37,10 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\ka-lite\*"; DestDir: "{app}\ka-lite"; Excludes: ".KALITE_SOURCE_DIR"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\ka-lite\content\*"; DestDir: "{app}\ka-lite\content"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
+Source: "..\ka-lite\*"; DestDir: "{app}\ka-lite"; Excludes: ".KALITE_SOURCE_DIR,content\assessment,content\assessment\*,content\assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\ka-lite\content\*"; DestDir: "{app}\ka-lite\content"; Excludes: "assessment,assessment\*,assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
+Source: "..\ka-lite\content\assessment\*"; DestDir: "{app}\ka-lite\assessment"; Excludes: "assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\ka-lite\content\assessmentitems.sqlite"; DestDir: "{app}\ka-lite\assessment\khan"; Flags: ignoreversion
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\images\logo48.ico"; DestDir: "{app}\images"; Flags: ignoreversion
