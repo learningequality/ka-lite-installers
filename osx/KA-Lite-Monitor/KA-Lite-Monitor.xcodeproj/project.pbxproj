@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D0C718451B663E1200246F2D /* assessment in Resources */ = {isa = PBXBuildFile; fileRef = D0C718441B663E1100246F2D /* assessment */; };
-		D0C7184B1B664FA100246F2D /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = D0C7184A1B664FA000246F2D /* scripts */; };
+		D01E36F81B672C350097C9E8 /* assessment.zip in Resources */ = {isa = PBXBuildFile; fileRef = D01E36F71B672C340097C9E8 /* assessment.zip */; };
+		D035A9391B671F80009FA40A /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = D035A9381B671F7F009FA40A /* scripts */; };
 		F103615C1A81B7DF00998E6B /* images in Resources */ = {isa = PBXBuildFile; fileRef = F103615B1A81B7DF00998E6B /* images */; };
 		F1720BED1A79566700096453 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = F1720BEC1A79566700096453 /* README.md */; };
 		F1720BF11A7A343A00096453 /* local_settings.default in Resources */ = {isa = PBXBuildFile; fileRef = F1720BF01A7A343A00096453 /* local_settings.default */; };
@@ -31,8 +31,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D0C718441B663E1100246F2D /* assessment */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assessment; sourceTree = "<group>"; };
-		D0C7184A1B664FA000246F2D /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
+		D01E36F71B672C340097C9E8 /* assessment.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = assessment.zip; path = Resources/assessment.zip; sourceTree = "<group>"; };
+		D035A9381B671F7F009FA40A /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
 		F103615B1A81B7DF00998E6B /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = Resources/images; sourceTree = "<group>"; };
 		F1720BEC1A79566700096453 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F1720BF01A7A343A00096453 /* local_settings.default */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = local_settings.default; sourceTree = "<group>"; };
@@ -100,8 +100,8 @@
 		F1DDD40F1A6E5DC10022F1C9 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				D0C7184A1B664FA000246F2D /* scripts */,
-				D0C718441B663E1100246F2D /* assessment */,
+				D01E36F71B672C340097C9E8 /* assessment.zip */,
+				D035A9381B671F7F009FA40A /* scripts */,
 				F1B308381ACBD09400008AF1 /* pyrun-2.7 */,
 				F103615B1A81B7DF00998E6B /* images */,
 				F1720BF01A7A343A00096453 /* local_settings.default */,
@@ -210,10 +210,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				F103615C1A81B7DF00998E6B /* images in Resources */,
-				D0C7184B1B664FA100246F2D /* scripts in Resources */,
 				F1B308391ACBD09500008AF1 /* pyrun-2.7 in Resources */,
 				F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */,
-				D0C718451B663E1200246F2D /* assessment in Resources */,
+				D01E36F81B672C350097C9E8 /* assessment.zip in Resources */,
+				D035A9391B671F80009FA40A /* scripts in Resources */,
 				F1E5A30B1A8041FD003FA650 /* MainMenu.xib in Resources */,
 				F1720BF11A7A343A00096453 /* local_settings.default in Resources */,
 			);

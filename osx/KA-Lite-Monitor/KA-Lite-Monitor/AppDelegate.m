@@ -42,20 +42,22 @@
 
 - (int) extractAssessment{
     NSString *command;
-    NSString *scriptPath;
     NSString *assessmentPath;
-    NSString *kaliteContentPath;
+    NSString *assessment;
     
-    kaliteContentPath = [@"~/.kalite/" stringByStandardizingPath];
-    assessmentPath = getResourcePath(@"assessment");
-    scriptPath = getResourcePath(@"scripts/copy-assessment.py");
-    command = [NSString stringWithFormat:@"%@ %@ '%@' '%@'", @"python", scriptPath, assessmentPath, kaliteContentPath];
+    assessmentPath = getResourcePath(@"assessment.zip");
+    command = [NSString stringWithFormat:@"%@ %@", @"kalite manage unpack_assessment_zip",assessmentPath];
+    assessment = @"~/.kalite/content/assessment/khan";
+    assessment = [assessment stringByStandardizingPath];
     
-    NSLog(@"Running assessment script & command: %@", command);
-    
-    const char *runCommand = [command UTF8String];
-    int run = system(runCommand);
-    return run;
+    if (pathExists(assessmentPath)) {
+        const char *runCommand = [command UTF8String];
+        int run = system(runCommand);
+        return run;
+    } else {
+        NSLog([NSString stringWithFormat:@"Assessment file not found"]);
+    }
+    return 0;
 }
 
 
@@ -64,6 +66,7 @@
     // Insert code here to initialize your application
     
     [self checkShebang];
+    [self extractAssessment];
     
     // Setup the status menu item.
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
