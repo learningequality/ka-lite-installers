@@ -50,6 +50,7 @@
     if (pathExists(assessmentPath)) {
         const char *runCommand = [command UTF8String];
         int run = system(runCommand);
+        showNotification(@"Assessment items successfully extracted.");
         return run;
     } else {
         NSLog([NSString stringWithFormat:@"Assessment file not found"]);
@@ -63,7 +64,6 @@
     // Insert code here to initialize your application
     
     [self checkShebang];
-    [self extractAssessment];
     
     // Setup the status menu item.
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
@@ -840,6 +840,7 @@ BOOL setEnvVars(BOOL createPlist) {
             //        }
         }
     }
+    [self extractAssessment];
     // Close the preferences dialog after successful save.
     [window orderOut:[window identifier]];
 }
