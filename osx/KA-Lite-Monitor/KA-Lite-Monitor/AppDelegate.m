@@ -43,12 +43,9 @@
 - (int) extractAssessment{
     NSString *command;
     NSString *assessmentPath;
-    NSString *assessment;
     
     assessmentPath = getResourcePath(@"assessment.zip");
     command = [NSString stringWithFormat:@"%@ %@", @"kalite manage unpack_assessment_zip",assessmentPath];
-    assessment = @"~/.kalite/content/assessment/khan";
-    assessment = [assessment stringByStandardizingPath];
     
     if (pathExists(assessmentPath)) {
         const char *runCommand = [command UTF8String];

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D01E36F81B672C350097C9E8 /* assessment.zip in Resources */ = {isa = PBXBuildFile; fileRef = D01E36F71B672C340097C9E8 /* assessment.zip */; };
 		D035A9391B671F80009FA40A /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = D035A9381B671F7F009FA40A /* scripts */; };
 		F103615C1A81B7DF00998E6B /* images in Resources */ = {isa = PBXBuildFile; fileRef = F103615B1A81B7DF00998E6B /* images */; };
 		F1720BED1A79566700096453 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = F1720BEC1A79566700096453 /* README.md */; };
@@ -212,7 +211,6 @@
 				F103615C1A81B7DF00998E6B /* images in Resources */,
 				F1B308391ACBD09500008AF1 /* pyrun-2.7 in Resources */,
 				F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */,
-				D01E36F81B672C350097C9E8 /* assessment.zip in Resources */,
 				D035A9391B671F80009FA40A /* scripts in Resources */,
 				F1E5A30B1A8041FD003FA650 /* MainMenu.xib in Resources */,
 				F1720BF11A7A343A00096453 /* local_settings.default in Resources */,

@@ -73,7 +73,7 @@ PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
 
 ASSESSMENT_ZIP="assessment.zip"
-ASSESSMENT_DIR="$WORKING_DIR/$ASSESSMENT_ZIP"
+ASSESSMENT_PATH="$WORKING_DIR/$ASSESSMENT_ZIP"
 ASSESSMENT_KALITE_MONITOR="$KA_LITE_MONITOR_RESOURCES_DIR"
 ASSESSMENT_URL=""
 
@@ -129,20 +129,23 @@ echo "  Using temporary directory $WORKING_DIR..."
 # Download assessment.
 ((STEP++))
 echo "$STEP/$STEPS. Downloading assessment"
-if [ -f "$ASSESSMENT_DIR" ]; then
-    echo "  Found $ASSESSMENT_ZIP at '$ASSESSMENT_DIR' so will not re-download.  Delete $$ASSESSMENT_ZIP to re-download."
+if [ -f "$ASSESSMENT_PATH" ]; then
+    echo "  Found $ASSESSMENT_ZIP at '$ASSESSMENT_PATH' so will not re-download.  Delete $$ASSESSMENT_ZIP to re-download."
 else
     if [ "$ASSESSMENT_URL" != "" ]; then
-        curl -o $ASSESSMENT_DIR $ASSESSMENT_URL
+        curl -o $ASSESSMENT_PATH $ASSESSMENT_URL
     fi
 fi
 
 if [ -f "$KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP" ]; then
-    echo "Found assessment directory at '$ASSESSMENT_KALITE_MONITOR/$ASSESSMENT_ZIP'"
-else
+    rm -rf "$KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP"
+    echo "delete assessment zip at $KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP"
+fi
+
+if [ -f "$ASSESSMENT_PATH" ]; then
     # Copy assessment
-    echo "cp $ASSESSMENT_DIR $KA_LITE_MONITOR_RESOURCES_DIR"
-    cp -R "$ASSESSMENT_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"
+    echo "cp $ASSESSMENT_PATH $KA_LITE_MONITOR_RESOURCES_DIR"
+    cp -R "$ASSESSMENT_PATH" "$KA_LITE_MONITOR_RESOURCES_DIR"
 fi
 
 
