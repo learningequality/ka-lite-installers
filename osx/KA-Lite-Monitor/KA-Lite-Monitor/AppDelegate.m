@@ -40,22 +40,19 @@
     return run;
 }
 
-- (int) extractAssessment{
+- (void) extractAssessment{
     NSString *command;
     NSString *assessmentPath;
     
     assessmentPath = getResourcePath(@"assessment.zip");
-    command = [NSString stringWithFormat:@"%@ %@", @"kalite manage unpack_assessment_zip",assessmentPath];
+    command = [NSString stringWithFormat:@"%@ %@", @"manage unpack_assessment_zip", assessmentPath];
     
     if (pathExists(assessmentPath)) {
-        const char *runCommand = [command UTF8String];
-        int run = system(runCommand);
+        [self runKalite:command];
         showNotification(@"Assessment items successfully extracted.");
-        return run;
     } else {
         NSLog([NSString stringWithFormat:@"Assessment file not found"]);
     }
-    return 0;
 }
 
 
@@ -840,7 +837,10 @@ BOOL setEnvVars(BOOL createPlist) {
             //        }
         }
     }
+    
+    //Extract assessment
     [self extractAssessment];
+    
     // Close the preferences dialog after successful save.
     [window orderOut:[window identifier]];
 }
