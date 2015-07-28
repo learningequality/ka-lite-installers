@@ -75,7 +75,7 @@ PYRUN_PIP="$PYRUN_DIR/bin/pip"
 ASSESSMENT_ZIP="assessment.zip"
 ASSESSMENT_PATH="$WORKING_DIR/$ASSESSMENT_ZIP"
 ASSESSMENT_KALITE_MONITOR="$KA_LITE_MONITOR_RESOURCES_DIR"
-ASSESSMENT_URL=""
+ASSESSMENT_URL="https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip"
 
 KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
@@ -130,7 +130,7 @@ echo "  Using temporary directory $WORKING_DIR..."
 ((STEP++))
 echo "$STEP/$STEPS. Downloading assessment"
 if [ -f "$ASSESSMENT_PATH" ]; then
-    echo "  Found $ASSESSMENT_ZIP at '$ASSESSMENT_PATH' so will not re-download.  Delete $$ASSESSMENT_ZIP to re-download."
+    echo "  Found $ASSESSMENT_ZIP at '$ASSESSMENT_PATH' so will not re-download.  Delete $ASSESSMENT_ZIP to re-download."
 else
     if [ "$ASSESSMENT_URL" != "" ]; then
         curl -o $ASSESSMENT_PATH $ASSESSMENT_URL
