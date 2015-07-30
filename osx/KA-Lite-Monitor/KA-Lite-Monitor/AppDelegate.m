@@ -679,7 +679,10 @@ BOOL setEnvVars(BOOL createPlist) {
 }
 
 - (IBAction)extractAssessment:(id)sender {
-    [self extractAssessment];
+    NSString *message = @"It will take a few seconds to extract assessment items. Do you want to continue?";
+    if (confirm(message)) {
+        [self extractAssessment];
+    }
 }
 
 - (IBAction)setupAction:(id)sender {
