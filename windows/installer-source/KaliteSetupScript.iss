@@ -567,5 +567,19 @@ begin
             end;
         end;
     end;
-    
+end;
+
+{ Called just prior to uninstall finishing. }
+{ Clean up things we did during uninstall: }
+{ * Remove environment variable KALITE_ROOT_DATA_PATH }
+procedure DeinitializeUninstall();
+begin
+    if not RegDeleteValue(
+        HKLM,
+        'System\CurrentControlSet\Control\Session Manager\Environment',
+        'KALITE_ROOT_DATA_PATH'
+    ) then
+    begin
+        MsgBox('Unable to unset environment variable KALITE_ROOT_DATA_PATH.', mbError, MB_OK);
+    end;
 end;
