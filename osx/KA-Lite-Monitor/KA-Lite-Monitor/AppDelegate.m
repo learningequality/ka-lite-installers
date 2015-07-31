@@ -26,18 +26,33 @@
 
 - (int) checkShebang{
     NSString *command;
-    NSString *resourcePath;
+    NSString *scriptPath;
     NSString *binPath;
     
     binPath = getResourcePath(@"pyrun-2.7/bin/");
-    resourcePath = getResourcePath(@"scripts/shebangcheck.py");
-    command = [NSString stringWithFormat:@"%@ '%@' '%@'", @"python", resourcePath, binPath];
+    scriptPath = getResourcePath(@"scripts/shebangcheck.py");
+    command = [NSString stringWithFormat:@"%@ '%@' '%@'", @"python", scriptPath, binPath];
     
     NSLog(@"Running shebang script & command: %@", command);
 
     const char *runCommand = [command UTF8String];
     int run = system(runCommand);
     return run;
+}
+
+- (void) extractAssessment{
+    NSString *command;
+    NSString *assessmentPath;
+    
+    assessmentPath = getResourcePath(@"assessment.zip");
+    command = [NSString stringWithFormat:@"%@ %@", @"manage unpack_assessment_zip", assessmentPath];
+    
+    if (pathExists(assessmentPath)) {
+        [self runKalite:command];
+        showNotification(@"Assessment items successfully extracted.");
+    } else {
+        NSLog([NSString stringWithFormat:@"Assessment file not found"]);
+    }
 }
 
 
@@ -663,6 +678,12 @@ BOOL setEnvVars(BOOL createPlist) {
     [self discardPreferences];
 }
 
+- (IBAction)extractAssessment:(id)sender {
+    NSString *message = @"It will take a few seconds to extract assessment items. Do you want to continue?";
+    if (confirm(message)) {
+        [self extractAssessment];
+    }
+}
 
 - (IBAction)setupAction:(id)sender {
     if (kaliteExists()) {
@@ -819,6 +840,10 @@ BOOL setEnvVars(BOOL createPlist) {
             //        }
         }
     }
+    
+    //Extract assessment
+    [self extractAssessment];
+    
     // Close the preferences dialog after successful save.
     [window orderOut:[window identifier]];
 }

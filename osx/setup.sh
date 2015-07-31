@@ -72,6 +72,11 @@ PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
 PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
 
+ASSESSMENT_ZIP="assessment.zip"
+ASSESSMENT_PATH="$WORKING_DIR/$ASSESSMENT_ZIP"
+ASSESSMENT_KALITE_MONITOR="$KA_LITE_MONITOR_RESOURCES_DIR"
+ASSESSMENT_URL="https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip"
+
 KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
@@ -97,6 +102,20 @@ if [ "$1" != "" ]; then
     fi
 fi
 
+if [ "$2" != "" ]; then
+    # MUST: Check if valid url!
+    # REF: http://stackoverflow.com/a/20988182/845481
+    #      How do I determine if a web page exists with shell scripting?
+    if curl --output /dev/null --silent --head --fail "$2"
+    then
+        # Use the argument as the ka-lite repo zip.
+        ASSESSMENT_URL=$2
+    else
+        echo "The $2 argument is not a valid URL!"
+        exit 1
+    fi
+fi
+
 KA_LITE_MONITOR_RESOURCES_PYRUN_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$PYRUN_NAME"
 
 OUTPUT_PATH="$WORKING_DIR/output"
@@ -105,6 +124,30 @@ DMG_BUILDER_PATH="$WORKING_DIR/create-dmg"
 CREATE_DMG="$DMG_BUILDER_PATH/create-dmg"
 
 echo "  Using temporary directory $WORKING_DIR..."
+
+
+# Download assessment.
+((STEP++))
+echo "$STEP/$STEPS. Downloading assessment"
+if [ -f "$ASSESSMENT_PATH" ]; then
+    echo "  Found $ASSESSMENT_ZIP at '$ASSESSMENT_PATH' so will not re-download.  Delete $ASSESSMENT_ZIP to re-download."
+else
+    if [ "$ASSESSMENT_URL" != "" ]; then
+        curl -o $ASSESSMENT_PATH $ASSESSMENT_URL
+    fi
+fi
+
+if [ -f "$KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP" ]; then
+    rm -rf "$KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP"
+    echo "delete assessment zip at $KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP"
+fi
+
+if [ -f "$ASSESSMENT_PATH" ]; then
+    # Copy assessment
+    echo "cp $ASSESSMENT_PATH $KA_LITE_MONITOR_RESOURCES_DIR"
+    cp -R "$ASSESSMENT_PATH" "$KA_LITE_MONITOR_RESOURCES_DIR"
+fi
+
 
 # Install PyRun.
 # REF: http://askubuntu.com/questions/385528/how-to-increment-a-variable-in-bash#385532

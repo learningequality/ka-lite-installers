@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7702" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="13F34" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7702"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -65,7 +65,7 @@
         <window title="Starting KA-Lite..." allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="izD-1r-MWo">
             <windowStyleMask key="styleMask" titled="YES"/>
             <rect key="contentRect" x="565" y="404" width="216" height="135"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1366" height="746"/>
             <view key="contentView" id="X7G-oL-gsN">
                 <rect key="frame" x="0.0" y="0.0" width="216" height="135"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -95,7 +95,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" unifiedTitleAndToolbar="YES"/>
             <windowCollectionBehavior key="collectionBehavior" canJoinAllSpaces="YES" managed="YES" participatesInCycle="YES"/>
             <rect key="contentRect" x="131" y="158" width="493" height="414"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1366" height="746"/>
             <view key="contentView" id="TP3-Cd-o99">
                 <rect key="frame" x="0.0" y="0.0" width="493" height="414"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -138,16 +138,16 @@ Gw
                         </buttonCell>
                     </button>
                     <tabView fixedFrame="YES" initialItem="bsG-cY-LW8" translatesAutoresizingMaskIntoConstraints="NO" id="Elv-hY-FGF">
-                        <rect key="frame" x="13" y="40" width="467" height="371"/>
+                        <rect key="frame" x="13" y="37" width="467" height="374"/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
                             <tabViewItem label="Preferences" identifier="1" id="bsG-cY-LW8">
                                 <view key="view" id="B8D-my-NmZ">
-                                    <rect key="frame" x="10" y="33" width="138" height="0.0"/>
+                                    <rect key="frame" x="10" y="33" width="447" height="325"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Path for Database and Content (TODO)" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
-                                            <rect key="frame" x="11" y="-222" width="414" height="91"/>
+                                            <rect key="frame" x="11" y="103" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -189,7 +189,7 @@ Gw
                                             <font key="titleFont" metaFont="systemBold"/>
                                         </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Application behavior (TODO)" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
-                                            <rect key="frame" x="11" y="-317" width="414" height="91"/>
+                                            <rect key="frame" x="11" y="8" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -215,7 +215,7 @@ Gw
                                             <font key="titleFont" metaFont="systemBold"/>
                                         </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Administrator account" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="swH-Hn-WS9">
-                                            <rect key="frame" x="11" y="-127" width="414" height="124"/>
+                                            <rect key="frame" x="11" y="198" width="414" height="124"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="105"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -309,17 +309,17 @@ Gw
                             </tabViewItem>
                             <tabViewItem label="Advanced" identifier="2" id="a88-uU-pNE">
                                 <view key="view" id="VVZ-XB-ata">
-                                    <rect key="frame" x="10" y="33" width="447" height="325"/>
+                                    <rect key="frame" x="10" y="33" width="447" height="328"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="sGz-9H-SVx">
-                                            <rect key="frame" x="6" y="241" width="435" height="84"/>
+                                            <rect key="frame" x="1" y="273" width="440" height="67"/>
                                             <view key="contentView">
-                                                <rect key="frame" x="1" y="1" width="433" height="68"/>
+                                                <rect key="frame" x="1" y="1" width="438" height="51"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZZ9-Mn-1Uq">
-                                                        <rect key="frame" x="6" y="36" width="425" height="34"/>
+                                                        <rect key="frame" x="9" y="17" width="324" height="34"/>
                                                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Warning!  This will run `kalite manage setup` and your data might be lost." id="J7r-g1-X1B">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -327,7 +327,7 @@ Gw
                                                         </textFieldCell>
                                                     </textField>
                                                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="MOt-uY-Qda">
-                                                        <rect key="frame" x="328" y="7" width="93" height="32"/>
+                                                        <rect key="frame" x="338" y="13" width="93" height="32"/>
                                                         <buttonCell key="cell" type="push" title="Setup" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ubr-w0-PHZ">
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                             <font key="font" metaFont="system"/>
@@ -342,13 +342,13 @@ Gw
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="R3g-tg-TV7">
-                                            <rect key="frame" x="6" y="5" width="435" height="232"/>
+                                            <rect key="frame" x="1" y="0.0" width="440" height="228"/>
                                             <view key="contentView">
-                                                <rect key="frame" x="1" y="1" width="433" height="216"/>
+                                                <rect key="frame" x="1" y="1" width="438" height="212"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="i3l-SV-9sX">
-                                                        <rect key="frame" x="6" y="31" width="427" height="187"/>
+                                                        <rect key="frame" x="16" y="22" width="427" height="190"/>
                                                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="Yms-9g-Z2D">
                                                             <font key="font" metaFont="system"/>
                                                             <string key="title">WARNING:  Do this only if you know what you are doing.  
@@ -365,7 +365,7 @@ Click the Apply button to re-create the installation files mentioned above.</str
                                                         </textFieldCell>
                                                     </textField>
                                                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PBg-Qp-fqH">
-                                                        <rect key="frame" x="316" y="7" width="105" height="32"/>
+                                                        <rect key="frame" x="321" y="-3" width="105" height="32"/>
                                                         <buttonCell key="cell" type="push" title="Reset App" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WkU-Jm-bOB">
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                             <font key="font" metaFont="system"/>
@@ -375,6 +375,33 @@ Click the Apply button to re-create the installation files mentioned above.</str
                                                         </connections>
                                                     </button>
                                                 </subviews>
+                                            </view>
+                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        </box>
+                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WlP-QT-tst">
+                                            <rect key="frame" x="283" y="229" width="161" height="32"/>
+                                            <buttonCell key="cell" type="push" title="Extract Assessment" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="1cr-ZR-MdD">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="extractAssessment:" target="Voe-Tx-rLC" id="bqW-gK-grs"/>
+                                            </connections>
+                                        </button>
+                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vCF-O4-9Xh">
+                                            <rect key="frame" x="7" y="221" width="282" height="51"/>
+                                            <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="This will run &quot;kalite manage unpack_assessment_zip&quot; to extract assessment items." id="j3U-B3-BqS">
+                                                <font key="font" metaFont="system"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Kn6-w8-2BI">
+                                            <rect key="frame" x="1" y="212" width="440" height="74"/>
+                                            <view key="contentView">
+                                                <rect key="frame" x="1" y="1" width="438" height="58"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             </view>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
