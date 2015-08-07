@@ -19,6 +19,29 @@ Note: If you have made no changes to `gui-source`, you don't have to build `KA L
 
 Note: If you *do* make changes to anything in `gui-source`, be sure to build and commit `KA Lite.exe`.
 
+
+---
+#### Instructions to build "KALiteSetup.exe":
+To build in Linux, first install `wine`.
+* Clone this repository;
+* Copy `ka-lite` folder from KA Lite's repository, to the root of this repository;
+* Ensure the assessment items have been unpacked in the `ka-lite` directory.
+* Follow the _Instructions to download pip dependency zip files_ above
+* Create an empty db for distribution as per the section _Creating an Empty DB_
+* Run `kalite manage collectstatic` to create the `ka-lite/static-libraries` directory; this is a work-around until the windows installer uses setuptools.
+* Run the `compileymltojson` management command.
+* Include built documentation in the appropriate directory -- `docs\_build\html`, but this can be configured. See `STATICFILES_DIRS` setting.
+* In Windows, run the following command from this directory:
+```
+> make.vbs
+```
+* In Linux, run the following command in this directory using `wine`:
+```bash
+> wine inno-compiler/ISCC.exe installer-source/KaliteSetupScript.iss
+```
+* The output file named "KALiteSetup-X.X.X.exe" will appear within this project folder.
+
+
 ---
 #### Instructions to download pip dependency zip files
 * Clone the `ka-lite` repository.
@@ -31,25 +54,6 @@ Note: If you *do* make changes to anything in `gui-source`, be sure to build and
 On Linux, ensure you have python 2.7 installed, then:
 * On your command line navigate to `ka-lite` directory that contain `setup.py`.
 * Run this command `python setup.py sdist --static` to download zip files .
-
----
-#### Instructions to build "KALiteSetup.exe":
-To build in Linux, first install `wine`.
-* Clone this repository;
-* Copy `ka-lite` folder from KA Lite's repository, to the root of this repository;
-* Ensure the assessment items have been unpacked in the `ka-lite` directory.
-* Follow the _Instructions to download pip dependency zip files_ above
-* Create an empty db for distribution as per the section _Creating an Empty DB_
-* Run `kalite manage collectstatic` to create the `ka-lite/static-libraries` directory; this is a work-around until the windows installer uses setuptools.
-* In Windows, run the following command from this directory:
-```
-> make.vbs
-```
-* In Linux, run the following command in this directory using `wine`:
-```bash
-> wine inno-compiler/ISCC.exe installer-source/KaliteSetupScript.iss
-```
-* The output file named "KALiteSetup-X.X.X.exe" will appear within this project folder.
 
 ---
 #### Creating an Empty DB
