@@ -10,10 +10,11 @@
 # 5. Extract KA-Lite and move into `ka-lite` folder.
 # 6. Make ka-lite repo production-ready (delete .KALITE_SOURCE_DIR, etc).
 # 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
-# 8. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
-# 9. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
-# 10. Build the Xcode project to produce the .app.
-# 11. Build the .dmg.
+# 8. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
+# 9. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
+# 10. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
+# 11. Build the Xcode project to produce the .app.
+# 12. Build the .dmg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
@@ -29,7 +30,7 @@ if [ -z ${TMPDIR+0} ]; then
 fi
 
 STEP=1
-STEPS=11
+STEPS=12
 
 # TODO(cpauya): This works but the problem is it creates the temporary directory everytime
 # script is run... so during devt, we will comment this for now.
@@ -220,7 +221,6 @@ fi
 echo "$STEP/$STEPS. Running '$PYRUN setup.py install .'... on '$KA_LITE_DIR'"
 KA_LITE_SETUP_PY="$KALITE_DIRsetup.py"
 cd "$KA_LITE_DIR"
-pwd
 $PYRUN setup.py install
 if [ $? -ne 0 ]; then
     echo "  $0: Error/s encountered running '$PYRUN setup.py install', exiting..."
@@ -234,6 +234,36 @@ echo "$STEP/$STEPS. Running '$PYRUN_PIP install -r requirements.txt'... on '$KA_
 $PYRUN_PIP install -r "$KA_LITE_DIR/requirements.txt"
 if [ $? -ne 0 ]; then
     echo "  $0: Error/s encountered running '$PYRUN_PIP install -r requirements.txt', exiting..."
+    exit 1
+fi
+
+# Run `bin/kalite manage compileymltojson` by install pyyaml==3.11 then uninstall it afterwards
+# a. Run PyRun's pip install pyyaml==3.11
+echo "$STEP/$STEPS. Running '$PYRUN_PIP install pyyaml==3.11'... on '$KA_LITE_DIR' "
+$PYRUN_PIP install pyyaml==3.11
+if [ $? -ne 0 ]; then
+    echo "  $0: Error/s encountered running '$PYRUN_PIP install pyyaml==3.11', exiting..."
+    exit 1
+fi
+
+# b. Run `bin/kalite manage compileymltojson`
+# MUST: Make sure to set the KALITE_PYTHON environment variable so 
+#       that `bin/kalite` uses the pyrun's pip.
+echo "$STEP/$STEPS. Running 'bin/kalite manage compileymltojson'... on '$KA_LITE_DIR' "
+cd "$KA_LITE_DIR"
+export KALITE_PYTHON="$PYRUN"; bin/kalite manage compileymltojson
+if [ $? -ne 0 ]; then
+    echo "  $0: Error/s encountered running 'bin/kalite manage compileymltojson', exiting..."
+    exit 1
+fi
+cd "$WORKING_DIR/.."
+
+# c. Uninstall pyyaml so it's not included in the .dmg to build
+((STEP++))
+echo "$STEP/$STEPS. Running '$PYRUN_PIP uninstall pyyaml==3.11 --yes'... on '$KA_LITE_DIR' "
+$PYRUN_PIP uninstall pyyaml==3.11 --yes
+if [ $? -ne 0 ]; then
+    echo "  $0: Error/s encountered running '$PYRUN_PIP uninstall pyyaml==3.11 --yes', exiting..."
     exit 1
 fi
 
