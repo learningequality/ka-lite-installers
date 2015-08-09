@@ -1,1 +1,31 @@
-ka-lite.prerm
+#!/bin/sh
+
+# Make sure this script fails if any unexpected errors happen
+set -e
+
+# Load debconf library
+. /usr/share/debconf/confmodule
+
+# Check if the user decided the enable the service using `db_get`
+db_get ka-lite/init
+if [ "${RET}" != "false" ];
+then
+    # Stop the service before upgrade or removal
+    set +e
+    invoke-rc.d ka-lite stop || echo "Failed to stop ka-lite"
+    set -e
+
+    if [ "$1" = "remove" ] || [ "$1" = "deconfigure" ];
+    then
+        # Unregister service prior to removal
+        update-rc.d -f ka-lite remove
+    fi
+fi
+
+
+# Nevermind testing, pyclean is part of python-minimal, we let it be a dependency
+# and don't mind cases where someone even removes python-minimal
+pyclean -p ka-lite-raspberry-pi
+pyclean /usr/share/kalite/dist-packages
+pyclean /usr/share/kalite/python-packages
+

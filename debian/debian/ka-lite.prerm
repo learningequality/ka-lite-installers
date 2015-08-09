@@ -21,3 +21,11 @@ then
         update-rc.d -f ka-lite remove
     fi
 fi
+
+
+# Nevermind testing, pyclean is part of python-minimal, we let it be a dependency
+# and don't mind cases where someone even removes python-minimal
+pyclean -p ka-lite
+pyclean /usr/share/kalite/dist-packages
+pyclean /usr/share/kalite/python-packages
+
