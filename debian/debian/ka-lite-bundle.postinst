@@ -47,6 +47,9 @@ case "$1" in
     echo "Copying init.d script"
     ucf --debconf-ok /usr/share/kalite/init-service /etc/init.d/ka-lite
 
+    # Necesarry in 15.04+ because it doesn't preserver permissions
+    chmod +x /etc/init.d/ka-lite
+
     db_get ka-lite/init
     if [ "${RET}" != "false" ];
     then

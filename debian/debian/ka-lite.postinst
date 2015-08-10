@@ -70,6 +70,9 @@ case "$1" in
     # Install init script using `ucf` no matter what, users might activate it later
     ucf --debconf-ok /usr/share/kalite/init-service /etc/init.d/ka-lite
 
+    # Necesarry in 15.04+ because it doesn't preserver permissions
+    chmod +x /etc/init.d/ka-lite
+
     if [ "${RET}" != "false" ];
     then
         # Register init script as service
