@@ -1,8 +1,12 @@
+Template: ka-lite/window-title
+Type: title
+Description: KA Lite configuration
+
 Template: ka-lite/init
 Type: boolean
 Default: true
 Description: Do you wish to run KA Lite on start-up?
- This will add a system script /etc/init.d/ka-lite which is automatically
+ This will automatically call the startup script /etc/init.d/ka-lite
  when your computer boots.
 
 Template: ka-lite/download-assessment-items
