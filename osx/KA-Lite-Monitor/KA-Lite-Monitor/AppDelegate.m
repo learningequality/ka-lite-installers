@@ -142,6 +142,33 @@ BOOL checkEnvVars() {
     return TRUE;
 }
 
+NSString *runCommandTask(NSString *command) {
+    NSPipe* pipe = [NSPipe pipe];
+    NSString *pyrun;
+    NSString *kalitePath;
+    NSArray *commandArgs;
+
+    pyrun = getPyrunBinPath(true);
+    kalitePath = getUsrBinKalite();
+    
+    NSTask* task = [[NSTask alloc] init];
+    
+    [task setLaunchPath: pyrun];
+    commandArgs = [NSArray arrayWithObjects: kalitePath, command, nil];
+    [task setArguments: commandArgs];
+    [task setStandardOutput: pipe];
+    
+    // REF: http://stackoverflow.com/questions/3444178/nstask-nspipe-objective-c-command-line-help
+    
+    [[task.standardOutput fileHandleForReading] setReadabilityHandler:^(NSFileHandle *file) {
+        NSData *data = [file availableData]; // this will read to EOF, so call only once
+        NSLog(@"Task output! %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+    }];
+    
+    [task launch];
+    
+    return @"none";
+}
 
 NSString *getResourcePath(NSString *pathToAppend) {
     NSString *path = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:pathToAppend];
@@ -633,13 +660,13 @@ BOOL setEnvVars(BOOL createPlist) {
 - (IBAction)start:(id)sender {
     showNotification(@"Starting...");
     [self showStatus:statusStartingUp];
-    [self runKalite:@"start"];
+    runCommandTask(@"start");
 }
 
 
 - (IBAction)stop:(id)sender {
     showNotification(@"Stopping...");
-    [self runKalite:@"stop"];
+    runCommandTask(@"stop");
 }
 
 
