@@ -28,14 +28,13 @@ fi
 case "$1" in
 
   configure)
-    # Set up our config for lighttpd
     # db_get ka-lite/user
     # KALITE_USER="$RET"
     # HARD-CODING ka-lite because of nginx.conf
     KALITE_USER="ka-lite"
     echo $KALITE_USER > /etc/ka-lite/username
     if ! getent passwd $KALITE_USER >/dev/null; then
-      adduser --system --home /var/$KALITE_USER $KALITE_USER
+      adduser --system --group --home /var/$KALITE_USER $KALITE_USER
     fi
     USER_CONFIG_DIR=`su -s /bin/sh $KALITE_USER -c "echo \\$HOME"`/.kalite
     mkdir -p "$USER_CONFIG_DIR"
@@ -46,6 +45,9 @@ case "$1" in
       echo "Changing user config to use raspberry pi settings: $USER_CONFIG"
       echo "from kalite.project.settings.raspberry_pi import *" > $USER_CONFIG
     fi
+
+    # Set ownership of user directory
+    chown -R $KALITE_USER:`id -gn $KALITE_USER` $USER_CONFIG_DIR
 
     # Download assessment items if chosen
     db_get ka-lite/download-assessment-items
