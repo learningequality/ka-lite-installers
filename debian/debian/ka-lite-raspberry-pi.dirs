@@ -1,1 +1,4 @@
 /etc/ka-lite
+/etc/nginx
+/etc/nginx/sites-available
+/etc/nginx/sites-enabled
