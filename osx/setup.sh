@@ -123,6 +123,9 @@ DMG_PATH="$OUTPUT_PATH/KA-Lite-Monitor.dmg"
 DMG_BUILDER_PATH="$WORKING_DIR/create-dmg"
 CREATE_DMG="$DMG_BUILDER_PATH/create-dmg"
 
+SIGNER_IDENTITY_APPLICATION="Developer ID Application: Foundation for Learning Equality, Inc. (H83B64B6AV)"
+SIGNER_IDENTITY_INSTALLER="Developer ID Installer: Foundation for Learning Equality, Inc. (H83B64B6AV)"
+
 echo "  Using temporary directory $WORKING_DIR..."
 
 
@@ -273,7 +276,7 @@ fi
 # sign the .app file
 # unlock the keychain first so we can access the private key
 security unlock-keychain -p $KEYCHAIN_PASSWORD
-codesign -s "Foundation for Learning Equality, Inc." --force "$KA_LITE_MONITOR_APP_PATH"
+codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
 
 # Build the .dmg file.
 ((STEP++))
@@ -317,7 +320,7 @@ if [ -e "$DMG_PATH" ]; then
     # codesign the built DMG file
     # unlock the keychain first so we can access the private key
     security unlock-keychain -p $KEYCHAIN_PASSWORD
-    codesign -s "Foundation for Learning Equality, Inc." --force "$DMG_PATH"
+    codesign -s "$SIGNER_IDENTITY_INSTALLER" --force "$DMG_PATH"
     echo "You can now test the built installer at '$DMG_PATH'."
 else
     echo "Sorry, something went wrong trying to build the installer at '$DMG_PATH'."
