@@ -57,8 +57,8 @@ case "$1" in
         echo "Adding script to startup"
         update-rc.d ka-lite defaults
 
-        # Start service
-        invoke-rc.d ka-lite start
+        # Start service - nevermind if it fails
+        invoke-rc.d ka-lite start || true
     fi
 
   ;;
