@@ -275,8 +275,8 @@ fi
 
 # sign the .app file
 # unlock the keychain first so we can access the private key
-security unlock-keychain -p $KEYCHAIN_PASSWORD
-codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
+# security unlock-keychain -p $KEYCHAIN_PASSWORD
+# codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
 
 # Build the .dmg file.
 ((STEP++))
@@ -319,8 +319,8 @@ echo "Done!"
 if [ -e "$DMG_PATH" ]; then
     # codesign the built DMG file
     # unlock the keychain first so we can access the private key
-    security unlock-keychain -p $KEYCHAIN_PASSWORD
-    codesign -s "$SIGNER_IDENTITY_INSTALLER" --force "$DMG_PATH"
+    # security unlock-keychain -p $KEYCHAIN_PASSWORD
+    codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$DMG_PATH"
     echo "You can now test the built installer at '$DMG_PATH'."
 else
     echo "Sorry, something went wrong trying to build the installer at '$DMG_PATH'."
