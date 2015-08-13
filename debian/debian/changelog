@@ -1,3 +1,30 @@
+ka-lite-source (0.14~b2-0ubuntu2) precise; urgency=medium
+
+  * Set permissions on auto-created user home for ka-lite-raspberry-pi
+  * Adding /etc/nginx to raspberry-pi build to ensure succesful divertion
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 11 Aug 2015 23:15:29 +0200
+
+ka-lite-source (0.14~b2-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 11 Aug 2015 21:55:37 +0200
+
+ka-lite-source (0.14~b1-0ubuntu2) precise; urgency=medium
+
+  * Clean up *pyc files after uninstalling
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 09 Aug 2015 11:41:16 +0200
+
+ka-lite-source (0.14~b1-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+  * Force /etc/init.d/ka-lite to be executable (15.04+ issue)
+  * Move 'dirs' file to package-name.dirs (15.04+ issue)
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sat, 08 Aug 2015 18:16:12 +0200
+
 ka-lite-source (0.14~a12-0ubuntu1) precise; urgency=medium
 
   * New upstream alpha 12
