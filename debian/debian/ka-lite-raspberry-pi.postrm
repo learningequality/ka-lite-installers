@@ -25,8 +25,12 @@ fi
 
 case "$1,$losing_diversion" in
 remove,*|abort-install,*|disappear,*|*,y)
-        dpkg-divert --package "$pkg" --remove --rename \
-                --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
+        # Remove the file to avoid:
+        #    Removing 'diversion of /etc/nginx/nginx.conf to /etc/nginx/nginx.conf-ka-lite-raspberry-pi by ka-lite-raspberry-pi'
+        #    dpkg-divert: error: rename involves overwriting `/etc/nginx/nginx.conf' with
+        #    different file `/etc/nginx/nginx.conf-ka-lite-raspberry-pi', not allowed
+        rm -f /etc/nginx/nginx.conf
+        dpkg-divert --package "$pkg" --remove --rename /etc/nginx/nginx.conf
         ;;
 esac
 
@@ -56,5 +60,5 @@ fi
 # occupying port 8008 stops
 if [ -f /etc/init.d/nginx ]
 then
-    service nginx reload
+    service nginx reload || true
 fi
