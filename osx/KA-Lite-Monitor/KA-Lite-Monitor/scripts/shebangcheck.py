@@ -62,6 +62,8 @@ for root, dirs, files in os.walk(BIN_PATH):
                             print "====> DON'T TOUCH!"
                         f.seek(0)
                         f.writelines(lines)
+                        # MUST: Important if the string to replace is longer than the one replacement.
+                        f.truncate()
         except Exception as exc:
             print "==> EXCEPTION: %s" % exc
             exit(1)
