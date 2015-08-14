@@ -28,8 +28,3 @@ then
         dpkg-divert --package "$pkg" --add --rename \
                 --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
 fi
-
-# Because nginx configuration tries to start nginx before kalite has copied in
-# its own nginx.conf, we put the file in place already before installing!
-mkdir -p /etc/nginx
-cp debian/nginx.conf /etc/nginx/
