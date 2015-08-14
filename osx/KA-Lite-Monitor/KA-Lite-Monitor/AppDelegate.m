@@ -142,33 +142,26 @@ BOOL checkEnvVars() {
     return TRUE;
 }
 
-NSString *runCommandTask(NSString *command) {
-    NSPipe* pipe = [NSPipe pipe];
+- (void) runCommandTask:(NSString *)command {
     NSString *pyrun;
     NSString *kalitePath;
-    NSArray *commandArgs;
-
+    
     pyrun = getPyrunBinPath(true);
+    // MUST: Let's use the symlinked `/usr/bin/kalite` instead of the
+    // one at `pyrun-2.7/bin/kalite` because it can be found on the PATH
+    // of the app.
     kalitePath = getUsrBinKalite();
     
     NSTask* task = [[NSTask alloc] init];
+    NSString *kaliteCommand = [NSString stringWithFormat:@"%@ %@", kalitePath, command];
+    NSArray *array = [kaliteCommand componentsSeparatedByString:@" "];
     
     [task setLaunchPath: pyrun];
-    commandArgs = [NSArray arrayWithObjects: kalitePath, command, nil];
-    [task setArguments: commandArgs];
-    [task setStandardOutput: pipe];
-    
-    // REF: http://stackoverflow.com/questions/3444178/nstask-nspipe-objective-c-command-line-help
-    
-    [[task.standardOutput fileHandleForReading] setReadabilityHandler:^(NSFileHandle *file) {
-        NSData *data = [file availableData]; // this will read to EOF, so call only once
-        NSLog(@"Task output! %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-    }];
-    
+    [task setArguments: array];
     [task launch];
     
-    return @"none";
 }
+
 
 NSString *getResourcePath(NSString *pathToAppend) {
     NSString *path = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:pathToAppend];
@@ -268,10 +261,41 @@ BOOL pyrunExists() {
 }
 
 
+// REF: http://objc.toodarkpark.net/Foundation/Classes/NSTask.html
+-(id)init{
+    self = [super init];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(checkATaskStatus:)
+                                                 name:NSTaskDidTerminateNotification
+                                               object:nil];
+    return self;
+}
+
+
+- (enum kaliteStatus)checkATaskStatus:(NSNotification *)aNotification{
+    enum kaliteStatus oldStatus = self.status;
+    
+    NSLog(@"Fetching `kalite status`...");
+    int status = [[aNotification object] terminationStatus];
+    // MUST: The result is on the 9th bit of the returned value.  Not sure why this
+    // is but maybe because of the returned values from the `system()` call.  For now
+    // we shift 8 bits to the right until we figure this one out.  TODO(cpauya): fix later
+    if (status >= 255) {
+        status = status >> 8;
+    }
+    self.status = status;
+    
+    if (oldStatus != self.status) {
+        [self showStatus:self.status];
+    }
+    return self.status;
+}
+
+
 - (enum kaliteStatus)runKalite:(NSString *)command {
     // It needs `KALITE_PYTHON` environment variable, so we set it here for every call.
     // TODO(cpauya): Must prompt user on preferences dialog and persist this.
-
+    
     // If command != `status`, we also call `kalite status` so we auto-update the
     // menu and icon status for every call to this function.
     
@@ -279,10 +303,6 @@ BOOL pyrunExists() {
     // TODO(cpauya): Need a flag so this function can return the result of the `system()` call.
     NSString *pyrun;
     NSString *kalitePath;
-    NSString *kaliteCmd;
-    NSString *finalCmd;
-    NSString *statusCmd;
-    enum kaliteStatus oldStatus = self.status;
     
     @try {
         pyrun = getPyrunBinPath(true);
@@ -290,53 +310,21 @@ BOOL pyrunExists() {
         // one at `pyrun-2.7/bin/kalite` because it can be found on the PATH
         // of the app.
         kalitePath = getUsrBinKalite();
-
+        
         // TODO(cpauya): make sure the pyrun and kalite binaries are not empty
-
+        
         // MUST: This will make sure the process to run has access to the environment variable
         // because the .app may be loaded the first time.
-        kaliteCmd = [NSString stringWithFormat: @"export KALITE_PYTHON=\"%@\"; \"%@\"", pyrun, kalitePath];
-        finalCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, command];
-        statusCmd = [NSString stringWithFormat:@"%@ %@", kaliteCmd, @"status"];
         
-        NSLog([NSString stringWithFormat:@"COMMAND ==> %@", finalCmd]);
-
+        NSLog([NSString stringWithFormat:@"kalite command ==> %@", command]);
+        
         if (kaliteExists()) {
-            // REF: http://stackoverflow.com/a/10284037/845481
-            // Convert const char* to NSString * and convert back - _NSAutoreleaseNoPool().
-            const char *runCommand = [finalCmd UTF8String];
-            int status = system(runCommand);
-            
-            // If command is not "status", run `kalite status` to get status of ka-lite.
-            // We need this check because this may be called inside the monitor timer.
-            if ([command isNotEqualTo: @"status"]) {
-                NSLog(@"Fetching `kalite status`...");
-                runCommand = [statusCmd UTF8String];
-                status = system(runCommand);
-                // MUST: The result is on the 9th bit of the returned value.  Not sure why this
-                // is but maybe because of the returned values from the `system()` call.  For now
-                // we shift 8 bits to the right until we figure this one out.  TODO(cpauya): fix later
-                if (status >= 255) {
-                    status = status >> 8;
-                }
-            } else {
-                if (status >= 255) {
-                    status = status >> 8;
-                }
-            }
-            self.status = status;
-        } else {
-            self.status = statusCouldNotDetermineStatus;
-            [self showStatus:self.status];
-            showNotification(@"The `kalite` executable does not exist!");
+            [self runCommandTask:command];
         }
     }
     @catch (NSException *ex) {
         self.status = statusCouldNotDetermineStatus;
         NSLog(@"Error running `kalite` %@", ex);
-    }
-    if (oldStatus != self.status) {
-        [self showStatus:self.status];
     }
     return self.status;
 }
@@ -660,13 +648,13 @@ BOOL setEnvVars(BOOL createPlist) {
 - (IBAction)start:(id)sender {
     showNotification(@"Starting...");
     [self showStatus:statusStartingUp];
-    runCommandTask(@"start");
+    [self runKalite:@"start"];
 }
 
 
 - (IBAction)stop:(id)sender {
     showNotification(@"Stopping...");
-    runCommandTask(@"stop");
+    [self runKalite:@"stop"];
 }
 
 
