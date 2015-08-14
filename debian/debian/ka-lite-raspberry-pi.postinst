@@ -91,6 +91,9 @@ case "$1" in
         # Start service -- nevermind if it fails
         invoke-rc.d ka-lite start || true
 
+        # Restart nginx because we added a new site configuration
+        invoke-rc.d nginx restart || true
+
     fi
 
   ;;
