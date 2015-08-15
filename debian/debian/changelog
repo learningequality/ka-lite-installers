@@ -1,3 +1,28 @@
+ka-lite-source (0.14~b3-0ubuntu4) precise; urgency=medium
+
+  * Add unzip to pre-depends, used for unpacking downloaded assessment items
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sat, 15 Aug 2015 18:25:42 +0200
+
+ka-lite-source (0.14~b3-0ubuntu3) precise; urgency=medium
+
+  * Raspberry-pi package: Re-add nginx.conf to install files
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sat, 15 Aug 2015 01:01:42 +0200
+
+ka-lite-source (0.14~b3-0ubuntu2) precise; urgency=medium
+
+  * Fix nginx divertion
+  * Set nginx as a pre-dependency to avoid clutter with invoke.rcd nginx during install
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 14 Aug 2015 13:42:57 +0200
+
+ka-lite-source (0.14~b3-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 13 Aug 2015 16:40:38 +0200
+
 ka-lite-source (0.14~b2-0ubuntu2) precise; urgency=medium
 
   * Set permissions on auto-created user home for ka-lite-raspberry-pi
