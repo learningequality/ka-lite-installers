@@ -10,7 +10,7 @@ X-Python-Version: >= 2.7
 
 Package: ka-lite
 Architecture: all
-Pre-Depends: debconf, bash, wget
+Pre-Depends: debconf, bash, wget, unzip
 Depends: python (>= 2.7), python (<< 2.8), ucf, wget
 Recommends: ka-lite-gtk
 Description: KA Lite
@@ -23,7 +23,7 @@ Homepage: https://learningequality.org/ka-lite/
 
 Package: ka-lite-raspberry-pi
 Architecture: all
-Pre-Depends: debconf, bash, wget, nginx-light | nginx-full
+Pre-Depends: debconf, bash, wget, unzip, nginx-light | nginx-full
 Depends: python (>= 2.7), python (<< 2.8), ucf, python-m2crypto, python-psutil
 Conflicts: ka-lite, ka-lite-all
 Description: KA Lite (raspberry pi)
