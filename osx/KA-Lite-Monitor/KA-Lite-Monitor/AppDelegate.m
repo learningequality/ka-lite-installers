@@ -55,6 +55,15 @@
     }
 }
 
+-(void) indicator {
+    //    NSNotification *aNotification;
+    self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
+    [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
+    [self.statusItem setMenu:self.statusMenu];
+    [self.statusItem setHighlightMode:YES];
+    [self.statusItem setToolTip:@"KA_Lite-Monitor app is processing"];
+}
+
 
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
@@ -319,6 +328,7 @@ BOOL pyrunExists() {
         NSLog([NSString stringWithFormat:@"kalite command ==> %@", command]);
         
         if (kaliteExists()) {
+            [self indicator];
             [self runCommandTask:command];
         }
     }
