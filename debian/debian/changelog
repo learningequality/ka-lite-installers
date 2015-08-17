@@ -1,3 +1,9 @@
+ka-lite-source (0.14~b3-0ubuntu5) precise; urgency=medium
+
+  * Add python-setuptools as a dependency (fixes raspian issues)
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 17 Aug 2015 14:44:59 +0200
+
 ka-lite-source (0.14~b3-0ubuntu4) precise; urgency=medium
 
   * Add unzip to pre-depends, used for unpacking downloaded assessment items
