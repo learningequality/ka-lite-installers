@@ -56,12 +56,7 @@
 }
 
 -(void) indicator {
-    //    NSNotification *aNotification;
-    self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
-    [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
-    [self.statusItem setMenu:self.statusMenu];
-    [self.statusItem setHighlightMode:YES];
-    [self.statusItem setToolTip:@"KA_Lite-Monitor app is processing"];
+
 }
 
 
@@ -274,17 +269,16 @@ BOOL pyrunExists() {
 -(id)init{
     self = [super init];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(checkATaskStatus:)
+                                             selector:@selector(checkRunCommandTaskStatus:)
                                                  name:NSTaskDidTerminateNotification
                                                object:nil];
     return self;
 }
 
 
-- (enum kaliteStatus)checkATaskStatus:(NSNotification *)aNotification{
+- (enum kaliteStatus)checkRunCommandTaskStatus:(NSNotification *)aNotification{
     enum kaliteStatus oldStatus = self.status;
     
-    NSLog(@"Fetching `kalite status`...");
     int status = [[aNotification object] terminationStatus];
     // MUST: The result is on the 9th bit of the returned value.  Not sure why this
     // is but maybe because of the returned values from the `system()` call.  For now
@@ -294,7 +288,7 @@ BOOL pyrunExists() {
     }
     self.status = status;
     
-    if (oldStatus != self.status) {
+    if (oldStatus != self.status)   {
         [self showStatus:self.status];
     }
     return self.status;
@@ -325,10 +319,7 @@ BOOL pyrunExists() {
         // MUST: This will make sure the process to run has access to the environment variable
         // because the .app may be loaded the first time.
         
-        NSLog([NSString stringWithFormat:@"kalite command ==> %@", command]);
-        
         if (kaliteExists()) {
-            [self indicator];
             [self runCommandTask:command];
         }
     }
@@ -659,12 +650,14 @@ BOOL setEnvVars(BOOL createPlist) {
     showNotification(@"Starting...");
     [self showStatus:statusStartingUp];
     [self runKalite:@"start"];
+    [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
 }
 
 
 - (IBAction)stop:(id)sender {
     showNotification(@"Stopping...");
     [self runKalite:@"stop"];
+    [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
 }
 
 
@@ -696,6 +689,7 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (IBAction)savePreferences:(id)sender {
     [self savePreferences];
+    [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
 }
 
 
@@ -857,6 +851,7 @@ BOOL setEnvVars(BOOL createPlist) {
             alert(@"Will now run KA-Lite setup, it will take a few minutes.  Please wait until prompted that setup is done.");
             enum kaliteStatus status = [self setupKalite];
             showNotification(@"Setup is finished!  You can now start KA-Lite.");
+            [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
             // TODO(cpauya): Get the result of running `bin/kalite manage setup` not the
             // default result of `bin/kalite status` so we can alert the user that setup failed.
             //        if (status != statusStopped) {
