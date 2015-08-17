@@ -25,6 +25,6 @@ if
         dpkg --compare-versions "$2" lt "$diversion_added_version" ||
         dpkg --compare-versions "$this_version" lt "$2"
 then
-        dpkg-divert --package "$pkg" --add --rename \
-                --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
+        # dpkg-divert --package "$pkg" --add --rename --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
+        dpkg-divert --package "$pkg" --add --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
 fi
