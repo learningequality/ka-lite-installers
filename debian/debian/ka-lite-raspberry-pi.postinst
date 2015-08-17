@@ -28,10 +28,8 @@ fi
 case "$1" in
 
   configure)
-    # db_get ka-lite/user
-    # KALITE_USER="$RET"
-    # HARD-CODING ka-lite because of nginx.conf
-    KALITE_USER="ka-lite"
+    db_get ka-lite/user
+    KALITE_USER="$RET"
     echo $KALITE_USER > /etc/ka-lite/username
     if ! getent passwd $KALITE_USER >/dev/null; then
       adduser --system --group --home /var/$KALITE_USER $KALITE_USER
@@ -45,6 +43,8 @@ case "$1" in
       echo "Changing user config to use raspberry pi settings: $USER_CONFIG"
       echo "from kalite.project.settings.raspberry_pi import *" > $USER_CONFIG
     fi
+    # Configuration to be written to nginx config file
+    echo "set \$kalite_home $USER_CONFIG_DIR;" > /etc/ka-lite/nginx.d/home.conf
 
     # Set ownership of user directory
     chown -R $KALITE_USER:`id -gn $KALITE_USER` $USER_CONFIG_DIR

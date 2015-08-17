@@ -1,3 +1,15 @@
+ka-lite-source (0.14~b3-0ubuntu7) precise; urgency=medium
+
+  * New configurable $kalite_home variable for nginx
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 18 Aug 2015 14:34:02 +0200
+
+ka-lite-source (0.14~b3-0ubuntu6) precise; urgency=medium
+
+  * Use ka-lite/user setting for ka-lite-raspberry-pi build
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 17 Aug 2015 22:39:44 +0200
+
 ka-lite-source (0.14~b3-0ubuntu5) precise; urgency=medium
 
   * Add python-setuptools as a dependency (fixes raspian issues)
