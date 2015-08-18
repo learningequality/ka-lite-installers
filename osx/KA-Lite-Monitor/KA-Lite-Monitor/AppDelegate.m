@@ -277,18 +277,42 @@ BOOL pyrunExists() {
 
 
 - (enum kaliteStatus)checkRunCommandTaskStatus:(NSNotification *)aNotification{
+    NSArray *taskCommand;
+    NSArray *statusCommand;
     enum kaliteStatus oldStatus = self.status;
     
     int status = [[aNotification object] terminationStatus];
-    // MUST: The result is on the 9th bit of the returned value.  Not sure why this
-    // is but maybe because of the returned values from the `system()` call.  For now
-    // we shift 8 bits to the right until we figure this one out.  TODO(cpauya): fix later
-    if (status >= 255) {
-        status = status >> 8;
-    }
-    self.status = status;
     
-    if (oldStatus != self.status)   {
+    taskCommand = [[aNotification object] arguments];
+    statusCommand = [[NSArray alloc]initWithObjects:@"/usr/bin/kalite",@"status", nil];
+    NSSet *taskCommandArray = [NSSet setWithArray:taskCommand];
+    NSSet *statusCommandArray = [NSSet setWithArray:statusCommand];
+    
+    if (kaliteExists()) {
+        if ([taskCommandArray isEqualToSet:statusCommandArray]) {
+            // MUST: The result is on the 9th bit of the returned value.  Not sure why this
+            // is but maybe because of the returned values from the `system()` call.  For now
+            // we shift 8 bits to the right until we figure this one out.  TODO(cpauya): fix later
+            if (status >= 255) {
+                status = status >> 8;
+            }
+        } else {
+            // If command is not "status", run `kalite status` to get status of ka-lite.
+            // We need this check because this may be called inside the monitor timer.
+            NSLog(@"Fetching `kalite status`...");
+            if ( [taskCommand containsObject: @"manage"] ) {
+                [self showStatus:self.status];
+            }
+            [self runKalite:@"status"];
+            return self.status;
+        }
+        self.status = status;
+    } else {
+        self.status = statusCouldNotDetermineStatus;
+        [self showStatus:self.status];
+        showNotification(@"The `kalite` executable does not exist!");
+    }
+    if (oldStatus != self.status) {
         [self showStatus:self.status];
     }
     return self.status;
@@ -613,6 +637,8 @@ BOOL setEnvVars(BOOL createPlist) {
             [self.startKalite setEnabled:NO];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
+            [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
+            [self.statusItem setToolTip:@"KA-Lite is Loading..."];
             break;
         case statusOkRunning:
             [self.startKalite setEnabled:NO];
@@ -650,14 +676,12 @@ BOOL setEnvVars(BOOL createPlist) {
     showNotification(@"Starting...");
     [self showStatus:statusStartingUp];
     [self runKalite:@"start"];
-    [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
-}
+    }
 
 
 - (IBAction)stop:(id)sender {
     showNotification(@"Stopping...");
     [self runKalite:@"stop"];
-    [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
 }
 
 
@@ -689,7 +713,6 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (IBAction)savePreferences:(id)sender {
     [self savePreferences];
-    [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
 }
 
 
@@ -826,6 +849,8 @@ BOOL setEnvVars(BOOL createPlist) {
         return;
     }
     
+    [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
+    [self.statusItem setToolTip:@"KA-Lite is Loading..."];
     // Save the preferences.
     // REF: http://iosdevelopertips.com/core-services/encode-decode-using-base64.html
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
@@ -878,6 +903,8 @@ BOOL setEnvVars(BOOL createPlist) {
                      self.username, self.password];
     NSString *msg = [NSString stringWithFormat:@"Running `kalite manage setup` with %@", cmd];
     showNotification(msg);
+    [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
+    [self.statusItem setToolTip:@"KA-Lite is Loading..."];
     enum kaliteStatus status = [self runKalite:cmd];
     [self getKaliteStatus];
     return status;
