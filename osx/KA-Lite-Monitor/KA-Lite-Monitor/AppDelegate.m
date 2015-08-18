@@ -146,7 +146,7 @@ BOOL checkEnvVars() {
     return TRUE;
 }
 
-- (void) runCommandTask:(NSString *)command {
+- (void) runTask:(NSString *)command {
     NSString *pyrun;
     NSString *kalitePath;
     
@@ -269,27 +269,28 @@ BOOL pyrunExists() {
 -(id)init{
     self = [super init];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(checkRunCommandTaskStatus:)
+                                             selector:@selector(checkRunTask:)
                                                  name:NSTaskDidTerminateNotification
                                                object:nil];
     return self;
 }
 
 
-- (enum kaliteStatus)checkRunCommandTaskStatus:(NSNotification *)aNotification{
-    NSArray *taskCommand;
-    NSArray *statusCommand;
+- (enum kaliteStatus)checkRunTask:(NSNotification *)aNotification{
+    NSArray *taskArguments;
+    NSArray *statusArguments;
+    NSString *kalitePath = getUsrBinKalite();
     enum kaliteStatus oldStatus = self.status;
     
     int status = [[aNotification object] terminationStatus];
-    
-    taskCommand = [[aNotification object] arguments];
-    statusCommand = [[NSArray alloc]initWithObjects:@"/usr/bin/kalite",@"status", nil];
-    NSSet *taskCommandArray = [NSSet setWithArray:taskCommand];
-    NSSet *statusCommandArray = [NSSet setWithArray:statusCommand];
+
+    taskArguments = [[aNotification object] arguments];
+    statusArguments = [[NSArray alloc]initWithObjects:kalitePath, @"status", nil];
+    NSSet *taskArgsSet = [NSSet setWithArray:taskArguments];
+    NSSet *statusArgsSet = [NSSet setWithArray:statusArguments];
     
     if (kaliteExists()) {
-        if ([taskCommandArray isEqualToSet:statusCommandArray]) {
+        if ([taskArgsSet isEqualToSet:statusArgsSet]) {
             // MUST: The result is on the 9th bit of the returned value.  Not sure why this
             // is but maybe because of the returned values from the `system()` call.  For now
             // we shift 8 bits to the right until we figure this one out.  TODO(cpauya): fix later
@@ -300,7 +301,7 @@ BOOL pyrunExists() {
             // If command is not "status", run `kalite status` to get status of ka-lite.
             // We need this check because this may be called inside the monitor timer.
             NSLog(@"Fetching `kalite status`...");
-            if ( [taskCommand containsObject: @"manage"] ) {
+            if ( [taskArguments containsObject: @"manage"] ) {
                 [self showStatus:self.status];
             }
             [self runKalite:@"status"];
@@ -344,7 +345,7 @@ BOOL pyrunExists() {
         // because the .app may be loaded the first time.
         
         if (kaliteExists()) {
-            [self runCommandTask:command];
+            [self runTask:command];
         }
     }
     @catch (NSException *ex) {
@@ -632,13 +633,15 @@ BOOL setEnvVars(BOOL createPlist) {
             [self.startKalite setEnabled:canStart];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
+            [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
+            [self.statusItem setToolTip:@"KA-Lite failed to start."];
             break;
         case statusStartingUp:
             [self.startKalite setEnabled:NO];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
             [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
-            [self.statusItem setToolTip:@"KA-Lite is Loading..."];
+            [self.statusItem setToolTip:@"KA-Lite is starting..."];
             break;
         case statusOkRunning:
             [self.startKalite setEnabled:NO];
