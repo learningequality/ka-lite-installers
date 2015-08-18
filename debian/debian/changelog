@@ -1,3 +1,9 @@
+ka-lite-source (0.14~b3-0ubuntu8) precise; urgency=medium
+
+  * Test release containing new nginx requirement >= 1.2.5
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 19 Aug 2015 00:25:51 +0200
+
 ka-lite-source (0.14~b3-0ubuntu7) precise; urgency=medium
 
   * New configurable $kalite_home variable for nginx

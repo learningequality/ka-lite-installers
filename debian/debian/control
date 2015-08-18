@@ -23,7 +23,7 @@ Homepage: https://learningequality.org/ka-lite/
 
 Package: ka-lite-raspberry-pi
 Architecture: all
-Pre-Depends: debconf, bash, wget, unzip, python-setuptools, nginx-light | nginx-full
+Pre-Depends: debconf, bash, wget, unzip, python-setuptools, nginx-light (>= 1.2.5) | nginx-full (>= 1.2.5)
 Depends: python (>= 2.7), python (<< 2.8), ucf, python-m2crypto, python-psutil
 Conflicts: ka-lite, ka-lite-all
 Description: KA Lite (raspberry pi)
