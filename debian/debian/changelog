@@ -1,6 +1,7 @@
 ka-lite-source (0.14~b3-0ubuntu7) precise; urgency=medium
 
   * New configurable $kalite_home variable for nginx
+  * Restore debconf question for ka-lite/user
 
  -- Benjamin Bach <benjamin@learningequality.org>  Tue, 18 Aug 2015 14:34:02 +0200
 

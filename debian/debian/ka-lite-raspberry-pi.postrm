@@ -29,8 +29,9 @@ remove,*|abort-install,*|disappear,*|*,y)
         #    Removing 'diversion of /etc/nginx/nginx.conf to /etc/nginx/nginx.conf-ka-lite-raspberry-pi by ka-lite-raspberry-pi'
         #    dpkg-divert: error: rename involves overwriting `/etc/nginx/nginx.conf' with
         #    different file `/etc/nginx/nginx.conf-ka-lite-raspberry-pi', not allowed
-        rm -f /etc/nginx/nginx.conf
+        # rm -f /etc/nginx/nginx.conf
         dpkg-divert --package "$pkg" --remove --rename /etc/nginx/nginx.conf
+        # dpkg-divert --package "$pkg" --remove /etc/nginx/nginx.conf
         ;;
 esac
 
