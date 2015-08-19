@@ -11,6 +11,11 @@ else
   export KALITE_USER="ka-lite"
 fi
 
+if [ -f /etc/ka-lite/home ]
+then
+  export KALITE_HOME=`cat /etc/ka-lite/home`
+fi
+
 if [ -f /etc/ka-lite/server_options ]
 then
   export KALITE_OPTS="`cat /etc/ka-lite/server_options | tr '\n' ' '`"
