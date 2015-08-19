@@ -15,23 +15,23 @@ The application icon sits on the status menu of OS X and uses [PyRun](http://www
 ## Steps to build the installer
 There are two ways to build the installer, automated or manually.
 
-1. To build automatically, run `setup.sh` which will:
-    1.1. Create a `temp` directory (this is ignored in the .gitignore) and puts everything else inside it.
-    1.2. Download PyRun to the `temp/pyrun-2.7` directory.
-    1.3. Download the KA-Lite source to the `temp/ka-lite` directory.
-    1.4. Copy the `pyrun-2.7` directory to the `<xcode_source>/Resources/` folder.
-    1.5. Build the `KA-Lite Monitor.app` using `xcodebuild`.
-    1.6. Build the `KA-Lite Monitor.dmg` package.  The output can be found at the `temp/output/KA-Lite Monitor.dmg`.
-2. To build the .dmg manually - refer to the README-FOR-DMG.md document.
+1. To build automatically, run `setup.sh` which will:  
+    1.1. Create a `temp` directory (this is ignored in the .gitignore) and puts everything else inside it.  
+    1.2. Download PyRun to the `temp/pyrun-2.7` directory.  
+    1.3. Download the KA-Lite source to the `temp/ka-lite` directory.  
+    1.4. Copy the `pyrun-2.7` directory to the `<xcode_source>/Resources/` folder.  
+    1.5. Build the `KA-Lite Monitor.app` using `xcodebuild`.  
+    1.6. Build the `KA-Lite Monitor.dmg` package.  The output can be found at the `temp/output/KA-Lite Monitor.dmg`.  
+2. To build the .dmg manually - refer to the README-FOR-DMG.md document.  
 
 
-### To manually build and test the application
+## Manually build and test the application using Xcode
 
 1. Run `setup.sh` so it will download the `ka-lite` repository and `pyrun`.
 2. Launch Xcode
-3. At the Project Navigator (left-pane), right-click on the Supporting Files folder and select Add Files to "KA Lite Monitor".
-4. Select the `pyrun-2.7` directory that was copied at the Resources folder by `setup.sh` above.  Make sure to select "Create folder references."!
-5. Build the project to produce the .app.
+3. Navigate to `Project Navigator` and click the `Project Name`
+4. Navigate to `Build Settings` tab and change the `Code Signing Identity` to `Don't Code Sign`.
+4. Build the project to produce the .app.
 
 
 ## Notes
@@ -43,6 +43,7 @@ There are two ways to build the installer, automated or manually.
 
     * KA-Lite repo on `develop` branch, or the specified repo
     * PyRun version 2.7
+    * Assessment zip 
 1. You can optionally pass a ka-lite archive repo url as an argument in this format:
 
     > ./setup.sh "https://github.com/learningequality/ka-lite/archive/0.14.x.zip"
