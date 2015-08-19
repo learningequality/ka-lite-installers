@@ -25,7 +25,7 @@ There are two ways to build the installer, automated or manually.
 2. To build the .dmg manually - refer to the README-FOR-DMG.md document.  
 
 
-### To manually build and test the application
+## Manually build and test the application using Xcode
 
 1. Run `setup.sh` so it will download the `ka-lite` repository and `pyrun`.
 2. Launch Xcode
@@ -43,6 +43,7 @@ There are two ways to build the installer, automated or manually.
 
     * KA-Lite repo on `develop` branch, or the specified repo
     * PyRun version 2.7
+    * Assessment zip 
 1. You can optionally pass a ka-lite archive repo url as an argument in this format:
 
     > ./setup.sh "https://github.com/learningequality/ka-lite/archive/0.14.x.zip"
