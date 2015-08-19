@@ -968,14 +968,14 @@ BOOL setEnvVars(BOOL createPlist) {
 
 
 - (void)startKaliteMonitorTimer {
-    // Setup a timer to monitor the result of `kalite status` after 10 seconds
-    // TODO(cpauya): then every 10 seconds thereafter.
+    // Setup a timer to monitor the result of `kalite status` after 60 seconds
+    // TODO(cpauya): then every 60 seconds there after.
 
     // Monitor only if preferences are set.
     NSString *username = [self getUsernamePref];
     if (username != nil) {
         // TODO(cpauya): Use initWithFireDate of NSTimer instance.
-        [NSTimer scheduledTimerWithTimeInterval:10.0
+        [NSTimer scheduledTimerWithTimeInterval:60.0
                                          target:self
                                        selector:@selector(getKaliteStatus)
                                        userInfo:nil
