@@ -1,3 +1,10 @@
+ka-lite-source (0.14~b3-0ubuntu9) precise; urgency=medium
+
+  * Revert nginx requirements and remove worker_processes 'auto'
+  * Make init script defaults use /etc/ka-lite/home setting
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 19 Aug 2015 18:57:58 +0200
+
 ka-lite-source (0.14~b3-0ubuntu8) precise; urgency=medium
 
   * Test release containing new nginx requirement >= 1.2.5
