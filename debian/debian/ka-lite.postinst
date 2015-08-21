@@ -48,7 +48,7 @@ case "$1" in
             old_version=""
         fi
         if [ "$old_version" != "0.14" ]; then
-            wget https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip -O /tmp/assessment_items.zip -c
+            wget http://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip -O /tmp/assessment_items.zip -c
             mkdir -p $assessment_dir
             unzip /tmp/assessment_items.zip -d $assessment_dir
             chmod -R uog+r $assessment_dir  # Necessary because assessment.zip has wrong permissions
