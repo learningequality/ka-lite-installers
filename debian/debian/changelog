@@ -1,3 +1,16 @@
+ka-lite-source (0.14~b3-0ubuntu11) precise; urgency=medium
+
+  * Setuptools for source builds
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 21 Aug 2015 18:02:26 +0200
+
+ka-lite-source (0.14~b3-0ubuntu10) precise; urgency=medium
+
+  * Replace python-setuptools with python-pkg-resources
+  * Download assessment items using http instead of https (cert issue)
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 21 Aug 2015 17:43:21 +0200
+
 ka-lite-source (0.14~b3-0ubuntu9) precise; urgency=medium
 
   * Revert nginx requirements and remove worker_processes 'auto'
