@@ -1,3 +1,15 @@
+ka-lite-source (0.14~b5-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 27 Aug 2015 01:04:37 +0200
+
+ka-lite-source (0.14~b4-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 26 Aug 2015 22:34:49 +0200
+
 ka-lite-source (0.14~b3-0ubuntu11) precise; urgency=medium
 
   * Setuptools for source builds
