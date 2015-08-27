@@ -82,6 +82,11 @@ KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 
+
+PACKAGES_EXC="/usr/local/bin/packagesbuild"
+PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Lite-Monitor/KA-Lite.pkgproj"
+PACKAGES_BUILD_FOLDER="$SCRIPTPATH/KA-Lite-Packages/KA-Lite-Monitor/build"
+
 # MUST: Use the archive link, defaults to develop branch, so that the folder name
 # starts with the repo name like these examples:
 #    ka-lite-develop
@@ -303,56 +308,18 @@ if ! [ -d "$KA_LITE_MONITOR_APP_PATH" ]; then
     exit 2
 fi
 
-# sign the .app file
-# unlock the keychain first so we can access the private key
-# security unlock-keychain -p $KEYCHAIN_PASSWORD
-# codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
-
-# Build the .dmg file.
 ((STEP++))
-echo "$STEP/$STEPS. Building the .dmg file at '$OUTPUT_PATH'..."
+# Build the KA-Lite Monitor installer using `Packages`.
+# This will build the .mpkg file.
+echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
-# clone the .dmg builder if non-existent
-if ! [ -d $DMG_BUILDER_PATH ]; then
-    git clone https://github.com/mrpau/create-dmg.git $DMG_BUILDER_PATH
-fi
-
-# Remove the .dmg if it exists.
-test -e "$DMG_PATH" && rm "$DMG_PATH"
-# Add the README.md to the package.
-cp "$KA_LITE_README_PATH" "$RELEASE_PATH"
-# Clean-up the package.
-test -x "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM"
-
-# Let's create the .dmg.
-$CREATE_DMG \
-    --volname "KA-Lite-Monitor Installer" \
-    --volicon "$KA_LITE_ICNS_PATH" \
-    --window-size 700 400 \
-    --icon "KA-Lite-Monitor.app" 150 200 \
-    --app-drop-link 500 200 \
-    --background "$KA_LITE_LOGO_PATH" \
-    "$DMG_PATH" \
-    "$RELEASE_PATH"
-    # --icon-size 64 \
-    # --text-size 16 \
-
-# Clean-up, only remove if using temporary directory made by `mktemp`.
-# TODO(cpauya): remove when done debugging
-# if [ $WORKING_DIR != './temp' ]; then
-#     echo "  Removing temporary directory '$WORKING_DIR'..."
-#     rm -rf "$WORKING_DIR"
-# fi
-
-echo "Done!"
-if [ -e "$DMG_PATH" ]; then
-    # codesign the built DMG file
-    # unlock the keychain first so we can access the private key
-    # security unlock-keychain -p $KEYCHAIN_PASSWORD
-    codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$DMG_PATH"
-    echo "You can now test the built installer at '$DMG_PATH'."
+# check if the `Packages` is installed 
+if [ -e "$PACKAGES_EXC" ]; then
+    $PACKAGES_EXC $PACKAGES_PROJECT
+    rm -fr $OUTPUT_PATH/*
+    mv -v $PACKAGES_BUILD_FOLDER/* $OUTPUT_PATH
 else
-    echo "Sorry, something went wrong trying to build the installer at '$DMG_PATH'."
-    exit 1
+   echo "Sorry, something went wrong trying to build the installer at '$OUTPUT_PATH'."
+   exit 1    
 fi

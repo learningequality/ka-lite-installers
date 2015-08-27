@@ -485,18 +485,6 @@
 				<key>VERSION</key>
 				<integer>3</integer>
 			</dict>
-			<key>PACKAGE_SCRIPTS</key>
-			<dict>
-				<key>POSTINSTALL_PATH</key>
-				<dict>
-					<key>PATH</key>
-					<string>/Users/arceduardvincent/Desktop/Ka-Packages/app/installers/osx/KA-Lite-Monitor/KA-Lite-Monitor/scripts/shebangcheck.py</string>
-					<key>PATH_TYPE</key>
-					<integer>0</integer>
-				</dict>
-				<key>RESOURCES</key>
-				<array/>
-			</dict>
 			<key>PACKAGE_SETTINGS</key>
 			<dict>
 				<key>AUTHENTICATION</key>
@@ -504,18 +492,16 @@
 				<key>CONCLUSION_ACTION</key>
 				<integer>0</integer>
 				<key>IDENTIFIER</key>
-				<string>com.kalite.pkg.KA-Monitor</string>
+				<string>com.mygreatcompany.pkg.KA-Lite</string>
 				<key>NAME</key>
-				<string>KA-Monitor</string>
+				<string>KA-Lite</string>
 				<key>OVERWRITE_PERMISSIONS</key>
 				<false/>
-				<key>RELOCATABLE</key>
-				<true/>
 				<key>VERSION</key>
-				<string>0.14.0</string>
+				<string>1.0</string>
 			</dict>
 			<key>UUID</key>
-			<string>A9DA6613-A47E-4100-A941-CFD93D6D2F1F</string>
+			<string>5161A104-E9DD-404F-B897-40D49C47A613</string>
 		</dict>
 	</array>
 	<key>PROJECT</key>
@@ -524,17 +510,6 @@
 		<dict>
 			<key>NOTES</key>
 			<data>
-			PCFET0NUWVBFIGh0bWwgUFVCTElDICItLy9XM0MvL0RURCBIVE1M
-			IDQuMDEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvVFIvaHRtbDQv
-			c3RyaWN0LmR0ZCI+CjxodG1sPgo8aGVhZD4KPG1ldGEgaHR0cC1l
-			cXVpdj0iQ29udGVudC1UeXBlIiBjb250ZW50PSJ0ZXh0L2h0bWw7
-			IGNoYXJzZXQ9VVRGLTgiPgo8bWV0YSBodHRwLWVxdWl2PSJDb250
-			ZW50LVN0eWxlLVR5cGUiIGNvbnRlbnQ9InRleHQvY3NzIj4KPHRp
-			dGxlPjwvdGl0bGU+CjxtZXRhIG5hbWU9IkdlbmVyYXRvciIgY29u
-			dGVudD0iQ29jb2EgSFRNTCBXcml0ZXIiPgo8bWV0YSBuYW1lPSJD
-			b2NvYVZlcnNpb24iIGNvbnRlbnQ9IjEzNDQuNzIiPgo8c3R5bGUg
-			dHlwZT0idGV4dC9jc3MiPgo8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5
-			Pgo8L2JvZHk+CjwvaHRtbD4K
 			</data>
 		</dict>
 		<key>PROJECT_PRESENTATION</key>
@@ -565,14 +540,7 @@
 						<array>
 							<dict>
 								<key>DESCRIPTION</key>
-								<array>
-									<dict>
-										<key>LANGUAGE</key>
-										<string>English</string>
-										<key>VALUE</key>
-										<string>This will install the kalite app</string>
-									</dict>
-								</array>
+								<array/>
 								<key>OPTIONS</key>
 								<dict>
 									<key>HIDDEN</key>
@@ -581,24 +549,15 @@
 									<integer>1</integer>
 								</dict>
 								<key>PACKAGE_UUID</key>
-								<string>A9DA6613-A47E-4100-A941-CFD93D6D2F1F</string>
-								<key>REQUIREMENTS</key>
-								<array/>
+								<string>5161A104-E9DD-404F-B897-40D49C47A613</string>
 								<key>TITLE</key>
-								<array>
-									<dict>
-										<key>LANGUAGE</key>
-										<string>English</string>
-										<key>VALUE</key>
-										<string>KA-Lite Monitor</string>
-									</dict>
-								</array>
+								<array/>
 								<key>TOOLTIP</key>
 								<array/>
 								<key>TYPE</key>
 								<integer>0</integer>
 								<key>UUID</key>
-								<string>E3BBA3A7-3717-4DB6-8C08-7F323024B9CE</string>
+								<string>E6A612D5-9FD1-4AB2-B56D-C17F98952C5B</string>
 							</dict>
 						</array>
 						<key>REMOVED</key>
@@ -606,8 +565,6 @@
 					</dict>
 				</dict>
 				<key>INSTALLATION TYPE</key>
-				<integer>0</integer>
-				<key>MODE</key>
 				<integer>0</integer>
 			</dict>
 			<key>INSTALLATION_STEPS</key>
@@ -672,7 +629,19 @@
 			<key>INTRODUCTION</key>
 			<dict>
 				<key>LOCALIZATIONS</key>
-				<array/>
+				<array>
+					<dict>
+						<key>LANGUAGE</key>
+						<string>English</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>/Users/arceduardvincent/installers/osx/KA-Lite-Packages/Introduction.rtf</string>
+							<key>PATH_TYPE</key>
+							<integer>0</integer>
+						</dict>
+					</dict>
+				</array>
 			</dict>
 			<key>LICENSE</key>
 			<dict>
@@ -681,12 +650,24 @@
 					<key>ORGANIZATION</key>
 					<string>KA-Lite</string>
 					<key>OWNER</key>
-					<string>KA-Lite</string>
+					<string>Foundation for Learning Equality</string>
 					<key>YEAR</key>
 					<string>2015</string>
 				</dict>
 				<key>LOCALIZATIONS</key>
-				<array/>
+				<array>
+					<dict>
+						<key>LANGUAGE</key>
+						<string>English</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string></string>
+							<key>PATH_TYPE</key>
+							<integer>0</integer>
+						</dict>
+					</dict>
+				</array>
 				<key>MODE</key>
 				<integer>1</integer>
 				<key>TEMPLATE</key>
@@ -709,6 +690,11 @@
 					</dict>
 				</array>
 			</dict>
+			<key>SUMMARY</key>
+			<dict>
+				<key>LOCALIZATIONS</key>
+				<array/>
+			</dict>
 			<key>TITLE</key>
 			<dict>
 				<key>LOCALIZATIONS</key>
@@ -721,52 +707,6 @@
 					</dict>
 				</array>
 			</dict>
-		</dict>
-		<key>PROJECT_REQUIREMENTS</key>
-		<dict>
-			<key>LIST</key>
-			<array/>
-			<key>POSTINSTALL_PATH</key>
-			<dict/>
-			<key>PREINSTALL_PATH</key>
-			<dict/>
-			<key>RESOURCES</key>
-			<array>
-				<dict>
-					<key>CHILDREN</key>
-					<array/>
-					<key>GID</key>
-					<integer>0</integer>
-					<key>PATH</key>
-					<string>../../KA-Lite-Monitor/KA-Lite-Monitor/Resources/images</string>
-					<key>PATH_TYPE</key>
-					<integer>1</integer>
-					<key>PERMISSIONS</key>
-					<integer>493</integer>
-					<key>TYPE</key>
-					<integer>3</integer>
-					<key>UID</key>
-					<integer>0</integer>
-				</dict>
-				<dict>
-					<key>CHILDREN</key>
-					<array/>
-					<key>GID</key>
-					<integer>0</integer>
-					<key>PATH</key>
-					<string>../../KA-Lite-Monitor/KA-Lite-Monitor/Resources/pyrun-2.7</string>
-					<key>PATH_TYPE</key>
-					<integer>1</integer>
-					<key>PERMISSIONS</key>
-					<integer>493</integer>
-					<key>TYPE</key>
-					<integer>3</integer>
-					<key>UID</key>
-					<integer>0</integer>
-				</dict>
-			</array>
-			<key>ROOT_VOLUME_ONLY</key>
-			<false/>
 		</dict>
 		<key>PROJECT_SETTINGS</key>
 		<dict>
@@ -950,7 +890,7 @@
 				</dict>
 			</array>
 			<key>NAME</key>
-			<string>KA-Monitor</string>
+			<string>KA-Lite</string>
 		</dict>
 	</dict>
 	<key>TYPE</key>
