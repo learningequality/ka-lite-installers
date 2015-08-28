@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# Ask for user name, default is ka-lite
+if [ "$SUDO_USER" ]; then
+    echo "ka-lite-raspberry-pi ka-lite/user select $SUDO_USER" | debconf-set-selections
+    echo "ka-lite-raspberry-pi ka-lite/user seen false" | debconf-set-selections
+fi
+
+# Remove pyc files from previous installations
+if [ -d usr/share/kalite/python-packages ]; then
+    find /usr/share/kalite/python-packages -name '*pyc' -exec rm {} \;
+fi
+if [ -d usr/share/kalite/dist-packages ]; then
+    find /usr/share/kalite/dist-packages -name '*pyc' -exec rm {} \;
+fi
+
+# Diversion for /etc/nginx/nginx.conf
+# https://wiki.debian.org/Adding%20and%20removing%20diversions
+pkg=ka-lite-raspberry-pi
+diversion_added_version=0.14
+this_version=0.14
+
+if
+        test "$1" = install ||
+        dpkg --compare-versions "$2" lt "$diversion_added_version" ||
+        dpkg --compare-versions "$this_version" lt "$2"
+then
+        # dpkg-divert --package "$pkg" --add --rename --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
+        dpkg-divert --package "$pkg" --add --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
+fi

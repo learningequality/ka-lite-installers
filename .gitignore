@@ -1,3 +1,6 @@
+# Backup files
+*~
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -5,10 +8,15 @@ __pycache__/
 # C extensions
 *.so
 
+# Eclipse file
+.project
+.settings
+.pydevproject
+
 # Distribution / packaging
 .Python
 env/
-build/
+# build/
 develop-eggs/
 dist/
 downloads/
