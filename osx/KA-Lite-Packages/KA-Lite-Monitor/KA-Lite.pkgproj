@@ -485,6 +485,11 @@
 				<key>VERSION</key>
 				<integer>3</integer>
 			</dict>
+			<key>PACKAGE_SCRIPTS</key>
+			<dict>
+				<key>RESOURCES</key>
+				<array/>
+			</dict>
 			<key>PACKAGE_SETTINGS</key>
 			<dict>
 				<key>AUTHENTICATION</key>
@@ -521,9 +526,9 @@
 				<key>BACKGROUND_PATH</key>
 				<dict>
 					<key>PATH</key>
-					<string>/Users/arceduardvincent/installers/osx/KA-Lite-Packages/ka-lite-logo.png</string>
+					<string>../ka-lite-logo.png</string>
 					<key>PATH_TYPE</key>
-					<integer>0</integer>
+					<integer>1</integer>
 				</dict>
 				<key>CUSTOM</key>
 				<integer>1</integer>
@@ -636,9 +641,9 @@
 						<key>VALUE</key>
 						<dict>
 							<key>PATH</key>
-							<string>/Users/arceduardvincent/installers/osx/KA-Lite-Packages/Introduction.rtf</string>
+							<string>../Introduction.rtf</string>
 							<key>PATH_TYPE</key>
-							<integer>0</integer>
+							<integer>1</integer>
 						</dict>
 					</dict>
 				</array>
@@ -655,19 +660,7 @@
 					<string>2015</string>
 				</dict>
 				<key>LOCALIZATIONS</key>
-				<array>
-					<dict>
-						<key>LANGUAGE</key>
-						<string>English</string>
-						<key>VALUE</key>
-						<dict>
-							<key>PATH</key>
-							<string></string>
-							<key>PATH_TYPE</key>
-							<integer>0</integer>
-						</dict>
-					</dict>
-				</array>
+				<array/>
 				<key>MODE</key>
 				<integer>1</integer>
 				<key>TEMPLATE</key>
@@ -683,9 +676,9 @@
 						<key>VALUE</key>
 						<dict>
 							<key>PATH</key>
-							<string>/Users/arceduardvincent/installers/osx/KA-Lite-Packages/ReadMe.rtf</string>
+							<string>../ReadMe.rtf</string>
 							<key>PATH_TYPE</key>
-							<integer>0</integer>
+							<integer>1</integer>
 						</dict>
 					</dict>
 				</array>
@@ -707,6 +700,19 @@
 					</dict>
 				</array>
 			</dict>
+		</dict>
+		<key>PROJECT_REQUIREMENTS</key>
+		<dict>
+			<key>LIST</key>
+			<array/>
+			<key>POSTINSTALL_PATH</key>
+			<dict/>
+			<key>PREINSTALL_PATH</key>
+			<dict/>
+			<key>RESOURCES</key>
+			<array/>
+			<key>ROOT_VOLUME_ONLY</key>
+			<false/>
 		</dict>
 		<key>PROJECT_SETTINGS</key>
 		<dict>

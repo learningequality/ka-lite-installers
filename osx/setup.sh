@@ -86,6 +86,9 @@ KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 PACKAGES_EXC="/usr/local/bin/packagesbuild"
 PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Lite-Monitor/KA-Lite.pkgproj"
 PACKAGES_BUILD_FOLDER="$SCRIPTPATH/KA-Lite-Packages/KA-Lite-Monitor/build"
+PACKAGES_DMG="Packages.dmg"
+PACKAGES_DMG_URL="http://s.sudre.free.fr/Software/files/$PACKAGES_DMG"
+PACKAGES_PKG="Packages.pkg"
 
 # MUST: Use the archive link, defaults to develop branch, so that the folder name
 # starts with the repo name like these examples:
@@ -314,12 +317,27 @@ fi
 echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
-# check if the `Packages` is installed 
-if [ -e "$PACKAGES_EXC" ]; then
+# check if the `Packages` is installed
+if ! command -v packagesbuild >/dev/null; then
+    echo "It require Packages but it's not installed."
+
+    cd $WORKING_DIR
+    if [ -e "$WORKING_DIR/Packages.dmg" ]; then
+        echo "There is a existing Packages.dmg at '$WORKING_DIR/$PACKAGES_DMG'. so will not re-download.  Delete this '$PACKAGES_DMG' to re-download."
+    else
+        echo "Now Installing the '$PACKAGES_DMG_URL' installer..."
+        wget $PACKAGES_DMG_URL
+    fi
+    
+    # Mount the Packages.dmg and install it.    
+    hdiutil mount $PACKAGES_DMG
+    cd /Volumes/Packages/packages && sudo installer -pkg $PACKAGES_PKG -target /
+fi
+
+if command -v packagesbuild > /dev/null; 
+then
     $PACKAGES_EXC $PACKAGES_PROJECT
     rm -fr $OUTPUT_PATH/*
     mv -v $PACKAGES_BUILD_FOLDER/* $OUTPUT_PATH
-else
-   echo "Sorry, something went wrong trying to build the installer at '$OUTPUT_PATH'."
-   exit 1    
+    echo "Congratulation your newly build installer is at '$WORKING_DIR/Packages.dmg'."
 fi
