@@ -164,7 +164,9 @@ BOOL checkEnvVars() {
     [task setArguments: array];
     
     //REF: http://stackoverflow.com/questions/9965360/async-execution-of-shell-command-not-working-properly
-    task.standardOutput = [NSPipe pipe];
+    NSPipe *pipeOutput = [NSPipe pipe];
+    task.standardOutput = pipeOutput;
+    task.standardError = pipeOutput;
     [[task.standardOutput fileHandleForReading] setReadabilityHandler:^(NSFileHandle *file) {
         NSData *data = [file availableData]; // this will read to EOF, so call only once
         NSLog(@"KA Lite process output: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
