@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "This script is an untested draft, quitting"
+exit
+
 if [ ! -d build ]
 then
 	echo "No build/ dir found"
