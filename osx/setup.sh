@@ -318,12 +318,12 @@ echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
 # check if the `Packages` is installed
-if ! command -v packagesbuild >/dev/null; then
+if ! command -v packagesbuild > /dev/null; then
     echo "It require Packages but it's not installed."
 
     cd $WORKING_DIR
     if [ -e "$WORKING_DIR/Packages.dmg" ]; then
-        echo "There is a existing Packages.dmg at '$WORKING_DIR/$PACKAGES_DMG'. so will not re-download.  Delete this '$PACKAGES_DMG' to re-download."
+        echo "There is an existing Packages.dmg at '$WORKING_DIR/$PACKAGES_DMG'. so will not re-download.  Delete this '$PACKAGES_DMG' to re-download."
     else
         echo "Now Installing the '$PACKAGES_DMG_URL' installer..."
         wget $PACKAGES_DMG_URL
@@ -337,7 +337,7 @@ fi
 if command -v packagesbuild > /dev/null; 
 then
     $PACKAGES_EXC $PACKAGES_PROJECT
-    rm -fr $OUTPUT_PATH/*
+    rm -fr $OUTPUT_PATH/KA-Lite.mpkg
     mv -v $PACKAGES_BUILD_FOLDER/* $OUTPUT_PATH
-    echo "Congratulation your newly build installer is at '$WORKING_DIR/Packages.dmg'."
+    echo "Congratulation! Your newly built installer is at '$OUTPUT_PATH/KA-Lite.mpkg'."
 fi
