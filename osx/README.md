@@ -37,6 +37,7 @@ There are two ways to build the installer, automated or manually.
 
 1. Please note that this has been tested on Mac OSX 10.10 Yosemite.  It may run on older versions down to Mac OSX Mountain Lion 10.8 but we haven't tested it.
 1. The `setup-files` folder contains the files to be included on the mpkg file.
+1. Download the [Package](http://s.sudre.free.fr/Software/files/Packages.dmg) installer to build the mpkg.
 1. `setup.sh` downloads the following
 
     * KA-Lite repo on `develop` branch, or the specified repo
