@@ -170,6 +170,10 @@ BOOL checkEnvVars() {
     [[task.standardOutput fileHandleForReading] setReadabilityHandler:^(NSFileHandle *file) {
         NSData *data = [file availableData]; // this will read to EOF, so call only once
         NSLog(@"KA Lite process output: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+        self.taskLogs.string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSRange range;
+        range = NSMakeRange([self.taskLogs.string length], 0);
+        [self.taskLogs scrollRangeToVisible:range];
     }];
     
     [task launch];
