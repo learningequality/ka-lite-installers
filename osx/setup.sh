@@ -14,7 +14,7 @@
 # 9. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
 # 10. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
 # 11. Build the Xcode project to produce the .app.
-# 12. Build the .dmg.
+# 12. Build the .mpkg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
@@ -82,13 +82,10 @@ KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 
-
-PACKAGES_EXC="/usr/local/bin/packagesbuild"
+PACKAGES_EXEC="packagesbuild"
 PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Lite-Monitor/KA-Lite.pkgproj"
 PACKAGES_BUILD_FOLDER="$SCRIPTPATH/KA-Lite-Packages/KA-Lite-Monitor/build"
-PACKAGES_DMG="Packages.dmg"
-PACKAGES_DMG_URL="http://s.sudre.free.fr/Software/files/$PACKAGES_DMG"
-PACKAGES_PKG="Packages.pkg"
+PACKAGES_OUTPUT="KA-Lite.mpkg"
 
 # MUST: Use the archive link, defaults to develop branch, so that the folder name
 # starts with the repo name like these examples:
@@ -128,9 +125,6 @@ fi
 KA_LITE_MONITOR_RESOURCES_PYRUN_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$PYRUN_NAME"
 
 OUTPUT_PATH="$WORKING_DIR/output"
-DMG_PATH="$OUTPUT_PATH/KA-Lite-Monitor.dmg"
-DMG_BUILDER_PATH="$WORKING_DIR/create-dmg"
-CREATE_DMG="$DMG_BUILDER_PATH/create-dmg"
 
 SIGNER_IDENTITY_APPLICATION="Developer ID Application: Foundation for Learning Equality, Inc. (H83B64B6AV)"
 SIGNER_IDENTITY_INSTALLER="Developer ID Installer: Foundation for Learning Equality, Inc. (H83B64B6AV)"
@@ -318,26 +312,13 @@ echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
 # check if the `Packages` is installed
-if ! command -v packagesbuild > /dev/null; then
-    echo "It require Packages but it's not installed."
+if ! command -v $PACKAGES_EXEC > /dev/null; then
+    echo "Abort Creating $PACKAGES_OUTPUT. It require Packages but it's not installed."
+    exit 1
 
-    cd $WORKING_DIR
-    if [ -e "$WORKING_DIR/Packages.dmg" ]; then
-        echo "There is an existing Packages.dmg at '$WORKING_DIR/$PACKAGES_DMG'. so will not re-download.  Delete this '$PACKAGES_DMG' to re-download."
-    else
-        echo "Now Installing the '$PACKAGES_DMG_URL' installer..."
-        wget $PACKAGES_DMG_URL
-    fi
-    
-    # Mount the Packages.dmg and install it.    
-    hdiutil mount $PACKAGES_DMG
-    cd /Volumes/Packages/packages && sudo installer -pkg $PACKAGES_PKG -target /
-fi
-
-if command -v packagesbuild > /dev/null; 
-then
-    $PACKAGES_EXC $PACKAGES_PROJECT
-    rm -fr $OUTPUT_PATH/KA-Lite.mpkg
+else
+    $PACKAGES_EXEC $PACKAGES_PROJECT
+    rm -fr $OUTPUT_PATH/$PACKAGES_OUTPUT
     mv -v $PACKAGES_BUILD_FOLDER/* $OUTPUT_PATH
-    echo "Congratulation! Your newly built installer is at '$OUTPUT_PATH/KA-Lite.mpkg'."
+    echo "Congratulations! Your newly built installer is at '$OUTPUT_PATH/$PACKAGES_OUTPUT'."
 fi
