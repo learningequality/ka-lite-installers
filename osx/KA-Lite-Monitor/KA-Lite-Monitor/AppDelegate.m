@@ -151,7 +151,7 @@ BOOL checkEnvVars() {
 }
 
 
-- (void) createLogs:(NSString *)outStr {
+- (void) displayLogs:(NSString *)outStr {
     dispatch_sync(dispatch_get_main_queue(), ^{
         //REF: http://stackoverflow.com/questions/10772033/get-current-date-time-with-nsdate-date
         //Get the current date time
@@ -159,7 +159,7 @@ BOOL checkEnvVars() {
         [dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss"];
         NSString *dateStr = [dateFormatter stringFromDate:[NSDate date]];
         
-        NSString *str = [self.taskLogs.string stringByAppendingString:[NSString stringWithFormat:@"\n >%@ %@", dateStr, outStr]];
+        NSString *str = [self.taskLogs.string stringByAppendingString:[NSString stringWithFormat:@"\n%@ %@", dateStr, outStr]];
         self.taskLogs.string = str;
         // Scroll to end of outputText field
         NSRange range;
@@ -196,9 +196,9 @@ BOOL checkEnvVars() {
     
     [[task.standardOutput fileHandleForReading] setReadabilityHandler:^(NSFileHandle *file) {
         NSData *data = [file availableData]; // this will read to EOF, so call only once
-        NSLog(@"KA Lite process output: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+        NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
         NSString *outStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        [self createLogs:outStr];
+        [self displayLogs:outStr];
     }];
     
     [task launch];
