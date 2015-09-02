@@ -59,7 +59,6 @@
 
 }
 
-
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
@@ -146,9 +145,34 @@ BOOL checkEnvVars() {
     return TRUE;
 }
 
+
+- (IBAction)clearLogs:(id)sender {
+    self.taskLogs.string = @"";
+}
+
+
+- (void) createLogs:(NSString *)outStr {
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        //REF: http://stackoverflow.com/questions/10772033/get-current-date-time-with-nsdate-date
+        //Get the current date time
+        NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss"];
+        NSString *dateStr = [dateFormatter stringFromDate:[NSDate date]];
+        
+        NSString *str = [self.taskLogs.string stringByAppendingString:[NSString stringWithFormat:@"\n >%@ %@", dateStr, outStr]];
+        self.taskLogs.string = str;
+        // Scroll to end of outputText field
+        NSRange range;
+        range = NSMakeRange([self.taskLogs.string length], 0);
+        [self.taskLogs scrollRangeToVisible:range];
+    });
+}
+
+
 - (void) runTask:(NSString *)command {
     NSString *pyrun;
     NSString *kalitePath;
+    NSString *outputLogs;
     
     pyrun = getPyrunBinPath(true);
     // MUST: Let's use the symlinked `/usr/bin/kalite` instead of the
@@ -164,16 +188,22 @@ BOOL checkEnvVars() {
     [task setArguments: array];
     
     //REF: http://stackoverflow.com/questions/9965360/async-execution-of-shell-command-not-working-properly
+    //REF: http://www.raywenderlich.com/36537/nstask-tutorial
+    
     NSPipe *pipeOutput = [NSPipe pipe];
     task.standardOutput = pipeOutput;
     task.standardError = pipeOutput;
+    
     [[task.standardOutput fileHandleForReading] setReadabilityHandler:^(NSFileHandle *file) {
         NSData *data = [file availableData]; // this will read to EOF, so call only once
         NSLog(@"KA Lite process output: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-        self.taskLogs.string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        NSRange range;
-        range = NSMakeRange([self.taskLogs.string length], 0);
-        [self.taskLogs scrollRangeToVisible:range];
+        NSString *outStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        [self createLogs:outStr];
+    }];
+    
+    [task setTerminationHandler:^(NSTask *task) {
+        [task.standardOutput fileHandleForReading].readabilityHandler = nil;
+        [task.standardError fileHandleForReading].readabilityHandler = nil;
     }];
     
     [task launch];
