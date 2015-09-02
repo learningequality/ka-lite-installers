@@ -201,11 +201,6 @@ BOOL checkEnvVars() {
         [self createLogs:outStr];
     }];
     
-    [task setTerminationHandler:^(NSTask *task) {
-        [task.standardOutput fileHandleForReading].readabilityHandler = nil;
-        [task.standardError fileHandleForReading].readabilityHandler = nil;
-    }];
-    
     [task launch];
     
 }
