@@ -313,9 +313,8 @@ test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
 # check if the `Packages` is installed
 if ! command -v $PACKAGES_EXEC > /dev/null; then
-    echo "Abort Creating $PACKAGES_OUTPUT. It require Packages but it's not installed."
+    echo "Abort! Packages is not installed."
     exit 1
-
 else
     $PACKAGES_EXEC $PACKAGES_PROJECT
     rm -fr $OUTPUT_PATH/$PACKAGES_OUTPUT
