@@ -250,7 +250,7 @@ $PYRUN_PIP install -r "$KA_LITE_DIR/requirements_sphinx.txt"
 cd $KA_LITE_DIR
 if [ -d "$KA_LITE_DIR" ]; then
     echo "Install npm.."
-    if ! command -v npm install > /dev/null; then
+    if ! command -v npm > /dev/null; then
         echo "Abort npm is not installed."
         exit 1
     else
