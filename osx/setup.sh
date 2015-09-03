@@ -250,17 +250,12 @@ $PYRUN_PIP install -r "$KA_LITE_DIR/requirements_sphinx.txt"
 cd $KA_LITE_DIR
 if [ -d "$KA_LITE_DIR" ]; then
     echo "Install npm.."
-    if ! command -v npm > /dev/null; then
-        echo "Abort npm is not installed."
-        exit 1
-    else
         npm install
         ulimit -n 2560
         node build.js
         cd $KA_LITE_DIR/docs
         $PYRUN_SPHINX_BUILD -b html -d _build/doctrees   . _build/html
         cp -R -v $KA_LITE_DOCS_DIR $PYRUN_DIR/share/kalite
-    fi
 
 fi
 
