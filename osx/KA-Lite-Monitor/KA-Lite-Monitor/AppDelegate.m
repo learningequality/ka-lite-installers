@@ -172,7 +172,8 @@ BOOL checkEnvVars() {
 - (void) runTask:(NSString *)command {
     NSString *pyrun;
     NSString *kalitePath;
-    NSString *outputLogs;
+    NSMutableDictionary *kaliteEnv;
+
     
     pyrun = getPyrunBinPath(true);
     // MUST: Let's use the symlinked `/usr/bin/kalite` instead of the
@@ -180,10 +181,17 @@ BOOL checkEnvVars() {
     // of the app.
     kalitePath = getUsrBinKalite();
     
+    kaliteEnv = [[NSMutableDictionary alloc] init];
+
+    // Set KALITE_PYTHON environment
+    [kaliteEnv addEntriesFromDictionary:[[NSProcessInfo processInfo] environment]];
+    [kaliteEnv setObject:pyrun forKey:@"KALITE_PYTHON"];
+ 
     NSTask* task = [[NSTask alloc] init];
     NSString *kaliteCommand = [NSString stringWithFormat:@"%@ %@", kalitePath, command];
     NSArray *array = [kaliteCommand componentsSeparatedByString:@" "];
     
+    [task setEnvironment: kaliteEnv];
     [task setLaunchPath: pyrun];
     [task setArguments: array];
     
