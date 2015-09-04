@@ -996,7 +996,7 @@ BOOL setEnvVars(BOOL createPlist) {
     [self resetPreferences];
     if(result){
         showNotification(@"Done resetting the app.  Please click the Apply button to repeat the install process.");
-    }else{
+    } else {
         showNotification(@"Failed to reset the app.  Please check your console for the following error.");
     }
     return result;
