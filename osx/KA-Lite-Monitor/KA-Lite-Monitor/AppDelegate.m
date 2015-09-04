@@ -172,7 +172,8 @@ BOOL checkEnvVars() {
 - (void) runTask:(NSString *)command {
     NSString *pyrun;
     NSString *kalitePath;
-    NSString *outputLogs;
+    NSMutableDictionary *kaliteEnv;
+
     
     pyrun = getPyrunBinPath(true);
     // MUST: Let's use the symlinked `/usr/bin/kalite` instead of the
@@ -180,10 +181,17 @@ BOOL checkEnvVars() {
     // of the app.
     kalitePath = getUsrBinKalite();
     
+    kaliteEnv = [[NSMutableDictionary alloc] init];
+
+    // Set KALITE_PYTHON environment
+    [kaliteEnv addEntriesFromDictionary:[[NSProcessInfo processInfo] environment]];
+    [kaliteEnv setObject:pyrun forKey:@"KALITE_PYTHON"];
+ 
     NSTask* task = [[NSTask alloc] init];
     NSString *kaliteCommand = [NSString stringWithFormat:@"%@ %@", kalitePath, command];
     NSArray *array = [kaliteCommand componentsSeparatedByString:@" "];
     
+    [task setEnvironment: kaliteEnv];
     [task setLaunchPath: pyrun];
     [task setArguments: array];
     
@@ -328,7 +336,7 @@ BOOL pyrunExists() {
     NSSet *taskArgsSet = [NSSet setWithArray:taskArguments];
     NSSet *statusArgsSet = [NSSet setWithArray:statusArguments];
     
-    if (kaliteExists()) {
+    if (checkUsrBinKalitePath()) {
         if ([taskArgsSet isEqualToSet:statusArgsSet]) {
             // MUST: The result is on the 9th bit of the returned value.  Not sure why this
             // is but maybe because of the returned values from the `system()` call.  For now
@@ -383,7 +391,7 @@ BOOL pyrunExists() {
         // MUST: This will make sure the process to run has access to the environment variable
         // because the .app may be loaded the first time.
         
-        if (kaliteExists()) {
+        if (checkUsrBinKalitePath()) {
             [self runTask:command];
         }
     }
@@ -505,6 +513,16 @@ BOOL setLaunchAgent(NSString *source, NSString *target) {
 NSString *getUsrBinKalite() {
     return @"/usr/bin/kalite";
 }
+
+
+BOOL *checkUsrBinKalitePath() {
+    NSString *kalitePath = @"/usr/bin/kalite";
+    if (pathExists(kalitePath)) {
+        return TRUE;
+    }
+    return false;
+}
+
 
 //<##>symlinkKalite
 NSString *getSymlinkKaliteCommand() {
@@ -994,8 +1012,11 @@ BOOL setEnvVars(BOOL createPlist) {
     
     // Delete/reset the user preferences.
     [self resetPreferences];
-    
-    showNotification(@"Done resetting the app.  Please click the Apply button to repeat the install process.");
+    if(result){
+        showNotification(@"Done resetting the app.  Please click the Apply button to repeat the install process.");
+    } else {
+        showNotification(@"Failed to reset the app.  Please check your console for the following error.");
+    }
     return result;
 }
 
