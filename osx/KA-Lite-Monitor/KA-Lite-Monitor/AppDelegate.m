@@ -1012,8 +1012,11 @@ BOOL setEnvVars(BOOL createPlist) {
     
     // Delete/reset the user preferences.
     [self resetPreferences];
-    
-    showNotification(@"Done resetting the app.  Please click the Apply button to repeat the install process.");
+    if(result){
+        showNotification(@"Done resetting the app.  Please click the Apply button to repeat the install process.");
+    } else {
+        showNotification(@"Failed to reset the app.  Please check your console for the following error.");
+    }
     return result;
 }
 
