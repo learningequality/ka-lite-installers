@@ -336,7 +336,7 @@ BOOL pyrunExists() {
     NSSet *taskArgsSet = [NSSet setWithArray:taskArguments];
     NSSet *statusArgsSet = [NSSet setWithArray:statusArguments];
     
-    if (kaliteExists()) {
+    if (checkUsrBinKalitePath()) {
         if ([taskArgsSet isEqualToSet:statusArgsSet]) {
             // MUST: The result is on the 9th bit of the returned value.  Not sure why this
             // is but maybe because of the returned values from the `system()` call.  For now
@@ -391,7 +391,7 @@ BOOL pyrunExists() {
         // MUST: This will make sure the process to run has access to the environment variable
         // because the .app may be loaded the first time.
         
-        if (kaliteExists()) {
+        if (checkUsrBinKalitePath()) {
             [self runTask:command];
         }
     }
@@ -513,6 +513,16 @@ BOOL setLaunchAgent(NSString *source, NSString *target) {
 NSString *getUsrBinKalite() {
     return @"/usr/bin/kalite";
 }
+
+
+BOOL *checkUsrBinKalitePath() {
+    NSString *kalitePath = @"/usr/bin/kalite";
+    if (pathExists(kalitePath)) {
+        return TRUE;
+    }
+    return false;
+}
+
 
 //<##>symlinkKalite
 NSString *getSymlinkKaliteCommand() {
