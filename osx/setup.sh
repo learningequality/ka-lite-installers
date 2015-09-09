@@ -8,20 +8,17 @@
 # 3. Download PyRun thru `install-pyrun` script.
 # 4. Download KA-Lite zip based on develop branch.
 # 5. Extract KA-Lite and move into `ka-lite` folder.
-# 6. Make ka-lite repo production-ready (delete .KALITE_SOURCE_DIR, etc).
-# 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
-# 8. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
-# 9. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
-# 10. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
-# 11. Build the Xcode project to produce the .app.
-# 12. Build the .mpkg.
+# 6. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
+# 7. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
+# 8. Copy the `pyrun` folders to the Xcode Resources folder.
+# 9. Build the Xcode project to produce the .app.
+# 10. Build the .mpkg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
 
 # References:
 # 1. http://stackoverflow.com/questions/1371351/add-files-to-an-xcode-project-from-a-script
-# 1. https://github.com/andreyvit/create-dmg forked to https://github.com/mrpau/create-dmg
 
 # REF: http://stackoverflow.com/questions/3601515/how-to-check-if-a-variable-is-set-in-bash
 if [ -z ${TMPDIR+0} ]; then
