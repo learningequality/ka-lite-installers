@@ -7,13 +7,15 @@
 # 2. Download the assessment.zip and copy `assessment.zip` to the Xcode Resources folder.
 # 3. Download the `install-pyrun` script
 # 4. Download PyRun thru `install-pyrun` script.
-# 5. Download KA-Lite zip based on develop branch.
-# 6. Extract KA-Lite and move into `ka-lite` folder.
+# 5. Download KA-Lite zip based on develop branch and extract KA-Lite and move into `ka-lite` folder.
+# 6. Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
 # 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
-# 8. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
-# 9. Copy `pyrun` folders to the Xcode Resources folder.
-# 10. Build the Xcode project to produce the .app.
-# 11. Build the .dmg.
+# 8. Install requirements for sphinx
+# 9. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
+# 10. Uninstall pyyaml so it's not included in the .dmg to build
+# 11. Copy `pyrun` folders to the Xcode Resources folder.
+# 12. Build the Xcode project to produce the .app.
+# 13. Build the .dmg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
@@ -29,7 +31,7 @@ if [ -z ${TMPDIR+0} ]; then
 fi
 
 STEP=1
-STEPS=12
+STEPS=13
 
 # TODO(cpauya): This works but the problem is it creates the temporary directory everytime
 # script is run... so during devt, we will comment this for now.
@@ -50,6 +52,8 @@ pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd`
 popd > /dev/null
 
+# Create temporary directory
+((STEP++))
 WORKING_DIR="$SCRIPTPATH/temp"
 if ! [ -d "$WORKING_DIR" ]; then
     echo "$STEP/$STEPS. Creating temporary directory..."
@@ -244,6 +248,7 @@ fi
 
 # Install requirements for sphinx
 # Reference ulimit: https://github.com/substack/node-browserify/issues/431
+((STEP++))
 echo "$STEP/$STEPS. Running npm install... on '$KA_LITE_DIR' "
 $PYRUN_PIP install -r "$KA_LITE_DIR/requirements_sphinx.txt"
 cd $KA_LITE_DIR
@@ -260,6 +265,7 @@ fi
 
 # Run `bin/kalite manage compileymltojson` by install pyyaml==3.11 then uninstall it afterwards
 # a. Run PyRun's pip install pyyaml==3.11
+((STEP++))
 echo "$STEP/$STEPS. Running '$PYRUN_PIP install pyyaml==3.11'... on '$KA_LITE_DIR' "
 $PYRUN_PIP install pyyaml==3.11
 if [ $? -ne 0 ]; then
