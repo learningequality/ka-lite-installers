@@ -4,17 +4,16 @@
 #
 # Steps
 # 1. Create temporary directory
-# 2. Download the `install-pyrun` script
-# 3. Download PyRun thru `install-pyrun` script.
-# 4. Download KA-Lite zip based on develop branch.
-# 5. Extract KA-Lite and move into `ka-lite` folder.
-# 6. Make ka-lite repo production-ready (delete .KALITE_SOURCE_DIR, etc).
+# 2. Download the assessment.zip and copy `assessment.zip` to the Xcode Resources folder.
+# 3. Download the `install-pyrun` script
+# 4. Download PyRun thru `install-pyrun` script.
+# 5. Download KA-Lite zip based on develop branch.
+# 6. Extract KA-Lite and move into `ka-lite` folder.
 # 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
 # 8. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
-# 9. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
-# 10. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
-# 11. Build the Xcode project to produce the .app.
-# 12. Build the .dmg.
+# 9. Copy `pyrun` folders to the Xcode Resources folder.
+# 10. Build the Xcode project to produce the .app.
+# 11. Build the .dmg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
