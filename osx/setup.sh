@@ -10,10 +10,10 @@
 # 5. Download KA-Lite zip based on develop branch and extract KA-Lite and move into `ka-lite` folder.
 # 6. Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
 # 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
-# 8. Install requirements for sphinx
+# 8. Building the docs using sphinx-build.
 # 9. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
 # 10. Uninstall pyyaml so it's not included in the .dmg to build
-# 11. Copy `pyrun` folders to the Xcode Resources folder.
+# 11. Copy `pyrun` folder to the Xcode Resources folder.
 # 12. Build the Xcode project to produce the .app.
 # 13. Build the .dmg.
 #
@@ -53,7 +53,6 @@ SCRIPTPATH=`pwd`
 popd > /dev/null
 
 # Create temporary directory
-((STEP++))
 WORKING_DIR="$SCRIPTPATH/temp"
 if ! [ -d "$WORKING_DIR" ]; then
     echo "$STEP/$STEPS. Creating temporary directory..."
@@ -246,7 +245,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Install requirements for sphinx
+# Building the docs using sphinx-build.
 # Reference ulimit: https://github.com/substack/node-browserify/issues/431
 ((STEP++))
 echo "$STEP/$STEPS. Running npm install... on '$KA_LITE_DIR' "
