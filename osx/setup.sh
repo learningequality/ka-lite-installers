@@ -4,15 +4,16 @@
 #
 # Steps
 # 1. Create temporary directory
-# 2. Download the `install-pyrun` script
-# 3. Download PyRun thru `install-pyrun` script.
-# 4. Download KA-Lite zip based on develop branch.
-# 5. Extract KA-Lite and move into `ka-lite` folder.
-# 6. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
-# 7. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
-# 8. Copy the `pyrun` folders to the Xcode Resources folder.
-# 9. Build the Xcode project to produce the .app.
-# 10. Build the .mpkg.
+# 2. Download assessment.zip and copy to $KA_LITE_MONITOR_DIR
+# 3. Download the `install-pyrun` script 
+# 4. Download PyRun thru `install-pyrun` script.
+# 5. Download KA-Lite zip based on develop branch.
+# 6. Extract KA-Lite and move into `ka-lite` folder.
+# 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
+# 8. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
+# 9. Copy the `pyrun` folders to the Xcode Resources folder.
+# 10. Build the Xcode project to produce the .app.
+# 11. Build the .mpkg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
@@ -27,7 +28,7 @@ if [ -z ${TMPDIR+0} ]; then
 fi
 
 STEP=1
-STEPS=12
+STEPS=11
 
 # TODO(cpauya): This works but the problem is it creates the temporary directory everytime
 # script is run... so during devt, we will comment this for now.
