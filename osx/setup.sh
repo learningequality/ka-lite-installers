@@ -67,9 +67,6 @@ KA_LITE_LOGO_PATH="$SETUP_FILES_DIR/ka-lite-logo-full.png"
 KA_LITE_ICNS_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite.icns"
 KA_LITE_README_PATH="$SETUP_FILES_DIR/README.md"
 
-PYRUN_SPHINX_BUILD="$PYRUN_DIR/bin/sphinx-build"
-KA_LITE_DOCS_DIR="$KA_LITE_DIR/docs"
-
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
 PYRUN_NAME="pyrun-2.7"
 PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
@@ -243,20 +240,22 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+PYRUN_SPHINX_BUILD="$PYRUN_DIR/bin/sphinx-build"
+KA_LITE_DOCS_DIR="$KA_LITE_DIR/docs"
+
 # Install requirements for sphinx
-# Reference ulimit: https://github.com/substack/node-browserify/issues/431
+# REF: ulimit: https://github.com/substack/node-browserify/issues/431
 echo "$STEP/$STEPS. Running npm install... on '$KA_LITE_DIR' "
 $PYRUN_PIP install -r "$KA_LITE_DIR/requirements_sphinx.txt"
 cd $KA_LITE_DIR
 if [ -d "$KA_LITE_DIR" ]; then
     echo "Install npm.."
-        npm install
-        ulimit -n 2560
-        node build.js
-        cd $KA_LITE_DIR/docs
-        $PYRUN_SPHINX_BUILD -b html -d _build/doctrees   . _build/html
-        cp -R -v $KA_LITE_DOCS_DIR $PYRUN_DIR/share/kalite
-
+    npm install
+    ulimit -n 2560
+    node build.js
+    cd $KA_LITE_DOCS_DIR
+    "$PYRUN_SPHINX_BUILD" -b html -d _build/doctrees   . _build/html
+    cp -R -v "$KA_LITE_DOCS_DIR" "$PYRUN_DIR/share/kalite"
 fi
 
 # Run `bin/kalite manage compileymltojson` by install pyyaml==3.11 then uninstall it afterwards
