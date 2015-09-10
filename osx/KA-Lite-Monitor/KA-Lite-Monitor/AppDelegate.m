@@ -55,9 +55,6 @@
     }
 }
 
--(void) indicator {
-
-}
 
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
@@ -172,8 +169,24 @@ BOOL checkEnvVars() {
 - (void) runTask:(NSString *)command {
     NSString *pyrun;
     NSString *kalitePath;
+    NSString *statusStr;
     NSMutableDictionary *kaliteEnv;
-
+    
+    statusStr = @"status";
+    // Check if NSTask has existing kalite process.
+    // Check if task to run is status.
+    if (self.kaliteIsRunning) {
+        if (command != statusStr) {
+            alert(@"KA Lite is still processing, please wait until it is finished.");
+            return;
+        }
+    }
+    
+    // Set loading indicator icon.
+    if (command != statusStr) {
+        self.kaliteIsRunning = YES;
+        [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
+    }
     
     pyrun = getPyrunBinPath(true);
     // MUST: Let's use the symlinked `/usr/bin/kalite` instead of the
@@ -336,6 +349,7 @@ BOOL pyrunExists() {
     NSSet *taskArgsSet = [NSSet setWithArray:taskArguments];
     NSSet *statusArgsSet = [NSSet setWithArray:statusArguments];
     
+    
     if (checkUsrBinKalitePath()) {
         if ([taskArgsSet isEqualToSet:statusArgsSet]) {
             // MUST: The result is on the 9th bit of the returned value.  Not sure why this
@@ -345,6 +359,9 @@ BOOL pyrunExists() {
                 status = status >> 8;
             }
         } else {
+            
+            self.kaliteIsRunning = NO;
+            
             // If command is not "status", run `kalite status` to get status of ka-lite.
             // We need this check because this may be called inside the monitor timer.
             NSLog(@"Fetching `kalite status`...");
@@ -697,7 +714,6 @@ BOOL setEnvVars(BOOL createPlist) {
             [self.startKalite setEnabled:NO];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
-            [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
             [self.statusItem setToolTip:@"KA-Lite is starting..."];
             break;
         case statusOkRunning:
@@ -909,8 +925,6 @@ BOOL setEnvVars(BOOL createPlist) {
         return;
     }
     
-    [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
-    [self.statusItem setToolTip:@"KA-Lite is Loading..."];
     // Save the preferences.
     // REF: http://iosdevelopertips.com/core-services/encode-decode-using-base64.html
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
@@ -963,8 +977,6 @@ BOOL setEnvVars(BOOL createPlist) {
                      self.username, self.password];
     NSString *msg = [NSString stringWithFormat:@"Running `kalite manage setup` with %@", cmd];
     showNotification(msg);
-    [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
-    [self.statusItem setToolTip:@"KA-Lite is Loading..."];
     enum kaliteStatus status = [self runKalite:cmd];
     [self getKaliteStatus];
     return status;
