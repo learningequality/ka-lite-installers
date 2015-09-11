@@ -175,12 +175,6 @@ BOOL checkEnvVars() {
     statusStr = @"status";
     // Check if NSTask has existing kalite process.
     // Check if task to run is status.
-    if (self.kaliteIsRunning) {
-        if (command != statusStr) {
-            alert(@"KA Lite is still processing, please wait until it is finished.");
-            return;
-        }
-    }
     
     // Set loading indicator icon.
     if (command != statusStr) {
@@ -798,6 +792,10 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (IBAction)extractAssessment:(id)sender {
     NSString *message = @"It will take a few seconds to extract assessment items. Do you want to continue?";
+    if (self.kaliteIsRunning) {
+        alert(@"KA Lite is still processing, please wait until it is finished.");
+        return;
+    }
     if (confirm(message)) {
         [self extractAssessment];
     }
@@ -806,6 +804,10 @@ BOOL setEnvVars(BOOL createPlist) {
 - (IBAction)setupAction:(id)sender {
     if (kaliteExists()) {
         NSString *message = @"Are you sure you want to run setup?  This will take a few minutes to complete.";
+        if (self.kaliteIsRunning) {
+            alert(@"KA Lite is still processing, please wait until it is finished.");
+            return;
+        }
         if (confirm(message)) {
             [self setupKalite];
         }
@@ -816,6 +818,10 @@ BOOL setEnvVars(BOOL createPlist) {
 
 
 - (IBAction)resetAppAction:(id)sender {
+    if (self.kaliteIsRunning) {
+        alert(@"KA Lite is still processing, please wait until it is finished.");
+        return;
+    }
     NSString *message = @"This will reset app.  Are you sure?";
     if (confirm(message)) {
         [self resetApp];
@@ -893,6 +899,11 @@ BOOL setEnvVars(BOOL createPlist) {
     self.username = username;
     self.password = password;
     self.confirmPassword = confirmPassword;
+    
+    if (self.kaliteIsRunning) {
+        alert(@"KA Lite is still processing, please wait until it is finished.");
+        return;
+    }
 
     if (self.username == nil || [self.username isEqualToString:@""]) {
         alert(@"Username must not be blank and can only contain letters, numbers and @/./+/-/_ characters.");
