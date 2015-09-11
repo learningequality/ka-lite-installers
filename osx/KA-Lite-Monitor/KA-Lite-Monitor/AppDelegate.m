@@ -745,12 +745,20 @@ BOOL setEnvVars(BOOL createPlist) {
 - (IBAction)start:(id)sender {
     showNotification(@"Starting...");
     [self showStatus:statusStartingUp];
+    if (self.kaliteIsRunning) {
+        alert(@"KA Lite is still processing, please wait until it is finished.");
+        return;
+    }
     [self runKalite:@"start"];
     }
 
 
 - (IBAction)stop:(id)sender {
     showNotification(@"Stopping...");
+    if (self.kaliteIsRunning) {
+        alert(@"KA Lite is still processing, please wait until it is finished.");
+        return;
+    }
     [self runKalite:@"stop"];
 }
 
