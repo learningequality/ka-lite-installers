@@ -256,7 +256,7 @@ if [ -d "$KA_LITE_DIR" ]; then
     npm install
     ulimit -n 2560
     node build.js
-    cd $KA_LITE_DIR/docs
+    cd $KA_LITE_DOCS_DIR
     $PYRUN_SPHINX_BUILD -b html -d _build/doctrees   . _build/html
     cp -R -v $KA_LITE_DOCS_DIR $PYRUN_DIR/share/kalite
 
