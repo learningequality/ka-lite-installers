@@ -421,7 +421,7 @@ Click the Apply button to re-create the installation files mentioned above.</str
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textView editable="NO" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="ggK-co-dOR">
-                                                        <rect key="frame" x="0.0" y="0.0" width="223" height="261"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="223" height="293"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <size key="minSize" width="436" height="293"/>
@@ -459,7 +459,7 @@ Click the Apply button to re-create the installation files mentioned above.</str
                     </tabView>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="731.5" y="275"/>
+            <point key="canvasLocation" x="733.5" y="284"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="a2C-ep-hKK"/>
     </objects>
