@@ -21,8 +21,7 @@ There are two ways to build the installer, automated or manually.
     1.3. Download the KA-Lite source to the `temp/ka-lite` directory.  
     1.4. Copy the `pyrun-2.7` directory to the `<xcode_source>/Resources/` folder.  
     1.5. Build the `KA-Lite Monitor.app` using `xcodebuild`.  
-    1.6. Build the `KA-Lite Monitor.dmg` package.  The output can be found at the `temp/output/KA-Lite Monitor.dmg`.  
-2. To build the .dmg manually - refer to the README-FOR-DMG.md document.  
+    1.6. Build the `KA-Lite.mpkg` package.  The output can be found at the `temp/output/KA-Lite.mpkg`.  
 
 
 ## Manually build and test the application using Xcode
@@ -36,9 +35,9 @@ There are two ways to build the installer, automated or manually.
 
 ## Notes
 
-1. Please note that this has been tested on Mac OSX 10.10 Yosemite.  It may run on older versions down to Mac OSX Mountain Lion 10.8 but we haven't tested it.
-1. The `setup-files` folder contains the files to be included on the dmg file.
-1. The `ka-lite-pencil.ep` is the [Pencil](https://code.google.com/p/evoluspencil/) file to generate the background image of the dmg file.
+1. Please note that this has been tested on Mac OSX 10.9 Mavericks and 10.10 Yosemite.  It may run on older versions down to Mac OSX Mountain Lion 10.8 but we haven't tested it.
+1. The `setup-files` folder contains the files to be included on the .mpkg.
+1. Install [Packages](http://s.sudre.free.fr/Software/files/Packages.dmg) because it is required to build the mpkg.
 1. `setup.sh` downloads the following
 
     * KA-Lite repo on `develop` branch, or the specified repo

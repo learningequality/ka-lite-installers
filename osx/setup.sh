@@ -4,24 +4,22 @@
 #
 # Steps
 # 1. Create temporary directory
-# 2. Download the `install-pyrun` script
-# 3. Download PyRun thru `install-pyrun` script.
-# 4. Download KA-Lite zip based on develop branch.
-# 5. Extract KA-Lite and move into `ka-lite` folder.
-# 6. Make ka-lite repo production-ready (delete .KALITE_SOURCE_DIR, etc).
+# 2. Download assessment.zip and copy to $KA_LITE_MONITOR_DIR
+# 3. Download the `install-pyrun` script 
+# 4. Download PyRun thru `install-pyrun` script.
+# 5. Download KA-Lite zip based on develop branch.
+# 6. Extract KA-Lite and move into `ka-lite` folder.
 # 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
 # 8. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
-# 9. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
-# 10. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
-# 11. Build the Xcode project to produce the .app.
-# 12. Build the .dmg.
+# 9. Copy the `pyrun` folders to the Xcode Resources folder.
+# 10. Build the Xcode project to produce the .app.
+# 11. Build the .mpkg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
 
 # References:
 # 1. http://stackoverflow.com/questions/1371351/add-files-to-an-xcode-project-from-a-script
-# 1. https://github.com/andreyvit/create-dmg forked to https://github.com/mrpau/create-dmg
 
 # REF: http://stackoverflow.com/questions/3601515/how-to-check-if-a-variable-is-set-in-bash
 if [ -z ${TMPDIR+0} ]; then
@@ -30,7 +28,7 @@ if [ -z ${TMPDIR+0} ]; then
 fi
 
 STEP=1
-STEPS=12
+STEPS=11
 
 # TODO(cpauya): This works but the problem is it creates the temporary directory everytime
 # script is run... so during devt, we will comment this for now.
@@ -82,6 +80,11 @@ KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 
+PACKAGES_EXEC="packagesbuild"
+PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Lite-Monitor/KA-Lite.pkgproj"
+PACKAGES_BUILD_FOLDER="$SCRIPTPATH/KA-Lite-Packages/KA-Lite-Monitor/build"
+PACKAGES_OUTPUT="KA-Lite.mpkg"
+
 # MUST: Use the archive link, defaults to develop branch, so that the folder name
 # starts with the repo name like these examples:
 #    ka-lite-develop
@@ -120,9 +123,6 @@ fi
 KA_LITE_MONITOR_RESOURCES_PYRUN_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$PYRUN_NAME"
 
 OUTPUT_PATH="$WORKING_DIR/output"
-DMG_PATH="$OUTPUT_PATH/KA-Lite-Monitor.dmg"
-DMG_BUILDER_PATH="$WORKING_DIR/create-dmg"
-CREATE_DMG="$DMG_BUILDER_PATH/create-dmg"
 
 SIGNER_IDENTITY_APPLICATION="Developer ID Application: Foundation for Learning Equality, Inc. (H83B64B6AV)"
 SIGNER_IDENTITY_INSTALLER="Developer ID Installer: Foundation for Learning Equality, Inc. (H83B64B6AV)"
@@ -321,56 +321,19 @@ if ! [ -d "$KA_LITE_MONITOR_APP_PATH" ]; then
     exit 2
 fi
 
-# sign the .app file
-# unlock the keychain first so we can access the private key
-# security unlock-keychain -p $KEYCHAIN_PASSWORD
-# codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
-
-# Build the .dmg file.
 ((STEP++))
-echo "$STEP/$STEPS. Building the .dmg file at '$OUTPUT_PATH'..."
+# Build the KA-Lite Monitor installer using `Packages`.
+# This will build the .mpkg file.
+echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
-# clone the .dmg builder if non-existent
-if ! [ -d $DMG_BUILDER_PATH ]; then
-    git clone https://github.com/mrpau/create-dmg.git $DMG_BUILDER_PATH
-fi
-
-# Remove the .dmg if it exists.
-test -e "$DMG_PATH" && rm "$DMG_PATH"
-# Add the README.md to the package.
-cp "$KA_LITE_README_PATH" "$RELEASE_PATH"
-# Clean-up the package.
-test -x "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM"
-
-# Let's create the .dmg.
-$CREATE_DMG \
-    --volname "KA-Lite-Monitor Installer" \
-    --volicon "$KA_LITE_ICNS_PATH" \
-    --window-size 700 400 \
-    --icon "KA-Lite-Monitor.app" 150 200 \
-    --app-drop-link 500 200 \
-    --background "$KA_LITE_LOGO_PATH" \
-    "$DMG_PATH" \
-    "$RELEASE_PATH"
-    # --icon-size 64 \
-    # --text-size 16 \
-
-# Clean-up, only remove if using temporary directory made by `mktemp`.
-# TODO(cpauya): remove when done debugging
-# if [ $WORKING_DIR != './temp' ]; then
-#     echo "  Removing temporary directory '$WORKING_DIR'..."
-#     rm -rf "$WORKING_DIR"
-# fi
-
-echo "Done!"
-if [ -e "$DMG_PATH" ]; then
-    # codesign the built DMG file
-    # unlock the keychain first so we can access the private key
-    # security unlock-keychain -p $KEYCHAIN_PASSWORD
-    codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$DMG_PATH"
-    echo "You can now test the built installer at '$DMG_PATH'."
-else
-    echo "Sorry, something went wrong trying to build the installer at '$DMG_PATH'."
+# check if the `Packages` is installed
+if ! command -v $PACKAGES_EXEC > /dev/null; then
+    echo "Abort! Packages is not installed."
     exit 1
+else
+    $PACKAGES_EXEC $PACKAGES_PROJECT
+    rm -fr $OUTPUT_PATH/$PACKAGES_OUTPUT
+    mv -v $PACKAGES_BUILD_FOLDER/* $OUTPUT_PATH
+    echo "Congratulations! Your newly built installer is at '$OUTPUT_PATH/$PACKAGES_OUTPUT'."
 fi
