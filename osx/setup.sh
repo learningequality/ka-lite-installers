@@ -4,17 +4,18 @@
 #
 # Steps
 # 1. Create temporary directory
-# 2. Download the `install-pyrun` script
-# 3. Download PyRun thru `install-pyrun` script.
-# 4. Download KA-Lite zip based on develop branch.
-# 5. Extract KA-Lite and move into `ka-lite` folder.
-# 6. Make ka-lite repo production-ready (delete .KALITE_SOURCE_DIR, etc).
+# 2. Download the assessment.zip and copy `assessment.zip` to the Xcode Resources folder.
+# 3. Download the `install-pyrun` script
+# 4. Download PyRun thru `install-pyrun` script.
+# 5. Download KA-Lite zip based on develop branch and extract KA-Lite and move into `ka-lite` folder.
+# 6. Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
 # 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
-# 8. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
-# 9. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
-# 10. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
-# 11. Build the Xcode project to produce the .app.
-# 12. Build the .dmg.
+# 8. Building the docs using sphinx-build.
+# 9. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
+# 10. Uninstall pyyaml so it's not included in the .dmg to build
+# 11. Copy `pyrun` folder to the Xcode Resources folder.
+# 12. Build the Xcode project to produce the .app.
+# 13. Build the .dmg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
@@ -30,7 +31,7 @@ if [ -z ${TMPDIR+0} ]; then
 fi
 
 STEP=1
-STEPS=12
+STEPS=13
 
 # TODO(cpauya): This works but the problem is it creates the temporary directory everytime
 # script is run... so during devt, we will comment this for now.
@@ -51,6 +52,7 @@ pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd`
 popd > /dev/null
 
+# Create temporary directory
 WORKING_DIR="$SCRIPTPATH/temp"
 if ! [ -d "$WORKING_DIR" ]; then
     echo "$STEP/$STEPS. Creating temporary directory..."
@@ -66,6 +68,9 @@ RELEASE_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release"
 KA_LITE_LOGO_PATH="$SETUP_FILES_DIR/ka-lite-logo-full.png"
 KA_LITE_ICNS_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite.icns"
 KA_LITE_README_PATH="$SETUP_FILES_DIR/README.md"
+
+PYRUN_SPHINX_BUILD="$PYRUN_DIR/bin/sphinx-build"
+KA_LITE_DOCS_DIR="$KA_LITE_DIR/docs"
 
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
 PYRUN_NAME="pyrun-2.7"
@@ -240,11 +245,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-PYRUN_SPHINX_BUILD="$PYRUN_DIR/bin/sphinx-build"
-KA_LITE_DOCS_DIR="$KA_LITE_DIR/docs"
-
-# Install requirements for sphinx
-# REF: ulimit: https://github.com/substack/node-browserify/issues/431
+# Building the docs using sphinx-build.
+# Reference ulimit: https://github.com/substack/node-browserify/issues/431
+((STEP++))
 echo "$STEP/$STEPS. Running npm install... on '$KA_LITE_DIR' "
 $PYRUN_PIP install -r "$KA_LITE_DIR/requirements_sphinx.txt"
 cd $KA_LITE_DIR
@@ -254,12 +257,14 @@ if [ -d "$KA_LITE_DIR" ]; then
     ulimit -n 2560
     node build.js
     cd $KA_LITE_DOCS_DIR
-    "$PYRUN_SPHINX_BUILD" -b html -d _build/doctrees   . _build/html
-    cp -R -v "$KA_LITE_DOCS_DIR" "$PYRUN_DIR/share/kalite"
+    $PYRUN_SPHINX_BUILD -b html -d _build/doctrees   . _build/html
+    cp -R -v $KA_LITE_DOCS_DIR $PYRUN_DIR/share/kalite
+
 fi
 
 # Run `bin/kalite manage compileymltojson` by install pyyaml==3.11 then uninstall it afterwards
 # a. Run PyRun's pip install pyyaml==3.11
+((STEP++))
 echo "$STEP/$STEPS. Running '$PYRUN_PIP install pyyaml==3.11'... on '$KA_LITE_DIR' "
 $PYRUN_PIP install pyyaml==3.11
 if [ $? -ne 0 ]; then
