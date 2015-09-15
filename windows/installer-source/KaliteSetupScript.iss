@@ -38,7 +38,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "..\ka-lite\*"; DestDir: "{app}\ka-lite"; Excludes: ".KALITE_SOURCE_DIR,content\assessment,content\assessment\*,content\assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\ka-lite\content\*"; DestDir: "{app}\ka-lite\content"; Excludes: "assessment,assessment\*,assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
+Source: "..\ka-lite\content\*"; DestDir: "{app}\ka-lite\content"; Excludes: "assessment,assessment\*,assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\ka-lite\content\assessment\*"; DestDir: "{app}\ka-lite\assessment"; Excludes: "assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\ka-lite\content\assessmentitems.sqlite"; DestDir: "{app}\ka-lite\assessment\khan"; Flags: ignoreversion
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -49,7 +49,7 @@ Source: "..\python-setup\*"; DestDir: "{app}\python-setup"; Flags: ignoreversion
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}"
-Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "Uninstall KA Lite"
+Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon ; IconFilename: "{app}\images\logo48.ico"
 
 [Run]
@@ -63,46 +63,9 @@ Name: "{app}\"; Permissions: everyone-modify
 Type: Files; Name: "{app}\ka-lite\kalite\updates\utils.*"
 
 [UninstallDelete]
-Type: filesandordirs; Name: "{app}\ka-lite\python-packages"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\ab_testing"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\basetests"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\caching"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\central"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\coachreports"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\config"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\contact"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\control_panel"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\contentload"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\distributed"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\django_cherrypy_wsgiserver"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\dynamic_assets"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\facility"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\faq"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\foo"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\i18n"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\khanload"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\knowledgemap"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\loadtesting"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\main"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\management"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\playlist"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\registration"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\remoteadmin"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\securesync"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\shared"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\static"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\store"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\student_testing"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\templatetags"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\templates"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\tests"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\testing"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\topic_tools"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\updates"
-Type: filesandordirs; Name: "{app}\ka-lite\kalite\utils"
-Type: Files; Name: "{app}\ka-lite\kalite\*.pyc"
-Type: Files; Name: "{userstartup}\KA Lite.lnk"
-Type: Files; Name: "{app}\CONFIG.dat"
+Type: filesandordirs; Name: "{app}\ka-lite*"
+Type: files; Name: "{userstartup}\KA Lite.lnk"
+Type: files; Name: "{app}\CONFIG.dat"
 
 [Code]
 var
