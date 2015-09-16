@@ -69,9 +69,6 @@ KA_LITE_LOGO_PATH="$SETUP_FILES_DIR/ka-lite-logo-full.png"
 KA_LITE_ICNS_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite.icns"
 KA_LITE_README_PATH="$SETUP_FILES_DIR/README.md"
 
-PYRUN_SPHINX_BUILD="$PYRUN_DIR/bin/sphinx-build"
-KA_LITE_DOCS_DIR="$KA_LITE_DIR/docs"
-
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
 PYRUN_NAME="pyrun-2.7"
 PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
@@ -245,6 +242,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+PYRUN_SPHINX_BUILD="$PYRUN_DIR/bin/sphinx-build"
+KA_LITE_DOCS_DIR="$KA_LITE_DIR/docs"
+
 # Building the docs using sphinx-build.
 # Reference ulimit: https://github.com/substack/node-browserify/issues/431
 ((STEP++))
@@ -256,6 +256,10 @@ if [ -d "$KA_LITE_DIR" ]; then
     npm install
     ulimit -n 2560
     node build.js
+    if [ $? -ne 0 ]; then
+    echo "  $0: Error/s encountered running node build.js', exiting..."
+        exit 1
+    fi
     cd $KA_LITE_DOCS_DIR
     $PYRUN_SPHINX_BUILD -b html -d _build/doctrees   . _build/html
     cp -R -v $KA_LITE_DOCS_DIR $PYRUN_DIR/share/kalite
