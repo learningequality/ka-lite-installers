@@ -257,7 +257,7 @@ if [ -d "$KA_LITE_DIR" ]; then
     ulimit -n 2560
     node build.js
     if [ $? -ne 0 ]; then
-    echo "  $0: Error/s encountered running node build.js', exiting..."
+        echo "  $0: Error/s encountered running node build.js', exiting..."
         exit 1
     fi
     cd $KA_LITE_DOCS_DIR
