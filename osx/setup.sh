@@ -251,19 +251,27 @@ KA_LITE_DOCS_DIR="$KA_LITE_DIR/docs"
 echo "$STEP/$STEPS. Running npm install... on '$KA_LITE_DIR' "
 $PYRUN_PIP install -r "$KA_LITE_DIR/requirements_sphinx.txt"
 cd $KA_LITE_DIR
-if [ -d "$KA_LITE_DIR" ]; then
-    echo "Install npm.."
-    npm install
-    ulimit -n 2560
-    node build.js
-    if [ $? -ne 0 ]; then
-        echo "  $0: Error/s encountered running node build.js', exiting..."
-        exit 1
-    fi
-    cd $KA_LITE_DOCS_DIR
-    $PYRUN_SPHINX_BUILD -b html -d _build/doctrees   . _build/html
-    cp -R -v $KA_LITE_DOCS_DIR $PYRUN_DIR/share/kalite
-
+echo "Install npm.."
+npm install
+ulimit -n 2560
+node build.js
+if [ $? -ne 0 ]; then
+    echo "  $0: Error/s encountered running node build.js', exiting..."
+    exit 1
+fi
+cd $KA_LITE_DOCS_DIR
+$PYRUN_SPHINX_BUILD -b html -d _build/doctrees . _build/html
+if [ $? -ne 0 ]; then
+    echo "  $0: Error/s encountered running sphinx-build', exiting..."
+    exit 1
+fi
+cp -R -v $KA_LITE_DOCS_DIR $PYRUN_DIR/share/kalite
+# MUST: double-check that there are bundled files
+cd "$PYRUN_DIR"
+find . -name "bundle*.js"
+if [ $? -ne 0 ]; then
+    echo "No bundle*.js files found, will exit!"
+    exit 1
 fi
 
 # Run `bin/kalite manage compileymltojson` by install pyyaml==3.11 then uninstall it afterwards
