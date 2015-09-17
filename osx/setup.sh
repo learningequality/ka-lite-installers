@@ -145,12 +145,12 @@ fi
 
 if [ -f "$KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP" ]; then
     rm -rf "$KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP"
-    echo "delete assessment zip at $KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP"
+    echo "  Deleting target assessment zip (to be overwritten below) at $KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP"
 fi
 
 if [ -f "$ASSESSMENT_PATH" ]; then
     # Copy assessment
-    echo "cp $ASSESSMENT_PATH $KA_LITE_MONITOR_RESOURCES_DIR"
+    echo "  Copying new $ASSESSMENT_PATH to $KA_LITE_MONITOR_RESOURCES_DIR"
     cp -R "$ASSESSMENT_PATH" "$KA_LITE_MONITOR_RESOURCES_DIR"
 fi
 
@@ -259,6 +259,16 @@ if [ $? -ne 0 ]; then
     echo "  $0: Error/s encountered running node build.js', exiting..."
     exit 1
 fi
+
+# MUST: double-check that there are bundled files
+cd "$PYRUN_DIR"
+echo "  Double-checking that there are bundle*.js files..."
+FIND_RESULT=`find . -name "bundle*.js"`
+if [ "$FIND_RESULT" == "" ]; then
+    echo "No bundle*.js files found, will exit."
+    exit 1
+fi
+
 cd $KA_LITE_DOCS_DIR
 $PYRUN_SPHINX_BUILD -b html -d _build/doctrees . _build/html
 if [ $? -ne 0 ]; then
@@ -266,13 +276,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 cp -R -v $KA_LITE_DOCS_DIR $PYRUN_DIR/share/kalite
-# MUST: double-check that there are bundled files
-cd "$PYRUN_DIR"
-find . -name "bundle*.js"
-if [ $? -ne 0 ]; then
-    echo "No bundle*.js files found, will exit!"
-    exit 1
-fi
 
 # Run `bin/kalite manage compileymltojson` by install pyyaml==3.11 then uninstall it afterwards
 # a. Run PyRun's pip install pyyaml==3.11
