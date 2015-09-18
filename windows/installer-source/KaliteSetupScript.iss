@@ -29,6 +29,7 @@ SolidCompression=yes
 PrivilegesRequired=admin
 UsePreviousAppDir=yes
 ChangesEnvironment=yes
+AlwaysRestart=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
