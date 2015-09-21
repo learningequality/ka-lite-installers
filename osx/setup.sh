@@ -8,9 +8,9 @@
 # 3. Download the `install-pyrun` script
 # 4. Download PyRun thru `install-pyrun` script.
 # 5. Download KA-Lite zip based on develop branch and extract KA-Lite and move into `ka-lite` folder.
-# 6. Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
 # 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
 # 8. Building the docs using sphinx-build.
+# 6. Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
 # 9. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
 # 10. Uninstall pyyaml so it's not included in the .dmg to build
 # 11. Copy `pyrun` folder to the Xcode Resources folder.
@@ -221,18 +221,6 @@ else
     fi
 fi
 
-# Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
-((STEP++))
-echo "$STEP/$STEPS. Running '$PYRUN setup.py install .'... on '$KA_LITE_DIR'"
-KA_LITE_SETUP_PY="$KALITE_DIRsetup.py"
-cd "$KA_LITE_DIR"
-$PYRUN setup.py install
-if [ $? -ne 0 ]; then
-    echo "  $0: Error/s encountered running '$PYRUN setup.py install', exiting..."
-    exit 1
-fi
-cd "$WORKING_DIR/.."
-
 # Run PyRun's pip install for `requirements.txt`
 ((STEP++))
 echo "$STEP/$STEPS. Running '$PYRUN_PIP install -r requirements.txt'... on '$KA_LITE_DIR' "
@@ -253,19 +241,10 @@ $PYRUN_PIP install -r "$KA_LITE_DIR/requirements_sphinx.txt"
 cd $KA_LITE_DIR
 echo "Install npm.."
 npm install
-ulimit -n 2560
+ulimit -n 4096
 node build.js
 if [ $? -ne 0 ]; then
     echo "  $0: Error/s encountered running node build.js', exiting..."
-    exit 1
-fi
-
-# MUST: double-check that there are bundled files
-cd "$PYRUN_DIR"
-echo "  Double-checking that there are bundle*.js files..."
-FIND_RESULT=`find . -name "bundle*.js"`
-if [ "$FIND_RESULT" == "" ]; then
-    echo "No bundle*.js files found, will exit."
     exit 1
 fi
 
@@ -276,6 +255,26 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 cp -R -v $KA_LITE_DOCS_DIR $PYRUN_DIR/share/kalite
+
+# Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
+((STEP++))
+echo "$STEP/$STEPS. Running '$PYRUN setup.py install .'... on '$KA_LITE_DIR'"
+cd "$KA_LITE_DIR"
+$PYRUN setup.py install
+if [ $? -ne 0 ]; then
+    echo "  $0: Error/s encountered running '$PYRUN setup.py install', exiting..."
+    exit 1
+fi
+cd "$WORKING_DIR/.."
+
+# MUST: Double-check that there are bundled files inside the Pyrun directory.
+cd "$PYRUN_DIR"
+echo "  Double-checking that there are bundle*.js files..."
+FIND_RESULT=`find . -name "bundle*.js"`
+if [ "$FIND_RESULT" == "" ]; then
+    echo "No bundle*.js files found in $PYRUN_DIR, will exit."
+    exit 1
+fi
 
 # Run `bin/kalite manage compileymltojson` by install pyyaml==3.11 then uninstall it afterwards
 # a. Run PyRun's pip install pyyaml==3.11
