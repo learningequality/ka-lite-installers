@@ -8,9 +8,9 @@
 # 3. Download the `install-pyrun` script
 # 4. Download PyRun thru `install-pyrun` script.
 # 5. Download KA-Lite zip based on develop branch and extract KA-Lite and move into `ka-lite` folder.
-# 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
-# 8. Building the docs using sphinx-build.
-# 6. Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
+# 6. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
+# 7. Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
+# 8. Building the docs using sphinx-build. 
 # 9. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
 # 10. Uninstall pyyaml so it's not included in the .dmg to build
 # 11. Copy `pyrun` folder to the Xcode Resources folder.
@@ -230,13 +230,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-PYRUN_SPHINX_BUILD="$PYRUN_DIR/bin/sphinx-build"
-KA_LITE_DOCS_DIR="$KA_LITE_DIR/docs"
 
-# Building the docs using sphinx-build.
-# Reference ulimit: https://github.com/substack/node-browserify/issues/431
-((STEP++))
-echo "$STEP/$STEPS. Running npm install... on '$KA_LITE_DIR' "
 $PYRUN_PIP install -r "$KA_LITE_DIR/requirements_sphinx.txt"
 cd $KA_LITE_DIR
 echo "Install npm.."
@@ -248,13 +242,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-cd $KA_LITE_DOCS_DIR
-$PYRUN_SPHINX_BUILD -b html -d _build/doctrees . _build/html
-if [ $? -ne 0 ]; then
-    echo "  $0: Error/s encountered running sphinx-build', exiting..."
-    exit 1
-fi
-cp -R -v $KA_LITE_DOCS_DIR $PYRUN_DIR/share/kalite
 
 # Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
 ((STEP++))
@@ -275,6 +262,21 @@ if [ "$FIND_RESULT" == "" ]; then
     echo "No bundle*.js files found in $PYRUN_DIR, will exit."
     exit 1
 fi
+
+PYRUN_SPHINX_BUILD="$PYRUN_DIR/bin/sphinx-build"
+KA_LITE_DOCS_DIR="$KA_LITE_DIR/docs"
+
+# Building the docs using sphinx-build.
+# Reference ulimit: https://github.com/substack/node-browserify/issues/431
+((STEP++))
+echo "$STEP/$STEPS. Running sphinx-build ... on '$KA_LITE_DIR' "
+cd $KA_LITE_DOCS_DIR
+$PYRUN_SPHINX_BUILD -b html -d _build/doctrees . _build/html
+if [ $? -ne 0 ]; then
+    echo "  $0: Error/s encountered running sphinx-build', exiting..."
+    exit 1
+fi
+cp -R -v $KA_LITE_DOCS_DIR $PYRUN_DIR/share/kalite
 
 # Run `bin/kalite manage compileymltojson` by install pyyaml==3.11 then uninstall it afterwards
 # a. Run PyRun's pip install pyyaml==3.11
