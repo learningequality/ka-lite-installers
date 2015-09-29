@@ -29,7 +29,9 @@ To build in Linux, first install `wine`.
 * Follow the _Instructions to download pip dependency zip files_ above
 * Create an empty db for distribution as per the section _Creating an Empty DB_
 * Run `kalite manage collectstatic` to create the `ka-lite/static-libraries` directory; this is a work-around until the windows installer uses setuptools.
+* Run `npm install` in the `ka-lite` directory to get node dependencies. This will create a `node_modules` subdirectory.
 * Run `node build.js` to build js bundle modules -- this is distinct from the `collectstatic` step.
+* Then remove the `node_modules` subdirectory. It causes an error with Inno Setup.
 * Run the `compileymltojson` management command.
 * Include built documentation in the appropriate directory -- `docs\_build\html`, but this can be configured. See `STATICFILES_DIRS` setting.
 * In Windows, run the following command from this directory:
