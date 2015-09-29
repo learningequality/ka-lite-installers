@@ -140,6 +140,10 @@ if [ -f "$ASSESSMENT_PATH" ]; then
 else
     if [ "$ASSESSMENT_URL" != "" ]; then
         curl -o $ASSESSMENT_PATH $ASSESSMENT_URL
+        if [ $? -ne 0 ]; then
+            echo "  $0: Can't download '$ASSESSMENT_URL', exiting..."
+            exit 1
+        fi
     fi
 fi
 
