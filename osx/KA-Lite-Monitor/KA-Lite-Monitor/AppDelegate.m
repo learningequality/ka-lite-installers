@@ -173,8 +173,6 @@ BOOL checkEnvVars() {
     NSMutableDictionary *kaliteEnv;
     
     statusStr = @"status";
-    // Check if NSTask has existing kalite process.
-    // Check if task to run is status.
     
     // Set loading indicator icon.
     if (command != statusStr) {
@@ -354,15 +352,19 @@ BOOL pyrunExists() {
             }
         } else {
             
-            self.kaliteIsRunning = NO;
-            
+            if (self.kaliteFirstLoad != 1){
+                self.kaliteIsRunning = NO;
+            }
             // If command is not "status", run `kalite status` to get status of ka-lite.
             // We need this check because this may be called inside the monitor timer.
             NSLog(@"Fetching `kalite status`...");
             if ( [taskArguments containsObject: @"manage"] ) {
-                [self showStatus:self.status];
+                if (self.kaliteFirstLoad != 1) {
+                    [self showStatus:self.status];
+                    [self runKalite:@"status"];
+                }
             }
-            [self runKalite:@"status"];
+            self.kaliteFirstLoad = 0;
             return self.status;
         }
         self.status = status;
@@ -372,7 +374,9 @@ BOOL pyrunExists() {
         showNotification(@"The `kalite` executable does not exist!");
     }
     if (oldStatus != self.status) {
-        [self showStatus:self.status];
+        if (self.kaliteFirstLoad != 1) {
+            [self showStatus:self.status];
+        }
     }
     return self.status;
 }
@@ -965,6 +969,7 @@ BOOL setEnvVars(BOOL createPlist) {
     // Automatically run `kalite manage setup` if no database was found.
     NSString *databasePath = getDatabasePath();
     if (!pathExists(databasePath)) {
+        self.kaliteFirstLoad = 1;
         if (checkUsrBinKalitePath()) {
             alert(@"Will now run KA-Lite setup, it will take a few minutes.  Please wait until prompted that setup is done.");
             enum kaliteStatus status = [self setupKalite];
