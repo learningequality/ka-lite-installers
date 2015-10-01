@@ -178,8 +178,13 @@ BOOL checkEnvVars() {
     if (command != statusStr) {
         [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
     }
+    else {
+        if (self.processCounter >= 1) {
+            return;
+        }
+    }
     
-    self.kaliteIsRunning += 1;
+    self.processCounter += 1;
     
     pyrun = getPyrunBinPath(true);
     // MUST: Let's use the symlinked `/usr/bin/kalite` instead of the
@@ -342,8 +347,11 @@ BOOL pyrunExists() {
     NSSet *taskArgsSet = [NSSet setWithArray:taskArguments];
     NSSet *statusArgsSet = [NSSet setWithArray:statusArguments];
     
-    if (self.kaliteIsRunning >= 1) {
-        self.kaliteIsRunning -= 1;
+    if (self.processCounter >= 1) {
+        self.processCounter -= 1;
+    }
+    if (self.processCounter != 0) {
+        return self.status;
     }
     
     if (checkUsrBinKalitePath()) {
@@ -356,20 +364,15 @@ BOOL pyrunExists() {
             }
             self.status = status;
             if (oldStatus != status) {
-                if (self.kaliteIsRunning == 0) {
-                    [self showStatus:self.status];
-                }
+                [self showStatus:self.status];
             }
             return self.status;
         } else {
             // If command is not "status", run `kalite status` to get status of ka-lite.
             // We need this check because this may be called inside the monitor timer.
             NSLog(@"Fetching `kalite status`...");
-            
-            if (self.kaliteIsRunning == 0) {
-                [self showStatus:self.status];
-                [self runKalite:@"status"];
-            }
+            [self showStatus:self.status];
+            [self runKalite:@"status"];
             return self.status;
         }
     } else {
@@ -748,7 +751,7 @@ BOOL setEnvVars(BOOL createPlist) {
 - (IBAction)start:(id)sender {
     showNotification(@"Starting...");
     [self showStatus:statusStartingUp];
-    if (self.kaliteIsRunning != 0) {
+    if (self.processCounter != 0) {
         alert(@"KA Lite is still processing, please wait until it is finished.");
         return;
     }
@@ -758,7 +761,7 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (IBAction)stop:(id)sender {
     showNotification(@"Stopping...");
-    if (self.kaliteIsRunning != 0) {
+    if (self.processCounter != 0) {
         alert(@"KA Lite is still processing, please wait until it is finished.");
         return;
     }
@@ -803,7 +806,7 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (IBAction)extractAssessment:(id)sender {
     NSString *message = @"It will take a few seconds to extract assessment items. Do you want to continue?";
-    if (self.kaliteIsRunning != 0) {
+    if (self.processCounter != 0) {
         alert(@"KA Lite is still processing, please wait until it is finished.");
         return;
     }
@@ -815,7 +818,7 @@ BOOL setEnvVars(BOOL createPlist) {
 - (IBAction)setupAction:(id)sender {
     if (kaliteExists()) {
         NSString *message = @"Are you sure you want to run setup?  This will take a few minutes to complete.";
-        if (self.kaliteIsRunning != 0) {
+        if (self.processCounter != 0) {
             alert(@"KA Lite is still processing, please wait until it is finished.");
             return;
         }
@@ -829,7 +832,7 @@ BOOL setEnvVars(BOOL createPlist) {
 
 
 - (IBAction)resetAppAction:(id)sender {
-    if (self.kaliteIsRunning != 0) {
+    if (self.processCounter != 0) {
         alert(@"KA Lite is still processing, please wait until it is finished.");
         return;
     }
@@ -911,7 +914,7 @@ BOOL setEnvVars(BOOL createPlist) {
     self.password = password;
     self.confirmPassword = confirmPassword;
     
-    if (self.kaliteIsRunning != 0) {
+    if (self.processCounter != 0) {
         alert(@"KA Lite is still processing, please wait until it is finished.");
         return;
     }

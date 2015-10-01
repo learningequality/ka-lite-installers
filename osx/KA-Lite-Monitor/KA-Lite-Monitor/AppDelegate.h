@@ -23,7 +23,7 @@
 @property (strong, nonatomic) NSStatusItem *stopItem;
 @property (strong, nonatomic) NSStatusItem *openItem;
 @property (unsafe_unretained) IBOutlet NSTextView *taskLogs;
-@property signed int kaliteIsRunning;
+@property signed int processCounter;
 
 @property (strong, nonatomic) IBOutlet NSString *username;
 @property (strong, nonatomic) IBOutlet NSString *password;
