@@ -26,4 +26,4 @@ popd
 rm secretkey.txt
 
 popd
-wine inno-compiler/ISCC.exe installer-source/KaliteSetupScript.iss
+/usr/local/bin/wine inno-compiler/ISCC.exe installer-source/KaliteSetupScript.iss
