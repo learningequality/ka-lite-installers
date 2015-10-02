@@ -364,7 +364,7 @@ fi
 # Remove the .dmg if it exists.
 test -e "$DMG_PATH" && rm "$DMG_PATH"
 # Add the README.md to the package.
-cp "$KA_LITE_README_PATH" "$RELEASE_PATH"
+cp -r "$SETUP_FILES_DIR" "$RELEASE_PATH" && rm -rf "$RELEASE_PATH/setup-files/ka-lite-logo-full.png"
 # Clean-up the package.
 test -x "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM"
 
