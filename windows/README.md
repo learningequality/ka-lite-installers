@@ -34,6 +34,7 @@ To build in Linux, first install `wine`.
 * Then remove the `node_modules` subdirectory. It causes an error with Inno Setup.
 * Run the `compileymltojson` management command.
 * Include built documentation in the appropriate directory -- `docs\_build\html`, but this can be configured. See `STATICFILES_DIRS` setting.
+* Delete `secretkey.txt` from `kalite` directory.
 * In Windows, run the following command from this directory:
 ```
 > make.vbs
