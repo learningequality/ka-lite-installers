@@ -365,11 +365,14 @@ fi
 # Remove the .dmg if it exists.
 test -e "$DMG_PATH" && rm "$DMG_PATH"
 
+mkdir "$RELEASE_PATH/More files"
+
 # Add the README.md to the package.
-cp "$KA_LITE_README_PATH" "$RELEASE_PATH"
+cp "$KA_LITE_README_PATH" "$RELEASE_PATH/More files"
 
 # Add the LICENSE to the package.
-cp "$KA_LITE_LICENSE_PATH" "$RELEASE_PATH"
+cp "$KA_LITE_LICENSE_PATH" "$RELEASE_PATH/More files"
+
 
 # Clean-up the package.
 test -x "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM"
@@ -382,7 +385,7 @@ $CREATE_DMG \
     --icon "KA-Lite-Monitor.app" 150 200 \
     --app-drop-link 500 200 \
     --background "$KA_LITE_LOGO_PATH" \
-    --eula "$RELEASE_PATH/LICENSE" \
+    --eula "$RELEASE_PATH/More files/LICENSE" \
     "$DMG_PATH"  \
     "$RELEASE_PATH" 
 
