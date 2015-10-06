@@ -69,6 +69,7 @@ KA_LITE_LOGO_PATH="$SETUP_FILES_DIR/ka-lite-logo-full.png"
 KA_LITE_ICNS_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite.icns"
 KA_LITE_README_PATH="$SETUP_FILES_DIR/README.md"
 
+INSTALL_PYRUN_URL="https://downloads.egenix.com/python/install-pyrun"
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
 PYRUN_NAME="pyrun-2.7"
 PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
@@ -139,7 +140,7 @@ if [ -f "$ASSESSMENT_PATH" ]; then
     echo "  Found $ASSESSMENT_ZIP at '$ASSESSMENT_PATH' so will not re-download.  Delete $ASSESSMENT_ZIP to re-download."
 else
     if [ "$ASSESSMENT_URL" != "" ]; then
-        curl -o $ASSESSMENT_PATH $ASSESSMENT_URL
+        wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $ASSESSMENT_PATH $ASSESSMENT_URL
         if [ $? -ne 0 ]; then
             echo "  $0: Can't download '$ASSESSMENT_URL', exiting..."
             exit 1
@@ -166,12 +167,12 @@ echo "$STEP/$STEPS. Downloading 'install-pyrun' script..."
 if [ -e "$INSTALL_PYRUN" ]; then
     echo "  Found '$INSTALL_PYRUN' so will not re-download.  Delete this file to re-download."
 else
-    curl https://downloads.egenix.com/python/install-pyrun > $INSTALL_PYRUN
-    chmod +x $INSTALL_PYRUN
+    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $INSTALL_PYRUN $INSTALL_PYRUN_URL
     if [ $? -ne 0 ]; then
       echo "  $0: Can't download 'install-pyrun' script, exiting..."
       exit 1
     fi
+    chmod +x $INSTALL_PYRUN
 fi
 
 # Download PyRun.
@@ -201,7 +202,7 @@ else
         # REF: http://stackoverflow.com/a/18222354/84548ƒ®1
         # How to download source in .zip format from GitHub?
         # TODO(cpauya): Download from `master` branch NOT from `develop`.
-        curl -L -o $KA_LITE_ZIP $KA_LITE_REPO_ZIP
+        wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $KA_LITE_ZIP $KA_LITE_REPO_ZIP
         if [ $? -ne 0 ]; then
             echo "  $0: Can't download 'ka-lite' source, exiting..."
             exit 1
@@ -346,10 +347,20 @@ if ! [ -d "$KA_LITE_MONITOR_APP_PATH" ]; then
     exit 2
 fi
 
-# sign the .app file
-# unlock the keychain first so we can access the private key
-# security unlock-keychain -p $KEYCHAIN_PASSWORD
-# codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
+echo "Checking if to codesign '$KA_LITE_MONITOR_APP_PATH' or not..."
+if [ -z ${IS_BAMBOO+0} ]; then 
+    echo "Running on local machine, don't codesign!"; 
+else 
+    echo "Running on bamboo server, so will codesign."; 
+    # sign the .app file
+    # unlock the keychain first so we can access the private key
+    # security unlock-keychain -p $KEYCHAIN_PASSWORD
+    codesign -d -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
+    if [ $? -ne 0 ]; then
+        echo "  $0: Error/s encountered codesigning '$KA_LITE_MONITOR_APP_PATH', exiting..."
+        exit 1
+    fi
+fi
 
 # Build the .dmg file.
 ((STEP++))
