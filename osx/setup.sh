@@ -349,7 +349,17 @@ fi
 # sign the .app file
 # unlock the keychain first so we can access the private key
 # security unlock-keychain -p $KEYCHAIN_PASSWORD
-codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
+echo "Codesign '$KA_LITE_MONITOR_APP_PATH'. "
+if [ -z "$IS_BAMBOO"]; then 
+   echo "Running on local machine, Don't codesign!..."; 
+else 
+   echo "Running on bamboo server"...; 
+   codesign -s -d "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
+   if [ $? -ne 0 ]; then
+       echo "  $0: Error/s encountered codesigning '$KA_LITE_MONITOR_APP_PATH', exiting..."
+       exit 1
+   fi
+fi
 
 # Build the .dmg file.
 ((STEP++))
