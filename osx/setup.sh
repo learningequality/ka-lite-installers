@@ -68,6 +68,7 @@ RELEASE_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release"
 KA_LITE_LOGO_PATH="$SETUP_FILES_DIR/ka-lite-logo-full.png"
 KA_LITE_ICNS_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite.icns"
 KA_LITE_README_PATH="$SETUP_FILES_DIR/README.md"
+KA_LITE_LICENSE_PATH="$SETUP_FILES_DIR/LICENSE"
 
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
 PYRUN_NAME="pyrun-2.7"
@@ -363,8 +364,22 @@ fi
 
 # Remove the .dmg if it exists.
 test -e "$DMG_PATH" && rm "$DMG_PATH"
-# Add the README.md to the package.
-cp "$KA_LITE_README_PATH" "$RELEASE_PATH"
+
+MORE_FILES_PATH="$RELEASE_PATH/More files"
+
+if [ -d "$MORE_FILES_PATH" ]; then
+    echo "Found More files directory at '$MORE_FILES_PATH'."
+else
+    mkdir "$MORE_FILES_PATH"
+fi 
+
+# Add the README.md to the More files directory.
+cp "$KA_LITE_README_PATH" "$MORE_FILES_PATH"
+
+# Add the LICENSE to the More files directory.
+cp "$KA_LITE_LICENSE_PATH" "$MORE_FILES_PATH"
+
+
 # Clean-up the package.
 test -x "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM"
 
@@ -376,8 +391,10 @@ $CREATE_DMG \
     --icon "KA-Lite-Monitor.app" 150 200 \
     --app-drop-link 500 200 \
     --background "$KA_LITE_LOGO_PATH" \
-    "$DMG_PATH" \
-    "$RELEASE_PATH"
+    --eula "$MORE_FILES_PATH/LICENSE" \
+    "$DMG_PATH"  \
+    "$RELEASE_PATH" 
+
     # --icon-size 64 \
     # --text-size 16 \
 
