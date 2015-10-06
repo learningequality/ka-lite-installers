@@ -139,7 +139,7 @@ if [ -f "$ASSESSMENT_PATH" ]; then
     echo "  Found $ASSESSMENT_ZIP at '$ASSESSMENT_PATH' so will not re-download.  Delete $ASSESSMENT_ZIP to re-download."
 else
     if [ "$ASSESSMENT_URL" != "" ]; then
-        curl -o $ASSESSMENT_PATH $ASSESSMENT_URL
+        curl --retry 20 -o $ASSESSMENT_PATH $ASSESSMENT_URL
         if [ $? -ne 0 ]; then
             echo "  $0: Can't download '$ASSESSMENT_URL', exiting..."
             exit 1
@@ -166,7 +166,7 @@ echo "$STEP/$STEPS. Downloading 'install-pyrun' script..."
 if [ -e "$INSTALL_PYRUN" ]; then
     echo "  Found '$INSTALL_PYRUN' so will not re-download.  Delete this file to re-download."
 else
-    curl https://downloads.egenix.com/python/install-pyrun > $INSTALL_PYRUN
+    curl --retry 20 https://downloads.egenix.com/python/install-pyrun > $INSTALL_PYRUN
     chmod +x $INSTALL_PYRUN
     if [ $? -ne 0 ]; then
       echo "  $0: Can't download 'install-pyrun' script, exiting..."
@@ -201,7 +201,7 @@ else
         # REF: http://stackoverflow.com/a/18222354/84548ƒ®1
         # How to download source in .zip format from GitHub?
         # TODO(cpauya): Download from `master` branch NOT from `develop`.
-        curl -L -o $KA_LITE_ZIP $KA_LITE_REPO_ZIP
+        curl --retry 20 -L -o $KA_LITE_ZIP $KA_LITE_REPO_ZIP
         if [ $? -ne 0 ]; then
             echo "  $0: Can't download 'ka-lite' source, exiting..."
             exit 1
@@ -349,11 +349,11 @@ fi
 # sign the .app file
 # unlock the keychain first so we can access the private key
 # security unlock-keychain -p $KEYCHAIN_PASSWORD
-echo "Codesign '$KA_LITE_MONITOR_APP_PATH'. "
+echo "Checking if to codesign '$KA_LITE_MONITOR_APP_PATH' or not..."
 if [ -z "$IS_BAMBOO" ]; then 
-   echo "Running on local machine, Don't codesign!..."; 
+   echo "Running on local machine, don't codesign!"; 
 else 
-   echo "Running on bamboo server..."; 
+   echo "Running on bamboo server, so will run codesign."; 
    codesign -s -d "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
    if [ $? -ne 0 ]; then
        echo "  $0: Error/s encountered codesigning '$KA_LITE_MONITOR_APP_PATH', exiting..."
