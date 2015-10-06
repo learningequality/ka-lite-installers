@@ -350,7 +350,7 @@ fi
 # unlock the keychain first so we can access the private key
 # security unlock-keychain -p $KEYCHAIN_PASSWORD
 echo "Codesign '$KA_LITE_MONITOR_APP_PATH'. "
-if [ -z "$IS_BAMBOO"]; then 
+if [ -z "$IS_BAMBOO" ]; then 
    echo "Running on local machine, Don't codesign!..."; 
 else 
    echo "Running on bamboo server..."; 
