@@ -365,17 +365,20 @@ fi
 # Remove the .dmg if it exists.
 test -e "$DMG_PATH" && rm "$DMG_PATH"
 
-if [ -d "$RELEASE_PATH/More files" ]; then
-    echo "Found More files directory at '$RELEASE_PATH/More files'."
+MORE_FILES_PATH="$RELEASE_PATH/More files"
+
+if [ -d "$MORE_FILES_PATH" ]; then
+    echo "Found More files directory at '$MORE_FILES_PATH'."
 else
-    mkdir "$RELEASE_PATH/More files"
+    mkdir "$MORE_FILES_PATH"
 fi 
 
-# Add the README.md to the package.
-cp "$KA_LITE_README_PATH" "$RELEASE_PATH/More files"
+# Add the README.md to the More files directory.
+cp "$KA_LITE_README_PATH" "$MORE_FILES_PATH"
 
-# Add the LICENSE to the package.
-cp "$KA_LITE_LICENSE_PATH" "$RELEASE_PATH/More files"
+# Add the LICENSE to the More files directory.
+cp "$KA_LITE_LICENSE_PATH" "$MORE_FILES_PATH"
+
 
 # Clean-up the package.
 test -x "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM"
@@ -388,7 +391,7 @@ $CREATE_DMG \
     --icon "KA-Lite-Monitor.app" 150 200 \
     --app-drop-link 500 200 \
     --background "$KA_LITE_LOGO_PATH" \
-    --eula "$RELEASE_PATH/More files/LICENSE" \
+    --eula "$MORE_FILES_PATH/LICENSE" \
     "$DMG_PATH"  \
     "$RELEASE_PATH" 
 
