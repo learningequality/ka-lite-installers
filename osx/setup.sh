@@ -350,10 +350,10 @@ fi
 # unlock the keychain first so we can access the private key
 # security unlock-keychain -p $KEYCHAIN_PASSWORD
 echo "Checking if to codesign '$KA_LITE_MONITOR_APP_PATH' or not..."
-if [ -z "$IS_BAMBOO" ]; then 
+if [ -z ${IS_BAMBOO+0} ]; then 
    echo "Running on local machine, don't codesign!"; 
 else 
-   echo "Running on bamboo server, so will run codesign."; 
+   echo "Running on bamboo server, so will codesign."; 
    codesign -s -d "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
    if [ $? -ne 0 ]; then
        echo "  $0: Error/s encountered codesigning '$KA_LITE_MONITOR_APP_PATH', exiting..."
