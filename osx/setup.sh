@@ -368,15 +368,14 @@ test -e "$DMG_PATH" && rm "$DMG_PATH"
 if [ -d "$RELEASE_PATH/More files" ]; then
     echo "Found More files directory at '$RELEASE_PATH/More files'."
 else
-
     mkdir "$RELEASE_PATH/More files"
-
-    # Add the README.md to the package.
-    cp "$KA_LITE_README_PATH" "$RELEASE_PATH/More files"
-
-    # Add the LICENSE to the package.
-    cp "$KA_LITE_LICENSE_PATH" "$RELEASE_PATH/More files"
 fi 
+
+# Add the README.md to the package.
+cp "$KA_LITE_README_PATH" "$RELEASE_PATH/More files"
+
+# Add the LICENSE to the package.
+cp "$KA_LITE_LICENSE_PATH" "$RELEASE_PATH/More files"
 
 # Clean-up the package.
 test -x "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM"
