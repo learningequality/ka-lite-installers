@@ -349,7 +349,7 @@ fi
 # sign the .app file
 # unlock the keychain first so we can access the private key
 # security unlock-keychain -p $KEYCHAIN_PASSWORD
-# codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
+codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
 
 # Build the .dmg file.
 ((STEP++))
