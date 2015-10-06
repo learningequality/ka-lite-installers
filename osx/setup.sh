@@ -353,7 +353,7 @@ echo "Codesign '$KA_LITE_MONITOR_APP_PATH'. "
 if [ -z "$IS_BAMBOO"]; then 
    echo "Running on local machine, Don't codesign!..."; 
 else 
-   echo "Running on bamboo server"...; 
+   echo "Running on bamboo server..."; 
    codesign -s -d "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
    if [ $? -ne 0 ]; then
        echo "  $0: Error/s encountered codesigning '$KA_LITE_MONITOR_APP_PATH', exiting..."
