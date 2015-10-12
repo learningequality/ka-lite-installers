@@ -10,7 +10,7 @@ The application icon sits on the status menu of OS X and uses [PyRun](http://www
 * Mac OSX 10.10 Yosemite
 * git
 * Xcode 6.1.x
-
+* wget
 
 ## Steps to build the installer
 There are two ways to build the installer, automated or manually.
@@ -29,9 +29,7 @@ There are two ways to build the installer, automated or manually.
 
 1. Run `setup.sh` so it will download the `ka-lite` repository and `pyrun`.
 2. Launch Xcode
-3. Navigate to `Project Navigator` and click the `Project Name`
-4. Navigate to `Build Settings` tab and change the `Code Signing Identity` to `Don't Code Sign`.
-4. Build the project to produce the .app.
+3. Build the project to produce the .app.
 
 
 ## Notes
@@ -43,13 +41,14 @@ There are two ways to build the installer, automated or manually.
 
     * KA-Lite repo on `develop` branch, or the specified repo
     * PyRun version 2.7
-    * Assessment zip 
-1. You can optionally pass a ka-lite archive repo url as an argument in this format:
+    * Assessment zip
 
-    > ./setup.sh "https://github.com/learningequality/ka-lite/archive/0.14.x.zip"
+1. You can optionally pass a ka-lite archive repo and assessment url as an argument like this sample:
+
+    > ./setup.sh "https://github.com/learningequality/ka-lite/archive/0.15.x.zip" "https://learningequality.org/downloads/ka-lite/0.15/content/assessment.zip"
 
     This is useful if you want to try a different fork or branch on your build.
-    It defaults to the `develop` branch at "https://github.com/learningequality/ka-lite/archive/develop.zip".
+    It defaults to the `develop` branch at "https://github.com/learningequality/ka-lite/archive/develop.zip" if you don't specify the first argument. The second arguemnt will also defaults to https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip.
 
 
 ## References
