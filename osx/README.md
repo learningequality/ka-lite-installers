@@ -43,12 +43,14 @@ There are two ways to build the installer, automated or manually.
     * PyRun version 2.7
     * Assessment zip
 
-1. You can optionally pass a ka-lite archive repo and assessment url as an argument like this sample:
+1. You can optionally pass a ka-lite archive repo and assessment url as an arguments like these samples:
+
+    > ./setup.sh "https://github.com/learningequality/ka-lite/archive/0.15.x.zip"
 
     > ./setup.sh "https://github.com/learningequality/ka-lite/archive/0.15.x.zip" "https://learningequality.org/downloads/ka-lite/0.15/content/assessment.zip"
 
-    This is useful if you want to try a different fork or branch on your build.
-    It defaults to the `develop` branch at "https://github.com/learningequality/ka-lite/archive/develop.zip" if you don't specify the first argument. The second arguemnt will also defaults to https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip.
+    These are useful if you want to try a different fork or branch on your build.
+    It default to the `develop` branch at "https://github.com/learningequality/ka-lite/archive/develop.zip" if you don't specify the first argument. The second argument will also default to https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip.
 
 
 ## References
