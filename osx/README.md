@@ -5,6 +5,10 @@ This folder contains the script and sources to build the installer for KA-Lite.
 The application icon sits on the status menu of OS X and uses [PyRun](http://www.egenix.com/products/python/PyRun/) instead of the OS X built-in Python.
 
 
+## Note
+
+The latest OS X version (EL Capitan) is not yet supported.
+
 ## System Requirements
 
 * Mac OSX 10.10 Yosemite
@@ -43,14 +47,14 @@ There are two ways to build the installer, automated or manually.
     * PyRun version 2.7
     * Assessment zip
 
-1. You can optionally pass a ka-lite archive repo and assessment url as an arguments like these samples:
+1. You can optionally pass a ka-lite archive repo and assessment url as arguments like these samples:
 
     > ./setup.sh "https://github.com/learningequality/ka-lite/archive/0.15.x.zip"
 
-    > ./setup.sh "https://github.com/learningequality/ka-lite/archive/0.15.x.zip" "https://learningequality.org/downloads/ka-lite/0.15/content/assessment.zip"
+    > ./setup.sh "https://github.com/learningequality/ka-lite/archive/0.15.x.zip" "https://learningequality.org/downloads/ka-lite/0.15/content/khan_assessment.zip"
 
     These are useful if you want to try a different fork or branch on your build.
-    It default to the `develop` branch at "https://github.com/learningequality/ka-lite/archive/develop.zip" if you don't specify the first argument. The second argument will also default to https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip.
+    It defaults to the `develop` branch at "https://github.com/learningequality/ka-lite/archive/develop.zip" if you don't specify the first argument.  If you don't specify second argument, it defaults to https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip.
 
 
 ## References
