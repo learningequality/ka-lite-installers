@@ -1,0 +1,121 @@
+ka-lite-source (0.14.0-0ubuntu1) precise; urgency=medium
+
+  * Final 0.14 release 
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 28 Aug 2015 15:51:03 +0200
+
+ka-lite-source (0.14~b5-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 27 Aug 2015 01:04:37 +0200
+
+ka-lite-source (0.14~b4-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 26 Aug 2015 22:34:49 +0200
+
+ka-lite-source (0.14~b3-0ubuntu11) precise; urgency=medium
+
+  * Setuptools for source builds
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 21 Aug 2015 18:02:26 +0200
+
+ka-lite-source (0.14~b3-0ubuntu10) precise; urgency=medium
+
+  * Replace python-setuptools with python-pkg-resources
+  * Download assessment items using http instead of https (cert issue)
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 21 Aug 2015 17:43:21 +0200
+
+ka-lite-source (0.14~b3-0ubuntu9) precise; urgency=medium
+
+  * Revert nginx requirements and remove worker_processes 'auto'
+  * Make init script defaults use /etc/ka-lite/home setting
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 19 Aug 2015 18:57:58 +0200
+
+ka-lite-source (0.14~b3-0ubuntu8) precise; urgency=medium
+
+  * Test release containing new nginx requirement >= 1.2.5
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 19 Aug 2015 00:25:51 +0200
+
+ka-lite-source (0.14~b3-0ubuntu7) precise; urgency=medium
+
+  * New configurable $kalite_home variable for nginx
+  * Restore debconf question for ka-lite/user
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 18 Aug 2015 14:34:02 +0200
+
+ka-lite-source (0.14~b3-0ubuntu6) precise; urgency=medium
+
+  * Use ka-lite/user setting for ka-lite-raspberry-pi build
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 17 Aug 2015 22:39:44 +0200
+
+ka-lite-source (0.14~b3-0ubuntu5) precise; urgency=medium
+
+  * Add python-setuptools as a dependency (fixes raspian issues)
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 17 Aug 2015 14:44:59 +0200
+
+ka-lite-source (0.14~b3-0ubuntu4) precise; urgency=medium
+
+  * Add unzip to pre-depends, used for unpacking downloaded assessment items
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sat, 15 Aug 2015 18:25:42 +0200
+
+ka-lite-source (0.14~b3-0ubuntu3) precise; urgency=medium
+
+  * Raspberry-pi package: Re-add nginx.conf to install files
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sat, 15 Aug 2015 01:01:42 +0200
+
+ka-lite-source (0.14~b3-0ubuntu2) precise; urgency=medium
+
+  * Fix nginx divertion
+  * Set nginx as a pre-dependency to avoid clutter with invoke.rcd nginx during install
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 14 Aug 2015 13:42:57 +0200
+
+ka-lite-source (0.14~b3-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 13 Aug 2015 16:40:38 +0200
+
+ka-lite-source (0.14~b2-0ubuntu2) precise; urgency=medium
+
+  * Set permissions on auto-created user home for ka-lite-raspberry-pi
+  * Adding /etc/nginx to raspberry-pi build to ensure succesful divertion
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 11 Aug 2015 23:15:29 +0200
+
+ka-lite-source (0.14~b2-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 11 Aug 2015 21:55:37 +0200
+
+ka-lite-source (0.14~b1-0ubuntu2) precise; urgency=medium
+
+  * Clean up *pyc files after uninstalling
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 09 Aug 2015 11:41:16 +0200
+
+ka-lite-source (0.14~b1-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+  * Force /etc/init.d/ka-lite to be executable (15.04+ issue)
+  * Move 'dirs' file to package-name.dirs (15.04+ issue)
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sat, 08 Aug 2015 18:16:12 +0200
+
+ka-lite-source (0.14~a12-0ubuntu1) precise; urgency=medium
+
+  * New upstream alpha 12
+  * Resetting versions to support debian version syntax
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 28 Jul 2015 00:17:05 +0200

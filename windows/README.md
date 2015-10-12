@@ -29,8 +29,12 @@ To build in Linux, first install `wine`.
 * Follow the _Instructions to download pip dependency zip files_ above
 * Create an empty db for distribution as per the section _Creating an Empty DB_
 * Run `kalite manage collectstatic` to create the `ka-lite/static-libraries` directory; this is a work-around until the windows installer uses setuptools.
+* Run `npm install` in the `ka-lite` directory to get node dependencies. This will create a `node_modules` subdirectory. (See the section *Node on Windows*.)
+* Run `node build.js` to build js bundle modules -- this is distinct from the `collectstatic` step.
+* Then remove the `node_modules` subdirectory. It causes an error with Inno Setup.
 * Run the `compileymltojson` management command.
 * Include built documentation in the appropriate directory -- `docs\_build\html`, but this can be configured. See `STATICFILES_DIRS` setting.
+* Delete `secretkey.txt` from `kalite` directory.
 * In Windows, run the following command from this directory:
 ```
 > make.vbs
@@ -41,6 +45,19 @@ To build in Linux, first install `wine`.
 ```
 * The output file named "KALiteSetup-X.X.X.exe" will appear within this project folder.
 
+---
+#### Node on Windows
+Get [Node](https://nodejs.org/en/). It should add the `node` and `npm` binaries to your path.
+
+You'll need both `git` and `make` in your PATH to get all the dependencies from npm.
+You can get `make` (and many other GNU utilities) with [MinGW](http://www.mingw.org/).
+Install it, and then in the `C:\MinGW\bin` directory (or wherever you installed it) you'll find `mingw32-make.exe`.
+Make a copy of that file called `make.exe`, and add its directory to your path.
+
+Get [Git](https://git-scm.com/).
+Install it and add `c:\Program Files (x86)\Git\bin` (or wherever you installed it) to your path.
+
+After adding both binaries to your path, you're ready to run `npm install` in the `ka-lite` directory.
 
 ---
 #### Instructions to download pip dependency zip files

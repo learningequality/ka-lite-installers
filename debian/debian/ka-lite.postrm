@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# Make sure this script fails if any unexpected errors happen
+set -e
+
+if [ "$1" = "purge" ];
+then
+
+    # Remove assessment items since they might be overwritten by other packages
+    rm -rf /usr/share/kalite/assessment
+
+    # Source debconf library.
+    . /usr/share/debconf/confmodule
+    # Remove my changes to the db.
+    db_purge
+
+    # Remove service file using `ucf` (checking whether `ucf` is still available first)
+    if type ucf >/dev/null 2>&1;
+    then
+        ucf --purge "/etc/init.d/ka-lite"
+    fi
+
+    # Remove service file by hand (in case the above failed somehow)
+    rm -f "/etc/init.d/ka-lite"
+fi

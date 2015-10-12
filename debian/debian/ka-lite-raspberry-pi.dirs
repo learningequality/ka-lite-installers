@@ -1,0 +1,5 @@
+/etc/ka-lite
+/etc/ka-lite/nginx.d/
+/etc/nginx
+/etc/nginx/sites-available
+/etc/nginx/sites-enabled

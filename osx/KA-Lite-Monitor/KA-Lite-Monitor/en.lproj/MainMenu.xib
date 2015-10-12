@@ -22,6 +22,7 @@
                 <outlet property="stringConfirmPassword" destination="mHu-hs-5dX" id="iam-ar-XPH"/>
                 <outlet property="stringPassword" destination="1Fb-vP-m1M" id="ak0-0A-EBR"/>
                 <outlet property="stringUsername" destination="URN-i2-B86" id="gsg-KD-ggm"/>
+                <outlet property="taskLogs" destination="ggK-co-dOR" id="i2a-ii-juQ"/>
                 <outlet property="window" destination="BCW-kl-SX8" id="jIg-Qn-PfW"/>
             </connections>
         </customObject>
@@ -143,11 +144,10 @@ Gw
                         <tabViewItems>
                             <tabViewItem label="Preferences" identifier="1" id="bsG-cY-LW8">
                                 <view key="view" id="B8D-my-NmZ">
-                                    <rect key="frame" x="10" y="33" width="447" height="325"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Path for Database and Content (TODO)" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
-                                            <rect key="frame" x="11" y="103" width="414" height="91"/>
+                                            <rect key="frame" x="11" y="-222" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -189,7 +189,7 @@ Gw
                                             <font key="titleFont" metaFont="systemBold"/>
                                         </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Application behavior (TODO)" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
-                                            <rect key="frame" x="11" y="8" width="414" height="91"/>
+                                            <rect key="frame" x="11" y="-317" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -215,7 +215,7 @@ Gw
                                             <font key="titleFont" metaFont="systemBold"/>
                                         </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Administrator account" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="swH-Hn-WS9">
-                                            <rect key="frame" x="11" y="198" width="414" height="124"/>
+                                            <rect key="frame" x="11" y="-127" width="414" height="124"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="105"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -409,11 +409,57 @@ Click the Apply button to re-create the installation files mentioned above.</str
                                     </subviews>
                                 </view>
                             </tabViewItem>
+                            <tabViewItem label="Logs" identifier="" id="dk5-ZF-SuP">
+                                <view key="view" id="ZUi-S1-Nxz">
+                                    <rect key="frame" x="10" y="33" width="447" height="328"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <scrollView fixedFrame="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="45z-rP-1Bz">
+                                            <rect key="frame" x="-3" y="30" width="453" height="295"/>
+                                            <clipView key="contentView" misplaced="YES" id="byO-FJ-ADZ">
+                                                <rect key="frame" x="1" y="1" width="223" height="133"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <textView editable="NO" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="ggK-co-dOR">
+                                                        <rect key="frame" x="0.0" y="0.0" width="223" height="293"/>
+                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                        <size key="minSize" width="436" height="293"/>
+                                                        <size key="maxSize" width="463" height="10000000"/>
+                                                        <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <size key="minSize" width="436" height="293"/>
+                                                        <size key="maxSize" width="463" height="10000000"/>
+                                                    </textView>
+                                                </subviews>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            </clipView>
+                                            <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="Ndh-WC-BRs">
+                                                <rect key="frame" x="-100" y="-100" width="87" height="18"/>
+                                                <autoresizingMask key="autoresizingMask"/>
+                                            </scroller>
+                                            <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="RPA-mO-93H">
+                                                <rect key="frame" x="224" y="1" width="15" height="133"/>
+                                                <autoresizingMask key="autoresizingMask"/>
+                                            </scroller>
+                                        </scrollView>
+                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bpL-KX-zYa">
+                                            <rect key="frame" x="183" y="-4" width="94" height="32"/>
+                                            <buttonCell key="cell" type="push" title="Clear logs" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="TgZ-Rc-nfv">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="clearLogs:" target="Voe-Tx-rLC" id="ECj-59-a4d"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                </view>
+                            </tabViewItem>
                         </tabViewItems>
                     </tabView>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="731.5" y="275"/>
+            <point key="canvasLocation" x="733.5" y="284"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="a2C-ep-hKK"/>
     </objects>

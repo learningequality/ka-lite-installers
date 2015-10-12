@@ -4,17 +4,18 @@
 #
 # Steps
 # 1. Create temporary directory
-# 2. Download the `install-pyrun` script
-# 3. Download PyRun thru `install-pyrun` script.
-# 4. Download KA-Lite zip based on develop branch.
-# 5. Extract KA-Lite and move into `ka-lite` folder.
-# 6. Make ka-lite repo production-ready (delete .KALITE_SOURCE_DIR, etc).
-# 7. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
-# 8. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
-# 9. Create the `<Xcode_Resources>/ka-lite/kalite/local_settings.py` based on `local_settings.default`.
-# 10. Copy the `ka-lite` and `pyrun` folders to the Xcode Resources folder.
-# 11. Build the Xcode project to produce the .app.
-# 12. Build the .dmg.
+# 2. Download the assessment.zip and copy `assessment.zip` to the Xcode Resources folder.
+# 3. Download the `install-pyrun` script
+# 4. Download PyRun thru `install-pyrun` script.
+# 5. Download KA-Lite zip based on develop branch and extract KA-Lite and move into `ka-lite` folder.
+# 6. Run pyrun-2.7/bin/pip install -r ka-lite/requirements.txt
+# 7. Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
+# 8. Building the docs using sphinx-build. 
+# 9. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
+# 10. Uninstall pyyaml so it's not included in the .dmg to build
+# 11. Copy `pyrun` folder to the Xcode Resources folder.
+# 12. Build the Xcode project to produce the .app.
+# 13. Build the .dmg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
@@ -30,7 +31,7 @@ if [ -z ${TMPDIR+0} ]; then
 fi
 
 STEP=1
-STEPS=12
+STEPS=13
 
 # TODO(cpauya): This works but the problem is it creates the temporary directory everytime
 # script is run... so during devt, we will comment this for now.
@@ -51,6 +52,7 @@ pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd`
 popd > /dev/null
 
+# Create temporary directory
 WORKING_DIR="$SCRIPTPATH/temp"
 if ! [ -d "$WORKING_DIR" ]; then
     echo "$STEP/$STEPS. Creating temporary directory..."
@@ -66,7 +68,9 @@ RELEASE_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release"
 KA_LITE_LOGO_PATH="$SETUP_FILES_DIR/ka-lite-logo-full.png"
 KA_LITE_ICNS_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite.icns"
 KA_LITE_README_PATH="$SETUP_FILES_DIR/README.md"
+KA_LITE_LICENSE_PATH="$SETUP_FILES_DIR/LICENSE"
 
+INSTALL_PYRUN_URL="https://downloads.egenix.com/python/install-pyrun"
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
 PYRUN_NAME="pyrun-2.7"
 PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
@@ -137,18 +141,22 @@ if [ -f "$ASSESSMENT_PATH" ]; then
     echo "  Found $ASSESSMENT_ZIP at '$ASSESSMENT_PATH' so will not re-download.  Delete $ASSESSMENT_ZIP to re-download."
 else
     if [ "$ASSESSMENT_URL" != "" ]; then
-        curl -o $ASSESSMENT_PATH $ASSESSMENT_URL
+        wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $ASSESSMENT_PATH $ASSESSMENT_URL
+        if [ $? -ne 0 ]; then
+            echo "  $0: Can't download '$ASSESSMENT_URL', exiting..."
+            exit 1
+        fi
     fi
 fi
 
 if [ -f "$KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP" ]; then
     rm -rf "$KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP"
-    echo "delete assessment zip at $KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP"
+    echo "  Deleting target assessment zip (to be overwritten below) at $KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP"
 fi
 
 if [ -f "$ASSESSMENT_PATH" ]; then
     # Copy assessment
-    echo "cp $ASSESSMENT_PATH $KA_LITE_MONITOR_RESOURCES_DIR"
+    echo "  Copying new $ASSESSMENT_PATH to $KA_LITE_MONITOR_RESOURCES_DIR"
     cp -R "$ASSESSMENT_PATH" "$KA_LITE_MONITOR_RESOURCES_DIR"
 fi
 
@@ -160,12 +168,12 @@ echo "$STEP/$STEPS. Downloading 'install-pyrun' script..."
 if [ -e "$INSTALL_PYRUN" ]; then
     echo "  Found '$INSTALL_PYRUN' so will not re-download.  Delete this file to re-download."
 else
-    curl https://downloads.egenix.com/python/install-pyrun > $INSTALL_PYRUN
-    chmod +x $INSTALL_PYRUN
+    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $INSTALL_PYRUN $INSTALL_PYRUN_URL
     if [ $? -ne 0 ]; then
       echo "  $0: Can't download 'install-pyrun' script, exiting..."
       exit 1
     fi
+    chmod +x $INSTALL_PYRUN
 fi
 
 # Download PyRun.
@@ -195,7 +203,7 @@ else
         # REF: http://stackoverflow.com/a/18222354/84548ƒ®1
         # How to download source in .zip format from GitHub?
         # TODO(cpauya): Download from `master` branch NOT from `develop`.
-        curl -L -o $KA_LITE_ZIP $KA_LITE_REPO_ZIP
+        wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $KA_LITE_ZIP $KA_LITE_REPO_ZIP
         if [ $? -ne 0 ]; then
             echo "  $0: Can't download 'ka-lite' source, exiting..."
             exit 1
@@ -219,18 +227,6 @@ else
     fi
 fi
 
-# Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
-((STEP++))
-echo "$STEP/$STEPS. Running '$PYRUN setup.py install .'... on '$KA_LITE_DIR'"
-KA_LITE_SETUP_PY="$KALITE_DIRsetup.py"
-cd "$KA_LITE_DIR"
-$PYRUN setup.py install
-if [ $? -ne 0 ]; then
-    echo "  $0: Error/s encountered running '$PYRUN setup.py install', exiting..."
-    exit 1
-fi
-cd "$WORKING_DIR/.."
-
 # Run PyRun's pip install for `requirements.txt`
 ((STEP++))
 echo "$STEP/$STEPS. Running '$PYRUN_PIP install -r requirements.txt'... on '$KA_LITE_DIR' "
@@ -240,8 +236,57 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+
+$PYRUN_PIP install -r "$KA_LITE_DIR/requirements_sphinx.txt"
+cd $KA_LITE_DIR
+echo "Install npm.."
+npm install
+ulimit -n 4096
+node build.js
+if [ $? -ne 0 ]; then
+    echo "  $0: Error/s encountered running node build.js', exiting..."
+    exit 1
+fi
+
+
+# Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
+((STEP++))
+echo "$STEP/$STEPS. Running '$PYRUN setup.py install .'... on '$KA_LITE_DIR'"
+cd "$KA_LITE_DIR"
+$PYRUN setup.py install
+if [ $? -ne 0 ]; then
+    echo "  $0: Error/s encountered running '$PYRUN setup.py install', exiting..."
+    exit 1
+fi
+cd "$WORKING_DIR/.."
+
+# MUST: Double-check that there are bundled files inside the Pyrun directory.
+cd "$PYRUN_DIR"
+echo "  Double-checking that there are bundle*.js files..."
+FIND_RESULT=`find . -name "bundle*.js"`
+if [ "$FIND_RESULT" == "" ]; then
+    echo "No bundle*.js files found in $PYRUN_DIR, will exit."
+    exit 1
+fi
+
+PYRUN_SPHINX_BUILD="$PYRUN_DIR/bin/sphinx-build"
+KA_LITE_DOCS_DIR="$KA_LITE_DIR/docs"
+
+# Building the docs using sphinx-build.
+# Reference ulimit: https://github.com/substack/node-browserify/issues/431
+((STEP++))
+echo "$STEP/$STEPS. Running sphinx-build ... on '$KA_LITE_DIR' "
+cd $KA_LITE_DOCS_DIR
+$PYRUN_SPHINX_BUILD -b html -d _build/doctrees . _build/html
+if [ $? -ne 0 ]; then
+    echo "  $0: Error/s encountered running sphinx-build', exiting..."
+    exit 1
+fi
+cp -R -v $KA_LITE_DOCS_DIR $PYRUN_DIR/share/kalite
+
 # Run `bin/kalite manage compileymltojson` by install pyyaml==3.11 then uninstall it afterwards
 # a. Run PyRun's pip install pyyaml==3.11
+((STEP++))
 echo "$STEP/$STEPS. Running '$PYRUN_PIP install pyyaml==3.11'... on '$KA_LITE_DIR' "
 $PYRUN_PIP install pyyaml==3.11
 if [ $? -ne 0 ]; then
@@ -303,10 +348,20 @@ if ! [ -d "$KA_LITE_MONITOR_APP_PATH" ]; then
     exit 2
 fi
 
-# sign the .app file
-# unlock the keychain first so we can access the private key
-# security unlock-keychain -p $KEYCHAIN_PASSWORD
-# codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
+echo "Checking if to codesign '$KA_LITE_MONITOR_APP_PATH' or not..."
+if [ -z ${IS_BAMBOO+0} ]; then 
+    echo "Running on local machine, don't codesign!"; 
+else 
+    echo "Running on bamboo server, so will codesign."; 
+    # sign the .app file
+    # unlock the keychain first so we can access the private key
+    # security unlock-keychain -p $KEYCHAIN_PASSWORD
+    codesign -d -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
+    if [ $? -ne 0 ]; then
+        echo "  $0: Error/s encountered codesigning '$KA_LITE_MONITOR_APP_PATH', exiting..."
+        exit 1
+    fi
+fi
 
 # Build the .dmg file.
 ((STEP++))
@@ -320,8 +375,22 @@ fi
 
 # Remove the .dmg if it exists.
 test -e "$DMG_PATH" && rm "$DMG_PATH"
-# Add the README.md to the package.
-cp "$KA_LITE_README_PATH" "$RELEASE_PATH"
+
+MORE_FILES_PATH="$RELEASE_PATH/More files"
+
+if [ -d "$MORE_FILES_PATH" ]; then
+    echo "Found More files directory at '$MORE_FILES_PATH'."
+else
+    mkdir "$MORE_FILES_PATH"
+fi 
+
+# Add the README.md to the More files directory.
+cp "$KA_LITE_README_PATH" "$MORE_FILES_PATH"
+
+# Add the LICENSE to the More files directory.
+cp "$KA_LITE_LICENSE_PATH" "$MORE_FILES_PATH"
+
+
 # Clean-up the package.
 test -x "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM"
 
@@ -333,8 +402,10 @@ $CREATE_DMG \
     --icon "KA-Lite-Monitor.app" 150 200 \
     --app-drop-link 500 200 \
     --background "$KA_LITE_LOGO_PATH" \
-    "$DMG_PATH" \
-    "$RELEASE_PATH"
+    --eula "$MORE_FILES_PATH/LICENSE" \
+    "$DMG_PATH"  \
+    "$RELEASE_PATH" 
+
     # --icon-size 64 \
     # --text-size 16 \
 
