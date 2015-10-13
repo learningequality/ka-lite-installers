@@ -80,7 +80,7 @@ PYRUN_PIP="$PYRUN_DIR/bin/pip"
 ASSESSMENT_ZIP="assessment.zip"
 ASSESSMENT_PATH="$WORKING_DIR/$ASSESSMENT_ZIP"
 ASSESSMENT_KALITE_MONITOR="$KA_LITE_MONITOR_RESOURCES_DIR"
-ASSESSMENT_URL="https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip"
+ASSESSMENT_URL="https://learningequality.org/downloads/ka-lite/0.15/content/khan_assessment.zip"
 
 KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
