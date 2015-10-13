@@ -29,7 +29,6 @@ SolidCompression=yes
 PrivilegesRequired=admin
 UsePreviousAppDir=yes
 ChangesEnvironment=yes
-AlwaysRestart=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -38,10 +37,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\ka-lite\*"; DestDir: "{app}\ka-lite"; Excludes: ".KALITE_SOURCE_DIR,content\assessment,content\assessment\*,content\assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\ka-lite\content\*"; DestDir: "{app}\ka-lite\content"; Excludes: "assessment,assessment\*,assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\ka-lite\content\assessment\*"; DestDir: "{app}\ka-lite\assessment"; Excludes: "assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\ka-lite\content\assessmentitems.sqlite"; DestDir: "{app}\ka-lite\assessment\khan"; Flags: ignoreversion
+Source: "..\ka-lite\dist\ka-lite-static-*.zip"; DestDir: "{app}\ka-lite"
+Source: "..\ka-lite\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\images\logo48.ico"; DestDir: "{app}\images"; Flags: ignoreversion
@@ -57,11 +54,11 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: shellexec postinstall skipifsilent
 
 [Dirs]
-Name: "{app}\"; Permissions: everyone-modify
+Name: "{app}\"; Permissions: everyone-readexec
 
 
 [InstallDelete]
-Type: Files; Name: "{app}\ka-lite\kalite\updates\utils.*"
+Type: Files; Name: "{app}\*"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\ka-lite*"
@@ -317,10 +314,10 @@ begin
     PipPath := GetPipPath;
     if PipPath = '' then
         exit;
-    PipCommand := 'install "' + ExpandConstant('{app}\ka-lite\dist\ka-lite-static-')  + '{#TargetVersion}' + '.zip"';
+    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka-lite-static-'  + '{#TargetVersion}' + '.zip"';
 
-    MsgBox('Setup will now unpack dependencies for your installation.', mbInformation, MB_OK);
-    if not ShellExec('open', PipPath, PipCommand, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
+    MsgBox('Setup will now install kalite source files to your Python site-packages.', mbInformation, MB_OK);
+    if not ShellExec('open', PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
     begin
       MsgBox('Critical error.' #13#13 'Dependencies have failed to install. Error Number: ' + IntToStr(ErrorCode), mbInformation, MB_OK);
       forceCancel := True;
@@ -434,15 +431,6 @@ begin
         if installFlag then
         begin
             HandlePipSetup();
-
-            { Add KALITE_ROOT_DATA_PATH to environment variables. A workaround for setting kalite.ROOT_DATA_PATH }
-            { In the future, the windows installer should use setuptools to avoid OS-dependent workarounds like this. }
-            RegWriteStringValue(
-                HKLM,
-                'System\CurrentControlSet\Control\Session Manager\Environment',
-                'KALITE_ROOT_DATA_PATH',
-                ExpandConstant('{app}\ka-lite\')
-            );
 
             if Not forceCancel then
             begin
