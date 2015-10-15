@@ -178,11 +178,6 @@ BOOL checkEnvVars() {
     if (command != statusStr) {
         [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
     }
-    else {
-        if (self.processCounter >= 1) {
-            return;
-        }
-    }
     
     self.processCounter += 1;
     
@@ -372,7 +367,7 @@ BOOL pyrunExists() {
             // We need this check because this may be called inside the monitor timer.
             NSLog(@"Fetching `kalite status`...");
             [self showStatus:self.status];
-            [self runKalite:@"status"];
+            [self getKaliteStatus];
             return self.status;
         }
     } else {
@@ -756,7 +751,7 @@ BOOL setEnvVars(BOOL createPlist) {
         return;
     }
     [self runKalite:@"start"];
-    }
+}
 
 
 - (IBAction)stop:(id)sender {
