@@ -323,6 +323,15 @@ begin
       forceCancel := True;
       WizardForm.Close;
     end;
+
+    { Must set this environment variable so the systray executable knows where to find the installed kalite.bat script}
+    { Should by in the same directory as pip.exe, e.g. 'C:\Python27\Scripts' }
+    RegWriteStringValue(
+        HKLM,
+        'System\CurrentControlSet\Control\Session Manager\Environment',
+        'KALITE_SCRIPT_DIR',
+        ExtractFileDir(PipPath)
+    );
 end;
 
 function InitializeSetup(): Boolean;
@@ -469,15 +478,14 @@ end;
 
 { Called just prior to uninstall finishing. }
 { Clean up things we did during uninstall: }
-{ * Remove environment variable KALITE_ROOT_DATA_PATH }
+{ * Remove environment variable KALITE_SCRIPT_DIR, which is set starting in version 0.16.x }
+{ * Previously (versions 0.13.x to 0.15.x) KALITE_ROOT_DATA_PATH was set -- it should be unset by the respective }
+{   uninstallers of those versions }
 procedure DeinitializeUninstall();
 begin
-    if not RegDeleteValue(
+    RegDeleteValue(
         HKLM,
         'System\CurrentControlSet\Control\Session Manager\Environment',
-        'KALITE_ROOT_DATA_PATH'
-    ) then
-    begin
-        MsgBox('Unable to unset environment variable KALITE_ROOT_DATA_PATH.', mbError, MB_OK);
-    end;
+        'KALITE_SCRIPT_DIR'
+    )
 end;
