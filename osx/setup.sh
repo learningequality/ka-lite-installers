@@ -365,7 +365,7 @@ fi
 
 # Build the .dmg file.
 ((STEP++))
-echo "$STEP/$STEPS. Building the .dmg file at '$OUTPUT_PATH'..."
+echo "$STEP/$STEPS. Building the .mpkg file at '$OUTPUT_PATH'..."
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
 ((STEP++))
@@ -375,8 +375,8 @@ echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
 PACKAGES_EXEC="packagesbuild"
-PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Lite-Monitor/KA-Lite.pkgproj"
-PACKAGES_BUILD_FOLDER="$SCRIPTPATH/KA-Lite-Packages/KA-Lite-Monitor/build"
+PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Monitor/KA-Monitor.pkgproj"
+PACKAGES_BUILD_FOLDER="$SCRIPTPATH/KA-Lite-Packages/KA-Monitor/build/KA-Monitor.mpkg"
 PACKAGES_OUTPUT="KA-Lite.mpkg"
 
 # check if the `Packages` is installed
@@ -385,69 +385,8 @@ if ! command -v $PACKAGES_EXEC > /dev/null; then
     exit 1
 else
     $PACKAGES_EXEC $PACKAGES_PROJECT
-    rm -fr $OUTPUT_PATH/$PACKAGES_OUTPUT
-    mv -v $PACKAGES_BUILD_FOLDER/* $OUTPUT_PATH
+    rm -fr $OUTPUT_PATH
+    mv -v $PACKAGES_BUILD_FOLDER/ $OUTPUT_PATH
     echo "Congratulations! Your newly built installer is at '$OUTPUT_PATH/$PACKAGES_OUTPUT'."
 fi
-
-## clone the .dmg builder if non-existent
-#if ! [ -d $DMG_BUILDER_PATH ]; then
-#    git clone https://github.com/mrpau/create-dmg.git $DMG_BUILDER_PATH
-#fi
-#
-## Remove the .dmg if it exists.
-#test -e "$DMG_PATH" && rm "$DMG_PATH"
-#
-#MORE_FILES_PATH="$RELEASE_PATH/More files"
-#
-#if [ -d "$MORE_FILES_PATH" ]; then
-#    echo "Found More files directory at '$MORE_FILES_PATH'."
-#else
-#    mkdir "$MORE_FILES_PATH"
-#fi
-#
-## Add the README.md to the More files directory.
-#cp "$KA_LITE_README_PATH" "$MORE_FILES_PATH"
-#
-## Add the LICENSE to the More files directory.
-#cp "$KA_LITE_LICENSE_PATH" "$MORE_FILES_PATH"
-#
-#
-## Clean-up the package.
-#test -x "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM"
-#
-## Let's create the .dmg.
-#$CREATE_DMG \
-#    --volname "KA-Lite-Monitor Installer" \
-#    --volicon "$KA_LITE_ICNS_PATH" \
-#    --window-size 700 400 \
-#    --icon "KA-Lite-Monitor.app" 150 200 \
-#    --app-drop-link 500 200 \
-#    --background "$KA_LITE_LOGO_PATH" \
-#    --eula "$MORE_FILES_PATH/LICENSE" \
-#    "$DMG_PATH"  \
-#    "$RELEASE_PATH"
-#
-#    # --icon-size 64 \
-#    # --text-size 16 \
-#
-## Clean-up, only remove if using temporary directory made by `mktemp`.
-## TODO(cpauya): remove when done debugging
-## if [ $WORKING_DIR != './temp' ]; then
-##     echo "  Removing temporary directory '$WORKING_DIR'..."
-##     rm -rf "$WORKING_DIR"
-## fi
-
-#echo "Done!"
-#if [ -e "$DMG_PATH" ]; then
-#    # codesign the built DMG file
-#    # unlock the keychain first so we can access the private key
-#    # security unlock-keychain -p $KEYCHAIN_PASSWORD
-#    codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$DMG_PATH"
-#    echo "You can now test the built installer at '$DMG_PATH'."
-#else
-#    echo "Sorry, something went wrong trying to build the installer at '$DMG_PATH'."
-#    exit 1
-#fi
-
 

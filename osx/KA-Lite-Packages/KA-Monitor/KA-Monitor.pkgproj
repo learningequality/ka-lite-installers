@@ -8,7 +8,7 @@
 			<key>PACKAGE_FILES</key>
 			<dict>
 				<key>DEFAULT_INSTALL_LOCATION</key>
-				<string>/</string>
+				<string>/Applications</string>
 				<key>HIERARCHY</key>
 				<dict>
 					<key>CHILDREN</key>
@@ -16,6 +16,22 @@
 						<dict>
 							<key>CHILDREN</key>
 							<array>
+								<dict>
+									<key>CHILDREN</key>
+									<array/>
+									<key>GID</key>
+									<integer>80</integer>
+									<key>PATH</key>
+									<string>../../KA-Lite-Monitor/build/Release/KA-Lite-Monitor.app</string>
+									<key>PATH_TYPE</key>
+									<integer>1</integer>
+									<key>PERMISSIONS</key>
+									<integer>493</integer>
+									<key>TYPE</key>
+									<integer>3</integer>
+									<key>UID</key>
+									<integer>0</integer>
+								</dict>
 								<dict>
 									<key>CHILDREN</key>
 									<array/>
@@ -471,39 +487,8 @@
 			</dict>
 			<key>PACKAGE_SCRIPTS</key>
 			<dict>
-				<key>POSTINSTALL_PATH</key>
-				<dict>
-					<key>PATH</key>
-					<string>/Users/arceduardvincent/Desktop/Ka-Packages/app/installers/osx/KA-Lite-Monitor/KA-Lite-Monitor/scripts/shebangcheck.py</string>
-					<key>PATH_TYPE</key>
-					<integer>0</integer>
-				</dict>
-				<key>PREINSTALL_PATH</key>
-				<dict>
-					<key>PATH</key>
-					<string>/Users/arceduardvincent/Desktop/Ka-Packages/pre-installation.sh</string>
-					<key>PATH_TYPE</key>
-					<integer>0</integer>
-				</dict>
 				<key>RESOURCES</key>
-				<array>
-					<dict>
-						<key>CHILDREN</key>
-						<array/>
-						<key>GID</key>
-						<integer>0</integer>
-						<key>PATH</key>
-						<string>/Users/arceduardvincent/Desktop/Ka-Packages/KA-Monitor/script</string>
-						<key>PATH_TYPE</key>
-						<integer>0</integer>
-						<key>PERMISSIONS</key>
-						<integer>493</integer>
-						<key>TYPE</key>
-						<integer>3</integer>
-						<key>UID</key>
-						<integer>0</integer>
-					</dict>
-				</array>
+				<array/>
 			</dict>
 			<key>PACKAGE_SETTINGS</key>
 			<dict>
