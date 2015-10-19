@@ -369,15 +369,16 @@ echo "$STEP/$STEPS. Building the .mpkg file at '$OUTPUT_PATH'..."
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
 ((STEP++))
-# Build the KA-Lite Monitor installer using `Packages`.
+# Build the KA-Lite  installer using `Packages`.
 # This will build the .mpkg file.
 echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
+PACKAGES_OUTPUT="KA-Lite.pkg"
 PACKAGES_EXEC="packagesbuild"
-PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Monitor/KA-Monitor.pkgproj"
-PACKAGES_BUILD_FOLDER="$SCRIPTPATH/KA-Lite-Packages/KA-Monitor/build/KA-Monitor.mpkg"
-PACKAGES_OUTPUT="KA-Lite.mpkg"
+PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Lite.pkgproj"
+PACKAGES_BUILD_FOLDER="$SCRIPTPATH/KA-Lite-Packages/build/KA-Lite.pkg"
+
 
 # check if the `Packages` is installed
 if ! command -v $PACKAGES_EXEC > /dev/null; then
@@ -385,8 +386,12 @@ if ! command -v $PACKAGES_EXEC > /dev/null; then
     exit 1
 else
     $PACKAGES_EXEC $PACKAGES_PROJECT
-    rm -fr $OUTPUT_PATH
-    mv -v $PACKAGES_BUILD_FOLDER/ $OUTPUT_PATH
+    if [ $? -ne 0 ]; then
+        echo "  $0: Error/s encountered building .mpkg file '$PACKAGES_EXEC', exiting..."
+        exit 1
+    fi
+    mv -v $PACKAGES_BUILD_FOLDER $OUTPUT_PATH
     echo "Congratulations! Your newly built installer is at '$OUTPUT_PATH/$PACKAGES_OUTPUT'."
+    open $OUTPUT_PATH/$PACKAGES_OUTPUT
 fi
 
