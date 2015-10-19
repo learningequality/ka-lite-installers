@@ -487,9 +487,9 @@
 				<key>BACKGROUND_PATH</key>
 				<dict>
 					<key>PATH</key>
-					<string>/Users/arceduardvincent/installers/osx/KA-Lite-Packages/media/Untitled-1.png</string>
+					<string>media/Untitled-1.png</string>
 					<key>PATH_TYPE</key>
-					<integer>0</integer>
+					<integer>1</integer>
 				</dict>
 				<key>CUSTOM</key>
 				<integer>1</integer>
