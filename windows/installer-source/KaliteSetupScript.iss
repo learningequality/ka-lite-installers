@@ -201,11 +201,11 @@ var
 begin
     MsgBox('Migrating old data to current user''s %USERPROFILE%\.kalite\ directory.', mbInformation, MB_OK);
     Exec(ExpandConstant('{cmd}'), '/S /C "mkdir "%USERPROFILE%\.kalite""', '', SW_SHOW, ewWaitUntilTerminated, retCode);
-    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + WizardForm.PrevAppDir + '\ka-lite\content' + '"%USERPROFILE%\.kalite\content\" /E /Y"', '', SW_SHOW, ewWaitUntilTerminated, retCodeContent);
-    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + WizardForm.PrevAppDir + '\ka-lite\kalite\database' + '"%USERPROFILE%\.kalite\database\" /E /Y"', '', SW_SHOW, ewWaitUntilTerminated, retCodeDB);
+    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + WizardForm.PrevAppDir + '\ka-lite\content" "%USERPROFILE%\.kalite\content\" /Y"', '', SW_SHOW, ewWaitUntilTerminated, retCodeContent);
+    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + WizardForm.PrevAppDir + '\ka-lite\kalite\database" "%USERPROFILE%\.kalite\database\" /Y"', '', SW_SHOW, ewWaitUntilTerminated, retCodeDB);
     if (retCodeContent <> 0) or (retCodeDB <> 0) then
     begin
-        MsgBox('Something went wrong! Unable to backup your data.', mbError, MB_OK);
+        MsgBox('Something went wrong! Unable to backup your data. Continuing installation.', mbError, MB_OK);
     end;
 end;
 
@@ -368,7 +368,6 @@ end;
 { Completes the setup with bundled empty database file. }
 procedure DoSetup;
 var
-    setupCommand: string;
     retCode: integer;
 begin
     { Copy the bundled empty db to the proper location. }
