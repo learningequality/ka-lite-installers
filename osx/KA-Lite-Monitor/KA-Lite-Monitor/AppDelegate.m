@@ -56,6 +56,11 @@
 }
 
 
+
+- (NSMenu *)applicationDockMenu:(NSApplication *)sender {
+    return self.statusMenu;
+}
+
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
