@@ -392,6 +392,6 @@ else
     fi
     mv -v $PACKAGES_BUILD_FOLDER $OUTPUT_PATH
     echo "Congratulations! Your newly built installer is at '$OUTPUT_PATH/$PACKAGES_OUTPUT'."
-    open $OUTPUT_PATH/$PACKAGES_OUTPUT
+    # open $OUTPUT_PATH/$PACKAGES_OUTPUT
 fi
 
