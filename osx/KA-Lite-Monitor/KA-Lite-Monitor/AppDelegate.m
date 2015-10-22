@@ -55,7 +55,13 @@
     }
 }
 
-
+//REF http://objcolumnist.com/2009/08/09/reopening-an-applications-main-window-by-clicking-the-dock-icon/
+- (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag {
+    if(flag==NO) {
+        [window makeKeyAndOrderFront:self];
+    }
+    return YES;	
+}
 
 - (NSMenu *)applicationDockMenu:(NSApplication *)sender {
     return self.statusMenu;
