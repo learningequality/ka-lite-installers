@@ -60,6 +60,7 @@
     if(flag==NO) {
         [window makeKeyAndOrderFront:self];
     }
+    [window setLevel:NSFloatingWindowLevel];
     return YES;	
 }
 
@@ -798,6 +799,8 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (IBAction)showPreferences:(id)sender {
     [self showPreferences];
+    //REF http://stackoverflow.com/questions/6994541/cocoa-showing-a-window-on-top-without-giving-it-focus
+    [window setLevel:NSFloatingWindowLevel];
 }
 
 
