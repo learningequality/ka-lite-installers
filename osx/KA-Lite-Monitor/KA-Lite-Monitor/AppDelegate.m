@@ -63,9 +63,9 @@
     return YES;	
 }
 
-- (NSMenu *)applicationDockMenu:(NSApplication *)sender {
-    return self.statusMenu;
-}
+//- (NSMenu *)applicationDockMenu:(NSApplication *)sender {
+//    return self.statusMenu;
+//}
 
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
