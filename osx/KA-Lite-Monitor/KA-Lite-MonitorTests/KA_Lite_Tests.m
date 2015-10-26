@@ -1,6 +1,6 @@
 //
-//  KA_Lite_MonitorTests.m
-//  KA-Lite MonitorTests
+//  KA_Lite_Tests.m
+//  KA-Lite Tests
 //
 //  Created by cyril on 1/20/15.
 //  Copyright (c) 2015 FLE. All rights reserved.
@@ -9,11 +9,11 @@
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
 
-@interface KA_Lite_MonitorTests : XCTestCase
+@interface KA_Lite_Tests : XCTestCase
 
 @end
 
-@implementation KA_Lite_MonitorTests
+@implementation KA_Lite_Tests
 
 - (void)setUp {
     [super setUp];
