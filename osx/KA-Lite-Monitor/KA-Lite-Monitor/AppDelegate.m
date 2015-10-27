@@ -63,6 +63,7 @@
     return YES;	
 }
 
+// TODO(amodia): Show menu bar on dock icon.
 //- (NSMenu *)applicationDockMenu:(NSApplication *)sender {
 //    return self.statusMenu;
 //}
