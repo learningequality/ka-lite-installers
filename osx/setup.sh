@@ -12,17 +12,17 @@
 # 7. Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
 # 8. Building the docs using sphinx-build. 
 # 9. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
-# 10. Uninstall pyyaml so it's not included in the .dmg to build
+# 10. Uninstall pyyaml so it's not included in the .pkg to build
 # 11. Copy `pyrun` folder to the Xcode Resources folder.
 # 12. Build the Xcode project to produce the .app.
-# 13. Build the .dmg.
+# 13. Build the .pkg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
 
 # References:
 # 1. http://stackoverflow.com/questions/1371351/add-files-to-an-xcode-project-from-a-script
-# 1. https://github.com/andreyvit/create-dmg forked to https://github.com/mrpau/create-dmg
+# 2. http://s.sudre.free.fr/Software/Packages/about.html
 
 # REF: http://stackoverflow.com/questions/3601515/how-to-check-if-a-variable-is-set-in-bash
 if [ -z ${TMPDIR+0} ]; then
@@ -124,9 +124,6 @@ fi
 KA_LITE_MONITOR_RESOURCES_PYRUN_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$PYRUN_NAME"
 
 OUTPUT_PATH="$WORKING_DIR/output"
-DMG_PATH="$OUTPUT_PATH/KA-Lite-Monitor.dmg"
-DMG_BUILDER_PATH="$WORKING_DIR/create-dmg"
-CREATE_DMG="$DMG_BUILDER_PATH/create-dmg"
 
 SIGNER_IDENTITY_APPLICATION="Developer ID Application: Foundation for Learning Equality, Inc. (H83B64B6AV)"
 SIGNER_IDENTITY_INSTALLER="Developer ID Installer: Foundation for Learning Equality, Inc. (H83B64B6AV)"
@@ -306,7 +303,7 @@ if [ $? -ne 0 ]; then
 fi
 cd "$WORKING_DIR/.."
 
-# c. Uninstall pyyaml so it's not included in the .dmg to build
+# c. Uninstall pyyaml so it's not included in the .pkg to build
 ((STEP++))
 echo "$STEP/$STEPS. Running '$PYRUN_PIP uninstall pyyaml==3.11 --yes'... on '$KA_LITE_DIR' "
 $PYRUN_PIP uninstall pyyaml==3.11 --yes
@@ -363,14 +360,13 @@ else
     fi
 fi
 
-# Build the .dmg file.
+# Build the .pkg file.
 ((STEP++))
-echo "$STEP/$STEPS. Building the .mpkg file at '$OUTPUT_PATH'..."
+echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
-((STEP++))
 # Build the KA-Lite  installer using `Packages`.
-# This will build the .mpkg file.
+# This will build the .pkg file.
 echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
@@ -387,11 +383,10 @@ if ! command -v $PACKAGES_EXEC > /dev/null; then
 else
     $PACKAGES_EXEC $PACKAGES_PROJECT
     if [ $? -ne 0 ]; then
-        echo "  $0: Error/s encountered building .mpkg file '$PACKAGES_EXEC', exiting..."
+        echo "  $0: Error/s encountered building .pkg file '$PACKAGES_EXEC', exiting..."
         exit 1
     fi
     mv -v $PACKAGES_BUILD_FOLDER $OUTPUT_PATH
     echo "Congratulations! Your newly built installer is at '$OUTPUT_PATH/$PACKAGES_OUTPUT'."
-    # open $OUTPUT_PATH/$PACKAGES_OUTPUT
 fi
 
