@@ -1,0 +1,3 @@
+# This is the default local_settings.py that will be copied by the installer into the KALITE_DIR/kalite/ folder.
+
+DEBUG = False

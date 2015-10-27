@@ -1,0 +1,466 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D035A9391B671F80009FA40A /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = D035A9381B671F7F009FA40A /* scripts */; };
+		D04051441B67753800D40805 /* assessment.zip in Resources */ = {isa = PBXBuildFile; fileRef = D01E36F71B672C340097C9E8 /* assessment.zip */; };
+		F103615C1A81B7DF00998E6B /* images in Resources */ = {isa = PBXBuildFile; fileRef = F103615B1A81B7DF00998E6B /* images */; };
+		F1720BED1A79566700096453 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = F1720BEC1A79566700096453 /* README.md */; };
+		F1720BF11A7A343A00096453 /* local_settings.default in Resources */ = {isa = PBXBuildFile; fileRef = F1720BF01A7A343A00096453 /* local_settings.default */; };
+		F1B308391ACBD09500008AF1 /* pyrun-2.7 in Resources */ = {isa = PBXBuildFile; fileRef = F1B308381ACBD09400008AF1 /* pyrun-2.7 */; };
+		F1DDD4131A6E5DC10022F1C9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DDD4121A6E5DC10022F1C9 /* AppDelegate.m */; };
+		F1DDD4151A6E5DC10022F1C9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DDD4141A6E5DC10022F1C9 /* main.m */; };
+		F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1DDD4161A6E5DC10022F1C9 /* Images.xcassets */; };
+		F1DDD4261A6E5DC10022F1C9 /* KA_Lite_MonitorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DDD4251A6E5DC10022F1C9 /* KA_Lite_MonitorTests.m */; };
+		F1E5A30B1A8041FD003FA650 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = F1E5A3091A8041FD003FA650 /* MainMenu.xib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F1DDD4201A6E5DC10022F1C9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F1DDD4041A6E5DC10022F1C9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F1DDD40B1A6E5DC10022F1C9;
+			remoteInfo = "KA-Lite-Monitor";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		D01E36F71B672C340097C9E8 /* assessment.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = assessment.zip; path = Resources/assessment.zip; sourceTree = "<group>"; };
+		D035A9381B671F7F009FA40A /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
+		F103615B1A81B7DF00998E6B /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = Resources/images; sourceTree = "<group>"; };
+		F1720BEC1A79566700096453 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		F1720BF01A7A343A00096453 /* local_settings.default */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = local_settings.default; sourceTree = "<group>"; };
+		F1B308381ACBD09400008AF1 /* pyrun-2.7 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "pyrun-2.7"; path = "Resources/pyrun-2.7"; sourceTree = "<group>"; };
+		F1DDD40C1A6E5DC10022F1C9 /* KA-Lite-Monitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KA-Lite-Monitor.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F1DDD4101A6E5DC10022F1C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F1DDD4111A6E5DC10022F1C9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		F1DDD4121A6E5DC10022F1C9 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		F1DDD4141A6E5DC10022F1C9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		F1DDD4161A6E5DC10022F1C9 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		F1DDD41F1A6E5DC10022F1C9 /* KA-Lite-MonitorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "KA-Lite-MonitorTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F1DDD4241A6E5DC10022F1C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F1DDD4251A6E5DC10022F1C9 /* KA_Lite_MonitorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KA_Lite_MonitorTests.m; sourceTree = "<group>"; };
+		F1E5A30A1A8041FD003FA650 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F1DDD4091A6E5DC10022F1C9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F1DDD41C1A6E5DC10022F1C9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F1DDD4031A6E5DC10022F1C9 = {
+			isa = PBXGroup;
+			children = (
+				F1DDD40E1A6E5DC10022F1C9 /* KA-Lite-Monitor */,
+				F1DDD4221A6E5DC10022F1C9 /* KA-Lite-MonitorTests */,
+				F1DDD40D1A6E5DC10022F1C9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F1DDD40D1A6E5DC10022F1C9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F1DDD40C1A6E5DC10022F1C9 /* KA-Lite-Monitor.app */,
+				F1DDD41F1A6E5DC10022F1C9 /* KA-Lite-MonitorTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1DDD40E1A6E5DC10022F1C9 /* KA-Lite-Monitor */ = {
+			isa = PBXGroup;
+			children = (
+				F1DDD4121A6E5DC10022F1C9 /* AppDelegate.m */,
+				F1DDD4111A6E5DC10022F1C9 /* AppDelegate.h */,
+				F1E5A3091A8041FD003FA650 /* MainMenu.xib */,
+				F1DDD4161A6E5DC10022F1C9 /* Images.xcassets */,
+				F1DDD40F1A6E5DC10022F1C9 /* Supporting Files */,
+			);
+			path = "KA-Lite-Monitor";
+			sourceTree = "<group>";
+		};
+		F1DDD40F1A6E5DC10022F1C9 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				D01E36F71B672C340097C9E8 /* assessment.zip */,
+				D035A9381B671F7F009FA40A /* scripts */,
+				F1B308381ACBD09400008AF1 /* pyrun-2.7 */,
+				F103615B1A81B7DF00998E6B /* images */,
+				F1720BF01A7A343A00096453 /* local_settings.default */,
+				F1DDD4101A6E5DC10022F1C9 /* Info.plist */,
+				F1DDD4141A6E5DC10022F1C9 /* main.m */,
+				F1720BEC1A79566700096453 /* README.md */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		F1DDD4221A6E5DC10022F1C9 /* KA-Lite-MonitorTests */ = {
+			isa = PBXGroup;
+			children = (
+				F1DDD4251A6E5DC10022F1C9 /* KA_Lite_MonitorTests.m */,
+				F1DDD4231A6E5DC10022F1C9 /* Supporting Files */,
+			);
+			path = "KA-Lite-MonitorTests";
+			sourceTree = "<group>";
+		};
+		F1DDD4231A6E5DC10022F1C9 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				F1DDD4241A6E5DC10022F1C9 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F1DDD40B1A6E5DC10022F1C9 /* KA-Lite-Monitor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F1DDD4291A6E5DC10022F1C9 /* Build configuration list for PBXNativeTarget "KA-Lite-Monitor" */;
+			buildPhases = (
+				F1DDD4081A6E5DC10022F1C9 /* Sources */,
+				F1DDD4091A6E5DC10022F1C9 /* Frameworks */,
+				F1DDD40A1A6E5DC10022F1C9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "KA-Lite-Monitor";
+			productName = "KA-Lite-Monitor";
+			productReference = F1DDD40C1A6E5DC10022F1C9 /* KA-Lite-Monitor.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F1DDD41E1A6E5DC10022F1C9 /* KA-Lite-MonitorTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F1DDD42C1A6E5DC10022F1C9 /* Build configuration list for PBXNativeTarget "KA-Lite-MonitorTests" */;
+			buildPhases = (
+				F1DDD41B1A6E5DC10022F1C9 /* Sources */,
+				F1DDD41C1A6E5DC10022F1C9 /* Frameworks */,
+				F1DDD41D1A6E5DC10022F1C9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F1DDD4211A6E5DC10022F1C9 /* PBXTargetDependency */,
+			);
+			name = "KA-Lite-MonitorTests";
+			productName = "KA-Lite-MonitorTests";
+			productReference = F1DDD41F1A6E5DC10022F1C9 /* KA-Lite-MonitorTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F1DDD4041A6E5DC10022F1C9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = "Foundation for Learning Equality";
+				TargetAttributes = {
+					F1DDD40B1A6E5DC10022F1C9 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+					F1DDD41E1A6E5DC10022F1C9 = {
+						CreatedOnToolsVersion = 6.1.1;
+						TestTargetID = F1DDD40B1A6E5DC10022F1C9;
+					};
+				};
+			};
+			buildConfigurationList = F1DDD4071A6E5DC10022F1C9 /* Build configuration list for PBXProject "KA-Lite-Monitor" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F1DDD4031A6E5DC10022F1C9;
+			productRefGroup = F1DDD40D1A6E5DC10022F1C9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F1DDD40B1A6E5DC10022F1C9 /* KA-Lite-Monitor */,
+				F1DDD41E1A6E5DC10022F1C9 /* KA-Lite-MonitorTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F1DDD40A1A6E5DC10022F1C9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D04051441B67753800D40805 /* assessment.zip in Resources */,
+				F103615C1A81B7DF00998E6B /* images in Resources */,
+				F1B308391ACBD09500008AF1 /* pyrun-2.7 in Resources */,
+				F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */,
+				D035A9391B671F80009FA40A /* scripts in Resources */,
+				F1E5A30B1A8041FD003FA650 /* MainMenu.xib in Resources */,
+				F1720BF11A7A343A00096453 /* local_settings.default in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F1DDD41D1A6E5DC10022F1C9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F1DDD4081A6E5DC10022F1C9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F1720BED1A79566700096453 /* README.md in Sources */,
+				F1DDD4151A6E5DC10022F1C9 /* main.m in Sources */,
+				F1DDD4131A6E5DC10022F1C9 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F1DDD41B1A6E5DC10022F1C9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F1DDD4261A6E5DC10022F1C9 /* KA_Lite_MonitorTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F1DDD4211A6E5DC10022F1C9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F1DDD40B1A6E5DC10022F1C9 /* KA-Lite-Monitor */;
+			targetProxy = F1DDD4201A6E5DC10022F1C9 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		F1E5A3091A8041FD003FA650 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				F1E5A30A1A8041FD003FA650 /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		F1DDD4271A6E5DC10022F1C9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		F1DDD4281A6E5DC10022F1C9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		F1DDD42A1A6E5DC10022F1C9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.framework *.gch *.xcode* (*) .DS_Store CVS .svn .git .hg ka-lite pyrun";
+				EXCLUDED_SOURCE_FILE_NAMES = (
+					"*.html",
+					"*.css",
+					"*.c",
+					"*.js",
+					"*.py",
+					"*.pyc",
+					"*.md",
+					"*ka-lite/*.*",
+				);
+				INFOPLIST_FILE = "KA-Lite-Monitor/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = "KA-Lite-Monitor";
+				SDKROOT = macosx10.9;
+			};
+			name = Debug;
+		};
+		F1DDD42B1A6E5DC10022F1C9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = "*.nib *.lproj *.framework *.gch *.xcode* (*) .DS_Store CVS .svn .git .hg ka-lite pyrun";
+				EXCLUDED_SOURCE_FILE_NAMES = (
+					"*.html",
+					"*.css",
+					"*.c",
+					"*.js",
+					"*.py",
+					"*.pyc",
+					"*.md",
+					"*ka-lite/*.*",
+				);
+				INFOPLIST_FILE = "KA-Lite-Monitor/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "KA-Lite-Monitor";
+				SDKROOT = macosx10.9;
+			};
+			name = Release;
+		};
+		F1DDD42D1A6E5DC10022F1C9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "KA-Lite-MonitorTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_NAME = "KA-Lite-MonitorTests";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KA-Lite-Monitor.app/Contents/MacOS/KA-Lite-Monitor";
+			};
+			name = Debug;
+		};
+		F1DDD42E1A6E5DC10022F1C9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "KA-Lite-MonitorTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_NAME = "KA-Lite-MonitorTests";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KA-Lite-Monitor.app/Contents/MacOS/KA-Lite-Monitor";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F1DDD4071A6E5DC10022F1C9 /* Build configuration list for PBXProject "KA-Lite-Monitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F1DDD4271A6E5DC10022F1C9 /* Debug */,
+				F1DDD4281A6E5DC10022F1C9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F1DDD4291A6E5DC10022F1C9 /* Build configuration list for PBXNativeTarget "KA-Lite-Monitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F1DDD42A1A6E5DC10022F1C9 /* Debug */,
+				F1DDD42B1A6E5DC10022F1C9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F1DDD42C1A6E5DC10022F1C9 /* Build configuration list for PBXNativeTarget "KA-Lite-MonitorTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F1DDD42D1A6E5DC10022F1C9 /* Debug */,
+				F1DDD42E1A6E5DC10022F1C9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F1DDD4041A6E5DC10022F1C9 /* Project object */;
+}

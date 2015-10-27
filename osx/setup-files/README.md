@@ -1,4 +1,4 @@
-KA-Lite Mac OSX App
+KA-Lite Monitor Mac OSX App
 ===========================
 
 This is the KA-Lite Monitor application that sits on the status menu of Mac OSX.  

@@ -20,8 +20,8 @@ There are two ways to build the installer, automated or manually.
     1.2. Download PyRun to the `temp/pyrun-2.7` directory.  
     1.3. Download the KA-Lite source to the `temp/ka-lite` directory.  
     1.4. Copy the `pyrun-2.7` directory to the `<xcode_source>/Resources/` folder.  
-    1.5. Build the `KA-Lite.app` using `xcodebuild`.  
-    1.6. Build the `KA-Lite.dmg` package.  The output can be found at the `temp/output/KA-Lite.dmg`.  
+    1.5. Build the `KA-Lite Monitor.app` using `xcodebuild`.  
+    1.6. Build the `KA-Lite Monitor.dmg` package.  The output can be found at the `temp/output/KA-Lite Monitor.dmg`.  
 2. To build the .dmg manually - refer to the README-FOR-DMG.md document.  
 
 
