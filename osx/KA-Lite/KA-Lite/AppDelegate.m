@@ -1,6 +1,6 @@
 //
 //  AppDelegate.m
-//  KA-Lite Monitor
+//  KA-Lite
 //
 //  Created by cyril on 1/20/15.
 //  Copyright (c) 2015 FLE. All rights reserved.
@@ -106,7 +106,7 @@
         sel = @selector(showPreferences);
     }
     [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:sel userInfo:nil repeats:NO];
-    [self startKaliteMonitorTimer];
+    [self startKaliteTimer];
 }
 
 
@@ -369,7 +369,7 @@ BOOL pyrunExists() {
             return self.status;
         } else {
             // If command is not "status", run `kalite status` to get status of ka-lite.
-            // We need this check because this may be called inside the monitor timer.
+            // We need this check because this may be called inside the kA-Lite timer.
             NSLog(@"Fetching `kalite status`...");
             [self showStatus:self.status];
             [self runKalite:@"status"];
@@ -444,7 +444,7 @@ void showNotification(NSString *subtitle) {
     // REF: http://stackoverflow.com/questions/12267357/nsusernotification-with-custom-soundname?rq=1
     // TODO(cpauya): These must be ticked by user on preferences if they want notifications, sounds, or not.
     NSUserNotification* notification = [[NSUserNotification alloc]init];
-    notification.title = @"KA-Lite Monitor";
+    notification.title = @"KA-Lite";
     notification.subtitle = subtitle;
     notification.soundName = @"Basso.aiff";
     [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
@@ -1064,7 +1064,7 @@ BOOL setEnvVars(BOOL createPlist) {
 }
 
 
-- (void)startKaliteMonitorTimer {
+- (void)startKaliteTimer {
     // Setup a timer to monitor the result of `kalite status` after 60 seconds
     // TODO(cpauya): then every 60 seconds there after.
 
