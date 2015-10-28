@@ -55,6 +55,18 @@
     }
 }
 
+//REF http://objcolumnist.com/2009/08/09/reopening-an-applications-main-window-by-clicking-the-dock-icon/
+- (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag {
+    if(flag==NO) {
+        [self showPreferences];
+    }
+    return YES;	
+}
+
+// TODO(amodia): Show menu bar on dock icon.
+//- (NSMenu *)applicationDockMenu:(NSApplication *)sender {
+//    return self.statusMenu;
+//}
 
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
@@ -787,6 +799,7 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (IBAction)showPreferences:(id)sender {
     [self showPreferences];
+    
 }
 
 
@@ -853,6 +866,8 @@ BOOL setEnvVars(BOOL createPlist) {
     [self loadPreferences];
     [window makeKeyAndOrderFront:self];
     [NSApp activateIgnoringOtherApps:YES];
+    //REF http://stackoverflow.com/questions/6994541/cocoa-showing-a-window-on-top-without-giving-it-focus
+    [window setLevel:NSFloatingWindowLevel];
 }
 
 
