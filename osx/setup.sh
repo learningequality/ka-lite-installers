@@ -60,13 +60,13 @@ if ! [ -d "$WORKING_DIR" ]; then
 fi
 
 SETUP_FILES_DIR="$SCRIPTPATH/setup-files"
-KA_LITE_MONITOR_PROJECT_DIR="$SCRIPTPATH/KA-Lite-Monitor"
-KA_LITE_MONITOR_DIR="$KA_LITE_MONITOR_PROJECT_DIR/KA-Lite-Monitor"
-KA_LITE_MONITOR_RESOURCES_DIR="$KA_LITE_MONITOR_DIR/Resources"
-KA_LITE_MONITOR_APP_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release/KA-Lite-Monitor.app"
-RELEASE_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release"
+KA_LITE_PROJECT_DIR="$SCRIPTPATH/KA-Lite"
+KA_LITE_DIR="$KA_LITE_PROJECT_DIR/KA-Lite"
+KA_LITE_RESOURCES_DIR="$KA_LITE_DIR/Resources"
+KA_LITE_APP_PATH="$KA_LITE_PROJECT_DIR/build/Release/KA-Lite.app"
+RELEASE_PATH="$KA_LITE_PROJECT_DIR/build/Release"
 KA_LITE_LOGO_PATH="$SETUP_FILES_DIR/ka-lite-logo-full.png"
-KA_LITE_ICNS_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite.icns"
+KA_LITE_ICNS_PATH="$KA_LITE_DIR/Resources/images/ka-lite.icns"
 KA_LITE_README_PATH="$SETUP_FILES_DIR/README.md"
 
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
@@ -77,7 +77,7 @@ PYRUN_PIP="$PYRUN_DIR/bin/pip"
 
 ASSESSMENT_ZIP="assessment.zip"
 ASSESSMENT_PATH="$WORKING_DIR/$ASSESSMENT_ZIP"
-ASSESSMENT_KALITE_MONITOR="$KA_LITE_MONITOR_RESOURCES_DIR"
+ASSESSMENT_KALITE="$KA_LITE_RESOURCES_DIR"
 ASSESSMENT_URL="https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip"
 
 KA_LITE="ka-lite"
@@ -119,10 +119,10 @@ if [ "$2" != "" ]; then
     fi
 fi
 
-KA_LITE_MONITOR_RESOURCES_PYRUN_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$PYRUN_NAME"
+KA_LITE_RESOURCES_PYRUN_DIR="$KA_LITE_RESOURCES_DIR/$PYRUN_NAME"
 
 OUTPUT_PATH="$WORKING_DIR/output"
-DMG_PATH="$OUTPUT_PATH/KA-Lite-Monitor.dmg"
+DMG_PATH="$OUTPUT_PATH/KA-Lite.dmg"
 DMG_BUILDER_PATH="$WORKING_DIR/create-dmg"
 CREATE_DMG="$DMG_BUILDER_PATH/create-dmg"
 
@@ -147,15 +147,15 @@ else
     fi
 fi
 
-if [ -f "$KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP" ]; then
-    rm -rf "$KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP"
-    echo "  Deleting target assessment zip (to be overwritten below) at $KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP"
+if [ -f "$KA_LITE_RESOURCES_DIR/$ASSESSMENT_ZIP" ]; then
+    rm -rf "$KA_LITE_RESOURCES_DIR/$ASSESSMENT_ZIP"
+    echo "  Deleting target assessment zip (to be overwritten below) at $KA_LITE_RESOURCES_DIR/$ASSESSMENT_ZIP"
 fi
 
 if [ -f "$ASSESSMENT_PATH" ]; then
     # Copy assessment
-    echo "  Copying new $ASSESSMENT_PATH to $KA_LITE_MONITOR_RESOURCES_DIR"
-    cp -R "$ASSESSMENT_PATH" "$KA_LITE_MONITOR_RESOURCES_DIR"
+    echo "  Copying new $ASSESSMENT_PATH to $KA_LITE_RESOURCES_DIR"
+    cp -R "$ASSESSMENT_PATH" "$KA_LITE_RESOURCES_DIR"
 fi
 
 
@@ -316,40 +316,40 @@ fi
 # Copy the extracted folders to the Xcode Resources folder
 ((STEP++))
 echo "$STEP/$STEPS. Copy extracted folders to the Xcode Resources folder."
-if ! [ -d "$KA_LITE_MONITOR_RESOURCES_DIR" ]; then
-    mkdir "$KA_LITE_MONITOR_RESOURCES_DIR"
+if ! [ -d "$KA_LITE_RESOURCES_DIR" ]; then
+    mkdir "$KA_LITE_RESOURCES_DIR"
     echo "  Created Xcode Resources folder..."
 fi
 
 # Delete and re-create the destination folders to make sure we don't leave orphaned files.
-echo "  Checking $KA_LITE_MONITOR_RESOURCES_PYRUN_DIR..."
-if [ -d "$KA_LITE_MONITOR_RESOURCES_PYRUN_DIR" ]; then
-    echo "    Deleting $KA_LITE_MONITOR_RESOURCES_PYRUN_DIR..."
-    rm -rf "$KA_LITE_MONITOR_RESOURCES_PYRUN_DIR"
+echo "  Checking $KA_LITE_RESOURCES_PYRUN_DIR..."
+if [ -d "$KA_LITE_RESOURCES_PYRUN_DIR" ]; then
+    echo "    Deleting $KA_LITE_RESOURCES_PYRUN_DIR..."
+    rm -rf "$KA_LITE_RESOURCES_PYRUN_DIR"
 fi
 
 # Copy pyrun...
-echo "  cp $PYRUN_DIR $KA_LITE_MONITOR_RESOURCES_DIR"
-cp -R "$PYRUN_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"
+echo "  cp $PYRUN_DIR $KA_LITE_RESOURCES_DIR"
+cp -R "$PYRUN_DIR" "$KA_LITE_RESOURCES_DIR"
 
 # Build the Xcode project.
 ((STEP++))
-echo "$STEP/$STEPS. Building the Xcode project to $KA_LITE_MONITOR_APP_PATH..."
-if [ -d "$KA_LITE_MONITOR_PROJECT_DIR" ]; then
+echo "$STEP/$STEPS. Building the Xcode project to $KA_LITE_APP_PATH..."
+if [ -d "$KA_LITE_PROJECT_DIR" ]; then
     # xcodebuild needs to be on the same directory as the .xcodeproj file
-    cd "$KA_LITE_MONITOR_PROJECT_DIR"
+    cd "$KA_LITE_PROJECT_DIR"
     xcodebuild clean build
     cd ..
 fi
-if ! [ -d "$KA_LITE_MONITOR_APP_PATH" ]; then
-    echo "Build of '$KA_LITE_MONITOR_APP_PATH' failed!"
+if ! [ -d "$KA_LITE_APP_PATH" ]; then
+    echo "Build of '$KA_LITE_APP_PATH' failed!"
     exit 2
 fi
 
 # sign the .app file
 # unlock the keychain first so we can access the private key
 # security unlock-keychain -p $KEYCHAIN_PASSWORD
-# codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
+# codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_APP_PATH"
 
 # Build the .dmg file.
 ((STEP++))
@@ -366,14 +366,14 @@ test -e "$DMG_PATH" && rm "$DMG_PATH"
 # Add the README.md to the package.
 cp "$KA_LITE_README_PATH" "$RELEASE_PATH"
 # Clean-up the package.
-test -x "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM"
+test -x "$RELEASE_PATH/KA-Lite.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite.app.dSYM"
 
 # Let's create the .dmg.
 $CREATE_DMG \
-    --volname "KA-Lite-Monitor Installer" \
+    --volname "KA-Lite Installer" \
     --volicon "$KA_LITE_ICNS_PATH" \
     --window-size 700 400 \
-    --icon "KA-Lite-Monitor.app" 150 200 \
+    --icon "KA-Lite.app" 150 200 \
     --app-drop-link 500 200 \
     --background "$KA_LITE_LOGO_PATH" \
     "$DMG_PATH" \

@@ -1,11 +1,11 @@
-KA-Lite Monitor OS X App
+KA-Lite OS X App
 ========================
 
 This is the KA-Lite status menu app with the source and PyRun in one package.
 
 To install:
 
-* Drag the "KA-Lite Monitor" app into the "Applications" folder.
+* Drag the "KA-Lite" app into the "Applications" folder.
 
 
 ## Features
@@ -23,7 +23,7 @@ When the app is run, it will automatically show the preferences dialog if the fo
 1. `/usr/bin/kalite` symlink
 2. database at `~/.kalite/database/data.sqlite` - the `~/.kalite/` location can be overridden by setting a `KALITE_HOME` environment variable
 
-The app shows an icon at the system status menu and it uses User Preferences saved at `~/Library/Preferences/FLE.KA-Lite-Monitor.plist` to save the following:
+The app shows an icon at the system status menu and it uses User Preferences saved at `~/Library/Preferences/FLE.KA-Lite.plist` to save the following:
 
 1. admin username
 2. admin password (encoded)
