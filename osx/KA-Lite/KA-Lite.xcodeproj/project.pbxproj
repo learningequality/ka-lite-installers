@@ -366,13 +366,9 @@
 				INFOPLIST_FILE = "KA-Lite/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-<<<<<<< HEAD:osx/KA-Lite/KA-Lite.xcodeproj/project.pbxproj
+
 				PRODUCT_NAME = "KA-Lite";
-				SDKROOT = macosx10.9;
-=======
-				PRODUCT_NAME = "KA-Lite-Monitor";
 				SDKROOT = macosx;
->>>>>>> develop:osx/KA-Lite-Monitor/KA-Lite-Monitor.xcodeproj/project.pbxproj
 			};
 			name = Debug;
 		};
@@ -396,13 +392,9 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				MTL_ENABLE_DEBUG_INFO = YES;
-<<<<<<< HEAD:osx/KA-Lite/KA-Lite.xcodeproj/project.pbxproj
+
 				PRODUCT_NAME = "KA-Lite";
-				SDKROOT = macosx10.9;
-=======
-				PRODUCT_NAME = "KA-Lite-Monitor";
 				SDKROOT = macosx;
->>>>>>> develop:osx/KA-Lite-Monitor/KA-Lite-Monitor.xcodeproj/project.pbxproj
 			};
 			name = Release;
 		};
