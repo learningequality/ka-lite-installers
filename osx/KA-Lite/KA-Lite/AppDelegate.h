@@ -1,6 +1,6 @@
 //
 //  AppDelegate.h
-//  KA-Lite Monitor
+//  KA-Lite
 //
 //  Created by cyril on 1/20/15.
 //  Copyright (c) 2015 FLE. All rights reserved.

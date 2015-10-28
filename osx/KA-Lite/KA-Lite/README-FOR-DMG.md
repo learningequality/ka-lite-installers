@@ -1,4 +1,4 @@
-KA-Lite Monitor OS X App
+KA-Lite OS X App
 ========================
 
 For creating the .dmg file, follow steps below:
@@ -8,7 +8,7 @@ For creating the .dmg file, follow steps below:
 
 2. Create a folder inside the mounted DMG and name it “.background”. Drop the background (ka-lite-logo.png) PNG into this. [Reference](http://chromasoft.blogspot.com/2010/02/building-dmg-installer-for-mac-simple.html)
 
-3. Drop your app into the root of the DMG. (e.g. KA-Lite Monitor app) [Reference](http://chromasoft.blogspot.com/2010/02/building-dmg-installer-for-mac-simple.html)
+3. Drop your app into the root of the DMG. (e.g. KA-Lite app) [Reference](http://chromasoft.blogspot.com/2010/02/building-dmg-installer-for-mac-simple.html)
 
 4. From the View menu of Finder, choose Show View Options, and customize the view to show icons only, no sideview, etc. Also switch off the toolbar in the view menu. [Reference](http://chromasoft.blogspot.com/2010/02/building-dmg-installer-for-mac-simple.html)
 
