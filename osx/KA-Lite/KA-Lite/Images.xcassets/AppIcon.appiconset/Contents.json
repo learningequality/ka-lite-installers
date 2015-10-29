@@ -14,7 +14,7 @@
     {
       "size" : "32x32",
       "idiom" : "mac",
-      "filename" : "icon_32x32_opt.png",
+      "filename" : "32x32.png",
       "scale" : "1x"
     },
     {
@@ -25,7 +25,7 @@
     {
       "size" : "128x128",
       "idiom" : "mac",
-      "filename" : "icon_128x128_opt.png",
+      "filename" : "128x128.png",
       "scale" : "1x"
     },
     {
@@ -36,7 +36,7 @@
     {
       "size" : "256x256",
       "idiom" : "mac",
-      "filename" : "icon_256x256_opt.png",
+      "filename" : "256x256.png",
       "scale" : "1x"
     },
     {
