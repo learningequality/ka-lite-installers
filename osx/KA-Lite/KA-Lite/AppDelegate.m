@@ -1,6 +1,6 @@
 //
 //  AppDelegate.m
-//  KA-Lite Monitor
+//  KA-Lite
 //
 //  Created by cyril on 1/20/15.
 //  Copyright (c) 2015 FLE. All rights reserved.
@@ -55,6 +55,18 @@
     }
 }
 
+//REF http://objcolumnist.com/2009/08/09/reopening-an-applications-main-window-by-clicking-the-dock-icon/
+- (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag {
+    if(flag==NO) {
+        [self showPreferences];
+    }
+    return YES;	
+}
+
+// TODO(amodia): Show menu bar on dock icon.
+//- (NSMenu *)applicationDockMenu:(NSApplication *)sender {
+//    return self.statusMenu;
+//}
 
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
@@ -106,7 +118,7 @@
         sel = @selector(showPreferences);
     }
     [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:sel userInfo:nil repeats:NO];
-    [self startKaliteMonitorTimer];
+    [self startKaliteTimer];
 }
 
 
@@ -177,11 +189,6 @@ BOOL checkEnvVars() {
     // Set loading indicator icon.
     if (command != statusStr) {
         [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
-    }
-    else {
-        if (self.processCounter >= 1) {
-            return;
-        }
     }
     
     self.processCounter += 1;
@@ -369,10 +376,10 @@ BOOL pyrunExists() {
             return self.status;
         } else {
             // If command is not "status", run `kalite status` to get status of ka-lite.
-            // We need this check because this may be called inside the monitor timer.
+            // We need this check because this may be called inside the kA-Lite timer.
             NSLog(@"Fetching `kalite status`...");
             [self showStatus:self.status];
-            [self runKalite:@"status"];
+            [self getKaliteStatus];
             return self.status;
         }
     } else {
@@ -444,7 +451,7 @@ void showNotification(NSString *subtitle) {
     // REF: http://stackoverflow.com/questions/12267357/nsusernotification-with-custom-soundname?rq=1
     // TODO(cpauya): These must be ticked by user on preferences if they want notifications, sounds, or not.
     NSUserNotification* notification = [[NSUserNotification alloc]init];
-    notification.title = @"KA-Lite Monitor";
+    notification.title = @"KA-Lite";
     notification.subtitle = subtitle;
     notification.soundName = @"Basso.aiff";
     [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
@@ -756,7 +763,7 @@ BOOL setEnvVars(BOOL createPlist) {
         return;
     }
     [self runKalite:@"start"];
-    }
+}
 
 
 - (IBAction)stop:(id)sender {
@@ -787,6 +794,7 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (IBAction)showPreferences:(id)sender {
     [self showPreferences];
+    
 }
 
 
@@ -853,6 +861,8 @@ BOOL setEnvVars(BOOL createPlist) {
     [self loadPreferences];
     [window makeKeyAndOrderFront:self];
     [NSApp activateIgnoringOtherApps:YES];
+    //REF http://stackoverflow.com/questions/6994541/cocoa-showing-a-window-on-top-without-giving-it-focus
+    [window setLevel:NSFloatingWindowLevel];
 }
 
 
@@ -1064,7 +1074,7 @@ BOOL setEnvVars(BOOL createPlist) {
 }
 
 
-- (void)startKaliteMonitorTimer {
+- (void)startKaliteTimer {
     // Setup a timer to monitor the result of `kalite status` after 60 seconds
     // TODO(cpauya): then every 60 seconds there after.
 
