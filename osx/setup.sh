@@ -12,17 +12,17 @@
 # 7. Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
 # 8. Building the docs using sphinx-build. 
 # 9. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
-# 10. Uninstall pyyaml so it's not included in the .dmg to build
+# 10. Uninstall pyyaml so it's not included in the .pkg to build
 # 11. Copy `pyrun` folder to the Xcode Resources folder.
 # 12. Build the Xcode project to produce the .app.
-# 13. Build the .dmg.
+# 13. Build the .pkg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
 
 # References:
 # 1. http://stackoverflow.com/questions/1371351/add-files-to-an-xcode-project-from-a-script
-# 1. https://github.com/andreyvit/create-dmg forked to https://github.com/mrpau/create-dmg
+# 2. http://s.sudre.free.fr/Software/Packages/about.html
 
 # REF: http://stackoverflow.com/questions/3601515/how-to-check-if-a-variable-is-set-in-bash
 if [ -z ${TMPDIR+0} ]; then
@@ -139,7 +139,7 @@ if [ -f "$ASSESSMENT_PATH" ]; then
     echo "  Found $ASSESSMENT_ZIP at '$ASSESSMENT_PATH' so will not re-download.  Delete $ASSESSMENT_ZIP to re-download."
 else
     if [ "$ASSESSMENT_URL" != "" ]; then
-        curl -o $ASSESSMENT_PATH $ASSESSMENT_URL
+        wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $ASSESSMENT_PATH $ASSESSMENT_URL
         if [ $? -ne 0 ]; then
             echo "  $0: Can't download '$ASSESSMENT_URL', exiting..."
             exit 1
@@ -166,12 +166,12 @@ echo "$STEP/$STEPS. Downloading 'install-pyrun' script..."
 if [ -e "$INSTALL_PYRUN" ]; then
     echo "  Found '$INSTALL_PYRUN' so will not re-download.  Delete this file to re-download."
 else
-    curl https://downloads.egenix.com/python/install-pyrun > $INSTALL_PYRUN
-    chmod +x $INSTALL_PYRUN
+    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $INSTALL_PYRUN $INSTALL_PYRUN_URL
     if [ $? -ne 0 ]; then
       echo "  $0: Can't download 'install-pyrun' script, exiting..."
       exit 1
     fi
+    chmod +x $INSTALL_PYRUN
 fi
 
 # Download PyRun.
@@ -201,7 +201,7 @@ else
         # REF: http://stackoverflow.com/a/18222354/84548ƒ®1
         # How to download source in .zip format from GitHub?
         # TODO(cpauya): Download from `master` branch NOT from `develop`.
-        curl -L -o $KA_LITE_ZIP $KA_LITE_REPO_ZIP
+        wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $KA_LITE_ZIP $KA_LITE_REPO_ZIP
         if [ $? -ne 0 ]; then
             echo "  $0: Can't download 'ka-lite' source, exiting..."
             exit 1
@@ -215,7 +215,7 @@ else
         echo "  $0: Can't extract '$KA_LITE_ZIP', exiting..."
         exit 1
     fi
-    
+
     # Rename the extracted folder.
     echo "  Renaming '$WORKING_DIR/$KA_LITE-*' to $KA_LITE_DIR'..."
     mv $WORKING_DIR/$KA_LITE-* $KA_LITE_DIR
@@ -293,7 +293,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # b. Run `bin/kalite manage compileymltojson`
-# MUST: Make sure to set the KALITE_PYTHON environment variable so 
+# MUST: Make sure to set the KALITE_PYTHON environment variable so
 #       that `bin/kalite` uses the pyrun's pip.
 echo "$STEP/$STEPS. Running 'bin/kalite manage compileymltojson'... on '$KA_LITE_DIR' "
 cd "$KA_LITE_DIR"
@@ -304,7 +304,7 @@ if [ $? -ne 0 ]; then
 fi
 cd "$WORKING_DIR/.."
 
-# c. Uninstall pyyaml so it's not included in the .dmg to build
+# c. Uninstall pyyaml so it's not included in the .pkg to build
 ((STEP++))
 echo "$STEP/$STEPS. Running '$PYRUN_PIP uninstall pyyaml==3.11 --yes'... on '$KA_LITE_DIR' "
 $PYRUN_PIP uninstall pyyaml==3.11 --yes
@@ -346,56 +346,48 @@ if ! [ -d "$KA_LITE_APP_PATH" ]; then
     exit 2
 fi
 
-# sign the .app file
-# unlock the keychain first so we can access the private key
-# security unlock-keychain -p $KEYCHAIN_PASSWORD
-# codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_APP_PATH"
-
-# Build the .dmg file.
-((STEP++))
-echo "$STEP/$STEPS. Building the .dmg file at '$OUTPUT_PATH'..."
-test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
-
-# clone the .dmg builder if non-existent
-if ! [ -d $DMG_BUILDER_PATH ]; then
-    git clone https://github.com/mrpau/create-dmg.git $DMG_BUILDER_PATH
-fi
-
-# Remove the .dmg if it exists.
-test -e "$DMG_PATH" && rm "$DMG_PATH"
-# Add the README.md to the package.
-cp "$KA_LITE_README_PATH" "$RELEASE_PATH"
-# Clean-up the package.
-test -x "$RELEASE_PATH/KA-Lite.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite.app.dSYM"
-
-# Let's create the .dmg.
-$CREATE_DMG \
-    --volname "KA-Lite Installer" \
-    --volicon "$KA_LITE_ICNS_PATH" \
-    --window-size 700 400 \
-    --icon "KA-Lite.app" 150 200 \
-    --app-drop-link 500 200 \
-    --background "$KA_LITE_LOGO_PATH" \
-    "$DMG_PATH" \
-    "$RELEASE_PATH"
-    # --icon-size 64 \
-    # --text-size 16 \
-
-# Clean-up, only remove if using temporary directory made by `mktemp`.
-# TODO(cpauya): remove when done debugging
-# if [ $WORKING_DIR != './temp' ]; then
-#     echo "  Removing temporary directory '$WORKING_DIR'..."
-#     rm -rf "$WORKING_DIR"
-# fi
-
-echo "Done!"
-if [ -e "$DMG_PATH" ]; then
-    # codesign the built DMG file
+echo "Checking if to codesign '$KA_LITE_MONITOR_APP_PATH' or not..."
+if [ -z ${IS_BAMBOO+0} ]; then
+    echo "Running on local machine, don't codesign!";
+else
+    echo "Running on bamboo server, so will codesign.";
+    # sign the .app file
     # unlock the keychain first so we can access the private key
     # security unlock-keychain -p $KEYCHAIN_PASSWORD
-    codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$DMG_PATH"
-    echo "You can now test the built installer at '$DMG_PATH'."
-else
-    echo "Sorry, something went wrong trying to build the installer at '$DMG_PATH'."
-    exit 1
+    codesign -d -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
+    if [ $? -ne 0 ]; then
+        echo "  $0: Error/s encountered codesigning '$KA_LITE_MONITOR_APP_PATH', exiting..."
+        exit 1
+    fi
 fi
+
+# Build the .pkg file.
+((STEP++))
+echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
+test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
+
+# Build the KA-Lite  installer using `Packages`.
+# This will build the .pkg file.
+echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
+test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
+
+PACKAGES_OUTPUT="KA-Lite.pkg"
+PACKAGES_EXEC="packagesbuild"
+PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Lite.pkgproj"
+PACKAGES_BUILD_FOLDER="$SCRIPTPATH/KA-Lite-Packages/build/KA-Lite.pkg"
+
+
+# check if the `Packages` is installed
+if ! command -v $PACKAGES_EXEC > /dev/null; then
+    echo "Abort! Packages is not installed."
+    exit 1
+else
+    $PACKAGES_EXEC $PACKAGES_PROJECT
+    if [ $? -ne 0 ]; then
+        echo "  $0: Error/s encountered building .pkg file '$PACKAGES_EXEC', exiting..."
+        exit 1
+    fi
+    mv -v $PACKAGES_BUILD_FOLDER $OUTPUT_PATH
+    echo "Congratulations! Your newly built installer is at '$OUTPUT_PATH/$PACKAGES_OUTPUT'."
+fi
+
