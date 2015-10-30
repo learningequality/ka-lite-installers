@@ -413,15 +413,8 @@ var
     retCode: integer;
 begin
     { Copy the bundled empty db to the proper location. }
+    { Used to have more responsibility, but we delegated those to the app itself! }
     Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + ExpandConstant('{app}') + '\ka-lite\kalite\database" "%USERPROFILE%\.kalite\database\" /E /Y"', '', SW_HIDE, ewWaitUntilTerminated, retCode);
-    MsgBox('Setup will now configure the database. This operation may take a few minutes. Please be patient.', mbInformation, MB_OK);
-    setupCommand := 'kalite manage setup --noinput --hostname="'+ServerInformationPage.Values[0]+'" --description="'+ServerInformationPage.Values[1]+'"';
-    if Not ShellExec('open', 'python.exe', setupCommand, ExpandConstant('{app}')+'\ka-lite\bin', SW_HIDE, ewWaitUntilTerminated, retCode) then
-    begin
-        MsgBox('Critical error.' #13#13 'Setup has failed to initialize the database; aborting the install.', mbInformation, MB_OK);
-        forceCancel := True;
-        WizardForm.Close;
-    end;
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
