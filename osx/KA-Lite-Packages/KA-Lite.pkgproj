@@ -447,13 +447,13 @@
 				<key>CONCLUSION_ACTION</key>
 				<integer>0</integer>
 				<key>IDENTIFIER</key>
-				<string>learningequality.org.pkg.KA-Lite</string>
+				<string>org.learningequality.kalite</string>
 				<key>NAME</key>
 				<string>KA-Lite</string>
 				<key>OVERWRITE_PERMISSIONS</key>
 				<false/>
 				<key>VERSION</key>
-				<string>1.0</string>
+				<string>1.16.0</string>
 			</dict>
 			<key>UUID</key>
 			<string>B4EC6D54-BE5C-4A01-9C5D-B46F57C5E5D9</string>
