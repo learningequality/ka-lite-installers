@@ -68,7 +68,9 @@ RELEASE_PATH="$KA_LITE_PROJECT_DIR/build/Release"
 KA_LITE_LOGO_PATH="$SETUP_FILES_DIR/ka-lite-logo-full.png"
 KA_LITE_ICNS_PATH="$KA_LITE_DIR/Resources/images/ka-lite.icns"
 KA_LITE_README_PATH="$SETUP_FILES_DIR/README.md"
+KA_LITE_LICENSE_PATH="$SETUP_FILES_DIR/LICENSE"
 
+INSTALL_PYRUN_URL="https://downloads.egenix.com/python/install-pyrun"
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
 PYRUN_NAME="pyrun-2.7"
 PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
@@ -78,7 +80,7 @@ PYRUN_PIP="$PYRUN_DIR/bin/pip"
 ASSESSMENT_ZIP="assessment.zip"
 ASSESSMENT_PATH="$WORKING_DIR/$ASSESSMENT_ZIP"
 ASSESSMENT_KALITE="$KA_LITE_RESOURCES_DIR"
-ASSESSMENT_URL="https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip"
+ASSESSMENT_URL="https://learningequality.org/downloads/ka-lite/0.15/content/khan_assessment.zip"
 
 KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
@@ -343,28 +345,25 @@ if ! [ -d "$KA_LITE_APP_PATH" ]; then
     exit 2
 fi
 
-echo "Checking if to codesign '$KA_LITE_MONITOR_APP_PATH' or not..."
-if [ -z ${IS_BAMBOO+0} ]; then
-    echo "Running on local machine, don't codesign!";
-else
-    echo "Running on bamboo server, so will codesign.";
+echo "Checking if to codesign '$KA_LITE_APP_PATH' or not..."
+if [ -z ${IS_BAMBOO+0} ]; then 
+    echo "Running on local machine, don't codesign!"
+else 
+    echo "Running on bamboo server, so will codesign."
     # sign the .app file
     # unlock the keychain first so we can access the private key
     # security unlock-keychain -p $KEYCHAIN_PASSWORD
-    codesign -d -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
+    codesign -d -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_APP_PATH"
     if [ $? -ne 0 ]; then
-        echo "  $0: Error/s encountered codesigning '$KA_LITE_MONITOR_APP_PATH', exiting..."
+        echo "  $0: Error/s encountered codesigning '$KA_LITE_APP_PATH', exiting..."
         exit 1
     fi
 fi
 
-# Build the .pkg file.
-((STEP++))
-echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
-test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
 # Build the KA-Lite  installer using `Packages`.
 # This will build the .pkg file.
+((STEP++))
 echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
@@ -372,7 +371,6 @@ PACKAGES_OUTPUT="KA-Lite.pkg"
 PACKAGES_EXEC="packagesbuild"
 PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Lite.pkgproj"
 PACKAGES_BUILD_FOLDER="$SCRIPTPATH/KA-Lite-Packages/build/KA-Lite.pkg"
-
 
 # check if the `Packages` is installed
 if ! command -v $PACKAGES_EXEC > /dev/null; then
