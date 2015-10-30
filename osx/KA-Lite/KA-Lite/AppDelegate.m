@@ -713,6 +713,9 @@ BOOL setEnvVars(BOOL createPlist) {
         case statusFailedToStart:
             [self.startKalite setEnabled:canStart];
             [self.stopKalite setEnabled:NO];
+            self.startButton.enabled = canStart;
+            self.stopButton.enabled = NO;
+            self.openBrowserButton.enabled = NO;
             [self.openInBrowserMenu setEnabled:NO];
             [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
             [self.statusItem setToolTip:@"KA-Lite failed to start."];
@@ -721,12 +724,18 @@ BOOL setEnvVars(BOOL createPlist) {
             [self.startKalite setEnabled:NO];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
+            self.startButton.enabled = NO;
+            self.stopButton.enabled = NO;
+            self.openBrowserButton.enabled = NO;
             [self.statusItem setToolTip:@"KA-Lite is starting..."];
             break;
         case statusOkRunning:
             [self.startKalite setEnabled:NO];
             [self.stopKalite setEnabled:YES];
             [self.openInBrowserMenu setEnabled:YES];
+            self.startButton.enabled = NO;
+            self.stopButton.enabled = YES;
+            self.openBrowserButton.enabled = YES;
             [self.statusItem setImage:[NSImage imageNamed:@"stop"]];
             [self.statusItem setToolTip:@"KA-Lite is running."];
             showNotification(@"You can now click on 'Open in Browser' menu");
@@ -735,6 +744,9 @@ BOOL setEnvVars(BOOL createPlist) {
             [self.startKalite setEnabled:canStart];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
+            self.startButton.enabled = canStart;
+            self.stopButton.enabled = NO;
+            self.openBrowserButton.enabled = NO;
             [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
             [self.statusItem setToolTip:@"KA-Lite is stopped."];
             showNotification(@"Stopped");
@@ -743,6 +755,9 @@ BOOL setEnvVars(BOOL createPlist) {
             [self.startKalite setEnabled:canStart];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
+            self.startButton.enabled = canStart;
+            self.stopButton.enabled = NO;
+            self.openBrowserButton.enabled = NO;
             if (kaliteExists()){
                 [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
             }else{
@@ -766,6 +781,17 @@ BOOL setEnvVars(BOOL createPlist) {
 }
 
 
+- (IBAction)startButton:(id)sender {
+    showNotification(@"Starting...");
+    [self showStatus:statusStartingUp];
+    if (self.processCounter != 0) {
+        alert(@"KA Lite is still processing, please wait until it is finished.");
+        return;
+    }
+    [self runKalite:@"start"];
+}
+
+
 - (IBAction)stop:(id)sender {
     showNotification(@"Stopping...");
     if (self.processCounter != 0) {
@@ -776,7 +802,28 @@ BOOL setEnvVars(BOOL createPlist) {
 }
 
 
+- (IBAction)stopButton:(id)sender {
+    showNotification(@"Stopping...");
+    if (self.processCounter != 0) {
+        alert(@"KA Lite is still processing, please wait until it is finished.");
+        return;
+    }
+    [self runKalite:@"stop"];
+}
+
+
 - (IBAction)open:(id)sender {
+    // TODO(cpauya): Get the ip address and port from `local_settings.py` or preferences.
+    // REF: http://stackoverflow.com/a/7129543/845481
+    NSURL *url = [NSURL URLWithString:@"http://127.0.0.1:8008/"];
+    if( ![[NSWorkspace sharedWorkspace] openURL:url] ) {
+        NSString *msg = [NSString stringWithFormat:@" Failed to open url: %@",[url description]];
+        showNotification(msg);
+    }
+}
+
+
+- (IBAction)openButton:(id)sender {
     // TODO(cpauya): Get the ip address and port from `local_settings.py` or preferences.
     // REF: http://stackoverflow.com/a/7129543/845481
     NSURL *url = [NSURL URLWithString:@"http://127.0.0.1:8008/"];

@@ -14,10 +14,13 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
+                <outlet property="openBrowserButton" destination="wxg-iv-YDa" id="0er-aA-Ymn"/>
                 <outlet property="openInBrowserMenu" destination="z2m-ls-Z0I" id="mGN-C0-zz5"/>
                 <outlet property="splash" destination="izD-1r-MWo" id="ax5-nI-Mu0"/>
+                <outlet property="startButton" destination="Eur-YG-XhD" id="I4H-kx-9AL"/>
                 <outlet property="startKalite" destination="cmv-NE-Gmn" id="fGw-83-kM1"/>
                 <outlet property="statusMenu" destination="3js-7p-b5M" id="TSS-gO-zwP"/>
+                <outlet property="stopButton" destination="ixV-cY-gLJ" id="SE2-g6-EAb"/>
                 <outlet property="stopKalite" destination="mSX-Xb-gZb" id="0Jb-Lw-LGy"/>
                 <outlet property="taskLogs" destination="ggK-co-dOR" id="i2a-ii-juQ"/>
                 <outlet property="window" destination="BCW-kl-SX8" id="jIg-Qn-PfW"/>
@@ -192,6 +195,9 @@ Gw
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
+                                            <connections>
+                                                <action selector="startButton:" target="Voe-Tx-rLC" id="gsQ-vF-NUL"/>
+                                            </connections>
                                         </button>
                                         <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ixV-cY-gLJ">
                                             <rect key="frame" x="153" y="269" width="118" height="32"/>
@@ -199,6 +205,9 @@ Gw
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
+                                            <connections>
+                                                <action selector="stopButton:" target="Voe-Tx-rLC" id="owN-hr-9ns"/>
+                                            </connections>
                                         </button>
                                         <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wxg-iv-YDa">
                                             <rect key="frame" x="293" y="269" width="143" height="32"/>
@@ -206,6 +215,9 @@ Gw
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
+                                            <connections>
+                                                <action selector="openButton:" target="Voe-Tx-rLC" id="w1v-D6-uCu"/>
+                                            </connections>
                                         </button>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Application behavior (TODO)" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
                                             <rect key="frame" x="11" y="22" width="414" height="91"/>
@@ -388,7 +400,7 @@ Click the Apply button to re-create the installation files mentioned above.</str
                     </tabView>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="733.5" y="284"/>
+            <point key="canvasLocation" x="759.5" y="258"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="a2C-ep-hKK"/>
     </objects>
