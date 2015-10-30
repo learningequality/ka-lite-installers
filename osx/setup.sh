@@ -349,7 +349,7 @@ if ! [ -d "$KA_LITE_APP_PATH" ]; then
     exit 2
 fi
 
-echo "Checking if to codesign '$KA_LITE_MONITOR_APP_PATH' or not..."
+echo "Checking if to codesign '$KA_LITE_APP_PATH' or not..."
 if [ -z ${IS_BAMBOO+0} ]; then 
     echo "Running on local machine, don't codesign!"; 
 else 
@@ -357,9 +357,9 @@ else
     # sign the .app file
     # unlock the keychain first so we can access the private key
     # security unlock-keychain -p $KEYCHAIN_PASSWORD
-    codesign -d -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
+    codesign -d -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_APP_PATH"
     if [ $? -ne 0 ]; then
-        echo "  $0: Error/s encountered codesigning '$KA_LITE_MONITOR_APP_PATH', exiting..."
+        echo "  $0: Error/s encountered codesigning '$KA_LITE_APP_PATH', exiting..."
         exit 1
     fi
 fi
