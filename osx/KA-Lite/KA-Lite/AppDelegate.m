@@ -21,7 +21,7 @@
 
 @implementation AppDelegate
 
-@synthesize stringUsername, stringPassword, stringConfirmPassword, startKalite, stopKalite, openInBrowserMenu;
+@synthesize startKalite, stopKalite, openInBrowserMenu;
 
 
 - (int) checkShebang{
@@ -460,12 +460,6 @@ void showNotification(NSString *subtitle) {
 }
 
 
-NSString *getUsernameChars() {
-    NSString *chars = @"@.+-_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    return chars;
-}
-
-
 // REF: http://stackoverflow.com/a/26423271/845481
 // Check IF one String contains the same characters as another string
 - (BOOL)string:(NSString *)string containsAllCharactersInString:(NSString *)charString {
@@ -651,7 +645,7 @@ BOOL setEnvVars(BOOL createPlist) {
     /*
      MUST: Let's create a org.learningequality.kalite.plist at the /tmp/ folder
      then use an AppleScript script to combine it with the symlink script
-     with admin privileges so we only ask for the root password once.
+     with admin privileges so we only ask for the root `password once.
      
      This is the format:
 
@@ -905,7 +899,6 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (void)showPreferences {
     [splash orderOut:self];
-    [self loadPreferences];
     [window makeKeyAndOrderFront:self];
     [NSApp activateIgnoringOtherApps:YES];
     //REF http://stackoverflow.com/questions/6994541/cocoa-showing-a-window-on-top-without-giving-it-focus
@@ -913,112 +906,11 @@ BOOL setEnvVars(BOOL createPlist) {
 }
 
 
-- (NSString *)getUsernamePref {
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSString *username = [prefs stringForKey:@"username"];
-    return username;
-}
-
-
-- (void)loadPreferences {
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    self.username = [self getUsernamePref];
-
-    // TODO(cpauya): We must encrypt the password!
-    NSString *password = [prefs stringForKey:@"password"];
-    if (password != nil || [password isNotEqualTo:@""]) {
-        // NSData from the Base64 encoded str
-        NSData *nsdataFromBase64String = [[NSData alloc]
-                                          initWithBase64EncodedString:password options:0];
-        // Decoded NSString from the NSData
-        NSString *decodePassword = [[NSString alloc]
-                                    initWithData:nsdataFromBase64String encoding:NSUTF8StringEncoding];
-        self.password = decodePassword;
-        self.confirmPassword = decodePassword;
-    }
-}
-
-
-- (void)resetPreferences {
-    NSString *blank = @"";
-    self.username = blank;
-    self.password = blank;
-
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    [prefs setObject:blank forKey:@"username"];
-    [prefs setObject:blank forKey:@"password"];
-    // REF: https://github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
-    [prefs synchronize];
-    [self loadPreferences];
-}
-
-
 - (void)savePreferences {
     /*
-     1. Validate the following:
-        * username length max of 30 characters
-        * password length max of 128 characters
-        * username allowed characters are "letters, numbers and @/./+/-/_ characters" based on django.contrib.auth.models.AbstractUser
-     2. Save the preferences: REF: http://stackoverflow.com/questions/10148788/xcode-cocoa-app-preferences
-     3. Run `kalite manage setup` if no database was found.
+     1. Save the preferences: REF: http://stackoverflow.com/questions/10148788/xcode-cocoa-app-preferences
+     2. Run `kalite manage setup` if no database was found.
      */
-    
-    NSString *username = self.stringUsername.stringValue;
-    NSString *password = self.stringPassword.stringValue;
-    NSString *confirmPassword = self.stringConfirmPassword.stringValue;
-    
-    self.username = username;
-    self.password = password;
-    self.confirmPassword = confirmPassword;
-    
-    if (self.processCounter != 0) {
-        alert(@"KA Lite is still processing, please wait until it is finished.");
-        return;
-    }
-
-    if (self.username == nil || [self.username isEqualToString:@""]) {
-        alert(@"Username must not be blank and can only contain letters, numbers and @/./+/-/_ characters.");
-        return;
-    }
-
-    NSString *usernameChars = getUsernameChars();
-    if ([self string:usernameChars containsAllCharactersInString:self.username] == NO) {
-        alert(@"Invalid username characters found, please use letters, numbers and @/./+/-/_ characters.");
-        return;
-    }
-    
-    if ([self.username length] > 30) {
-        alert(@"Username must not exceed 30 characters.");
-        return;
-    }
-
-    if (self.password == nil || [self.password isEqualToString:@""]) {
-        alert(@"Invalid password or the password does not match on both fields.");
-        return;
-    }
-
-    if (![self.password isEqualToString:self.confirmPassword]) {
-        alert(@"The password does not match on both fields.");
-        return;
-    }
-
-    if ([self.password length] > 128) {
-        alert(@"Password must not exceed 128 characters.");
-        return;
-    }
-    
-    // Save the preferences.
-    // REF: http://iosdevelopertips.com/core-services/encode-decode-using-base64.html
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    
-    // Get NSString from NSData object in Base64
-    NSData *nsdata = [self.password dataUsingEncoding:NSUTF8StringEncoding];
-    NSString *encodedPassword = [nsdata base64EncodedStringWithOptions:0];
-    
-    [prefs setObject:self.username forKey:@"username"];
-    [prefs setObject:encodedPassword forKey:@"password"];
-    // REF: https://github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
-    [prefs synchronize];
     
     if (!setEnvVars(TRUE)) {
         alert(@"Either the set environment variables or symlink of kalite failed to complete!  Please check the Console.");
@@ -1051,13 +943,8 @@ BOOL setEnvVars(BOOL createPlist) {
 
 
 -(enum kaliteStatus)setupKalite {
-    // Get admin account credentials from preferences.
-    
-    // MUST: The order of the arguments must be followed or the username / password
-    // will not have the same value!
-    NSString *cmd = [NSString stringWithFormat:@"manage setup --username=%@ --password=%@ --noinput",
-                     self.username, self.password];
-    NSString *msg = [NSString stringWithFormat:@"Running `kalite manage setup` with %@", cmd];
+    NSString *cmd = [NSString stringWithFormat:@"manage setup"];
+    NSString *msg = [NSString stringWithFormat:@"Running `kalite manage setup`"];
     showNotification(msg);
     enum kaliteStatus status = [self runKalite:cmd];
     [self getKaliteStatus];
@@ -1105,7 +992,6 @@ BOOL setEnvVars(BOOL createPlist) {
     }
     
     // Delete/reset the user preferences.
-    [self resetPreferences];
     if(result){
         showNotification(@"Done resetting the app.  Please click the Apply button to repeat the install process.");
     } else {
@@ -1122,21 +1008,13 @@ BOOL setEnvVars(BOOL createPlist) {
 
 
 - (void)startKaliteTimer {
-    // Setup a timer to monitor the result of `kalite status` after 60 seconds
-    // TODO(cpauya): then every 60 seconds there after.
 
-    // Monitor only if preferences are set.
-    NSString *username = [self getUsernamePref];
-    if (username != nil) {
         // TODO(cpauya): Use initWithFireDate of NSTimer instance.
         [NSTimer scheduledTimerWithTimeInterval:60.0
                                          target:self
                                        selector:@selector(getKaliteStatus)
                                        userInfo:nil
                                         repeats:YES];
-    } else {
-        NSLog(@"Not running timer because there are no preferences yet.");
-    }
 }
 
 

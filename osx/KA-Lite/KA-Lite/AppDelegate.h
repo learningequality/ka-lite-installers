@@ -29,15 +29,6 @@
 @property (unsafe_unretained) IBOutlet NSTextView *taskLogs;
 @property signed int processCounter;
 
-@property (strong, nonatomic) IBOutlet NSString *username;
-@property (strong, nonatomic) IBOutlet NSString *password;
-@property (strong, nonatomic) IBOutlet NSString *confirmPassword;
-
-// get the string from the user preferences textbox.
-@property (weak) IBOutlet NSTextField *stringUsername;
-@property (weak) IBOutlet NSSecureTextField *stringPassword;
-@property (weak) IBOutlet NSSecureTextField *stringConfirmPassword;
-
 @property (weak) IBOutlet NSMenuItem *startKalite;
 @property (weak) IBOutlet NSMenuItem *stopKalite;
 @property (weak) IBOutlet NSMenuItem *openInBrowserMenu;
