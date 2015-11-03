@@ -6,28 +6,12 @@
 
 kalite_preinst
 
-
-# Ensure that the assessment items directory is empty because the ka-lite
-# package puts its downloaded assessment items there
+# Ensure that the assessment items directory is empty in case there are
+# foreign items there such as something that was downloaded with another .deb
 rm -rf /usr/share/kalite/assessment
 
-# Remove pyc files from previous installations
-if [ -d usr/share/kalite/python-packages ]; then
-    find /usr/share/kalite/python-packages -name '*pyc' -exec rm {} \;
-fi
-if [ -d usr/share/kalite/dist-packages ]; then
-    find /usr/share/kalite/dist-packages -name '*pyc' -exec rm {} \;
-fi
+# This is always false for the assessment items
+db_set ka-lite/download-assessment-items false
 
-# Ask for user name, default is ka-lite
-if [ "$SUDO_USER" ]; then
-    echo "ka-lite-bundle ka-lite/user select $SUDO_USER" | debconf-set-selections
-    echo "ka-lite-bundle ka-lite/user seen false" | debconf-set-selections
-fi
-
-# Clear stuff that's not needed when the assessment items are bundled
-echo "ka-lite-bundle ka-lite/download-assessment-items select false" | debconf-set-selections
-echo "ka-lite-bundle ka-lite/download-assessment-items seen true" | debconf-set-selections
-echo "ka-lite-bundle ka-lite/download-assessment-items-storage-error select false" | debconf-set-selections
-echo "ka-lite-bundle ka-lite/download-assessment-items-storage-error seen true" | debconf-set-selections
+db_stop
 
