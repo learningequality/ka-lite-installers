@@ -94,7 +94,6 @@
 				F1DDD4161A6E5DC10022F1C9 /* Images.xcassets */,
 				F1DDD40F1A6E5DC10022F1C9 /* Supporting Files */,
 			);
-			name = "KA-Lite";
 			path = "KA-Lite";
 			sourceTree = "<group>";
 		};
@@ -119,7 +118,6 @@
 				F1DDD4251A6E5DC10022F1C9 /* KA_Lite_Tests.m */,
 				F1DDD4231A6E5DC10022F1C9 /* Supporting Files */,
 			);
-			name = "KA-Lite-Tests";
 			path = "KA-Lite-Tests";
 			sourceTree = "<group>";
 		};
