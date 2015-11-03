@@ -28,6 +28,13 @@ If you want to copy the debian sources from another test setup, do::
     ./copy_from_pkg.sh path/to/other/pkg
 
 
+Regarding the **coding style**, all the so-called "maint" scripts (preinst/postinst/prerm/postrm/config) are
+running ``/bin/bash`` and have the ``set -e`` option on. There is a clear intention to be very DRY and
+to have loads of comments because many choices reflect tough experiences.
+
+Consider reading this blog post: http://www.davidpashley.com/articles/writing-robust-shell-scripts/
+
+
 Debugging tips
 ______________
 
