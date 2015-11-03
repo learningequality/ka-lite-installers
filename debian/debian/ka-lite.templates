@@ -17,12 +17,60 @@ Description: Download exercise data (~500 MB)?
  The download is big, but it will be preserved across upgrades of
  your current version of KA Lite. When major version changes occurred,
  you may be prompted to fetch new exercise data.
+ .
+ If you have a locally stored zip-file, on your hard drive or the local network,
+ select Yes and specify the location in the next step.
 
 Template: ka-lite/download-assessment-items-manual
 Type: note
 Description: Downloading assessment items manually:
  After installing, you should run the "kalite manage setup" command
- to fetch assessment items manually.
+ to fetch assessment items manually. Remember to run the command as the same
+ user that you target to run the kalite server.
+
+Template: ka-lite/download-assessment-items-storage-error
+Type: boolean
+Default: false
+Description: Automatically set by preinst script if there's storage issues that
+ should be addressed by the config script.
+
+Template: ka-lite/download-assessment-items-storage-error-msg
+Type: note
+Description: Downloading assessment not possible:
+ In order to download assessment items (exercises), we need 500 MB of free
+ disk space in /tmp. After downloading, an additional 500 MB is needed in
+ /usr/share/kalite to unpack it.
+
+Template: ka-lite/download-assessment-items-upgrade
+Type: note
+Description: Assessment items (exercise data) from a previous installation
+ were located in /usr/share/kalite, and they will automatically be removed. You
+ will be asked to download new assessment items, and will also have the option
+ to download them at a later time.
+
+Template: ka-lite/download-assessment-items-clear
+Type: boolean
+Default: false
+Description: Assessment items (exercise data) from a previous installation
+ were located in /usr/share/kalite, however they seem to be compatible with
+ the installing version. If you want to delete them and download new ones,
+ select Yes.
+
+Template: ka-lite/download-assessment-items-url
+Type: string
+Default: http://learningequality.org/downloads/ka-lite/0.15/content/khan_assessment.zip
+Description: From where do you wish to download the assessment items? To use a
+ local file, type "file:///path/to/items.zip".
+
+Template: ka-lite/assessment-items-dir
+Type: string
+Default: /usr/share/kalite/assessment/khan
+Description: The location where assessment items zip should be unpacked to.
+
+Template: ka-lite/download-assessment-items-tmp
+Type: string
+Default: /tmp
+Description: Where to temporarily store downloaded file
 
 Template: ka-lite/user
 Type: string
@@ -34,6 +82,10 @@ Description: Which user account should own the KA Lite server?
  But you can also choose a different user, for instance your own
  desktop user, to have easier access to KA Lite data without having
  to change privileges.
+
+Template: ka-lite/kalite-setup
+Type: string
+Description: Contents of ~/.kalite/setup.py
 
 Template: ka-lite/manual-instructions
 Type: note
@@ -59,3 +111,10 @@ Description: The KA Lite system service
  .
  If you are not familiar with the command line, you can
  install the package called 'ka-lite-gtk' for a basic and easy UI.
+
+Template: ka-lite/nginx-rpi
+Type: boolean
+Default: false
+Description: Configure nginx to run KA Lite. This presumes you using a package
+ that depends on nginx or have it installed already.
+

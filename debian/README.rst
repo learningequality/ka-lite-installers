@@ -1,24 +1,43 @@
 Debian installer
 ================
 
-The Debian installer is based on
-`stdeb <https://github.com/astraw/stdeb>`__ which is a tool that
-automatically converts a normal *setup.py*-based package to a Debian
-package structure. There are two equivilent ways of installing KA Lite:
+How to develop the debian/ sources
+----------------------------------
 
-1. ``pip install ka-lite-static`` -- installs KA Lite from PyPi with all
-   dependencies builtin ("static").
-2. ``dpkg -i NAME_OF_PACKAGE.deb`` - installs KA Lite from a Debian
-   package.
+You wouldn't wanna do this with the full KA Lite sources because they
+take too much time to build.
 
-The Debian package essentially uses the same distribution script
-(setup.py) as the other installers and hence does as little
-platform-specific work as possible.
+Run::
 
-Notice that ``setup.py`` is run while BUILDING the .deb and not while
-installing the .deb.
+    ./make_test_pkg.sh 1.2.3  # <- notice the version string required
+    cd test/ka-lite-test
+    debuild -us -uc  # Builds unsigned installable .deb files with no content
+    debuild --no-lintian -us -uc  # Skips the lintian checks if you want
+    DEBCONF_DEBUG=developer sudo dpkg --debug=3773 -i ../ka-lite_1.2.3_all.deb  # Installs the test package with highest debug level
+    sudo dpkg -i ../ka-lite_1.2.3_all.deb  # Installs the test package WITHOUT all the debugging stuff
+    cd ../../  # Go back to previous directory
+    ./copy_from_pkg.sh  # By default, this command copies from the default test folder
 
-Normality: How to create an updated .deb:
+
+To create a test package in another directory, do::
+
+    ./make_test_pkg.sh path/to/test 1.2.3
+
+If you want to copy the debian sources from another test setup, do::
+
+    ./copy_from_pkg.sh path/to/other/pkg
+
+
+Debugging tips
+______________
+
+Use ``set -x`` in bash scripts to enable debugging, it's extremely helpful.
+
+Everything should be compatible with ``set -e``. See: http://www.davidpashley.com/articles/writing-robust-shell-scripts/
+
+Run ``debconf-show ka-lite`` to view the ``ka-lite`` package debconf settings.
+
+How to create an updated .deb for release
 -----------------------------------------
 
 Say there is a change and you wish to update our sources, here's what
@@ -44,8 +63,30 @@ you do:
 10. Use ``dput ppa:learningequality/ka-lite blahblah.changes`` to upload
     to Launchpad
 
+
+Background (Summer 2015)
+------------------------
+
+The Debian installer is based on
+`stdeb <https://github.com/astraw/stdeb>`__ which is a tool that
+automatically converts a normal *setup.py*-based package to a Debian
+package structure. There are two equivilent ways of installing KA Lite:
+
+1. ``pip install ka-lite-static`` -- installs KA Lite from PyPi with all
+   dependencies builtin ("static").
+2. ``dpkg -i NAME_OF_PACKAGE.deb`` - installs KA Lite from a Debian
+   package.
+
+The Debian package essentially uses the same distribution script
+(setup.py) as the other installers and hence does as little
+platform-specific work as possible.
+
+Notice that ``setup.py`` is run while BUILDING the .deb and not while
+installing the .deb.
+
+
 Historic notes - Reproducing the build technique
-------------------------------------------------
+________________________________________________
 
 **Requirements**
 

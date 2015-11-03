@@ -1,0 +1,27 @@
+language: python
+sudo: required
+install:
+ - cd debian/
+ - ./make_test_pkg.sh 1.2.3
+ - cd test/ka-lite-test
+ - debuild -us -uc
+ - cd ..
+ - echo "1.2.3" > assessmentitems.version
+ - zip test.zip assessmentitems.version
+ - echo "ka-lite ka-lite/download-assessment-items-url select file://test.zip" | sudo debconf-set-selections
+ - sudo dpkg -i ka-lite_1.2.3_all.deb
+script:
+ - kalite
+addons:
+  apt:
+    packages:
+    - build-essential
+    - realpath
+    - devscripts
+    - python-setuptools
+    - python-all
+    - unzip
+    - debconf
+    - bash
+    - wget
+    - dh-exec

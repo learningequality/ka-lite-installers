@@ -28,6 +28,7 @@ fi
 case "$1" in
 
   configure)
+  
     db_get ka-lite/user
     KALITE_USER="$RET"
     echo $KALITE_USER > /etc/ka-lite/username

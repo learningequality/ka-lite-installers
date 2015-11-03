@@ -1,3 +1,48 @@
+ka-lite-source (0.15.0-0ubuntu2) UNRELEASED; urgency=medium
+
+  * lalala
+
+ -- Benjamin Bach <benjamin@varoufakis>  Thu, 22 Oct 2015 23:40:05 +0200
+
+ka-lite-source (0.15.0-0ubuntu1) precise; urgency=medium
+
+  * New final upstream release
+  * Adding man pages
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 14 Oct 2015 01:11:52 +0200
+
+ka-lite-source (0.15~b5-0ubuntu2) precise; urgency=medium
+
+  * Adding instructions for low disk space in cases of downloading assessment items
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 13 Oct 2015 17:56:44 +0200
+
+ka-lite-source (0.15~b5-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+  * Prepare source pkg assessment items from 0.15 location
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 13 Oct 2015 00:50:37 +0200
+
+ka-lite-source (0.15~b3-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 02 Oct 2015 13:29:40 +0200
+
+ka-lite-source (0.15~b2-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 29 Sep 2015 18:56:25 +0200
+
+ka-lite-source (0.15~b1-0ubuntu1) precise; urgency=medium
+
+  * Fetch 0.15 assessment items
+  * New upstream 0.15b1 release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 28 Sep 2015 23:44:10 +0200
+
 ka-lite-source (0.14.0-0ubuntu1) precise; urgency=medium
 
   * Final 0.14 release 
