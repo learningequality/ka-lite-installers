@@ -104,6 +104,8 @@
         if (!pathExists(kalite)) {
             NSLog(@"kalite executable not found, must show preferences.");
             mustShowPreferences = true;
+            [self showStatus:statusFailedToStart];
+            
         } else {
             NSLog([NSString stringWithFormat:@"FOUND kalite at %@!", kalite]);
         }
@@ -962,8 +964,7 @@ BOOL setEnvVars(BOOL createPlist) {
     BOOL result = TRUE;
     
     showNotification(@"Resetting the app...");
-    NSString *msg;
-
+    
     // This unsets the KALITE_PYTHON environment variable used by the app.
     NSString *command = @"launchctl unsetenv KALITE_PYTHON;";
     const char *cmd = [command UTF8String];
@@ -993,6 +994,7 @@ BOOL setEnvVars(BOOL createPlist) {
     
     // Delete/reset the user preferences.
     if(result){
+        [self showStatus:statusFailedToStart];
         showNotification(@"Done resetting the app.  Please click the Apply button to repeat the install process.");
     } else {
         showNotification(@"Failed to reset the app.  Please check your console for the following error.");
