@@ -17,3 +17,4 @@ addons:
     - bash
     - wget
     - dh-exec
+    - gdebi

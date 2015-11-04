@@ -41,13 +41,13 @@ export DEBIAN_FRONTEND=noninteractive
 
 # Run a test that uses a local archive
 echo "ka-lite ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
-sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb
+sudo -E dpkg -i --debug=3773 ka-lite_${test_version}_all.deb
 
 [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
 
 # Run a test that uses a local archive
 echo "ka-lite ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
-sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb
+sudo -E dpkg -i --debug=3773 ka-lite_${test_version}_all.deb
 [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
 kalite status
 sudo apt-get purge -y ka-lite
@@ -61,13 +61,14 @@ sudo apt-get purge -y ka-lite
 
 
 # Test ka-lite-bundle
-sudo -E dpkg -i --debug=2 ka-lite-bundle_${test_version}_all.deb
+sudo -E dpkg -i --debug=3773 ka-lite-bundle_${test_version}_all.deb
 kalite status
 sudo apt-get purge -y ka-lite-bundle
 
 
 # Test ka-lite-raspberry-pi
-sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}_all.deb
+#sudo -E dpkg -i --debug=3773 ka-lite-raspberry-pi_${test_version}_all.deb
+sudo -E gdebi ka-lite-raspberry-pi_${test_version}_all.deb
 kalite status
 sudo apt-get purge -y ka-lite-raspberry-pi
 
