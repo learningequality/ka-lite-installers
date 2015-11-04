@@ -3,6 +3,9 @@
 # Thanks to the openldap debian package for this
 # method!
 
+# We're okay about failing hard
+set -e
+
 # Uncomment this for loads of debugging
 set -x
 
@@ -169,14 +172,15 @@ kalite_debconf_ask()
 }
 
 
-# Configures the package from the debconf
-# DOES NOT ASK ANY QUESTIONS
+# Configures the package during the postinst script
+# DOES NOT ASK ANY QUESTIONS - This is done through the config scripts and teh
+# kalite_ask_questions command
 kalite_configure()
 {
 
     kalite_get_config
     
-    major_version=echo "$2" | sed 's/\([0-9]*\.[0-9]*\).*/\1/'
+    major_version=`echo "$2" | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
     
     # User setup
     echo $KALITE_USER > /etc/ka-lite/username
@@ -202,7 +206,11 @@ kalite_configure()
     # If user has chosen assessment items...
     if $DOWNLOAD_ASSESSMENT_ITEMS
     then
-        
+
+        # Ensure that the assessment items directory is empty in case there are
+        # foreign items there such as something that was downloaded with another .deb
+        rm -rf /usr/share/kalite/assessment/khan
+            
         # Check if file system resource or downloadable
         if [ `echo "$DOWNLOAD_ASSESSMENT_URL" | grep "^file://"` ]
         then
@@ -238,6 +246,8 @@ kalite_configure()
 
     if [ "${RET}" != "false" ]
     then
+        # TODO: Are we going to care about the version of existing assessment
+        # items here? Use $major_version
         version_file=$ASSESSMENT_DIR/assessmentitems.version
         if [ -f $version_file ]
         then
@@ -245,11 +255,10 @@ kalite_configure()
         else
             old_version=""
         fi
-        if [ "$old_version" != "0.14" ]
+        
+        if ! [ -d $ASSESSMENT_DIR ]
         then
             mkdir -p $ASSESSMENT_DIR
-        else
-            echo "Assessment items already installed"
         fi
     fi
 
@@ -379,7 +388,10 @@ kalite_prerm()
     # and don't mind cases where someone even removes python-minimal
     # TODO: This can be removed once we stop support for 0.15 upgrades, because
     # these directories will not contain non-managed pyc files from 0.16+
-    pyclean -p ka-lite
+    
+    # TODO: This should be the name of the package!!
+    #pyclean -p ka-lite
+
     pyclean /usr/share/kalite/dist-packages
     pyclean /usr/share/kalite/python-packages
 
