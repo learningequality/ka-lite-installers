@@ -105,6 +105,7 @@
             NSLog(@"kalite executable not found, must show preferences.");
             mustShowPreferences = true;
             [self showStatus:statusFailedToStart];
+            [self savePreferences];
             
         } else {
             NSLog([NSString stringWithFormat:@"FOUND kalite at %@!", kalite]);
@@ -901,12 +902,16 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (void)showPreferences {
     [splash orderOut:self];
+    [self loadPreferences];
     [window makeKeyAndOrderFront:self];
     [NSApp activateIgnoringOtherApps:YES];
     //REF http://stackoverflow.com/questions/6994541/cocoa-showing-a-window-on-top-without-giving-it-focus
     [window setLevel:NSFloatingWindowLevel];
 }
 
+- (void)loadPreferences {
+    // TODO(richard): Set custom database path in the preferences menu.
+}
 
 - (void)savePreferences {
     /*
@@ -945,7 +950,7 @@ BOOL setEnvVars(BOOL createPlist) {
 
 
 -(enum kaliteStatus)setupKalite {
-    NSString *cmd = [NSString stringWithFormat:@"manage setup"];
+    NSString *cmd = [NSString stringWithFormat:@"manage setup --noinput"];
     NSString *msg = [NSString stringWithFormat:@"Running `kalite manage setup`"];
     showNotification(msg);
     enum kaliteStatus status = [self runKalite:cmd];
@@ -1010,13 +1015,12 @@ BOOL setEnvVars(BOOL createPlist) {
 
 
 - (void)startKaliteTimer {
-
-        // TODO(cpauya): Use initWithFireDate of NSTimer instance.
-        [NSTimer scheduledTimerWithTimeInterval:60.0
-                                         target:self
-                                       selector:@selector(getKaliteStatus)
-                                       userInfo:nil
-                                        repeats:YES];
+    // TODO(cpauya): Use initWithFireDate of NSTimer instance.
+    [NSTimer scheduledTimerWithTimeInterval:60.0
+                                    target:self
+                                    selector:@selector(getKaliteStatus)
+                                    userInfo:nil
+                                    repeats:YES];
 }
 
 
