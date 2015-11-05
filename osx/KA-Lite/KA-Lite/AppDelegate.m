@@ -767,7 +767,7 @@ BOOL setEnvVars(BOOL createPlist) {
 }
 
 
-- (IBAction)start:(id)sender {
+- (void)startFunction {
     showNotification(@"Starting...");
     [self showStatus:statusStartingUp];
     if (self.processCounter != 0) {
@@ -775,41 +775,38 @@ BOOL setEnvVars(BOOL createPlist) {
         return;
     }
     [self runKalite:@"start"];
+}
+
+
+- (IBAction)start:(id)sender {
+    [self startFunction];
 }
 
 
 - (IBAction)startButton:(id)sender {
-    showNotification(@"Starting...");
-    [self showStatus:statusStartingUp];
-    if (self.processCounter != 0) {
-        alert(@"KA Lite is still processing, please wait until it is finished.");
-        return;
-    }
-    [self runKalite:@"start"];
+    [self startFunction];
 }
 
 
-- (IBAction)stop:(id)sender {
+- (void)stopFunction {
     showNotification(@"Stopping...");
     if (self.processCounter != 0) {
         alert(@"KA Lite is still processing, please wait until it is finished.");
         return;
     }
     [self runKalite:@"stop"];
+}
+
+- (IBAction)stop:(id)sender {
+    [self stopFunction];
 }
 
 
 - (IBAction)stopButton:(id)sender {
-    showNotification(@"Stopping...");
-    if (self.processCounter != 0) {
-        alert(@"KA Lite is still processing, please wait until it is finished.");
-        return;
-    }
-    [self runKalite:@"stop"];
+    [self stopFunction];
 }
 
-
-- (IBAction)open:(id)sender {
+- (void)openFunction {
     // TODO(cpauya): Get the ip address and port from `local_settings.py` or preferences.
     // REF: http://stackoverflow.com/a/7129543/845481
     NSURL *url = [NSURL URLWithString:@"http://127.0.0.1:8008/"];
@@ -817,17 +814,15 @@ BOOL setEnvVars(BOOL createPlist) {
         NSString *msg = [NSString stringWithFormat:@" Failed to open url: %@",[url description]];
         showNotification(msg);
     }
+}
+
+- (IBAction)open:(id)sender {
+    [self openFunction];
 }
 
 
 - (IBAction)openButton:(id)sender {
-    // TODO(cpauya): Get the ip address and port from `local_settings.py` or preferences.
-    // REF: http://stackoverflow.com/a/7129543/845481
-    NSURL *url = [NSURL URLWithString:@"http://127.0.0.1:8008/"];
-    if( ![[NSWorkspace sharedWorkspace] openURL:url] ) {
-        NSString *msg = [NSString stringWithFormat:@" Failed to open url: %@",[url description]];
-        showNotification(msg);
-    }
+    [self openFunction];
 }
 
 
@@ -902,22 +897,30 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (void)showPreferences {
     [splash orderOut:self];
-    [self loadPreferences];
+//    [self loadPreferences];
     [window makeKeyAndOrderFront:self];
     [NSApp activateIgnoringOtherApps:YES];
     //REF http://stackoverflow.com/questions/6994541/cocoa-showing-a-window-on-top-without-giving-it-focus
     [window setLevel:NSFloatingWindowLevel];
 }
 
-- (void)loadPreferences {
-    // TODO(richard): Set custom database path in the preferences menu.
-}
+//- (void)loadPreferences {
+    // TODO(amodia): Set custom database path in the preferences menu.
+//}
 
 - (void)savePreferences {
     /*
      1. Save the preferences: REF: http://stackoverflow.com/questions/10148788/xcode-cocoa-app-preferences
      2. Run `kalite manage setup` if no database was found.
      */
+    
+    // Save the preferences.
+    // REF: http://iosdevelopertips.com/core-services/encode-decode-using-base64.html
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    // TO set an object in NSUserDefaults use this sample "[prefs setObject:self.sample forKey:@"sample"];"
+    // REF: https://github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
+    [prefs synchronize];
+
     
     if (!setEnvVars(TRUE)) {
         alert(@"Either the set environment variables or symlink of kalite failed to complete!  Please check the Console.");
