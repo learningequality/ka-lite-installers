@@ -21,12 +21,15 @@ test_fail()
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 
+# Remove old test if exists
+rm -rf test/ka-lite-ci-test
+
 # Create a new test package
 ./make_test_pkg.sh $test_version test/ka-lite-ci-test
 cd test/ka-lite-ci-test
 
 # Build the test package
-debuild --no-lintian -us -uc
+debuild --no-lintian -us -uc | tail
 
 # Go to the build dir
 cd ..
@@ -41,34 +44,37 @@ export DEBIAN_FRONTEND=noninteractive
 
 # Run a test that uses a local archive
 echo "ka-lite ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
-sudo -E dpkg -i --debug=3773 ka-lite_${test_version}_all.deb
-
+sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
 [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
+sudo -E apt-get purge -y ka-lite
 
 # Run a test that uses a local archive
 echo "ka-lite ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
-sudo -E dpkg -i --debug=3773 ka-lite_${test_version}_all.deb
+sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
 [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
 kalite status
-sudo apt-get purge -y ka-lite
+sudo -E apt-get purge -y ka-lite
 
 # Run a test that downloads assessment items
 echo "ka-lite ka-lite/download-assessment-items-url select http://overtag.dk/upload/assessment_test.zip" | sudo debconf-set-selections
-sudo -E dpkg -i ka-lite_${test_version}_all.deb
+sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
 [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
 kalite status
-sudo apt-get purge -y ka-lite
+sudo -E apt-get purge -y ka-lite
 
 
 # Test ka-lite-bundle
-sudo -E dpkg -i --debug=3773 ka-lite-bundle_${test_version}_all.deb
+sudo -E dpkg -i --debug=2 ka-lite-bundle_${test_version}_all.deb | tail
 kalite status
-sudo apt-get purge -y ka-lite-bundle
+sudo -E apt-get purge -y ka-lite-bundle
 
 
 # Test ka-lite-raspberry-pi
-#sudo -E dpkg -i --debug=3773 ka-lite-raspberry-pi_${test_version}_all.deb
-sudo -E gdebi ka-lite-raspberry-pi_${test_version}_all.deb
+sudo -E apt-get install -y -q nginx-light
+sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}_all.deb | tail
+# gdebi is not allowed
+# sudo -E gdebi --n ka-lite-raspberry-pi_${test_version}_all.deb
 kalite status
-sudo apt-get purge -y ka-lite-raspberry-pi
+sudo -E apt-get purge -y ka-lite-raspberry-pi
+sudo -E apt-get purge -y nginx-common
 

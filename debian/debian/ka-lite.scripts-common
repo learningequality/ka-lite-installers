@@ -17,6 +17,10 @@ args=("$@")
 # Debconf tutorial:
 # http://www.fifi.org/doc/debconf-doc/tutorial.html
 
+major_version() {
+    echo "${args[1]}" | sed 's/\([0-9]*\.[0-9]*\).*/\1/'
+}
+
 ##################################################
 # INSTALLATION: 1) Configuration
 ##################################################
@@ -180,7 +184,7 @@ kalite_configure()
 
     kalite_get_config
     
-    major_version=`echo "$2" | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
+    vers=`major_version`
     
     # User setup
     echo $KALITE_USER > /etc/ka-lite/username
@@ -247,7 +251,7 @@ kalite_configure()
     if [ "${RET}" != "false" ]
     then
         # TODO: Are we going to care about the version of existing assessment
-        # items here? Use $major_version
+        # items here? Use major_version
         version_file=$ASSESSMENT_DIR/assessmentitems.version
         if [ -f $version_file ]
         then
@@ -389,8 +393,7 @@ kalite_prerm()
     # TODO: This can be removed once we stop support for 0.15 upgrades, because
     # these directories will not contain non-managed pyc files from 0.16+
     
-    # TODO: This should be the name of the package!!
-    #pyclean -p ka-lite
+    pyclean -p $DPKG_MAINTSCRIPT_PACKAGE
 
     pyclean /usr/share/kalite/dist-packages
     pyclean /usr/share/kalite/python-packages
@@ -398,6 +401,74 @@ kalite_prerm()
     db_stop
 
 
+}
+
+
+# We started diverting /etc/nginx/nginx.conf in 0.14
+diversion_added_version=0.14
+
+# Called from postinst
+kalite_nginx_divert_add()
+{
+    # Diversion for /etc/nginx/nginx.conf
+    # https://wiki.debian.org/Adding%20and%20removing%20diversions
+    # pkg=ka-lite-raspberry-pi
+    
+    this_version=`major_version`
+    
+    if
+        test "${args[0]}" = install ||
+        dpkg --compare-versions "${args[1]}" lt "$diversion_added_version" ||
+        dpkg --compare-versions "$this_version" lt "${args[1]}"
+    then
+        # dpkg-divert --package "$pkg" --add --rename --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
+        # dpkg-divert --package "$pkg" --add --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
+        # dpkg-divert --add --divert "/etc/nginx/nginx.conf-$DPKG_MAINTSCRIPT_PACKAGE" /etc/nginx/nginx.conf
+        dpkg-divert --add --rename /etc/nginx/nginx.conf
+    fi
+
+}
+
+
+# Called from postrm
+kalite_nginx_divert_remove()
+{
+    # Restore diversion for /etc/nginx/nginx.conf
+    # https://wiki.debian.org/Adding%20and%20removing%20diversions
+    this_version=`major_version`
+
+    losing_diversion=n
+
+    if test "${args[0]}" = failed-upgrade
+    then
+        dpkg --compare-versions "${args[1]}" le-nl "$this_version" ||
+        # An upgrade from a newer version failed.
+        # There is no way for us to know enough to take over from here,
+        # so abort the upgrade.
+        exit 1
+    elif dpkg --compare-versions "${args[1]}" lt-nl "$diversion_added_version"
+    then
+        diversion_list=`dpkg-divert --list /etc/nginx/nginx.conf`
+        if ! [ "$diversion_list" = "" ]
+        then
+            losing_diversion=y
+        fi
+    fi
+
+    case "${args[0]},$losing_diversion" in
+    remove,*|abort-install,*|disappear,*|*,y)
+        # Remove the file to avoid:
+        #    Removing 'diversion of /etc/nginx/nginx.conf to /etc/nginx/nginx.conf-ka-lite-raspberry-pi by ka-lite-raspberry-pi'
+        #    dpkg-divert: error: rename involves overwriting `/etc/nginx/nginx.conf' with
+        #    different file `/etc/nginx/nginx.conf-ka-lite-raspberry-pi', not allowed
+        # rm -f /etc/nginx/nginx.conf
+        # removed the --package directive by recommendation of #debian-mentor
+        # dpkg-divert --package "$pkg" --remove /etc/nginx/nginx.conf
+        
+        # dpkg-divert --remove --rename /etc/nginx/nginx.conf
+        dpkg-divert --remove --rename /etc/nginx/nginx.conf
+        ;;
+    esac
 }
 
 
