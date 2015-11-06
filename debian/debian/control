@@ -2,7 +2,7 @@ Source: ka-lite-source
 Maintainer: Benjamin Bach <benjamin@learningequality.org>
 Section: python
 Priority: optional
-Build-Depends: python-setuptools (>= 0.6b3), python-all (>= 2.6.6-3), debhelper (>= 7.4.3), dh-exec, unzip
+Build-Depends: python-setuptools (>= 0.6b3), python-all (>= 2.6.6-3), debhelper (>= 9), dh-exec, unzip
 Standards-Version: 3.9.1
 X-Python-Version: >= 2.7
 
@@ -23,9 +23,9 @@ Homepage: https://learningequality.org/ka-lite/
 
 Package: ka-lite-raspberry-pi
 Architecture: all
-Pre-Depends: debconf, bash, wget, unzip, python-pkg-resources, nginx-light (>= 1.2.1) | nginx-full (>= 1.2.1)
+Pre-Depends: debconf, bash, wget, unzip, python-pkg-resources, nginx-light (>= 1.1.19) | nginx-full (>= 1.1.19)
 Depends: python (>= 2.7), python (<< 2.8), ucf, python-m2crypto, python-psutil
-Conflicts: ka-lite, ka-lite-all
+Conflicts: ka-lite, ka-lite-bundle
 Description: KA Lite (raspberry pi)
  A lightweight web server for serving core
  Khan Academy content (videos and exercises)
