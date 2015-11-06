@@ -3,7 +3,6 @@ sudo: required
 install: true
 script:
  - debian/test.sh
- - kalite
 addons:
   apt:
     packages:

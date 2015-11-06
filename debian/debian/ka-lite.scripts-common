@@ -423,8 +423,13 @@ kalite_nginx_divert_add()
     then
         # dpkg-divert --package "$pkg" --add --rename --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
         # dpkg-divert --package "$pkg" --add --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
-        # dpkg-divert --add --divert "/etc/nginx/nginx.conf-$DPKG_MAINTSCRIPT_PACKAGE" /etc/nginx/nginx.conf
-        dpkg-divert --add --rename /etc/nginx/nginx.conf
+        # The below is recommended on Debian Wiki and on IRC, but I find it
+        # to NOT work because of issues when removing the diversion /benjaoming
+        # dpkg-divert --add --rename /etc/nginx/nginx.conf
+        
+        # Use fully blown manual method
+        pkg=$DPKG_MAINTSCRIPT_PACKAGE
+        dpkg-divert --package "$pkg" --add --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
     fi
 
 }
@@ -457,16 +462,20 @@ kalite_nginx_divert_remove()
 
     case "${args[0]},$losing_diversion" in
     remove,*|abort-install,*|disappear,*|*,y)
+
+        # benjaoming:
         # Remove the file to avoid:
         #    Removing 'diversion of /etc/nginx/nginx.conf to /etc/nginx/nginx.conf-ka-lite-raspberry-pi by ka-lite-raspberry-pi'
         #    dpkg-divert: error: rename involves overwriting `/etc/nginx/nginx.conf' with
         #    different file `/etc/nginx/nginx.conf-ka-lite-raspberry-pi', not allowed
         # rm -f /etc/nginx/nginx.conf
-        # removed the --package directive by recommendation of #debian-mentor
+        # dpkg-divert --remove --rename /etc/nginx/nginx.conf
+        # Recommendation of #debian-mentor of removing --package directive
+        # seems to be a bad idea, the Debian Wiki is mis-guiding IMO
         # dpkg-divert --package "$pkg" --remove /etc/nginx/nginx.conf
         
-        # dpkg-divert --remove --rename /etc/nginx/nginx.conf
-        dpkg-divert --remove --rename /etc/nginx/nginx.conf
+        pkg=$DPKG_MAINTSCRIPT_PACKAGE
+        dpkg-divert --package "$pkg" --remove --rename /etc/nginx/nginx.conf
         ;;
     esac
 }
