@@ -21,7 +21,9 @@ args=("$@")
 # http://www.fifi.org/doc/debconf-doc/tutorial.html
 
 major_version() {
-    echo "${args[1]}" | sed 's/\([0-9]*\.[0-9]*\).*/\1/'
+    echo -n "0.15"
+    # This doesn't work for all maintainer scripts
+    # echo "${args[1]}" | sed 's/\([0-9]*\.[0-9]*\).*/\1/'
 }
 
 ##################################################
@@ -230,8 +232,23 @@ kalite_configure()
             delete_after=false
         else
             local_path=$DOWNLOAD_ASSESSMENT_TMP/assessment_items.zip
-            wget "$DOWNLOAD_ASSESSMENT_URL" -O $local_path --retry-connrefused --read-timeout=20 --waitretry=1 -t 200 --continue
-            delete_after=true            
+            # If we have downloaded something previously, check that it's from
+            # the same source, otherwise we should not continue the download
+            dest_url_file="$DOWNLOAD_ASSESSMENT_TMP/assessment_items.url"
+            if [ -f "$dest_url_file" ]
+            then
+                if ! [ "`cat '$dest_url_file'`" = "$DOWNLOAD_ASSESSMENT_URL" ]
+                then
+                    echo "Found existing zip from different location"
+                    rm -f "$dest_url_file"
+                    rm -f "$local_path"
+                fi
+            else
+                rm -f "$local_path"
+            fi
+            echo "$DOWNLOAD_ASSESSMENT_URL" > "$dest_url_file"
+            wget "$DOWNLOAD_ASSESSMENT_URL" -O "$local_path" --retry-connrefused --read-timeout=20 --waitretry=1 -t 200 --continue
+            delete_after=true
         fi
         
         # Unzip resource into configured location
@@ -296,9 +313,6 @@ kalite_purge()
 
     # Remove assessment items since they might be overwritten by other packages
     rm -rf /usr/share/kalite/assessment
-
-    # Remove my changes to the db.
-    # db_purge
 
     # Remove service file using `ucf` (checking whether `ucf` is still available first)
     if type ucf >/dev/null 2>&1;
@@ -490,7 +504,7 @@ kalite_nginx_divert_remove()
         #    dpkg-divert: error: rename involves overwriting `/etc/nginx/nginx.conf' with
         #    different file `/etc/nginx/nginx.conf-ka-lite-raspberry-pi', not allowed
         # rm -f /etc/nginx/nginx.conf
-        # dpkg-divert --remove --rename /etc/nginx/nginx.conf
+        dpkg-divert --remove --rename /etc/nginx/nginx.conf
         # Recommendation of #debian-mentor of removing --package directive
         # seems to be a bad idea, the Debian Wiki is mis-guiding IMO
         # dpkg-divert --package "$pkg" --remove /etc/nginx/nginx.conf
