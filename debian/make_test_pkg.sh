@@ -75,6 +75,7 @@ cd $dest_dir
 tar xfz ../$bogus_sourceball
 
 # Has to be run at a relative path
+rm -rf "$dest_dir/debian"
 cd $orig_dir
 find ./debian -mindepth 1 -not -name '*.zip' -exec cp -rp --parents \{\} $dest_dir \;
 

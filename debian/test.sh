@@ -2,7 +2,7 @@
 #
 # This is a special test script that will actually install KA Lite
 # on the host system and test that stuff works!
-#
+# This script is intended for Travis CI mainly.
 
 set -e
 
@@ -21,18 +21,9 @@ test_fail()
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 
-# Remove old test if exists
-rm -rf test/ka-lite-ci-test
+./test_build.sh $test_version
 
-# Create a new test package
-./make_test_pkg.sh $test_version test/ka-lite-ci-test
-cd test/ka-lite-ci-test
-
-# Build the test package
-debuild --no-lintian -us -uc | tail
-
-# Go to the build dir
-cd ..
+cd test
 
 # Create a test assessment items archive
 echo "$test_version" > assessmentitems.version

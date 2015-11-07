@@ -13,13 +13,16 @@ Template: ka-lite/download-assessment-items
 Type: boolean
 Default: true
 Description: Download exercise data (~500 MB)?
- This is required if you want to provide exercises for students.
- The download is big, but it will be preserved across upgrades of
- your current version of KA Lite. When major version changes occurred,
- you may be prompted to fetch new exercise data.
+ Assessment item data is required if you want to provide exercises for students.
+ If you are online you can download it directly, and the data can be preserved
+ across minor upgrades of current version of KA Lite. When major version
+ changes occurred, you may be prompted to fetch new exercise data.
  .
- If you have a locally stored zip-file, on your hard drive or the local network,
+ If you have a zip-file on your local drive or your local network,
  select Yes and specify the location in the next step.
+ .
+ Selecting No will skip this process and you will have to install assessment
+ items using the 'kalite' command line utility.
 
 Template: ka-lite/download-assessment-items-manual
 Type: note

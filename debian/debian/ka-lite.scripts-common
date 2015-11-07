@@ -6,6 +6,9 @@
 # We're okay about failing hard
 set -e
 
+# source debconf library
+. /usr/share/debconf/confmodule
+
 # Uncomment this for loads of debugging
 set -x
 
@@ -74,6 +77,7 @@ kalite_debconf_ask()
     kalite_get_config
     
     db_settitle ka-lite/window-title
+    db_go || true
 
     # Run as system script?
     db_input high ka-lite/init || true
@@ -84,10 +88,11 @@ kalite_debconf_ask()
       db_input critical ka-lite/user || true
       db_go || true
       db_get ka-lite/user
-      KALITE_USER=$RET
+      KALITE_USER="$RET"
     done
 
     # Give init.d instructions
+    db_go || true
     db_get ka-lite/init
     if [ "$RET" = "true" ]
     then
@@ -112,10 +117,12 @@ kalite_debconf_ask()
         db_go || true
         db_get ka-lite/download-assessment-items
         [ "$RET" = "true" ] && DOWNLOAD_ASSESSMENT_ITEMS=true || DOWNLOAD_ASSESSMENT_ITEMS=false
-        
         # If we should download assessment items, ask further questions...
-        if $DOWNLOAD_ASSESSMENT_ITEMS
+        if [ $DOWNLOAD_ASSESSMENT_ITEMS ]
         then
+            db_input critical ka-lite/download-assessment-items-manual || true
+            db_go || true
+        else
             
             # Where to unpack assessment items
             ASSESSMENT_DIR=""
@@ -286,17 +293,12 @@ kalite_configure()
 
 kalite_purge()
 {
-  
-    # Source debconf library.
-    # Do not do this in a global scope... don't know the reasoning behind this
-    # yet.
-    . /usr/share/debconf/confmodule
 
     # Remove assessment items since they might be overwritten by other packages
     rm -rf /usr/share/kalite/assessment
 
     # Remove my changes to the db.
-    db_purge
+    # db_purge
 
     # Remove service file using `ucf` (checking whether `ucf` is still available first)
     if type ucf >/dev/null 2>&1;
@@ -313,57 +315,76 @@ kalite_purge()
 kalite_preinst()
 {
     
-    # Remove pyc files from previous installations
-    # Why not with pyclean? BECAUSE PYTHON IS NOT IN PRE-DEPENDS, SO WE CANNOT
-    # ASSUME THAT IT EXISTS!!
-    # TODO: This can be removed once we stop support for 0.15 upgrades, because
-    # these directories will not contain non-managed pyc files from 0.16+
-    if [ -d usr/share/kalite/python-packages ]
+    # Only do this if install, not upgrade or abort-upgrade
+    if [ "${args[1]}" = "install" ]
     then
-        find /usr/share/kalite/python-packages -name '*pyc' -exec rm {} \;
-    fi
-    if [ -d usr/share/kalite/dist-packages ]
-    then
-        find /usr/share/kalite/dist-packages -name '*pyc' -exec rm {} \;
-    fi
+    
+        # Remove pyc files from previous installations
+        # Why not with pyclean? BECAUSE PYTHON IS NOT IN PRE-DEPENDS, SO WE CANNOT
+        # ASSUME THAT IT EXISTS!!
+        # TODO: This can be removed once we stop support for 0.15 upgrades, because
+        # these directories will not contain non-managed pyc files from 0.16+
+        if [ -d usr/share/kalite/python-packages ]
+        then
+            find /usr/share/kalite/python-packages -name '*pyc' -exec rm {} \;
+        fi
+        if [ -d usr/share/kalite/dist-packages ]
+        then
+            find /usr/share/kalite/dist-packages -name '*pyc' -exec rm {} \;
+        fi
 
-    # Ask for user name, default is ka-lite
-    if ! [ "$SUDO_USER" = "" ]
-    then
-        # Set default to the user running the installation
-        db_set ka-lite/user "$SUDO_USER"
-    fi
-    # The username value should always be asked
-    db_fset ka-lite/download-assessment-items seen false
+        # Ask for user name, default is ka-lite
+        if ! [ "$SUDO_USER" = "" ]
+        then
+            # Set default to the user running the installation
+            db_set ka-lite/user "$SUDO_USER"
+        fi
+        # The username value should always be asked
+        db_fset ka-lite/download-assessment-items seen false
 
+        # Because of some strange bug in debconf, we always purge the notes
+        # separately -- and this cannot be done in kalite_purge because then
+        # debconf will assume that the note should be displayed unconditionally
+        # without calling db_input
+        # Furthermore, the note contents may have changed
+        db_fset ka-lite/download-assessment-items-manual seen false
+        db_fset ka-lite/download-assessment-items-upgrade seen false
+        db_fset ka-lite/download-assessment-items-storage-error-msg seen false
+        db_fset ka-lite/manual-instructions seen false
+        db_fset ka-lite/init-instructions seen false
+
+    fi
 }
 
 
 kalite_preinst_size_check()
 {
-
-    # Ask about downloading assessment items...
-    # Real size of .zip, but we add some extra...
-    # DISKSPACE_REQUIRED=503508
-    DISKSPACE_REQUIRED=523508
-    DISKSPACE_AVAILABLE_TMP=`df /tmp | awk '/[0-9]%/{print $(NF-2)}'`
-    DISKSPACE_AVAILABLE_USR=`df /usr/share | awk '/[0-9]%/{print $(NF-2)}'`
-
-    ASK_ABOUT_ASSESSMENT_ITEMS=true
-
-    if [ $DISKSPACE_AVAILABLE_TMP -lt $DISKSPACE_REQUIRED ] || [ $DISKSPACE_AVAILABLE_USR -lt $DISKSPACE_REQUIRED ]
+    # Only do this if install, not upgrade or abort-upgrade
+    if [ "${args[1]}" = "install" ]
     then
-        db_set ka-lite/download-assessment-items false
-        db_fset ka-lite/download-assessment-items seen true
-        db_set ka-lite/download-assessment-items-storage-error true
-        db_fset ka-lite/download-assessment-items-storage-error seen true
-    else
-        db_set ka-lite/download-assessment-items true
-        db_fset ka-lite/download-assessment-items seen false
-        db_set ka-lite/download-assessment-items-storage-error false
-        db_fset ka-lite/download-assessment-items-storage-error seen false
-    fi
 
+        # Ask about downloading assessment items...
+        # Real size of .zip, but we add some extra...
+        # DISKSPACE_REQUIRED=503508
+        DISKSPACE_REQUIRED=523508
+        DISKSPACE_AVAILABLE_TMP=`df /tmp | awk '/[0-9]%/{print $(NF-2)}'`
+        DISKSPACE_AVAILABLE_USR=`df /usr/share | awk '/[0-9]%/{print $(NF-2)}'`
+
+        ASK_ABOUT_ASSESSMENT_ITEMS=true
+
+        if [ $DISKSPACE_AVAILABLE_TMP -lt $DISKSPACE_REQUIRED ] || [ $DISKSPACE_AVAILABLE_USR -lt $DISKSPACE_REQUIRED ]
+        then
+            db_set ka-lite/download-assessment-items false
+            db_fset ka-lite/download-assessment-items seen true
+            db_set ka-lite/download-assessment-items-storage-error true
+            db_fset ka-lite/download-assessment-items-storage-error seen true
+        else
+            db_set ka-lite/download-assessment-items true
+            db_fset ka-lite/download-assessment-items seen false
+            db_set ka-lite/download-assessment-items-storage-error false
+            db_fset ka-lite/download-assessment-items-storage-error seen false
+        fi
+    fi
 }
 
 
