@@ -119,11 +119,12 @@ kalite_debconf_ask()
         db_go || true
         db_get ka-lite/download-assessment-items
         [ "$RET" = "true" ] && DOWNLOAD_ASSESSMENT_ITEMS=true || DOWNLOAD_ASSESSMENT_ITEMS=false
-        # If we should download assessment items, ask further questions...
-        if $DOWNLOAD_ASSESSMENT_ITEMS
+        # If not downloading anything, then display a note...
+        if ! $DOWNLOAD_ASSESSMENT_ITEMS
         then
             db_input critical ka-lite/download-assessment-items-manual || true
             db_go || true
+        # If we should download assessment items, ask further questions...
         else
             
             # Where to unpack assessment items
@@ -142,6 +143,17 @@ kalite_debconf_ask()
                 ASSESSMENT_DIR=$RET
                 db_get ka-lite/download-assessment-items-url
                 ASSESSMENT_URL=$RET
+
+                # If local file, check that it exists, otherwise reset value of
+                # ASSESSMENT_URL and start over
+                if [ `echo "$ASSESSMENT_URL" | grep "^file://"` ]
+                then
+                    local_path=`echo "$DOWNLOAD_ASSESSMENT_URL" | sed 's/file:\/\///'`
+                    if ! [ -f "$local_path" ]
+                    then
+                        ASSESSMENT_URL=""
+                    fi
+                fi
             done
             
             # If URL is not a local file, ask where to temporarily store it

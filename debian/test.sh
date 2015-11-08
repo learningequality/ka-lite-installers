@@ -28,6 +28,12 @@ test_fail()
     exit 1
 }
 
+get_conf_value()
+{
+  pkg=$1
+  conf=$2
+  echo `debconf-show $pkg | grep $2 | sed 's/.*:\s//'`
+}
 
 # Goto location of this script
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -52,17 +58,30 @@ then
     echo "ka-lite ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
     sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
     [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
+    tmp_location=`get_conf_value ka-lite ka-lite/download-assessment-items-tmp`
+    [ -f "$tmp_location/assessment_items.zip" ] && test_fail "Temporary zip not cleaned up"
     sudo -E apt-get purge -y ka-lite
 
     # Run a test that uses a local archive
     echo "ka-lite ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
     sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
     [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
+    # Should not delete archive in this case
+    [ -f "$DIR/test/test.zip" ] || test_fail "local zip archive deleted after usage"
     kalite status
     sudo -E apt-get purge -y ka-lite
 
     # Run a test that downloads assessment items
     echo "ka-lite ka-lite/download-assessment-items-url select http://overtag.dk/upload/assessment_test.zip" | sudo debconf-set-selections
+    sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
+    [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
+    kalite status
+    sudo -E apt-get purge -y ka-lite
+
+    # Run a test that uses a specific /tmp location
+    echo "ka-lite ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
+    mkdir -p /tmp/test
+    echo "ka-lite ka-lite/download-assessment-items-tmp select /tmp/test" | sudo debconf-set-selections
     sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
     [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
     kalite status
