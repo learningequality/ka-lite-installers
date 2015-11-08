@@ -120,7 +120,7 @@ kalite_debconf_ask()
         db_get ka-lite/download-assessment-items
         [ "$RET" = "true" ] && DOWNLOAD_ASSESSMENT_ITEMS=true || DOWNLOAD_ASSESSMENT_ITEMS=false
         # If we should download assessment items, ask further questions...
-        if [ $DOWNLOAD_ASSESSMENT_ITEMS ]
+        if $DOWNLOAD_ASSESSMENT_ITEMS
         then
             db_input critical ka-lite/download-assessment-items-manual || true
             db_go || true
@@ -464,7 +464,10 @@ kalite_nginx_divert_add()
         
         # Use fully blown manual method
         pkg=$DPKG_MAINTSCRIPT_PACKAGE
-        dpkg-divert --package "$pkg" --add --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
+        dpkg-divert --package "$pkg" --add --rename --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
+        
+        # Copy the distributed file to the location of nginx.conf
+        ln -s "/etc/nginx/nginx.conf.kalite" "/etc/nginx/nginx.conf"
     fi
 
 }
@@ -504,13 +507,18 @@ kalite_nginx_divert_remove()
         #    dpkg-divert: error: rename involves overwriting `/etc/nginx/nginx.conf' with
         #    different file `/etc/nginx/nginx.conf-ka-lite-raspberry-pi', not allowed
         # rm -f /etc/nginx/nginx.conf
-        dpkg-divert --remove --rename /etc/nginx/nginx.conf
+        # dpkg-divert --remove --rename /etc/nginx/nginx.conf
         # Recommendation of #debian-mentor of removing --package directive
         # seems to be a bad idea, the Debian Wiki is mis-guiding IMO
         # dpkg-divert --package "$pkg" --remove /etc/nginx/nginx.conf
         
+        # Remove the symlink
+        if [ -h /etc/nginx/nginx.conf ]
+        then
+            rm -f /etc/nginx/nginx.conf
+        fi
         pkg=$DPKG_MAINTSCRIPT_PACKAGE
-        dpkg-divert --package "$pkg" --remove --rename /etc/nginx/nginx.conf
+        dpkg-divert --package "$pkg" --divert "/etc/nginx/nginx.conf-$pkg" --remove --rename /etc/nginx/nginx.conf
         ;;
     esac
 }

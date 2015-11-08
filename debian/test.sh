@@ -20,6 +20,7 @@ else
     [ "$1" = "bundle" ] && target_bundle=true || target_bundle=false
 fi
 
+
 test_fail()
 {
     error=$1
@@ -44,8 +45,9 @@ zip test.zip assessmentitems.version
 export DEBIAN_FRONTEND=noninteractive
 
 
-if [ $target_kalite ]
+if $target_kalite
 then
+
     # Run a test that uses a local archive
     echo "ka-lite ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
     sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
@@ -69,7 +71,7 @@ then
 fi
 
 
-if [ $target_bundle ]
+if $target_bundle
 then
 
     # Test ka-lite-bundle
@@ -79,7 +81,7 @@ then
 
 fi
 
-if [ $target_rpi ]
+if $target_rpi
 then
 
     # Test ka-lite-raspberry-pi
@@ -90,6 +92,9 @@ then
     # sudo -E gdebi --n ka-lite-raspberry-pi_${test_version}_all.deb
     kalite status
     sudo -E apt-get purge -y ka-lite-raspberry-pi
+    # Ensure that there is nothing left after purging, otherwise divertion process failed
+    [ -f /etc/nginx/nginx.conf ] || test_fail "/etc/nginx/nginx.conf was not restored"
     sudo -E apt-get purge -y nginx-common
-
+    # Ensure that there is nothing left after purging, otherwise divertion process failed
+    ! [ -d /etc/nginx ] || test_fail "/etc/nginx not empty after purging nginx"
 fi
