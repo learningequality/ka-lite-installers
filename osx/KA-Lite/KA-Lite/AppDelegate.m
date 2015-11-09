@@ -21,7 +21,7 @@
 
 @implementation AppDelegate
 
-@synthesize stringUsername, stringPassword, stringConfirmPassword, startKalite, stopKalite, openInBrowserMenu;
+@synthesize startKalite, stopKalite, openInBrowserMenu;
 
 
 - (int) checkShebang{
@@ -104,6 +104,9 @@
         if (!pathExists(kalite)) {
             NSLog(@"kalite executable not found, must show preferences.");
             mustShowPreferences = true;
+            [self showStatus:statusFailedToStart];
+            [self savePreferences];
+            
         } else {
             NSLog([NSString stringWithFormat:@"FOUND kalite at %@!", kalite]);
         }
@@ -460,12 +463,6 @@ void showNotification(NSString *subtitle) {
 }
 
 
-NSString *getUsernameChars() {
-    NSString *chars = @"@.+-_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    return chars;
-}
-
-
 // REF: http://stackoverflow.com/a/26423271/845481
 // Check IF one String contains the same characters as another string
 - (BOOL)string:(NSString *)string containsAllCharactersInString:(NSString *)charString {
@@ -713,6 +710,9 @@ BOOL setEnvVars(BOOL createPlist) {
         case statusFailedToStart:
             [self.startKalite setEnabled:canStart];
             [self.stopKalite setEnabled:NO];
+            self.startButton.enabled = canStart;
+            self.stopButton.enabled = NO;
+            self.openBrowserButton.enabled = NO;
             [self.openInBrowserMenu setEnabled:NO];
             [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
             [self.statusItem setToolTip:@"KA-Lite failed to start."];
@@ -721,12 +721,18 @@ BOOL setEnvVars(BOOL createPlist) {
             [self.startKalite setEnabled:NO];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
+            self.startButton.enabled = NO;
+            self.stopButton.enabled = NO;
+            self.openBrowserButton.enabled = NO;
             [self.statusItem setToolTip:@"KA-Lite is starting..."];
             break;
         case statusOkRunning:
             [self.startKalite setEnabled:NO];
             [self.stopKalite setEnabled:YES];
             [self.openInBrowserMenu setEnabled:YES];
+            self.startButton.enabled = NO;
+            self.stopButton.enabled = YES;
+            self.openBrowserButton.enabled = YES;
             [self.statusItem setImage:[NSImage imageNamed:@"stop"]];
             [self.statusItem setToolTip:@"KA-Lite is running."];
             showNotification(@"You can now click on 'Open in Browser' menu");
@@ -735,6 +741,9 @@ BOOL setEnvVars(BOOL createPlist) {
             [self.startKalite setEnabled:canStart];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
+            self.startButton.enabled = canStart;
+            self.stopButton.enabled = NO;
+            self.openBrowserButton.enabled = NO;
             [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
             [self.statusItem setToolTip:@"KA-Lite is stopped."];
             showNotification(@"Stopped");
@@ -743,6 +752,9 @@ BOOL setEnvVars(BOOL createPlist) {
             [self.startKalite setEnabled:canStart];
             [self.stopKalite setEnabled:NO];
             [self.openInBrowserMenu setEnabled:NO];
+            self.startButton.enabled = canStart;
+            self.stopButton.enabled = NO;
+            self.openBrowserButton.enabled = NO;
             if (kaliteExists()){
                 [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
             }else{
@@ -755,7 +767,7 @@ BOOL setEnvVars(BOOL createPlist) {
 }
 
 
-- (IBAction)start:(id)sender {
+- (void)startFunction {
     showNotification(@"Starting...");
     [self showStatus:statusStartingUp];
     if (self.processCounter != 0) {
@@ -766,7 +778,17 @@ BOOL setEnvVars(BOOL createPlist) {
 }
 
 
-- (IBAction)stop:(id)sender {
+- (IBAction)start:(id)sender {
+    [self startFunction];
+}
+
+
+- (IBAction)startButton:(id)sender {
+    [self startFunction];
+}
+
+
+- (void)stopFunction {
     showNotification(@"Stopping...");
     if (self.processCounter != 0) {
         alert(@"KA Lite is still processing, please wait until it is finished.");
@@ -775,8 +797,16 @@ BOOL setEnvVars(BOOL createPlist) {
     [self runKalite:@"stop"];
 }
 
+- (IBAction)stop:(id)sender {
+    [self stopFunction];
+}
 
-- (IBAction)open:(id)sender {
+
+- (IBAction)stopButton:(id)sender {
+    [self stopFunction];
+}
+
+- (void)openFunction {
     // TODO(cpauya): Get the ip address and port from `local_settings.py` or preferences.
     // REF: http://stackoverflow.com/a/7129543/845481
     NSURL *url = [NSURL URLWithString:@"http://127.0.0.1:8008/"];
@@ -784,6 +814,15 @@ BOOL setEnvVars(BOOL createPlist) {
         NSString *msg = [NSString stringWithFormat:@" Failed to open url: %@",[url description]];
         showNotification(msg);
     }
+}
+
+- (IBAction)open:(id)sender {
+    [self openFunction];
+}
+
+
+- (IBAction)openButton:(id)sender {
+    [self openFunction];
 }
 
 
@@ -858,64 +897,25 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (void)showPreferences {
     [splash orderOut:self];
-    [self loadPreferences];
+//    [self loadPreferences];
     [window makeKeyAndOrderFront:self];
     [NSApp activateIgnoringOtherApps:YES];
     //REF http://stackoverflow.com/questions/6994541/cocoa-showing-a-window-on-top-without-giving-it-focus
     [window setLevel:NSFloatingWindowLevel];
 }
 
-
-- (NSString *)getUsernamePref {
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSString *username = [prefs stringForKey:@"username"];
-    return username;
-}
-
-
-- (void)loadPreferences {
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    self.username = [self getUsernamePref];
-
-    // TODO(cpauya): We must encrypt the password!
-    NSString *password = [prefs stringForKey:@"password"];
-    if (password != nil || [password isNotEqualTo:@""]) {
-        // NSData from the Base64 encoded str
-        NSData *nsdataFromBase64String = [[NSData alloc]
-                                          initWithBase64EncodedString:password options:0];
-        // Decoded NSString from the NSData
-        NSString *decodePassword = [[NSString alloc]
-                                    initWithData:nsdataFromBase64String encoding:NSUTF8StringEncoding];
-        self.password = decodePassword;
-        self.confirmPassword = decodePassword;
-    }
-}
-
-
-- (void)resetPreferences {
-    NSString *blank = @"";
-    self.username = blank;
-    self.password = blank;
-
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    [prefs setObject:blank forKey:@"username"];
-    [prefs setObject:blank forKey:@"password"];
-    // REF: https://github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
-    [prefs synchronize];
-    [self loadPreferences];
-}
-
+//- (void)loadPreferences {
+    // TODO(amodia): Set custom database path in the preferences menu.
+//}
 
 - (void)savePreferences {
     /*
-     1. Validate the following:
-        * username length max of 30 characters
-        * password length max of 128 characters
-        * username allowed characters are "letters, numbers and @/./+/-/_ characters" based on django.contrib.auth.models.AbstractUser
-     2. Save the preferences: REF: http://stackoverflow.com/questions/10148788/xcode-cocoa-app-preferences
-     3. Run `kalite manage setup` if no database was found.
+     1. Save the preferences: REF: http://stackoverflow.com/questions/10148788/xcode-cocoa-app-preferences
+     2. Run `kalite manage setup` if no database was found.
      */
     
+/*
+    //TODO(amodia): Comment this to be reference for setting a custom database path in the preferences menu.
     NSString *username = self.stringUsername.stringValue;
     NSString *password = self.stringPassword.stringValue;
     NSString *confirmPassword = self.stringConfirmPassword.stringValue;
@@ -928,12 +928,12 @@ BOOL setEnvVars(BOOL createPlist) {
         alert(@"KA Lite is still processing, please wait until it is finished.");
         return;
     }
-
+    
     if (self.username == nil || [self.username isEqualToString:@""]) {
         alert(@"Username must not be blank and can only contain letters, numbers and @/./+/-/_ characters.");
         return;
     }
-
+    
     NSString *usernameChars = getUsernameChars();
     if ([self string:usernameChars containsAllCharactersInString:self.username] == NO) {
         alert(@"Invalid username characters found, please use letters, numbers and @/./+/-/_ characters.");
@@ -944,34 +944,30 @@ BOOL setEnvVars(BOOL createPlist) {
         alert(@"Username must not exceed 30 characters.");
         return;
     }
-
+    
     if (self.password == nil || [self.password isEqualToString:@""]) {
         alert(@"Invalid password or the password does not match on both fields.");
         return;
     }
-
+    
     if (![self.password isEqualToString:self.confirmPassword]) {
         alert(@"The password does not match on both fields.");
         return;
     }
-
+    
     if ([self.password length] > 128) {
         alert(@"Password must not exceed 128 characters.");
         return;
     }
+ 
     
     // Save the preferences.
     // REF: http://iosdevelopertips.com/core-services/encode-decode-using-base64.html
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    
-    // Get NSString from NSData object in Base64
-    NSData *nsdata = [self.password dataUsingEncoding:NSUTF8StringEncoding];
-    NSString *encodedPassword = [nsdata base64EncodedStringWithOptions:0];
-    
-    [prefs setObject:self.username forKey:@"username"];
-    [prefs setObject:encodedPassword forKey:@"password"];
+    // TO set an object in NSUserDefaults use this sample "[prefs setObject:self.sample forKey:@"sample"];"
     // REF: https://github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
     [prefs synchronize];
+*/
     
     if (!setEnvVars(TRUE)) {
         alert(@"Either the set environment variables or symlink of kalite failed to complete!  Please check the Console.");
@@ -1004,13 +1000,8 @@ BOOL setEnvVars(BOOL createPlist) {
 
 
 -(enum kaliteStatus)setupKalite {
-    // Get admin account credentials from preferences.
-    
-    // MUST: The order of the arguments must be followed or the username / password
-    // will not have the same value!
-    NSString *cmd = [NSString stringWithFormat:@"manage setup --username=%@ --password=%@ --noinput",
-                     self.username, self.password];
-    NSString *msg = [NSString stringWithFormat:@"Running `kalite manage setup` with %@", cmd];
+    NSString *cmd = [NSString stringWithFormat:@"manage setup --noinput"];
+    NSString *msg = [NSString stringWithFormat:@"Running `kalite manage setup`"];
     showNotification(msg);
     enum kaliteStatus status = [self runKalite:cmd];
     [self getKaliteStatus];
@@ -1028,8 +1019,7 @@ BOOL setEnvVars(BOOL createPlist) {
     BOOL result = TRUE;
     
     showNotification(@"Resetting the app...");
-    NSString *msg;
-
+    
     // This unsets the KALITE_PYTHON environment variable used by the app.
     NSString *command = @"launchctl unsetenv KALITE_PYTHON;";
     const char *cmd = [command UTF8String];
@@ -1058,8 +1048,8 @@ BOOL setEnvVars(BOOL createPlist) {
     }
     
     // Delete/reset the user preferences.
-    [self resetPreferences];
     if(result){
+        [self showStatus:statusFailedToStart];
         showNotification(@"Done resetting the app.  Please click the Apply button to repeat the install process.");
     } else {
         showNotification(@"Failed to reset the app.  Please check your console for the following error.");
@@ -1075,21 +1065,12 @@ BOOL setEnvVars(BOOL createPlist) {
 
 
 - (void)startKaliteTimer {
-    // Setup a timer to monitor the result of `kalite status` after 60 seconds
-    // TODO(cpauya): then every 60 seconds there after.
-
-    // Monitor only if preferences are set.
-    NSString *username = [self getUsernamePref];
-    if (username != nil) {
-        // TODO(cpauya): Use initWithFireDate of NSTimer instance.
-        [NSTimer scheduledTimerWithTimeInterval:60.0
-                                         target:self
-                                       selector:@selector(getKaliteStatus)
-                                       userInfo:nil
-                                        repeats:YES];
-    } else {
-        NSLog(@"Not running timer because there are no preferences yet.");
-    }
+    // TODO(cpauya): Use initWithFireDate of NSTimer instance.
+    [NSTimer scheduledTimerWithTimeInterval:60.0
+                                    target:self
+                                    selector:@selector(getKaliteStatus)
+                                    userInfo:nil
+                                    repeats:YES];
 }
 
 
