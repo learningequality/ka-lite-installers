@@ -648,7 +648,7 @@ BOOL setEnvVars(BOOL createPlist) {
     /*
      MUST: Let's create a org.learningequality.kalite.plist at the /tmp/ folder
      then use an AppleScript script to combine it with the symlink script
-     with admin privileges so we only ask for the root `password once.
+     with admin privileges so we only ask for the root password once.
      
      This is the format:
 
