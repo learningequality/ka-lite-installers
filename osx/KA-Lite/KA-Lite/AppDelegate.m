@@ -914,13 +914,60 @@ BOOL setEnvVars(BOOL createPlist) {
      2. Run `kalite manage setup` if no database was found.
      */
     
+/*
+    // Comment this to be reference for setting a custom database path in the preferences menu.
+    NSString *username = self.stringUsername.stringValue;
+    NSString *password = self.stringPassword.stringValue;
+    NSString *confirmPassword = self.stringConfirmPassword.stringValue;
+    
+    self.username = username;
+    self.password = password;
+    self.confirmPassword = confirmPassword;
+    
+    if (self.processCounter != 0) {
+        alert(@"KA Lite is still processing, please wait until it is finished.");
+        return;
+    }
+    
+    if (self.username == nil || [self.username isEqualToString:@""]) {
+        alert(@"Username must not be blank and can only contain letters, numbers and @/./+/-/_ characters.");
+        return;
+    }
+    
+    NSString *usernameChars = getUsernameChars();
+    if ([self string:usernameChars containsAllCharactersInString:self.username] == NO) {
+        alert(@"Invalid username characters found, please use letters, numbers and @/./+/-/_ characters.");
+        return;
+    }
+    
+    if ([self.username length] > 30) {
+        alert(@"Username must not exceed 30 characters.");
+        return;
+    }
+    
+    if (self.password == nil || [self.password isEqualToString:@""]) {
+        alert(@"Invalid password or the password does not match on both fields.");
+        return;
+    }
+    
+    if (![self.password isEqualToString:self.confirmPassword]) {
+        alert(@"The password does not match on both fields.");
+        return;
+    }
+    
+    if ([self.password length] > 128) {
+        alert(@"Password must not exceed 128 characters.");
+        return;
+    }
+ 
+    
     // Save the preferences.
     // REF: http://iosdevelopertips.com/core-services/encode-decode-using-base64.html
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     // TO set an object in NSUserDefaults use this sample "[prefs setObject:self.sample forKey:@"sample"];"
     // REF: https://github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
     [prefs synchronize];
-
+*/
     
     if (!setEnvVars(TRUE)) {
         alert(@"Either the set environment variables or symlink of kalite failed to complete!  Please check the Console.");
