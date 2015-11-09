@@ -915,7 +915,7 @@ BOOL setEnvVars(BOOL createPlist) {
      */
     
 /*
-    // Comment this to be reference for setting a custom database path in the preferences menu.
+    //TODO(amodia): Comment this to be reference for setting a custom database path in the preferences menu.
     NSString *username = self.stringUsername.stringValue;
     NSString *password = self.stringPassword.stringValue;
     NSString *confirmPassword = self.stringConfirmPassword.stringValue;
