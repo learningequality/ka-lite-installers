@@ -12,17 +12,17 @@
 # 7. Install the `ka-lite-static` by running `pyrun setup.py install` inside the `ka-lite` directory.
 # 8. Building the docs using sphinx-build. 
 # 9. Run `bin/kalite manage compileymltojson`, needs `pyrun/pip install pyyaml==3.11`
-# 10. Uninstall pyyaml so it's not included in the .dmg to build
+# 10. Uninstall pyyaml so it's not included in the .pkg to build
 # 11. Copy `pyrun` folder to the Xcode Resources folder.
 # 12. Build the Xcode project to produce the .app.
-# 13. Build the .dmg.
+# 13. Build the .pkg.
 #
 # TODO(cpauya):
 # * use `tempfile.py` instead of `mktemp` which is "subject to race conditions"
 
 # References:
 # 1. http://stackoverflow.com/questions/1371351/add-files-to-an-xcode-project-from-a-script
-# 1. https://github.com/andreyvit/create-dmg forked to https://github.com/mrpau/create-dmg
+# 2. http://s.sudre.free.fr/Software/Packages/about.html
 
 # REF: http://stackoverflow.com/questions/3601515/how-to-check-if-a-variable-is-set-in-bash
 if [ -z ${TMPDIR+0} ]; then
@@ -60,13 +60,13 @@ if ! [ -d "$WORKING_DIR" ]; then
 fi
 
 SETUP_FILES_DIR="$SCRIPTPATH/setup-files"
-KA_LITE_MONITOR_PROJECT_DIR="$SCRIPTPATH/KA-Lite-Monitor"
-KA_LITE_MONITOR_DIR="$KA_LITE_MONITOR_PROJECT_DIR/KA-Lite-Monitor"
-KA_LITE_MONITOR_RESOURCES_DIR="$KA_LITE_MONITOR_DIR/Resources"
-KA_LITE_MONITOR_APP_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release/KA-Lite-Monitor.app"
-RELEASE_PATH="$KA_LITE_MONITOR_PROJECT_DIR/build/Release"
+KA_LITE_PROJECT_DIR="$SCRIPTPATH/KA-Lite"
+KA_LITE_DIR="$KA_LITE_PROJECT_DIR/KA-Lite"
+KA_LITE_RESOURCES_DIR="$KA_LITE_DIR/Resources"
+KA_LITE_APP_PATH="$KA_LITE_PROJECT_DIR/build/Release/KA-Lite.app"
+RELEASE_PATH="$KA_LITE_PROJECT_DIR/build/Release"
 KA_LITE_LOGO_PATH="$SETUP_FILES_DIR/ka-lite-logo-full.png"
-KA_LITE_ICNS_PATH="$KA_LITE_MONITOR_DIR/Resources/images/ka-lite.icns"
+KA_LITE_ICNS_PATH="$KA_LITE_DIR/Resources/images/ka-lite.icns"
 KA_LITE_README_PATH="$SETUP_FILES_DIR/README.md"
 KA_LITE_LICENSE_PATH="$SETUP_FILES_DIR/LICENSE"
 
@@ -79,8 +79,8 @@ PYRUN_PIP="$PYRUN_DIR/bin/pip"
 
 ASSESSMENT_ZIP="assessment.zip"
 ASSESSMENT_PATH="$WORKING_DIR/$ASSESSMENT_ZIP"
-ASSESSMENT_KALITE_MONITOR="$KA_LITE_MONITOR_RESOURCES_DIR"
-ASSESSMENT_URL="https://learningequality.org/downloads/ka-lite/0.14/content/assessment.zip"
+ASSESSMENT_KALITE="$KA_LITE_RESOURCES_DIR"
+ASSESSMENT_URL="https://learningequality.org/downloads/ka-lite/0.15/content/khan_assessment.zip"
 
 KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
@@ -121,12 +121,9 @@ if [ "$2" != "" ]; then
     fi
 fi
 
-KA_LITE_MONITOR_RESOURCES_PYRUN_DIR="$KA_LITE_MONITOR_RESOURCES_DIR/$PYRUN_NAME"
+KA_LITE_RESOURCES_PYRUN_DIR="$KA_LITE_RESOURCES_DIR/$PYRUN_NAME"
 
 OUTPUT_PATH="$WORKING_DIR/output"
-DMG_PATH="$OUTPUT_PATH/KA-Lite-Monitor.dmg"
-DMG_BUILDER_PATH="$WORKING_DIR/create-dmg"
-CREATE_DMG="$DMG_BUILDER_PATH/create-dmg"
 
 SIGNER_IDENTITY_APPLICATION="Developer ID Application: Foundation for Learning Equality, Inc. (H83B64B6AV)"
 SIGNER_IDENTITY_INSTALLER="Developer ID Installer: Foundation for Learning Equality, Inc. (H83B64B6AV)"
@@ -149,15 +146,15 @@ else
     fi
 fi
 
-if [ -f "$KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP" ]; then
-    rm -rf "$KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP"
-    echo "  Deleting target assessment zip (to be overwritten below) at $KA_LITE_MONITOR_RESOURCES_DIR/$ASSESSMENT_ZIP"
+if [ -f "$KA_LITE_RESOURCES_DIR/$ASSESSMENT_ZIP" ]; then
+    rm -rf "$KA_LITE_RESOURCES_DIR/$ASSESSMENT_ZIP"
+    echo "  Deleting target assessment zip (to be overwritten below) at $KA_LITE_RESOURCES_DIR/$ASSESSMENT_ZIP"
 fi
 
 if [ -f "$ASSESSMENT_PATH" ]; then
     # Copy assessment
-    echo "  Copying new $ASSESSMENT_PATH to $KA_LITE_MONITOR_RESOURCES_DIR"
-    cp -R "$ASSESSMENT_PATH" "$KA_LITE_MONITOR_RESOURCES_DIR"
+    echo "  Copying new $ASSESSMENT_PATH to $KA_LITE_RESOURCES_DIR"
+    cp -R "$ASSESSMENT_PATH" "$KA_LITE_RESOURCES_DIR"
 fi
 
 
@@ -217,7 +214,7 @@ else
         echo "  $0: Can't extract '$KA_LITE_ZIP', exiting..."
         exit 1
     fi
-    
+
     # Rename the extracted folder.
     echo "  Renaming '$WORKING_DIR/$KA_LITE-*' to $KA_LITE_DIR'..."
     mv $WORKING_DIR/$KA_LITE-* $KA_LITE_DIR
@@ -295,7 +292,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # b. Run `bin/kalite manage compileymltojson`
-# MUST: Make sure to set the KALITE_PYTHON environment variable so 
+# MUST: Make sure to set the KALITE_PYTHON environment variable so
 #       that `bin/kalite` uses the pyrun's pip.
 echo "$STEP/$STEPS. Running 'bin/kalite manage compileymltojson'... on '$KA_LITE_DIR' "
 cd "$KA_LITE_DIR"
@@ -306,7 +303,7 @@ if [ $? -ne 0 ]; then
 fi
 cd "$WORKING_DIR/.."
 
-# c. Uninstall pyyaml so it's not included in the .dmg to build
+# c. Uninstall pyyaml so it's not included in the .pkg to build
 ((STEP++))
 echo "$STEP/$STEPS. Running '$PYRUN_PIP uninstall pyyaml==3.11 --yes'... on '$KA_LITE_DIR' "
 $PYRUN_PIP uninstall pyyaml==3.11 --yes
@@ -318,112 +315,74 @@ fi
 # Copy the extracted folders to the Xcode Resources folder
 ((STEP++))
 echo "$STEP/$STEPS. Copy extracted folders to the Xcode Resources folder."
-if ! [ -d "$KA_LITE_MONITOR_RESOURCES_DIR" ]; then
-    mkdir "$KA_LITE_MONITOR_RESOURCES_DIR"
+if ! [ -d "$KA_LITE_RESOURCES_DIR" ]; then
+    mkdir "$KA_LITE_RESOURCES_DIR"
     echo "  Created Xcode Resources folder..."
 fi
 
 # Delete and re-create the destination folders to make sure we don't leave orphaned files.
-echo "  Checking $KA_LITE_MONITOR_RESOURCES_PYRUN_DIR..."
-if [ -d "$KA_LITE_MONITOR_RESOURCES_PYRUN_DIR" ]; then
-    echo "    Deleting $KA_LITE_MONITOR_RESOURCES_PYRUN_DIR..."
-    rm -rf "$KA_LITE_MONITOR_RESOURCES_PYRUN_DIR"
+echo "  Checking $KA_LITE_RESOURCES_PYRUN_DIR..."
+if [ -d "$KA_LITE_RESOURCES_PYRUN_DIR" ]; then
+    echo "    Deleting $KA_LITE_RESOURCES_PYRUN_DIR..."
+    rm -rf "$KA_LITE_RESOURCES_PYRUN_DIR"
 fi
 
 # Copy pyrun...
-echo "  cp $PYRUN_DIR $KA_LITE_MONITOR_RESOURCES_DIR"
-cp -R "$PYRUN_DIR" "$KA_LITE_MONITOR_RESOURCES_DIR"
+echo "  cp $PYRUN_DIR $KA_LITE_RESOURCES_DIR"
+cp -R "$PYRUN_DIR" "$KA_LITE_RESOURCES_DIR"
 
 # Build the Xcode project.
 ((STEP++))
-echo "$STEP/$STEPS. Building the Xcode project to $KA_LITE_MONITOR_APP_PATH..."
-if [ -d "$KA_LITE_MONITOR_PROJECT_DIR" ]; then
+echo "$STEP/$STEPS. Building the Xcode project to $KA_LITE_APP_PATH..."
+if [ -d "$KA_LITE_PROJECT_DIR" ]; then
     # xcodebuild needs to be on the same directory as the .xcodeproj file
-    cd "$KA_LITE_MONITOR_PROJECT_DIR"
+    cd "$KA_LITE_PROJECT_DIR"
     xcodebuild clean build
     cd ..
 fi
-if ! [ -d "$KA_LITE_MONITOR_APP_PATH" ]; then
-    echo "Build of '$KA_LITE_MONITOR_APP_PATH' failed!"
+if ! [ -d "$KA_LITE_APP_PATH" ]; then
+    echo "Build of '$KA_LITE_APP_PATH' failed!"
     exit 2
 fi
 
-echo "Checking if to codesign '$KA_LITE_MONITOR_APP_PATH' or not..."
+echo "Checking if to codesign '$KA_LITE_APP_PATH' or not..."
 if [ -z ${IS_BAMBOO+0} ]; then 
-    echo "Running on local machine, don't codesign!"; 
+    echo "Running on local machine, don't codesign!"
 else 
-    echo "Running on bamboo server, so will codesign."; 
+    echo "Running on bamboo server, so will codesign."
     # sign the .app file
     # unlock the keychain first so we can access the private key
     # security unlock-keychain -p $KEYCHAIN_PASSWORD
-    codesign -d -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_MONITOR_APP_PATH"
+    codesign -d -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_APP_PATH"
     if [ $? -ne 0 ]; then
-        echo "  $0: Error/s encountered codesigning '$KA_LITE_MONITOR_APP_PATH', exiting..."
+        echo "  $0: Error/s encountered codesigning '$KA_LITE_APP_PATH', exiting..."
         exit 1
     fi
 fi
 
-# Build the .dmg file.
+
+# Build the KA-Lite  installer using `Packages`.
+# This will build the .pkg file.
 ((STEP++))
-echo "$STEP/$STEPS. Building the .dmg file at '$OUTPUT_PATH'..."
+echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
-# clone the .dmg builder if non-existent
-if ! [ -d $DMG_BUILDER_PATH ]; then
-    git clone https://github.com/mrpau/create-dmg.git $DMG_BUILDER_PATH
-fi
+PACKAGES_OUTPUT="KA-Lite.pkg"
+PACKAGES_EXEC="packagesbuild"
+PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Lite.pkgproj"
+PACKAGES_BUILD_FOLDER="$SCRIPTPATH/KA-Lite-Packages/build/KA-Lite.pkg"
 
-# Remove the .dmg if it exists.
-test -e "$DMG_PATH" && rm "$DMG_PATH"
-
-MORE_FILES_PATH="$RELEASE_PATH/More files"
-
-if [ -d "$MORE_FILES_PATH" ]; then
-    echo "Found More files directory at '$MORE_FILES_PATH'."
-else
-    mkdir "$MORE_FILES_PATH"
-fi 
-
-# Add the README.md to the More files directory.
-cp "$KA_LITE_README_PATH" "$MORE_FILES_PATH"
-
-# Add the LICENSE to the More files directory.
-cp "$KA_LITE_LICENSE_PATH" "$MORE_FILES_PATH"
-
-
-# Clean-up the package.
-test -x "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM"
-
-# Let's create the .dmg.
-$CREATE_DMG \
-    --volname "KA-Lite-Monitor Installer" \
-    --volicon "$KA_LITE_ICNS_PATH" \
-    --window-size 700 400 \
-    --icon "KA-Lite-Monitor.app" 150 200 \
-    --app-drop-link 500 200 \
-    --background "$KA_LITE_LOGO_PATH" \
-    --eula "$MORE_FILES_PATH/LICENSE" \
-    "$DMG_PATH"  \
-    "$RELEASE_PATH" 
-
-    # --icon-size 64 \
-    # --text-size 16 \
-
-# Clean-up, only remove if using temporary directory made by `mktemp`.
-# TODO(cpauya): remove when done debugging
-# if [ $WORKING_DIR != './temp' ]; then
-#     echo "  Removing temporary directory '$WORKING_DIR'..."
-#     rm -rf "$WORKING_DIR"
-# fi
-
-echo "Done!"
-if [ -e "$DMG_PATH" ]; then
-    # codesign the built DMG file
-    # unlock the keychain first so we can access the private key
-    # security unlock-keychain -p $KEYCHAIN_PASSWORD
-    codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$DMG_PATH"
-    echo "You can now test the built installer at '$DMG_PATH'."
-else
-    echo "Sorry, something went wrong trying to build the installer at '$DMG_PATH'."
+# check if the `Packages` is installed
+if ! command -v $PACKAGES_EXEC > /dev/null; then
+    echo "Abort! Packages is not installed."
     exit 1
+else
+    $PACKAGES_EXEC $PACKAGES_PROJECT
+    if [ $? -ne 0 ]; then
+        echo "  $0: Error/s encountered building .pkg file '$PACKAGES_EXEC', exiting..."
+        exit 1
+    fi
+    mv -v $PACKAGES_BUILD_FOLDER $OUTPUT_PATH
+    echo "Congratulations! Your newly built installer is at '$OUTPUT_PATH/$PACKAGES_OUTPUT'."
 fi
+
