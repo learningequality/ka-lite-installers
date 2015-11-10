@@ -14,10 +14,16 @@ then
     target_kalite=true
     target_rpi=true
     target_bundle=true
+    target_upgrade=true
 else
-    [ "$1" = "rpi" ] && target_rpi=true || target_rpi=false
-    [ "$1" = "kalite" ] && target_kalite=true || target_kalite=false
-    [ "$1" = "bundle" ] && target_bundle=true || target_bundle=false
+    target_kalite=false
+    target_rpi=false
+    target_bundle=false
+    target_upgrade=false
+    [ "$1" = "rpi" ] && target_rpi=true
+    [ "$1" = "kalite" ] && target_kalite=true
+    [ "$1" = "bundle" ] && target_bundle=true
+    [ "$1" = "upgrade" ] && target_upgrade=true
 fi
 
 
@@ -53,7 +59,6 @@ export DEBIAN_FRONTEND=noninteractive
 
 if $target_kalite
 then
-
     # Run a test that uses a local archive
     echo "ka-lite ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
     sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
@@ -87,6 +92,8 @@ then
     kalite status
     sudo -E apt-get purge -y ka-lite
 
+    echo "Done with normal ka-lite tests"
+
 fi
 
 
@@ -98,6 +105,7 @@ then
     kalite status
     sudo -E apt-get purge -y ka-lite-bundle
 
+    echo "Done with ka-lite-bundle tests"
 fi
 
 if $target_rpi
@@ -116,4 +124,22 @@ then
     sudo -E apt-get purge -y nginx-common
     # Ensure that there is nothing left after purging, otherwise divertion process failed
     ! [ -d /etc/nginx ] || test_fail "/etc/nginx not empty after purging nginx"
+    echo "Done with RPi tests"
+fi
+
+
+# Test upgrades
+if $target_upgrade
+then
+    # Install previous test
+    echo "ka-lite ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
+    sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
+
+    # Then install a version with .1 appended
+    cd $DIR
+    ./test_build.sh ${test_version}.1 1
+    cd test
+    sudo -E dpkg -i --debug=2 ka-lite_${test_version}.1_all.deb | tail
+    sudo -E apt-get purge -y ka-lite
+    echo "Done with upgrade tests"
 fi
