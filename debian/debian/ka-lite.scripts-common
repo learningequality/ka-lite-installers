@@ -344,6 +344,13 @@ kalite_preinst()
     # Only do this if install, not upgrade or abort-upgrade
     if [ "${args[1]}" = "install" ]
     then
+
+        if [ -x /etc/init.d/ka-lite ]
+        then
+            # Stop service -- nevermind if it fails
+            invoke-rc.d ka-lite stop || true
+        fi
+
     
         # Remove pyc files from previous installations
         # Why not with pyclean? BECAUSE PYTHON IS NOT IN PRE-DEPENDS, SO WE CANNOT
