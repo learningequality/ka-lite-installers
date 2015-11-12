@@ -9,8 +9,10 @@ set -e
 # source debconf library
 . /usr/share/debconf/confmodule
 
-# Uncomment this for loads of debugging
-set -x
+if ! [ "$KALITE_DEB_DEBUG" = "" ]
+then
+    set -x
+fi
 
 args=("$@")
 
@@ -24,6 +26,17 @@ major_version() {
     echo -n "0.15"
     # This doesn't work for all maintainer scripts
     # echo "${args[1]}" | sed 's/\([0-9]*\.[0-9]*\).*/\1/'
+}
+
+get_state() {
+    if [ -f /tmp/kalite.state ]
+    then
+        cat /tmp/kalite.state
+    fi
+}
+
+set_state() {
+    echo -n $1 > /tmp/kalite.state
 }
 
 ##################################################
@@ -73,7 +86,8 @@ kalite_get_config()
 # Used in .config
 kalite_debconf_ask()
 {
-    
+
+
     # Get the current configuration -- or rather: These are the defaults
     # or presets before asking.
     kalite_get_config
@@ -338,13 +352,60 @@ kalite_purge()
 }
 
 
+# This is run at the beginning of kalite_debconf_ask
+# ka-lite.config is run twice: before ka-lite.preinst
+# and after ka-lite.postinst configure!
+kalite_debconf_set_defaults()
+{
+    # If called for the second time...
+    if [ "`get_state`" = "after_preinst" ]
+    then
+        set_state "after_postinst"
+        return
+    fi
+  
+    if [ "${args[0]}" = "configure" ]
+    then
+        
+        # Ask for user name, default is ka-lite
+        if ! [ "$SUDO_USER" = "" ]
+        then
+            echo "Suggesting default KA Lite user: $SUDO_USER"
+            # Set default to the user running the installation
+            db_set ka-lite/user "$SUDO_USER"
+            db_fset ka-lite/user seen false
+        fi
+        # The username value should always be asked
+        db_fset ka-lite/download-assessment-items seen false
+
+        # Because of some strange bug in debconf, we always purge the notes
+        # separately -- and this cannot be done in kalite_purge because then
+        # debconf will assume that the note should be displayed unconditionally
+        # without calling db_input
+        # Furthermore, the note contents may have changed
+        db_fset ka-lite/download-assessment-items-manual seen false
+        db_fset ka-lite/download-assessment-items-upgrade seen false
+        db_fset ka-lite/download-assessment-items-storage-error-msg seen false
+        db_fset ka-lite/manual-instructions seen false
+        db_fset ka-lite/init-instructions seen false
+    fi  
+}
+
+
 kalite_preinst()
 {
-    
+    echo ""
+    echo "preinst ${args[0]}"
+    echo ""
     # Only do this if install, not upgrade or abort-upgrade
-    if [ "${args[1]}" = "install" ]
+    if [ "${args[0]}" = "install" ] ||
+       [ "${args[0]}" = "upgrade" ]
     then
-
+        
+        # This is needed because config scrpit runs before preinst
+        # and after postinst
+        set_state "after_preinst"
+        
         if [ -x /etc/init.d/ka-lite ]
         then
             # Stop service -- nevermind if it fails
@@ -366,34 +427,20 @@ kalite_preinst()
             find /usr/share/kalite/dist-packages -name '*pyc' -exec rm {} \;
         fi
 
-        # Ask for user name, default is ka-lite
-        if ! [ "$SUDO_USER" = "" ]
-        then
-            # Set default to the user running the installation
-            db_set ka-lite/user "$SUDO_USER"
-        fi
-        # The username value should always be asked
-        db_fset ka-lite/download-assessment-items seen false
-
-        # Because of some strange bug in debconf, we always purge the notes
-        # separately -- and this cannot be done in kalite_purge because then
-        # debconf will assume that the note should be displayed unconditionally
-        # without calling db_input
-        # Furthermore, the note contents may have changed
-        db_fset ka-lite/download-assessment-items-manual seen false
-        db_fset ka-lite/download-assessment-items-upgrade seen false
-        db_fset ka-lite/download-assessment-items-storage-error-msg seen false
-        db_fset ka-lite/manual-instructions seen false
-        db_fset ka-lite/init-instructions seen false
-
     fi
 }
 
 
-kalite_preinst_size_check()
+kalite_debconf_size_check()
 {
+    if [ "`get_state`" = "after_preinst" ]
+    then
+        echo "Size check not run in after_preinst"
+        return
+    fi
+
     # Only do this if install, not upgrade or abort-upgrade
-    if [ "${args[1]}" = "install" ]
+    if [ "${args[0]}" = "configure" ]
     then
 
         # Ask about downloading assessment items...
@@ -412,11 +459,19 @@ kalite_preinst_size_check()
             db_set ka-lite/download-assessment-items-storage-error true
             db_fset ka-lite/download-assessment-items-storage-error seen true
         else
-            db_set ka-lite/download-assessment-items true
-            db_fset ka-lite/download-assessment-items seen false
             db_set ka-lite/download-assessment-items-storage-error false
-            db_fset ka-lite/download-assessment-items-storage-error seen false
+            db_fset ka-lite/download-assessment-items-storage-error seen true
         fi
+    fi
+}
+
+
+# Run as the final script in .config
+kalite_debconf_finalize() {
+    if [ "`get_state`" = "after_postinst" ]
+    then
+        echo "Removing state file"
+        rm -f /tmp/kalite.state
     fi
 }
 
