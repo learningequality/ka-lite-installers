@@ -217,6 +217,8 @@ kalite_debconf_ask()
 kalite_configure()
 {
 
+    set_state "after_postinst"
+
     kalite_get_config
     
     vers=`major_version`
@@ -249,15 +251,22 @@ kalite_configure()
         # Ensure that the assessment items directory is empty in case there are
         # foreign items there such as something that was downloaded with another .deb
         rm -rf /usr/share/kalite/assessment/khan
-            
+        
+        # Where to write temporary during download
+        download_tmp="$DOWNLOAD_ASSESSMENT_TMP/assessment_items.zip"
+
         # Check if file system resource or downloadable
         if [ `echo "$DOWNLOAD_ASSESSMENT_URL" | grep "^file://"` ]
         then
             # It is a filesystem location
             local_path=`echo "$DOWNLOAD_ASSESSMENT_URL" | sed 's/file:\/\///'`
             delete_after=false
+            
+            # Remove temporary zip archive in case something was stored during
+            # a previously abandoned download
+            rm -f "$download_tmp"
         else
-            local_path=$DOWNLOAD_ASSESSMENT_TMP/assessment_items.zip
+            local_path="$download_tmp"
             # If we have downloaded something previously, check that it's from
             # the same source, otherwise we should not continue the download
             dest_url_file="$DOWNLOAD_ASSESSMENT_TMP/assessment_items.url"
@@ -358,9 +367,8 @@ kalite_purge()
 kalite_debconf_set_defaults()
 {
     # If called for the second time...
-    if [ "`get_state`" = "after_preinst" ]
+    if [ "`get_state`" = "after_postinst" ]
     then
-        set_state "after_postinst"
         return
     fi
   
@@ -370,7 +378,6 @@ kalite_debconf_set_defaults()
         # Ask for user name, default is ka-lite
         if ! [ "$SUDO_USER" = "" ]
         then
-            echo "Suggesting default KA Lite user: $SUDO_USER"
             # Set default to the user running the installation
             db_set ka-lite/user "$SUDO_USER"
             db_fset ka-lite/user seen false
@@ -394,9 +401,6 @@ kalite_debconf_set_defaults()
 
 kalite_preinst()
 {
-    echo ""
-    echo "preinst ${args[0]}"
-    echo ""
     # Only do this if install, not upgrade or abort-upgrade
     if [ "${args[0]}" = "install" ] ||
        [ "${args[0]}" = "upgrade" ]
@@ -433,9 +437,8 @@ kalite_preinst()
 
 kalite_debconf_size_check()
 {
-    if [ "`get_state`" = "after_preinst" ]
+    if [ "`get_state`" = "after_postinst" ]
     then
-        echo "Size check not run in after_preinst"
         return
     fi
 
@@ -470,7 +473,6 @@ kalite_debconf_size_check()
 kalite_debconf_finalize() {
     if [ "`get_state`" = "after_postinst" ]
     then
-        echo "Removing state file"
         rm -f /tmp/kalite.state
     fi
 }
