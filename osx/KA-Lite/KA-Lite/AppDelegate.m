@@ -24,7 +24,7 @@
 @synthesize startKalite, stopKalite, openInBrowserMenu;
 
 
-//REF http://objcolumnist.com/2009/08/09/reopening-an-applications-main-window-by-clicking-the-dock-icon/
+// REF: http://objcolumnist.com/2009/08/09/reopening-an-applications-main-window-by-clicking-the-dock-icon/
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag {
     if(flag==NO) {
         [self showPreferences];
@@ -138,7 +138,7 @@ BOOL checkEnvVars() {
 
 - (void) displayLogs:(NSString *)outStr {
     dispatch_sync(dispatch_get_main_queue(), ^{
-        //REF: http://stackoverflow.com/questions/10772033/get-current-date-time-with-nsdate-date
+        // REF: http://stackoverflow.com/questions/10772033/get-current-date-time-with-nsdate-date
         //Get the current date time
         NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
         [dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss"];
@@ -181,8 +181,8 @@ BOOL checkEnvVars() {
     [task setLaunchPath: pyrun];
     [task setArguments: array];
     
-    //REF: http://stackoverflow.com/questions/9965360/async-execution-of-shell-command-not-working-properly
-    //REF: http://www.raywenderlich.com/36537/nstask-tutorial
+    // REF: http://stackoverflow.com/questions/9965360/async-execution-of-shell-command-not-working-properly
+    // REF: http://www.raywenderlich.com/36537/nstask-tutorial
     
     NSPipe *pipeOutput = [NSPipe pipe];
     task.standardOutput = pipeOutput;
@@ -725,7 +725,7 @@ NSString *getEnvVar(NSString *var) {
 //    [self loadPreferences];
     [window makeKeyAndOrderFront:self];
     [NSApp activateIgnoringOtherApps:YES];
-    //REF http://stackoverflow.com/questions/6994541/cocoa-showing-a-window-on-top-without-giving-it-focus
+    // REF: http://stackoverflow.com/questions/6994541/cocoa-showing-a-window-on-top-without-giving-it-focus
     [window setLevel:NSFloatingWindowLevel];
 }
 

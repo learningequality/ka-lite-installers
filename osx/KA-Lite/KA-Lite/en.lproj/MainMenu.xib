@@ -138,6 +138,14 @@ Gw
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                     </button>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ng4-TD-U8c">
+                        <rect key="frame" x="148" y="-11" width="104" height="35"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="version 1.16.0" id="sgE-hG-5Tb">
+                            <font key="font" metaFont="system" size="10"/>
+                            <color key="textColor" red="0.012429353341100775" green="0.22719754093567834" blue="0.38871433423913049" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                     <tabView fixedFrame="YES" initialItem="bsG-cY-LW8" translatesAutoresizingMaskIntoConstraints="NO" id="Elv-hY-FGF">
                         <rect key="frame" x="13" y="40" width="467" height="374"/>
                         <font key="font" metaFont="system" size="14"/>
@@ -253,37 +261,8 @@ Gw
                                     <rect key="frame" x="10" y="33" width="447" height="328"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Kn6-w8-2BI">
-                                            <rect key="frame" x="1" y="129" width="440" height="106"/>
-                                            <view key="contentView">
-                                                <rect key="frame" x="1" y="1" width="438" height="90"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                <subviews>
-                                                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vCF-O4-9Xh">
-                                                        <rect key="frame" x="3" y="2" width="267" height="76"/>
-                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="This will run &quot;kalite manage unpack_assessment_zip&quot; to extract assessment items." id="j3U-B3-BqS">
-                                                            <font key="font" metaFont="system"/>
-                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                        </textFieldCell>
-                                                    </textField>
-                                                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WlP-QT-tst">
-                                                        <rect key="frame" x="270" y="36" width="161" height="32"/>
-                                                        <buttonCell key="cell" type="push" title="Extract Assessment" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="1cr-ZR-MdD">
-                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                            <font key="font" metaFont="system"/>
-                                                        </buttonCell>
-                                                        <connections>
-                                                            <action selector="extractAssessment:" target="Voe-Tx-rLC" id="bqW-gK-grs"/>
-                                                        </connections>
-                                                    </button>
-                                                </subviews>
-                                            </view>
-                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                        </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="sGz-9H-SVx">
-                                            <rect key="frame" x="1" y="239" width="440" height="67"/>
+                                            <rect key="frame" x="1" y="248" width="440" height="67"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="438" height="51"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -362,14 +341,6 @@ Gw
                             </tabViewItem>
                         </tabViewItems>
                     </tabView>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ng4-TD-U8c">
-                        <rect key="frame" x="148" y="-11" width="104" height="35"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="version 1.16.0" id="sgE-hG-5Tb">
-                            <font key="font" metaFont="system" size="10"/>
-                            <color key="textColor" red="0.012429353341100775" green="0.22719754093567834" blue="0.38871433423913049" alpha="1" colorSpace="calibratedRGB"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
                 </subviews>
             </view>
             <point key="canvasLocation" x="733.5" y="285.5"/>
