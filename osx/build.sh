@@ -10,7 +10,7 @@
 # . Check if requirements are installed: packages, wget.
 # . Get Github source, based on argument of branch URL, extract and rename it to `ka-lite` folder.
 # . Get Pyrun
-# . TODO(cpauya): Do `pyrun setup.py sdist --static`.
+# . Do `pyrun setup.py sdist --static` inside the `temp/ka-lite/` directory.
 #
 # REF: Bash References
 # * http://www.peterbe.com/plog/set-ex
@@ -24,13 +24,13 @@
 echo "KA-Lite OS X build script for version 0.16.x and above."
 
 STEP=1
-STEPS=4
+STEPS=5
 
 # REF: http://stackoverflow.com/questions/4774054/reliable-way-for-a-bash-script-to-get-the-full-path-to-itself/4774063#comment15185627_4774063
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 
 # Create temporary directory
-TEMP_DIR_NAME="tempex"
+TEMP_DIR_NAME="temp"
 WORKING_DIR="$SCRIPTPATH/$TEMP_DIR_NAME"
 
 echo "$STEP/$STEPS. Checking temporary directory..."
@@ -127,6 +127,8 @@ INSTALL_PYRUN_URL="https://downloads.egenix.com/python/install-pyrun"
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
 PYRUN_NAME="pyrun-2.7"
 PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
+PYRUN="$PYRUN_DIR/bin/pyrun"
+PYRUN_PIP="$PYRUN_DIR/bin/pip"
 
 # Don't download Pyrun if there's already a `pyrun-2.7` directory.
 if [ -d "$PYRUN_DIR" ]; then
@@ -155,4 +157,45 @@ else
 fi
 
 
+((STEP++))
+echo "$STEP/$STEPS. Running 'sdist'..."
+
+# MUST: Upgrade Pyrun's pip from v1.5.6 to prevent issues.
+UPGRADE_PIP_CMD="$PYRUN_PIP install --upgrade pip"
+echo ".. Upgrading Pyrun's pip with '$UPGRADE_PIP_CMD'..."
+$UPGRADE_PIP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$UPGRADE_PIP_CMD'."
+    exit 1
+fi
+
+# TODO(cpauya): Still here for reference until done debugging.
+# cd "$KA_LITE_DIR"
+# SDIST_CMD="$PYRUN -m pip install ."
+# echo ".. Running $SDIST_CMD..."
+# $SDIST_CMD
+# if [ $? -ne 0 ]; then
+#     echo ".. Abort!  Error/s encountered running '$SDIST_CMD'."
+#     exit 1
+# fi
+
+cd "$KA_LITE_DIR"
+SETUP_CMD="$PYRUN setup.py install"
+echo ".. Running $SETUP_CMD..."
+$SETUP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$SETUP_CMD'."
+    exit 1
+fi
+
+cd "$KA_LITE_DIR"
+SETUP_STATIC_CMD="$SETUP_CMD --static"
+echo ".. Running $SETUP_STATIC_CMD..."
+$SETUP_STATIC_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$SETUP_STATIC_CMD'."
+    exit 1
+fi
+
+cd "$WORKING_DIR/.."
 echo "Done!"
