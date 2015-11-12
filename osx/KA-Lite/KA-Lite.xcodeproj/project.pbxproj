@@ -8,11 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		D035A9391B671F80009FA40A /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = D035A9381B671F7F009FA40A /* scripts */; };
-		D04051441B67753800D40805 /* assessment.zip in Resources */ = {isa = PBXBuildFile; fileRef = D01E36F71B672C340097C9E8 /* assessment.zip */; };
 		F103615C1A81B7DF00998E6B /* images in Resources */ = {isa = PBXBuildFile; fileRef = F103615B1A81B7DF00998E6B /* images */; };
 		F1720BED1A79566700096453 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = F1720BEC1A79566700096453 /* README.md */; };
 		F1720BF11A7A343A00096453 /* local_settings.default in Resources */ = {isa = PBXBuildFile; fileRef = F1720BF01A7A343A00096453 /* local_settings.default */; };
-		F1B308391ACBD09500008AF1 /* pyrun-2.7 in Resources */ = {isa = PBXBuildFile; fileRef = F1B308381ACBD09400008AF1 /* pyrun-2.7 */; };
 		F1DDD4131A6E5DC10022F1C9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DDD4121A6E5DC10022F1C9 /* AppDelegate.m */; };
 		F1DDD4151A6E5DC10022F1C9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DDD4141A6E5DC10022F1C9 /* main.m */; };
 		F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1DDD4161A6E5DC10022F1C9 /* Images.xcassets */; };
@@ -31,12 +29,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D01E36F71B672C340097C9E8 /* assessment.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = assessment.zip; path = Resources/assessment.zip; sourceTree = "<group>"; };
 		D035A9381B671F7F009FA40A /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
 		F103615B1A81B7DF00998E6B /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = Resources/images; sourceTree = "<group>"; };
 		F1720BEC1A79566700096453 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F1720BF01A7A343A00096453 /* local_settings.default */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = local_settings.default; sourceTree = "<group>"; };
-		F1B308381ACBD09400008AF1 /* pyrun-2.7 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "pyrun-2.7"; path = "Resources/pyrun-2.7"; sourceTree = "<group>"; };
 		F1DDD40C1A6E5DC10022F1C9 /* KA-Lite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KA-Lite.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1DDD4101A6E5DC10022F1C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F1DDD4111A6E5DC10022F1C9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -100,9 +96,7 @@
 		F1DDD40F1A6E5DC10022F1C9 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				D01E36F71B672C340097C9E8 /* assessment.zip */,
 				D035A9381B671F7F009FA40A /* scripts */,
-				F1B308381ACBD09400008AF1 /* pyrun-2.7 */,
 				F103615B1A81B7DF00998E6B /* images */,
 				F1720BF01A7A343A00096453 /* local_settings.default */,
 				F1DDD4101A6E5DC10022F1C9 /* Info.plist */,
@@ -209,9 +203,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D04051441B67753800D40805 /* assessment.zip in Resources */,
 				F103615C1A81B7DF00998E6B /* images in Resources */,
-				F1B308391ACBD09500008AF1 /* pyrun-2.7 in Resources */,
 				F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */,
 				D035A9391B671F80009FA40A /* scripts in Resources */,
 				F1E5A30B1A8041FD003FA650 /* MainMenu.xib in Resources */,
