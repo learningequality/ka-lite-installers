@@ -1,16 +1,22 @@
 #!/bin/bash
 # set -ex
-# Above is very useful during debugging.
+# The above is very useful during debugging.
 # 
 # **************************************************
 # Build script for KA-Lite using Packages and PyRun.
 #
-# STEPS
+# Arguments
+# . $1 == $KA_LITE_REPO_ZIP == URL of the Github .zip of the KA-Lite branch to use. 
+#
+# Steps
 # . Create temporary directory `temp`.
-# . Check if requirements are installed: packages, wget.
-# . Get Github source, based on argument of branch URL, extract and rename it to `ka-lite` folder.
-# . Get Pyrun
-# . Do `pyrun setup.py sdist --static` inside the `temp/ka-lite/` directory.
+# . Check if requirements are installed: packages, wget, pip >= 7.x.
+# . Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
+# . Get Pyrun, then insert path to the Pyrun binaries in $PATH so Pyrun's python runs first instead of the system python.
+# . Upgrade Pyrun's pip
+# . Run `pip install -r requirements_dev.txt` to install the Makefile executables.
+# . Run `make dist` for assets and docs.
+# . Run `pyrun setup.py sdist --static` inside the `temp/ka-lite/` directory.
 #
 # REF: Bash References
 # * http://www.peterbe.com/plog/set-ex
@@ -24,7 +30,7 @@
 echo "KA-Lite OS X build script for version 0.16.x and above."
 
 STEP=1
-STEPS=5
+STEPS=8
 
 # REF: http://stackoverflow.com/questions/4774054/reliable-way-for-a-bash-script-to-get-the-full-path-to-itself/4774063#comment15185627_4774063
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
@@ -127,8 +133,9 @@ INSTALL_PYRUN_URL="https://downloads.egenix.com/python/install-pyrun"
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
 PYRUN_NAME="pyrun-2.7"
 PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
-PYRUN="$PYRUN_DIR/bin/pyrun"
-PYRUN_PIP="$PYRUN_DIR/bin/pip"
+PYRUN_BIN="$PYRUN_DIR/bin"
+PYRUN="$PYRUN_BIN/pyrun"
+PYRUN_PIP="$PYRUN_BIN/pip"
 
 # Don't download Pyrun if there's already a `pyrun-2.7` directory.
 if [ -d "$PYRUN_DIR" ]; then
@@ -156,12 +163,16 @@ else
     fi
 fi
 
+# MUST: Override the PATH to add the path to the Pyrun binaries first so it's python executes instead of
+# the system python.  When the script exits the old PATH values will be restored.
+export PATH="$PYRUN_BIN:$PATH"
+
 
 ((STEP++))
-echo "$STEP/$STEPS. Running 'sdist'..."
+UPGRADE_PIP_CMD="$PYRUN_PIP install --upgrade pip"
+echo "$STEP/$STEPS. Upgrading Pyrun's pip with '$UPGRADE_PIP_CMD'..."
 
 # MUST: Upgrade Pyrun's pip from v1.5.6 to prevent issues.
-UPGRADE_PIP_CMD="$PYRUN_PIP install --upgrade pip"
 echo ".. Upgrading Pyrun's pip with '$UPGRADE_PIP_CMD'..."
 $UPGRADE_PIP_CMD
 if [ $? -ne 0 ]; then
@@ -169,26 +180,43 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# TODO(cpauya): Still here for reference until done debugging.
-# cd "$KA_LITE_DIR"
-# SDIST_CMD="$PYRUN -m pip install ."
-# echo ".. Running $SDIST_CMD..."
-# $SDIST_CMD
-# if [ $? -ne 0 ]; then
-#     echo ".. Abort!  Error/s encountered running '$SDIST_CMD'."
-#     exit 1
-# fi
 
+((STEP++))
+PIP_CMD="$PYRUN_PIP install -r requirements_dev.txt"
+echo "$STEP/$STEPS. Doing '$PIP_CMD'..."
+
+# TODO(cpauya): We can streamline this to only install the needed modules for `make dist` below.
 cd "$KA_LITE_DIR"
-SETUP_CMD="$PYRUN setup.py install"
-echo ".. Running $SETUP_CMD..."
-$SETUP_CMD
+echo ".. Running $PIP_CMD..."
+$PIP_CMD
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error/s encountered running '$SETUP_CMD'."
+    echo ".. Abort!  Error/s encountered running '$PIP_CMD'."
     exit 1
 fi
 
+
+((STEP++))
+echo "$STEP/$STEPS. Running 'make dist'..."
+
+# MUST: Make sure we have a KALITE_PYTHON env var that points to pyrun
+# because `bin/kalite manage ...` will be called when we do `make assets`.
+export KALITE_PYTHON="$PYRUN"
+
 cd "$KA_LITE_DIR"
+MAKE_CMD="make dist"
+echo ".. Running $MAKE_CMD..."
+$MAKE_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$MAKE_CMD'."
+    exit 1
+fi
+
+
+((STEP++))
+echo "$STEP/$STEPS. Running 'sdist'..."
+
+cd "$KA_LITE_DIR"
+SETUP_CMD="$PYRUN setup.py install"
 SETUP_STATIC_CMD="$SETUP_CMD --static"
 echo ".. Running $SETUP_STATIC_CMD..."
 $SETUP_STATIC_CMD
@@ -196,6 +224,8 @@ if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered running '$SETUP_STATIC_CMD'."
     exit 1
 fi
+
+# TODO(cpauya): Check https://github.com/learningequality/ka-lite/pull/4630#issuecomment-155567771 for running kalite twice to start.
 
 cd "$WORKING_DIR/.."
 echo "Done!"
