@@ -1,8 +1,12 @@
-ka-lite-source (0.15.0-0ubuntu2) UNRELEASED; urgency=medium
+ka-lite-source (0.15.0-0ubuntu2) precise; urgency=medium
 
-  * lalala
+  * Refactored debian maintainer scripts
+  * Added new RPI friendly settings
+  * Better instructions in debconf
+  * Fixed possible errors during upgrade or borked downloads
+  * 
 
- -- Benjamin Bach <benjamin@varoufakis>  Thu, 22 Oct 2015 23:40:05 +0200
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 22 Oct 2015 23:40:05 +0200
 
 ka-lite-source (0.15.0-0ubuntu1) precise; urgency=medium
 

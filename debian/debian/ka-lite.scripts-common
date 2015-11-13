@@ -86,7 +86,11 @@ kalite_get_config()
 # Used in .config
 kalite_debconf_ask()
 {
-
+    
+    if [ "`get_state`" = "after_postinst" ]
+    then
+        return
+    fi
 
     # Get the current configuration -- or rather: These are the defaults
     # or presets before asking.
@@ -239,6 +243,8 @@ kalite_configure()
         touch "$USER_CONFIG"
         echo "Changing user config to use package pre-defined settings: $USER_CONFIG"
         echo "$SETUP_PY" > $USER_CONFIG
+        KALITE_USER_GROUP=`id -g -n $KALITE_USER`
+        chown -R $KALITE_USER:$KALITE_USER_GROUP "$USER_CONFIG_DIR"
     fi
     
     # Assessment items
