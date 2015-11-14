@@ -14,7 +14,6 @@ case "$1" in
   configure)
 
     kalite_configure
-    db_stop
     
     # Possibly, restart nginx
     db_get ka-lite/init
@@ -24,6 +23,8 @@ case "$1" in
         invoke-rc.d nginx restart || true
 
     fi
+
+    db_stop
 
   ;;
 
