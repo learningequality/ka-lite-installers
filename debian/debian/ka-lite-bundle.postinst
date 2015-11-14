@@ -13,6 +13,7 @@ case "$1" in
   configure)
 
     kalite_configure
+    db_stop
 
   ;;
 
