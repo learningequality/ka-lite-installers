@@ -30,7 +30,7 @@
 echo "KA-Lite OS X build script for version 0.16.x and above."
 
 STEP=1
-STEPS=8
+STEPS=9
 
 # REF: http://stackoverflow.com/questions/4774054/reliable-way-for-a-bash-script-to-get-the-full-path-to-itself/4774063#comment15185627_4774063
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
@@ -122,6 +122,21 @@ else
     if ! [ -d "$KA_LITE_DIR" ]; then
         echo ".. Abort!  Did not successfully rename '$WORKING_DIR/$KA_LITE-*' to '$KA_LITE_DIR'."
         exit 1
+    fi
+fi
+
+# Download assessment.
+((STEP++))
+echo "$STEP/$STEPS. Downloading assessment"
+if [ -f "$ASSESSMENT_PATH" ]; then
+    echo "  Found $ASSESSMENT_ZIP at '$ASSESSMENT_PATH' so will not re-download.  Delete $ASSESSMENT_ZIP to re-download."
+else
+    if [ "$ASSESSMENT_URL" != "" ]; then
+        wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $ASSESSMENT_PATH $ASSESSMENT_URL
+        if [ $? -ne 0 ]; then
+            echo "  $0: Can't download '$ASSESSMENT_URL', exiting..."
+            exit 1
+        fi
     fi
 fi
 
