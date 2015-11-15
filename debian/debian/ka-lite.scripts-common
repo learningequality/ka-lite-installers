@@ -278,7 +278,7 @@ kalite_configure()
             dest_url_file="$DOWNLOAD_ASSESSMENT_TMP/assessment_items.url"
             if [ -f "$dest_url_file" ]
             then
-                if ! [ "`cat '$dest_url_file'`" = "$DOWNLOAD_ASSESSMENT_URL" ]
+                if ! [ "`cat $dest_url_file`" = "$DOWNLOAD_ASSESSMENT_URL" ]
                 then
                     echo "Found existing zip from different location"
                     rm -f "$dest_url_file"

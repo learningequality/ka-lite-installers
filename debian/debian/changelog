@@ -1,3 +1,10 @@
+ka-lite-source (0.15.0-0ubuntu3) precise; urgency=medium
+
+  * Fix error in url file for resuming downloads
+  * Add debug output for config script
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 15 Nov 2015 13:49:32 +0100
+
 ka-lite-source (0.15.0-0ubuntu2) precise; urgency=medium
 
   * Refactored debian maintainer scripts
