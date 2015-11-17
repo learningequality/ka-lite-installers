@@ -16,16 +16,19 @@
 # . Upgrade Pyrun's pip
 # . Run `pip install -r requirements_dev.txt` to install the Makefile executables.
 # . Run `make dist` for assets and docs.
-# . Run `pyrun setup.py sdist --static` inside the `temp/ka-lite/` directory.
+# . Run `pyrun setup.py install --static` inside the `temp/ka-lite/` directory.
+# . Build the Xcode project.
+# . TODO(cpauya): Codesign the built .app if running on build server.
+# . TODO(cpauya): Run Packages script to build the .pkg.
 #
 # REF: Bash References
-# * http://www.peterbe.com/plog/set-ex
-# * http://stackoverflow.com/questions/3601515/how-to-check-if-a-variable-is-set-in-bash
-# * http://stackoverflow.com/questions/4774054/reliable-way-for-a-bash-script-to-get-the-full-path-to-itself/4774063#4774063
-# * http://askubuntu.com/questions/385528/how-to-increment-a-variable-in-bash#385532
-# * http://stackoverflow.com/questions/592620/check-if-a-program-exists-from-a-bash-script
-# * http://stackoverflow.com/questions/2924422/how-do-i-determine-if-a-web-page-exists-with-shell-scripting/20988182#20988182
-# * http://stackoverflow.com/questions/2751227/how-to-download-source-in-zip-format-from-github/18222354#18222354
+# . http://www.peterbe.com/plog/set-ex
+# . http://stackoverflow.com/questions/3601515/how-to-check-if-a-variable-is-set-in-bash
+# . http://stackoverflow.com/questions/4774054/reliable-way-for-a-bash-script-to-get-the-full-path-to-itself/4774063#4774063
+# . http://askubuntu.com/questions/385528/how-to-increment-a-variable-in-bash#385532
+# . http://stackoverflow.com/questions/592620/check-if-a-program-exists-from-a-bash-script
+# . http://stackoverflow.com/questions/2924422/how-do-i-determine-if-a-web-page-exists-with-shell-scripting/20988182#20988182
+# . http://stackoverflow.com/questions/2751227/how-to-download-source-in-zip-format-from-github/18222354#18222354
 
 echo "KA-Lite OS X build script for version 0.16.x and above."
 
@@ -99,7 +102,6 @@ else
     else
         # REF: http://stackoverflow.com/a/18222354/84548ƒ®1
         # How to download source in .zip format from GitHub?
-        # TODO(cpauya): Download from `master` branch NOT from `develop`.
         echo ".. Downloading from '$KA_LITE_REPO_ZIP' to '$KA_LITE_ZIP'..."
         wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $KA_LITE_ZIP $KA_LITE_REPO_ZIP
         if [ $? -ne 0 ]; then
@@ -168,12 +170,10 @@ fi
 export PATH="$PYRUN_BIN:$PATH"
 
 
+# MUST: Upgrade Pyrun's pip from v1.5.6 to prevent issues.
 ((STEP++))
 UPGRADE_PIP_CMD="$PYRUN_PIP install --upgrade pip"
 echo "$STEP/$STEPS. Upgrading Pyrun's pip with '$UPGRADE_PIP_CMD'..."
-
-# MUST: Upgrade Pyrun's pip from v1.5.6 to prevent issues.
-echo ".. Upgrading Pyrun's pip with '$UPGRADE_PIP_CMD'..."
 $UPGRADE_PIP_CMD
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered running '$UPGRADE_PIP_CMD'."
@@ -185,7 +185,7 @@ fi
 PIP_CMD="$PYRUN_PIP install -r requirements_dev.txt"
 echo "$STEP/$STEPS. Doing '$PIP_CMD'..."
 
-# TODO(cpauya): We can streamline this to only install the needed modules for `make dist` below.
+# TODO(cpauya): Streamline this to install only the needed modules/executables for `make dist` below.
 cd "$KA_LITE_DIR"
 echo ".. Running $PIP_CMD..."
 $PIP_CMD
@@ -198,7 +198,7 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Running 'make dist'..."
 
-# MUST: Make sure we have a KALITE_PYTHON env var that points to pyrun
+# MUST: Make sure we have a KALITE_PYTHON env var that points to Pyrun
 # because `bin/kalite manage ...` will be called when we do `make assets`.
 export KALITE_PYTHON="$PYRUN"
 
@@ -225,7 +225,31 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+
+# Build the Xcode project
+((STEP++))
+echo "$STEP/$STEPS. Building the Xcode project..."
+KA_LITE_PROJECT_DIR="$SCRIPTPATH/KA-Lite"
+if [ -d "$KA_LITE_PROJECT_DIR" ]; then
+    # MUST: xcodebuild needs to be on the same directory as the .xcodeproj file
+    cd "$KA_LITE_PROJECT_DIR"
+    xcodebuild clean build
+fi
+# check if build of Xcode project succeeded
+KA_LITE_APP_PATH="$KA_LITE_PROJECT_DIR/build/Release/KA-Lite.app"
+if ! [ -d "$KA_LITE_APP_PATH" ]; then
+    echo ".. Abort!  Build of '$KA_LITE_APP_PATH' failed!"
+    exit 1
+fi
+
+
 # TODO(cpauya): Check https://github.com/learningequality/ka-lite/pull/4630#issuecomment-155567771 for running kalite twice to start.
+
+# TODO(cpauya): To run KA-Lite on the terminal for testing, run the following:
+# ./temp/pyrun-2.7/bin/kalite manage syncdb --noinput;
+# ./temp/pyrun-2.7/bin/kalite manage setup --noinput;
+# ./temp/pyrun-2.7/bin/kalite start;
+
 
 cd "$WORKING_DIR/.."
 echo "Done!"
