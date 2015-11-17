@@ -75,11 +75,13 @@
             mustShowPreferences = true;
             [self showStatus:statusFailedToStart];
             [self savePreferences];
+            showNotification(@"Kalite executable not found.");
             
         } else {
             NSLog([NSString stringWithFormat:@"FOUND kalite at %@!", kalite]);
+            showNotification(@"KA Lite is now loaded.");
+            [self getKaliteStatus];
         }
-        showNotification(@"KA Lite is now loaded.");
     }
     @catch (NSException *ex) {
         NSLog(@"KA Lite had an Error: %@", ex);
@@ -504,6 +506,7 @@ NSString *getEnvVar(NSString *var) {
             self.stopButton.enabled = NO;
             self.openBrowserButton.enabled = NO;
             [self.statusItem setToolTip:@"KA-Lite is starting..."];
+            [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
             break;
         case statusOkRunning:
             [self.startKalite setEnabled:NO];
