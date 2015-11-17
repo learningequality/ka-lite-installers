@@ -31,8 +31,9 @@ fi
 function update_env {
     echo "Updating KALITE_PYTHON environment variable"
     launchctl setenv  KALITE_PYTHON "$PYRUN"
+    export KALITE_PYTHON="$PYRUN"
     if [ $? -ne 0 ]; then
-        echo "  $0: Error/s encountered  exporting KALITE_PYTHON '$KA_LITE_APP_PATH', exiting..."
+        echo ".. Abort!  Exporting KALITE_PYTHON '$KA_LITE_APP_PATH'."
         exit 1
     fi
 }
@@ -79,13 +80,13 @@ fi
 echo "Running  manage setup.."
 kalite manage setup --noinput
 if [ $? -ne 0 ]; then
-    echo "  $0: Error/s encountered running 'bin/kalite manage setup', exiting..."
+    echo ".. Abort!  Error/s encountered running 'bin/kalite manage setup."
     exit 1
 fi
 
 echo "Unpacking assessment.zip"
 kalite manage unpack_assessment_zip $ASSESSMENT_SRC
 if [ $? -ne 0 ]; then
-    echo "  $0: Error/s encountered running 'bin/kalite manage unpack_assessment_zip', exiting..."
+    echo ".. Abort!  Error/s encountered running 'bin/kalite manage unpack_assessment_zip."
     exit 1
 fi

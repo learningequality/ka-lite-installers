@@ -127,14 +127,14 @@ fi
 
 # Download assessment.
 ((STEP++))
-echo "$STEP/$STEPS. Downloading assessment"
+echo "$STEP/$STEPS. Downloading assessment..."
 if [ -f "$ASSESSMENT_PATH" ]; then
-    echo "  Found $ASSESSMENT_ZIP at '$ASSESSMENT_PATH' so will not re-download.  Delete $ASSESSMENT_ZIP to re-download."
+    echo ".. Found $ASSESSMENT_ZIP at '$ASSESSMENT_PATH' so will not re-download.  Delete $ASSESSMENT_ZIP to re-download."
 else
     if [ "$ASSESSMENT_URL" != "" ]; then
         wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $ASSESSMENT_PATH $ASSESSMENT_URL
         if [ $? -ne 0 ]; then
-            echo "  $0: Can't download '$ASSESSMENT_URL', exiting..."
+            echo ".. Abort! Can't download '$ASSESSMENT_URL'."
             exit 1
         fi
     fi
