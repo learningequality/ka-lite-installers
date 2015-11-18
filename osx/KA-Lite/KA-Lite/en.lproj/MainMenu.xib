@@ -14,6 +14,7 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
+                <outlet property="kaliteVersion" destination="89o-4x-JIp" id="72c-bS-dBh"/>
                 <outlet property="openBrowserButton" destination="wxg-iv-YDa" id="0er-aA-Ymn"/>
                 <outlet property="openInBrowserMenu" destination="z2m-ls-Z0I" id="mGN-C0-zz5"/>
                 <outlet property="splash" destination="izD-1r-MWo" id="ax5-nI-Mu0"/>
@@ -85,9 +86,6 @@
                         <rect key="frame" x="7" y="50" width="203" height="77"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="ka-lite-logo" id="RYn-a9-bqN"/>
                     </imageView>
-                    <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="Whl-jw-4n7">
-                        <rect key="frame" x="148" y="91" width="16" height="16"/>
-                    </progressIndicator>
                 </subviews>
             </view>
             <point key="canvasLocation" x="311" y="144.5"/>
@@ -105,9 +103,6 @@
                         <rect key="frame" x="20" y="2" width="128" height="48"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="ka-lite-logo" id="SrL-UW-fmI"/>
                     </imageView>
-                    <progressIndicator autoresizesSubviews="NO" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" doubleValue="33" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="F58-jA-gsZ">
-                        <rect key="frame" x="106" y="29" width="16" height="16"/>
-                    </progressIndicator>
                     <button autoresizesSubviews="NO" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3rc-kc-VMj">
                         <rect key="frame" x="379" y="10" width="100" height="32"/>
                         <buttonCell key="cell" type="push" title="Apply" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GgK-EM-gBS">
@@ -139,8 +134,8 @@ Gw
                         </buttonCell>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ng4-TD-U8c">
-                        <rect key="frame" x="148" y="-11" width="104" height="35"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="version 1.16.0" id="sgE-hG-5Tb">
+                        <rect key="frame" x="148" y="-11" width="50" height="35"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="version" id="sgE-hG-5Tb">
                             <font key="font" metaFont="system" size="10"/>
                             <color key="textColor" red="0.012429353341100775" green="0.22719754093567834" blue="0.38871433423913049" alpha="1" colorSpace="calibratedRGB"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -152,11 +147,11 @@ Gw
                         <tabViewItems>
                             <tabViewItem label="Preferences" identifier="1" id="bsG-cY-LW8">
                                 <view key="view" id="B8D-my-NmZ">
-                                    <rect key="frame" x="10" y="33" width="447" height="328"/>
+                                    <rect key="frame" x="10" y="33" width="130" height="0.0"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Path for Database and Content (TODO)" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
-                                            <rect key="frame" x="11" y="149" width="414" height="91"/>
+                                            <rect key="frame" x="11" y="-179" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -198,7 +193,7 @@ Gw
                                             <font key="titleFont" metaFont="systemBold"/>
                                         </box>
                                         <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Eur-YG-XhD">
-                                            <rect key="frame" x="11" y="269" width="119" height="32"/>
+                                            <rect key="frame" x="11" y="-59" width="119" height="32"/>
                                             <buttonCell key="cell" type="push" title="Start KA Lite" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="AIv-42-gwi">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -208,7 +203,7 @@ Gw
                                             </connections>
                                         </button>
                                         <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ixV-cY-gLJ">
-                                            <rect key="frame" x="153" y="269" width="118" height="32"/>
+                                            <rect key="frame" x="153" y="-59" width="118" height="32"/>
                                             <buttonCell key="cell" type="push" title="Stop KA Lite" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Liy-0e-2VH">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -218,7 +213,7 @@ Gw
                                             </connections>
                                         </button>
                                         <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wxg-iv-YDa">
-                                            <rect key="frame" x="293" y="269" width="143" height="32"/>
+                                            <rect key="frame" x="293" y="-59" width="143" height="32"/>
                                             <buttonCell key="cell" type="push" title="Open in Browser" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="49I-m5-mkT">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -228,7 +223,7 @@ Gw
                                             </connections>
                                         </button>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Application behavior (TODO)" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
-                                            <rect key="frame" x="11" y="22" width="414" height="91"/>
+                                            <rect key="frame" x="11" y="-306" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -252,43 +247,6 @@ Gw
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                             <font key="titleFont" metaFont="systemBold"/>
-                                        </box>
-                                    </subviews>
-                                </view>
-                            </tabViewItem>
-                            <tabViewItem label="Advanced" identifier="2" id="a88-uU-pNE">
-                                <view key="view" id="VVZ-XB-ata">
-                                    <rect key="frame" x="10" y="33" width="447" height="328"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="sGz-9H-SVx">
-                                            <rect key="frame" x="1" y="248" width="440" height="67"/>
-                                            <view key="contentView">
-                                                <rect key="frame" x="1" y="1" width="438" height="51"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                <subviews>
-                                                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="MOt-uY-Qda">
-                                                        <rect key="frame" x="338" y="13" width="93" height="32"/>
-                                                        <buttonCell key="cell" type="push" title="Setup" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ubr-w0-PHZ">
-                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                            <font key="font" metaFont="system"/>
-                                                        </buttonCell>
-                                                        <connections>
-                                                            <action selector="setupAction:" target="Voe-Tx-rLC" id="fej-bs-Uzy"/>
-                                                        </connections>
-                                                    </button>
-                                                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZZ9-Mn-1Uq">
-                                                        <rect key="frame" x="7" y="10" width="324" height="34"/>
-                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Warning!  This will run `kalite manage setup` and your data might be lost." id="J7r-g1-X1B">
-                                                            <font key="font" metaFont="system"/>
-                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                        </textFieldCell>
-                                                    </textField>
-                                                </subviews>
-                                            </view>
-                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </box>
                                     </subviews>
                                 </view>
@@ -341,6 +299,14 @@ Gw
                             </tabViewItem>
                         </tabViewItems>
                     </tabView>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="89o-4x-JIp">
+                        <rect key="frame" x="189" y="-11" width="50" height="35"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="0.0.x" id="7oP-WD-SA7">
+                            <font key="font" metaFont="system" size="10"/>
+                            <color key="textColor" red="0.012429353339999999" green="0.22719754089999999" blue="0.38871433420000001" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
             </view>
             <point key="canvasLocation" x="733.5" y="285.5"/>
