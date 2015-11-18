@@ -86,9 +86,6 @@
                         <rect key="frame" x="7" y="50" width="203" height="77"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="ka-lite-logo" id="RYn-a9-bqN"/>
                     </imageView>
-                    <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="Whl-jw-4n7">
-                        <rect key="frame" x="148" y="91" width="16" height="16"/>
-                    </progressIndicator>
                 </subviews>
             </view>
             <point key="canvasLocation" x="311" y="144.5"/>
@@ -106,9 +103,6 @@
                         <rect key="frame" x="20" y="2" width="128" height="48"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="ka-lite-logo" id="SrL-UW-fmI"/>
                     </imageView>
-                    <progressIndicator autoresizesSubviews="NO" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" doubleValue="33" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="F58-jA-gsZ">
-                        <rect key="frame" x="106" y="29" width="16" height="16"/>
-                    </progressIndicator>
                     <button autoresizesSubviews="NO" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3rc-kc-VMj">
                         <rect key="frame" x="379" y="10" width="100" height="32"/>
                         <buttonCell key="cell" type="push" title="Apply" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GgK-EM-gBS">

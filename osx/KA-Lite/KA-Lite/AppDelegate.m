@@ -158,6 +158,11 @@ BOOL checkEnvVars() {
     statusStr = @"status";
     versionStr = @"--version";
     
+    // Set loading indicator icon.
+    if (command != statusStr) {
+        [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
+    }
+    
     self.processCounter += 1;
     
     kalitePath = getUsrBinKalite();
@@ -509,6 +514,7 @@ NSString *getEnvVar(NSString *var) {
             self.stopButton.enabled = NO;
             self.openBrowserButton.enabled = NO;
             [self.statusItem setToolTip:@"KA-Lite is starting..."];
+            [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
             break;
         case statusOkRunning:
             [self.startKalite setEnabled:NO];
