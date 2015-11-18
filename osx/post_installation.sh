@@ -1,100 +1,108 @@
 #!/usr/bin/env bash
 
-echo "Now preparing KA-Lite dependencies.."
 
+# Global Variables
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 
+KALITE_SHARED="/Users/Shared/kalite"
 PYRUN_NAME="pyrun-2.7"
-PYRUN_DIR="/Users/Shared/$PYRUN_NAME"
+PYRUN_DIR="$KALITE_SHARED/$PYRUN_NAME"
 PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
 BIN_PATH="$PYRUN_DIR/bin"
-ASSESSMENT_SRC="/Users/Shared/assessment/assessment.zip"
-SHEBANGCHECK_PATH="/Users/Shared/scripts/"
+ASSESSMENT_SRC="$KALITE_SHARED/assessment/assessment.zip"
+SHEBANGCHECK_PATH="$KALITE_SHARED/scripts/"
 
-SYMLINK_FILE="/Users/Shared/pyrun-2.7/bin/kalite"
+SYMLINK_FILE="$KALITE_SHARED/pyrun-2.7/bin/kalite"
 SYMLINK_TO="/usr/local/bin"
 COMMAND_SYMLINK="ln -s $SYMLINK_FILE $SYMLINK_TO"
 
 TMP="/tmp/"
-PLIST=".plist"
 ORG="org.learningequality.kalite"
-TARGET="/Library/LaunchAgents/"
+LAUNCH_AGENTS="/Library/LaunchAgents/"
 KALITE=$(which kalite)
+PLIST_SRC="$TMP$ORG.plist"
+PLIST_DST"$LAUNCH_AGENTS$ORG.plist"
 
-# Symlink kalite executable to /usr/local/bin
-if [ -f "$KALITE" ]; then
-    echo "$KALITE is already exist."
-else
-    $COMMAND_SYMLINK
-fi
 
+#----------------------------------------------------------------------
+# Functions
+#----------------------------------------------------------------------
 function update_env {
-    echo "Updating KALITE_PYTHON environment variable"
+    # MUST: Make sure we have a KALITE_PYTHON env var that points to Pyrun
+    echo "Updating KALITE_PYTHON environment variable..."
     launchctl setenv  KALITE_PYTHON "$PYRUN"
     export KALITE_PYTHON="$PYRUN"
     if [ $? -ne 0 ]; then
-        echo ".. Abort!  Exporting KALITE_PYTHON '$KA_LITE_APP_PATH'."
+        echo ".. Abort!  Error/s encountered exporting KALITE_PYTHON '$PYRUN'."
         exit 1
     fi
 }
 
-if [ -z ${KALITE_PYTHON+0} ]; then
-    update_env
+function create_plist {
+    # Create Plist 
+    echo "Now creating '$TMP$ORG$PLIST'..."
+    echo "<?xml version='1.0' encoding='UTF-8'?>" >> $PLIST_SRC
+    echo "<!DOCTYPE plist PUBLIC '-//Apple//DTD PLIST 1.0//EN' 'http://www.apple.com/DTDs/PropertyList-1.0.dtd'>" >> $PLIST_SRC
+    echo "<plist version='1.0'>" >> $PLIST_SRC
+    echo "<dict>" >> $PLIST_SRC
+    echo -e "\t<key>Label</key>" >> $PLIST_SRC
+    echo -e "\t<string>org.learningequality.kalite</string>" >> $PLIST_SRC
+    echo -e "\t<key>ProgramArguments</key>" >> $PLIST_SRC
+    echo -e "\t<array>" >> $PLIST_SRC
+    echo -e "\t\t<string>sh</string>" >> $PLIST_SRC
+    echo -e "\t\t<string>-c</string>" >> $PLIST_SRC
+    echo -e "\t\t<string>launchctl setenv KALITE_PYTHON \"$TO_KALITE_PYTHON\"</string>" >> $PLIST_SRC
+    echo -e "\t</array>" >> $PLIST_SRC
+    echo -e "\t<key>RunAtLoad</key>" >> $PLIST_SRC
+    echo -e "\t<true/>" >> $PLIST_SRC
+    echo "</dict>" >> $PLIST_SRC
+    echo "</plist>" >> $PLIST_SRC
+}
+
+#----------------------------------------------------------------------
+# Script
+#----------------------------------------------------------------------
+echo "Now preparing KA-Lite dependencies..."
+
+# Symlink kalite executable to /usr/local/bin
+if [ -f "$KALITE" ]; then
+    echo ".. Found $KALITE executable so will not symlink."
 else
-    if [ "KALITE_PYTHON" != $PYRUN ]; then
-        update_env
-    fi
+    $COMMAND_SYMLINK
 fi
+
+
+update_env
+
+# Create plist in /tmp and /Library/LaunchAgents folders.
+if [ -f "$PLIST_SRC" ]; then
+    echo ".. Found an existing '$PLIST_SRC', now removing it."
+    rm -fr $PLIST_SRC
+    rm -fr $PLIST_DST
+fi
+create_plist
+sudo cp $PLIST_SRC $PLIST_DST
 
 $PYRUN $SHEBANGCHECK_PATH/shebangcheck.py
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error/s encountered running '$SHEBANGCHECK_PATH/shebangcheck.py'."
+    echo ".. Abort!  Error encountered running '$SHEBANGCHECK_PATH/shebangcheck.py'."
     exit 1
 fi
 
-# Create plist int /tmp and /Library/LaunchAgents folders.
-if [ -f "$TMP$ORG$PLIST" ]; then
-    echo "PLIST is already exist in $TMP"
-else
-    echo "<?xml version='1.0' encoding='UTF-8'?>" >> $TMP$ORG$PLIST
-    echo "<!DOCTYPE plist PUBLIC '-//Apple//DTD PLIST 1.0//EN' 'http://www.apple.com/DTDs/PropertyList-1.0.dtd'>" >> $TMP$ORG$PLIST
-    echo "<plist version='1.0'>" >> $TMP$ORG$PLIST
-    echo "<dict>" >> $TMP$ORG$PLIST
-    echo -e "\t<key>Label</key>" >> $TMP$ORG$PLIST
-    echo -e "\t<string>org.learningequality.kalite</string>" >> $TMP$ORG$PLIST
-    echo -e "\t<key>ProgramArguments</key>" >> $TMP$ORG$PLIST
-    echo -e "\t<array>" >> $TMP$ORG$PLIST
-    echo -e "\t\t<string>sh</string>" >> $TMP$ORG$PLIST
-    echo -e "\t\t<string>-c</string>" >> $TMP$ORG$PLIST
-    echo -e "\t\t<string>launchctl setenv KALITE_PYTHON \"$TO_KALITE_PYTHON\"</string>" >> $TMP$ORG$PLIST
-    echo -e "\t</array>" >> $TMP$ORG$PLIST
-    echo -e "\t<key>RunAtLoad</key>" >> $TMP$ORG$PLIST
-    echo -e "\t<true/>" >> $TMP$ORG$PLIST
-    echo "</dict>" >> $TMP$ORG$PLIST
-    echo "</plist>" >> $TMP$ORG$PLIST
-
-    # As root, copy the .plist into /Library/LaunchAgents/
-    if [ -f "$TARGET$ORG$PLIST" ]; then
-        echo "PLIST is already exist in $TARGET"
-    else
-        sudo cp $TMP$ORG$PLIST $TARGET$ORG$PLIST
-    fi
-fi
-
-echo "Running  manage setup.."
+echo "Running manage setup..."
 kalite manage syncdb --noinput
 kalite manage setup --noinput
 if [ $? -ne 0 ]; then
-    syslog -s -l error "Error/s encountered running kalite manage syncdb --noinput"
-    # TODO(eduard):  We encountered a error on kalite manage setup --noinput 
-    # REF: Issue References https://github.com/learningequality/ka-lite/pull/4630#issuecomment-155562193
+    syslog -s -l error "Error encountered running kalite manage setup --noinput"
+    # TODO(eduard):  We encountered an error on kalite manage setup --noinput 
+    # REF: https://github.com/learningequality/ka-lite/pull/4630#issuecomment-155562193
     # exit 1
 fi
 
-echo "Unpacking assessment.zip"
+echo "Unpacking assessment.zip..."
 kalite manage unpack_assessment_zip $ASSESSMENT_SRC
 if [ $? -ne 0 ]; then
-    syslog -s -l error "Error/s encountered running kalite manage syncdb --noinput"
+    syslog -s -l error "Error encountered running kalite manage unpack_assessment_zip '$ASSESSMENT_SRC'."
     # exit 1
 fi
