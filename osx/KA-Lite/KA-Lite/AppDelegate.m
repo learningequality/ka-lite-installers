@@ -433,12 +433,12 @@ BOOL setLaunchAgent(NSString *source, NSString *target) {
 
 
 NSString *getUsrBinKalite() {
-    return @"/usr/bin/kalite";
+    return @"/usr/local/bin/kalite";
 }
 
 
 BOOL *checkUsrBinKalitePath() {
-    NSString *kalitePath = @"/usr/bin/kalite";
+    NSString *kalitePath = @"/usr/local/bin/kalite";
     if (pathExists(kalitePath)) {
         return TRUE;
     }
