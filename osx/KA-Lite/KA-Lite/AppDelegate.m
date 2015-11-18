@@ -438,7 +438,7 @@ NSString *getUsrBinKalite() {
 
 
 BOOL *checkUsrBinKalitePath() {
-    NSString *kalitePath = @"/usr/local/bin/kalite";
+    NSString *kalitePath = getUsrBinKalite();
     if (pathExists(kalitePath)) {
         return TRUE;
     }
