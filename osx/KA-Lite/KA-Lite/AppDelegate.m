@@ -75,11 +75,13 @@
             mustShowPreferences = true;
             [self showStatus:statusFailedToStart];
             [self savePreferences];
+            showNotification(@"Kalite executable not found.");
             
         } else {
             NSLog([NSString stringWithFormat:@"FOUND kalite at %@!", kalite]);
+            showNotification(@"KA Lite is now loaded.");
+            [self getKaliteStatus];
         }
-        showNotification(@"KA Lite is now loaded.");
     }
     @catch (NSException *ex) {
         NSLog(@"KA Lite had an Error: %@", ex);
@@ -112,21 +114,13 @@
 BOOL checkEnvVars() {
     // MUST: Check the KALITE_PYTHON environment variable
     // and default it to the .app Resources folder if not yet set.
-    NSString *pyrun = getEnvVar(@"KALITE_PYTHON");
-    
-    /*
-    //TODO(amodia): Check the KALITE_PYTHON environment variable.
-    if (!pathExists(pyrun)) {
-        if (!setEnvVars(FALSE)) {
-            NSString *msg = @"FAILED to set environment variables!";
-            showNotification(msg);
-            return FALSE;
-        };
+    NSString *kalitePython = getEnvVar(@"KALITE_PYTHON");
+
+    if (!pathExists(kalitePython)) {
+        NSString *msg = @"Failed to set KALITE_PYTHON environment variable";
+        showNotification(msg);
+        return FALSE;
     }
-    */
-    // TODO(cpauya): Just a debug trace
-    pyrun = getPyrunBinPath(true);
-    NSLog([NSString stringWithFormat:@"Pyrun value: %@", pyrun]);
     return TRUE;
 }
 
@@ -155,7 +149,6 @@ BOOL checkEnvVars() {
 
 
 - (void) runTask:(NSString *)command {
-    NSString *pyrun;
     NSString *kalitePath;
     NSString *statusStr;
     NSMutableDictionary *kaliteEnv;
@@ -169,16 +162,14 @@ BOOL checkEnvVars() {
     
     self.processCounter += 1;
     
-    pyrun = getPyrunBinPath(true);
     kalitePath = getUsrBinKalite();
-    
     kaliteEnv = [[NSMutableDictionary alloc] init];
 
     NSTask* task = [[NSTask alloc] init];
-    NSString *kaliteCommand = [NSString stringWithFormat:@"%@ %@", kalitePath, command];
+    NSString *kaliteCommand = [NSString stringWithFormat:@"%@",command];
     NSArray *array = [kaliteCommand componentsSeparatedByString:@" "];
     
-    [task setLaunchPath: pyrun];
+    [task setLaunchPath: kalitePath];
     [task setArguments: array];
     
     // REF: http://stackoverflow.com/questions/9965360/async-execution-of-shell-command-not-working-properly
@@ -255,46 +246,9 @@ NSString *getKaliteDir(BOOL useEnvVar) {
 */
 
 
-NSString *getKaliteBinPath() {
-    // Returns the path of `pyrun-2.7/bin/kalite` if it exists or an empty string otherwise.
-    NSString *pyrunDir = getPyrunBinPath(true);
-    NSString *kalitePath = [pyrunDir stringByAppendingString:@"/../kalite"];
-    kalitePath = [kalitePath stringByStandardizingPath];
-    if (pathExists(kalitePath)){
-        return kalitePath;
-    }
-    return @"";
-}
-
-
-NSString *getPyrunBinPath(BOOL useEnvVar) {
-    // Returns the path of `pyrun` binary if it exists or an empty string otherwise.
-    // If `useEnvVar` is set, get the `KALITE_PYTHON` from the environment variables and use it if valid.
-    NSString *pyrun = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"pyrun-2.7/bin/pyrun"];
-    if (useEnvVar) {
-        // Use the KALITE_PYTHON environment variable if set.
-        NSString *var = getEnvVar(@"KALITE_PYTHON");
-        if (pathExists(var) ) {
-            pyrun = var;
-        }
-    }
-    pyrun = [pyrun stringByStandardizingPath];
-    if (pathExists(pyrun)){
-        return pyrun;
-    }
-    return @"";
-}
-
-
 BOOL kaliteExists() {
-    NSString *kalitePath = getKaliteBinPath();
+    NSString *kalitePath = getUsrBinKalite();
     return pathExists(kalitePath);
-}
-
-
-BOOL pyrunExists() {
-    NSString *pyrun = getPyrunBinPath(true);
-    return pathExists(pyrun);
 }
 
 
@@ -318,7 +272,7 @@ BOOL pyrunExists() {
     int status = [[aNotification object] terminationStatus];
 
     taskArguments = [[aNotification object] arguments];
-    statusArguments = [[NSArray alloc]initWithObjects:kalitePath, @"status", nil];
+    statusArguments = [[NSArray alloc]initWithObjects:@"status", nil];
     NSSet *taskArgsSet = [NSSet setWithArray:taskArguments];
     NSSet *statusArgsSet = [NSSet setWithArray:statusArguments];
     
@@ -479,12 +433,12 @@ BOOL setLaunchAgent(NSString *source, NSString *target) {
 
 
 NSString *getUsrBinKalite() {
-    return @"/usr/bin/kalite";
+    return @"/usr/local/bin/kalite";
 }
 
 
 BOOL *checkUsrBinKalitePath() {
-    NSString *kalitePath = @"/usr/bin/kalite";
+    NSString *kalitePath = getUsrBinKalite();
     if (pathExists(kalitePath)) {
         return TRUE;
     }
@@ -552,6 +506,7 @@ NSString *getEnvVar(NSString *var) {
             self.stopButton.enabled = NO;
             self.openBrowserButton.enabled = NO;
             [self.statusItem setToolTip:@"KA-Lite is starting..."];
+            [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
             break;
         case statusOkRunning:
             [self.startKalite setEnabled:NO];

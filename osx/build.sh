@@ -9,16 +9,16 @@
 # . $1 == $KA_LITE_REPO_ZIP == URL of the Github .zip of the KA-Lite branch to use. 
 #
 # Steps
+# . Check if requirements are installed: packages, wget.
 # . Create temporary directory `temp`.
-# . Check if requirements are installed: packages, wget, pip >= 7.x.
 # . Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
 # . Get Pyrun, then insert path to the Pyrun binaries in $PATH so Pyrun's python runs first instead of the system python.
-# . Upgrade Pyrun's pip
+# . Upgrade Pyrun's Pip
 # . Run `pip install -r requirements_dev.txt` to install the Makefile executables.
 # . Run `make dist` for assets and docs.
 # . Run `pyrun setup.py install --static` inside the `temp/ka-lite/` directory.
 # . Build the Xcode project.
-# . TODO(cpauya): Codesign the built .app if running on build server.
+# . Codesign the built .app if running on build server.
 # . TODO(cpauya): Run Packages script to build the .pkg.
 #
 # REF: Bash References
@@ -32,21 +32,8 @@
 
 echo "KA-Lite OS X build script for version 0.16.x and above."
 
-STEP=1
-STEPS=9
-
-# REF: http://stackoverflow.com/questions/4774054/reliable-way-for-a-bash-script-to-get-the-full-path-to-itself/4774063#comment15185627_4774063
-SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
-
-# Create temporary directory
-TEMP_DIR_NAME="temp"
-WORKING_DIR="$SCRIPTPATH/$TEMP_DIR_NAME"
-
-echo "$STEP/$STEPS. Checking temporary directory..."
-if ! [ -d "$WORKING_DIR" ]; then
-    echo ".. Creating temporary directory named '$WORKING_DIR'..."
-    mkdir "$WORKING_DIR"
-fi
+STEP=0
+STEPS=10
 
 
 ((STEP++))
@@ -54,14 +41,35 @@ echo "$STEP/$STEPS. Checking if requirements are installed..."
 
 PACKAGES_EXEC="packagesbuild"
 if ! command -v $PACKAGES_EXEC >/dev/null 2>&1; then
-    echo ".. Abort! Packages is not installed."
+    echo ".. Abort! 'packagesbuild' is not installed."
     exit 1
 fi
 
 PACKAGES_EXEC="wget"
 if ! command -v $PACKAGES_EXEC >/dev/null 2>&1; then
-    echo ".. Abort! wget is not installed."
+    echo ".. Abort! 'wget' is not installed."
     exit 1
+fi
+
+XCODEBUILD_EXEC="xcodebuild"
+if ! command -v $XCODEBUILD_EXEC >/dev/null 2>&1; then
+    echo ".. Abort! 'xcodebuild' is not installed."
+    exit 1
+fi
+
+
+# REF: http://stackoverflow.com/questions/4774054/reliable-way-for-a-bash-script-to-get-the-full-path-to-itself/4774063#comment15185627_4774063
+SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
+TEMP_DIR_NAME="temp"
+WORKING_DIR="$SCRIPTPATH/$TEMP_DIR_NAME"
+
+
+# Create temporary directory
+((STEP++))
+echo "$STEP/$STEPS. Checking '$WORKING_DIR' temporary directory..."
+if ! [ -d "$WORKING_DIR" ]; then
+    echo ".. Creating temporary directory named '$WORKING_DIR'..."
+    mkdir "$WORKING_DIR"
 fi
 
 
@@ -127,21 +135,6 @@ else
     fi
 fi
 
-# Download assessment.
-((STEP++))
-echo "$STEP/$STEPS. Downloading assessment..."
-if [ -f "$ASSESSMENT_PATH" ]; then
-    echo ".. Found $ASSESSMENT_ZIP at '$ASSESSMENT_PATH' so will not re-download.  Delete $ASSESSMENT_ZIP to re-download."
-else
-    if [ "$ASSESSMENT_URL" != "" ]; then
-        wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $ASSESSMENT_PATH $ASSESSMENT_URL
-        if [ $? -ne 0 ]; then
-            echo ".. Abort! Can't download '$ASSESSMENT_URL'."
-            exit 1
-        fi
-    fi
-fi
-
 
 ((STEP++))
 echo "$STEP/$STEPS. Checking Pyrun..."
@@ -185,10 +178,11 @@ fi
 export PATH="$PYRUN_BIN:$PATH"
 
 
-# MUST: Upgrade Pyrun's pip from v1.5.6 to prevent issues.
 ((STEP++))
+echo "$STEP/$STEPS. Upgrading Pyrun's Pip..."
+
+# MUST: Upgrade Pyrun's pip from v1.5.6 to prevent issues.
 UPGRADE_PIP_CMD="$PYRUN_PIP install --upgrade pip"
-echo "$STEP/$STEPS. Upgrading Pyrun's pip with '$UPGRADE_PIP_CMD'..."
 $UPGRADE_PIP_CMD
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered running '$UPGRADE_PIP_CMD'."
@@ -197,9 +191,9 @@ fi
 
 
 ((STEP++))
-PIP_CMD="$PYRUN_PIP install -r requirements_dev.txt"
-echo "$STEP/$STEPS. Doing '$PIP_CMD'..."
+echo "$STEP/$STEPS. Installing Pip requirements for use of Makefile..."
 
+PIP_CMD="$PYRUN_PIP install -r requirements_dev.txt"
 # TODO(cpauya): Streamline this to install only the needed modules/executables for `make dist` below.
 cd "$KA_LITE_DIR"
 echo ".. Running $PIP_CMD..."
@@ -228,7 +222,7 @@ fi
 
 
 ((STEP++))
-echo "$STEP/$STEPS. Running 'sdist'..."
+echo "$STEP/$STEPS. Running 'setup.py install --static'..."
 
 cd "$KA_LITE_DIR"
 SETUP_CMD="$PYRUN setup.py install"
@@ -255,6 +249,25 @@ KA_LITE_APP_PATH="$KA_LITE_PROJECT_DIR/build/Release/KA-Lite.app"
 if ! [ -d "$KA_LITE_APP_PATH" ]; then
     echo ".. Abort!  Build of '$KA_LITE_APP_PATH' failed!"
     exit 1
+fi
+
+
+# Check if to codesign or not
+((STEP++))
+echo "$STEP/$STEPS. Checking if to codesign or not..."
+SIGNER_IDENTITY_APPLICATION="Developer ID Application: Foundation for Learning Equality, Inc. (H83B64B6AV)"
+if [ -z ${IS_BAMBOO+0} ]; then 
+    echo ".. Running on local machine, don't codesign!"
+else 
+    echo ".. Running on bamboo server, so MUST codesign..."
+    # sign the .app file
+    # unlock the keychain first so we can access the private key
+    # security unlock-keychain -p $KEYCHAIN_PASSWORD
+    codesign -d -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_APP_PATH"
+    if [ $? -ne 0 ]; then
+        echo ".. Abort!  Error/s encountered codesigning '$KA_LITE_APP_PATH'."
+        exit 1
+    fi
 fi
 
 
