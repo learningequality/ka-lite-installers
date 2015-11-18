@@ -21,7 +21,7 @@
 
 @implementation AppDelegate
 
-@synthesize startKalite, stopKalite, openInBrowserMenu;
+@synthesize startKalite, stopKalite, openInBrowserMenu, kaliteVersion;
 
 
 // REF: http://objcolumnist.com/2009/08/09/reopening-an-applications-main-window-by-clicking-the-dock-icon/
@@ -78,9 +78,12 @@
             showNotification(@"Kalite executable not found.");
             
         } else {
+            
+            [self runKalite:@"--version"];
             NSLog([NSString stringWithFormat:@"FOUND kalite at %@!", kalite]);
             showNotification(@"KA Lite is now loaded.");
             [self getKaliteStatus];
+            
         }
     }
     @catch (NSException *ex) {
@@ -151,14 +154,11 @@ BOOL checkEnvVars() {
 - (void) runTask:(NSString *)command {
     NSString *kalitePath;
     NSString *statusStr;
+    NSString *versionStr;
     NSMutableDictionary *kaliteEnv;
     
     statusStr = @"status";
-    
-    // Set loading indicator icon.
-    if (command != statusStr) {
-        [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
-    }
+    versionStr = @"--version";
     
     self.processCounter += 1;
     
@@ -184,6 +184,11 @@ BOOL checkEnvVars() {
         NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
         NSString *outStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         [self displayLogs:outStr];
+        
+        // Set the current kalite version
+        if (command == versionStr){
+            self.kaliteVersion.stringValue = outStr;
+        }
     }];
     
     [task launch];
@@ -506,7 +511,6 @@ NSString *getEnvVar(NSString *var) {
             self.stopButton.enabled = NO;
             self.openBrowserButton.enabled = NO;
             [self.statusItem setToolTip:@"KA-Lite is starting..."];
-            [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
             break;
         case statusOkRunning:
             [self.startKalite setEnabled:NO];
@@ -634,39 +638,6 @@ NSString *getEnvVar(NSString *var) {
 
 - (IBAction)discardPreferences:(id)sender {
     [self discardPreferences];
-}
-
-
-- (IBAction)extractAssessment:(id)sender {
-    NSString *message = @"It will take a few seconds to extract assessment items. Do you want to continue?";
-    if (self.processCounter != 0) {
-        alert(@"KA Lite is still processing, please wait until it is finished.");
-        return;
-    }
-}
-
-
-- (IBAction)setupAction:(id)sender {
-    if (kaliteExists()) {
-        NSString *message = @"Are you sure you want to run setup?  This will take a few minutes to complete.";
-        if (self.processCounter != 0) {
-            alert(@"KA Lite is still processing, please wait until it is finished.");
-            return;
-        }
-        if (confirm(message)) {
-            [self setupKalite];
-        }
-    } else {
-        alert(@"Sorry but the `kalite` executable was not found!");
-    }
-}
-
-
-- (IBAction)resetAppAction:(id)sender {
-    if (self.processCounter != 0) {
-        alert(@"KA Lite is still processing, please wait until it is finished.");
-        return;
-    }
 }
 
 
