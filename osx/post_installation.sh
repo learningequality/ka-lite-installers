@@ -10,6 +10,7 @@ PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
 BIN_PATH="$PYRUN_DIR/bin"
 ASSESSMENT_SRC="/Users/Shared/assessment/assessment.zip"
+SHEBANGCHECK_PATH="/Users/Shared/scripts/"
 
 SYMLINK_FILE="/Users/Shared/pyrun-2.7/bin/kalite"
 SYMLINK_TO="/usr/local/bin"
@@ -46,7 +47,11 @@ else
     fi
 fi
 
-python $BIN_PATH/shebangcheck.py
+$PYRUN $SHEBANGCHECK_PATH/shebangcheck.py
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$SHEBANGCHECK_PATH/shebangcheck.py'."
+    exit 1
+fi
 
 # Create plist int /tmp and /Library/LaunchAgents folders.
 if [ -f "$TMP$ORG$PLIST" ]; then
@@ -78,15 +83,18 @@ else
 fi
 
 echo "Running  manage setup.."
+kalite manage syncdb --noinput
 kalite manage setup --noinput
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error/s encountered running 'bin/kalite manage setup."
-    exit 1
+    syslog -s -l error "Error/s encountered running kalite manage syncdb --noinput"
+    # TODO(eduard):  We encountered a error on kalite manage setup --noinput 
+    # REF: Issue References https://github.com/learningequality/ka-lite/pull/4630#issuecomment-155562193
+    # exit 1
 fi
 
 echo "Unpacking assessment.zip"
 kalite manage unpack_assessment_zip $ASSESSMENT_SRC
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error/s encountered running 'bin/kalite manage unpack_assessment_zip."
-    exit 1
+    syslog -s -l error "Error/s encountered running kalite manage syncdb --noinput"
+    # exit 1
 fi
