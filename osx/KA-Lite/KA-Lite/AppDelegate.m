@@ -78,12 +78,10 @@
             showNotification(@"Kalite executable not found.");
             
         } else {
-            
-            [self runKalite:@"--version"];
             NSLog([NSString stringWithFormat:@"FOUND kalite at %@!", kalite]);
             showNotification(@"KA Lite is now loaded.");
+            [self runKalite:@"--version"];
             [self getKaliteStatus];
-            
         }
     }
     @catch (NSException *ex) {
