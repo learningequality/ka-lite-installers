@@ -10,7 +10,9 @@
 #
 # Steps
 # . Check if requirements are installed: packages, wget.
+# . Check for valid arguments in terminal.
 # . Create temporary directory `temp`.
+# . Download the assessment.zip.
 # . Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
 # . Get Pyrun, then insert path to the Pyrun binaries in $PATH so Pyrun's python runs first instead of the system python.
 # . Upgrade Pyrun's Pip
@@ -19,7 +21,7 @@
 # . Run `pyrun setup.py install --static` inside the `temp/ka-lite/` directory.
 # . Build the Xcode project.
 # . Codesign the built .app if running on build server.
-# . TODO(cpauya): Run Packages script to build the .pkg.
+# . Run Packages script to build the .pkg.
 #
 # REF: Bash References
 # . http://www.peterbe.com/plog/set-ex
@@ -33,7 +35,7 @@
 echo "KA-Lite OS X build script for version 0.16.x and above."
 
 STEP=0
-STEPS=10
+STEPS=13
 
 
 ((STEP++))
@@ -45,8 +47,8 @@ if ! command -v $PACKAGES_EXEC >/dev/null 2>&1; then
     exit 1
 fi
 
-PACKAGES_EXEC="wget"
-if ! command -v $PACKAGES_EXEC >/dev/null 2>&1; then
+WGET_EXEC="wget"
+if ! command -v $WGET_EXEC >/dev/null 2>&1; then
     echo ".. Abort! 'wget' is not installed."
     exit 1
 fi
@@ -64,12 +66,71 @@ TEMP_DIR_NAME="temp"
 WORKING_DIR="$SCRIPTPATH/$TEMP_DIR_NAME"
 
 
+# Check the arguments
+((STEP++))
+echo "$STEP/$STEPS. Checking the arguments..."
+
+# MUST: Use the archive link, which defaults to develop branch, so that the folder name
+# starts with the repo name like these examples:
+#    ka-lite-develop
+#    ka-lite-0.14.x.zip
+# this will make it easier to "rename" the archive.
+KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/develop.zip"
+
+# Check if an argument was passed as URL for the script and use that instead.
+if [ "$1" != "" ]; then
+    echo ".. Checking validity of the Github repo zip argument -- $1..."
+    if curl --output /dev/null --silent --head --fail "$1"
+    then
+        # Use the argument as the ka-lite repo zip.
+        KA_LITE_REPO_ZIP=$1
+    else
+        echo ".. Abort!  The '$1' argument is not a valid URL for the Github repo!"
+        exit 1
+    fi
+fi
+
+# TODO(cpauya): Use a "develop" link for assessment items like the one for the Github repo below.
+ASSESSMENT_URL="https://learningequality.org/downloads/ka-lite/0.15/content/khan_assessment.zip"
+# Check if an argument was passed as URL for the assessment.zip and use that instead.
+if [ "$2" != "" ]; then
+    echo ".. Checking validity of assessment.zip argument -- $2..."
+    # MUST: Check if valid url!
+    if curl --output /dev/null --silent --head --fail "$2"
+    then
+        # Use the argument as the assessment.zip url.
+        ASSESSMENT_URL=$2
+    else
+        echo ".. Abort!  The '$2' argument is not a valid URL for the assessment.zip!"
+        exit 1
+    fi
+fi
+echo ".. OK, arguments are valid."
+
+
 # Create temporary directory
 ((STEP++))
 echo "$STEP/$STEPS. Checking '$WORKING_DIR' temporary directory..."
 if ! [ -d "$WORKING_DIR" ]; then
     echo ".. Creating temporary directory named '$WORKING_DIR'..."
     mkdir "$WORKING_DIR"
+fi
+
+
+# Download the assessment.zip.
+((STEP++))
+ASSESSMENT_ZIP="assessment.zip"
+ASSESSMENT_PATH="$WORKING_DIR/$ASSESSMENT_ZIP"
+echo "$STEP/$STEPS. Checking for assessment.zip"
+if [ -f "$ASSESSMENT_PATH" ]; then
+    echo ".. Found '$ASSESSMENT_PATH' so will not re-download.  Delete it to re-download."
+else
+    echo ".. Downloading from '$ASSESSMENT_URL' to '$ASSESSMENT_PATH'..."
+    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $ASSESSMENT_PATH $ASSESSMENT_URL
+    if [ $? -ne 0 ]; then
+        echo ".. Abort!  Can't download '$ASSESSMENT_URL'."
+        exit 1
+    fi
 fi
 
 
@@ -84,26 +145,6 @@ KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 if [ -d "$KA_LITE_DIR" ]; then
     echo ".. Found ka-lite directory '$KA_LITE_DIR' so will not download and extract zip."
 else
-    # MUST: Use the archive link, which defaults to develop branch, so that the folder name
-    # starts with the repo name like these examples:
-    #    ka-lite-develop
-    #    ka-lite-0.14.x.zip
-    # this will make it easier to "rename" the archive.
-    KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/develop.zip"
-
-    # Check if an argument was passed as URL for the script and use that instead.
-    if [ "$1" != "" ]; then
-        # MUST: Check if valid url!
-        if curl --output /dev/null --silent --head --fail "$1"
-        then
-            # Use the argument as the ka-lite repo zip.
-            KA_LITE_REPO_ZIP=$1
-        else
-            echo "The $1 argument is not a valid URL for the Github repo!"
-            exit 1
-        fi
-    fi
-
     # Get KA-Lite repo
     if [ -e "$KA_LITE_ZIP" ]; then
         echo ".. Found '$KA_LITE_ZIP' file so will not re-download.  Delete this file to re-download."
@@ -269,6 +310,26 @@ else
         exit 1
     fi
 fi
+
+
+# Build the KA-Lite  installer using `Packages` to generate the .pkg file.
+((STEP++))
+cd "$WORKING_DIR/.."
+OUTPUT_PATH="$WORKING_DIR/output"
+echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
+test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
+
+KALITE_PACKAGES_NAME="KA-Lite.pkg"
+PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Lite.pkgproj"
+PACKAGES_OUTPUT="$SCRIPTPATH/KA-Lite-Packages/build/$KALITE_PACKAGES_NAME"
+
+$PACKAGES_EXEC $PACKAGES_PROJECT
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error building the .pkg file with '$PACKAGES_EXEC'."
+    exit 1
+fi
+mv -v $PACKAGES_OUTPUT $OUTPUT_PATH
+echo "Congratulations! Your newly built installer is at '$OUTPUT_PATH/$KALITE_PACKAGES_NAME'."
 
 
 # TODO(cpauya): Check https://github.com/learningequality/ka-lite/pull/4630#issuecomment-155567771 for running kalite twice to start.
