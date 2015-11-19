@@ -41,7 +41,7 @@ function update_env {
 
 function create_plist {
     # Create Plist 
-    echo "Now creating '$TMP$ORG$PLIST'..."
+    echo "Now creating '$PLIST_SRC'..."
     echo "<?xml version='1.0' encoding='UTF-8'?>" >> $PLIST_SRC
     echo "<!DOCTYPE plist PUBLIC '-//Apple//DTD PLIST 1.0//EN' 'http://www.apple.com/DTDs/PropertyList-1.0.dtd'>" >> $PLIST_SRC
     echo "<plist version='1.0'>" >> $PLIST_SRC
@@ -67,10 +67,10 @@ echo "Now preparing KA-Lite dependencies..."
 
 # Symlink kalite executable to /usr/local/bin
 if [ -f "$KALITE" ]; then
-    echo ".. Found $KALITE executable so will not symlink."
-else
-    $COMMAND_SYMLINK
+    echo ".. Found $KALITE executable, it will be removed and will create new one."
+    rm -fr $KALITE
 fi
+$COMMAND_SYMLINK
 
 
 update_env
@@ -90,19 +90,24 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "Running manage setup..."
+echo "Running manage syncdb..."
 kalite manage syncdb --noinput
+if [ $? -ne 0 ]; then
+    syslog -s -l error "Error encountered running kalite manage syncdb --noinput"
+    exit 1
+fi
+echo "Running manage setup..."
 kalite manage setup --noinput
 if [ $? -ne 0 ]; then
     syslog -s -l error "Error encountered running kalite manage setup --noinput"
     # TODO(eduard):  We encountered an error on kalite manage setup --noinput 
     # REF: https://github.com/learningequality/ka-lite/pull/4630#issuecomment-155562193
-    # exit 1
+    exit 1
 fi
 
 echo "Unpacking assessment.zip..."
 kalite manage unpack_assessment_zip $ASSESSMENT_SRC
 if [ $? -ne 0 ]; then
     syslog -s -l error "Error encountered running kalite manage unpack_assessment_zip '$ASSESSMENT_SRC'."
-    # exit 1
+    exit 1
 fi
