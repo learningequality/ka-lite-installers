@@ -4,16 +4,14 @@
 # Global Variables
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 
-KALITE_SHARED="/Users/Shared/ka-lite"
-KALITE_DIR="~/.kalite"
-
+KALITE_SHARED="/Users/Shared/kalite"
 PYRUN_NAME="pyrun-2.7"
 PYRUN_DIR="$KALITE_SHARED/$PYRUN_NAME"
 PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
 BIN_PATH="$PYRUN_DIR/bin"
 ASSESSMENT_SRC="$KALITE_SHARED/assessment/assessment.zip"
-KALITE_SCRIPT="$KALITE_SHARED/scripts"
+SHEBANGCHECK_PATH="$KALITE_SHARED/scripts/"
 
 SYMLINK_FILE="$KALITE_SHARED/pyrun-2.7/bin/kalite"
 SYMLINK_TO="/usr/local/bin"
@@ -21,7 +19,7 @@ COMMAND_SYMLINK="ln -s $SYMLINK_FILE $SYMLINK_TO"
 
 TMP="/tmp/"
 ORG="org.learningequality.kalite"
-LAUNCH_AGENTS="~/Library/LaunchAgents/"
+LAUNCH_AGENTS="/Library/LaunchAgents/"
 KALITE=$(which kalite)
 PLIST_SRC="$TMP$ORG.plist"
 PLIST_DST"$LAUNCH_AGENTS$ORG.plist"
@@ -30,6 +28,17 @@ PLIST_DST"$LAUNCH_AGENTS$ORG.plist"
 #----------------------------------------------------------------------
 # Functions
 #----------------------------------------------------------------------
+function update_env {
+    # MUST: Make sure we have a KALITE_PYTHON env var that points to Pyrun
+    echo "Updating KALITE_PYTHON environment variable..."
+    launchctl setenv  KALITE_PYTHON "$PYRUN"
+    export KALITE_PYTHON="$PYRUN"
+    if [ $? -ne 0 ]; then
+        echo ".. Abort!  Error/s encountered exporting KALITE_PYTHON '$PYRUN'."
+        exit 1
+    fi
+}
+
 function create_plist {
     # Create Plist 
     echo "Now creating '$PLIST_SRC'..."
@@ -43,7 +52,7 @@ function create_plist {
     echo -e "\t<array>" >> $PLIST_SRC
     echo -e "\t\t<string>sh</string>" >> $PLIST_SRC
     echo -e "\t\t<string>-c</string>" >> $PLIST_SRC
-    echo -e "\t\t<string>launchctl setenv KALITE_PYTHON \"$PYRUN\"</string>" >> $PLIST_SRC
+    echo -e "\t\t<string>launchctl setenv KALITE_PYTHON \"$TO_KALITE_PYTHON\"</string>" >> $PLIST_SRC
     echo -e "\t</array>" >> $PLIST_SRC
     echo -e "\t<key>RunAtLoad</key>" >> $PLIST_SRC
     echo -e "\t<true/>" >> $PLIST_SRC
@@ -54,46 +63,30 @@ function create_plist {
 #----------------------------------------------------------------------
 # Script
 #----------------------------------------------------------------------
-echo "Now exporting KALITE_PYTHON '$PYRUN'..."
-export KALITE_PYTHON="$PYRUN"
-
-echo "Removing all permission on $KALITE_SHARED..."
-chmod -R 777 $KALITE_SHARED
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error encountered removing all permission on '$KALITE_SCRIPT/set_env.sh'."
-    exit 1
-fi
-
-echo "Running set_env.sh..."
-bash $KALITE_SCRIPT/set_env.sh
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error encountered running '$KALITE_SCRIPT/set_env.sh'."
-    exit 1
-fi
-
 echo "Now preparing KA-Lite dependencies..."
+
 # Symlink kalite executable to /usr/local/bin
 if [ -f "$KALITE" ]; then
     echo ".. Found $KALITE executable, it will be removed and will create new one."
     rm -fr $KALITE
 fi
 $COMMAND_SYMLINK
-if [ $? -ne 0 ]; then
-    exit 1
-fi
+
+
+update_env
 
 # Create plist in /tmp and /Library/LaunchAgents folders.
 if [ -f "$PLIST_SRC" ]; then
     echo ".. Found an existing '$PLIST_SRC', now removing it."
-    rm -fr $PLIST_SRC
-    rm -fr $PLIST_DST
+    sudo rm -fr $PLIST_SRC
+    sudo rm -fr $PLIST_DST
 fi
 create_plist
-cp -fr $PLIST_SRC $PLIST_DST
+sudo cp $PLIST_SRC $LAUNCH_AGENTS
 
-$PYRUN $KALITE_SCRIPT/shebangcheck.py
+$PYRUN $SHEBANGCHECK_PATH/shebangcheck.py
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error encountered running '$KALITE_SCRIPT/shebangcheck.py'."
+    echo ".. Abort!  Error encountered running '$SHEBANGCHECK_PATH/shebangcheck.py'."
     exit 1
 fi
 
@@ -118,15 +111,3 @@ if [ $? -ne 0 ]; then
     syslog -s -l error "Error encountered running kalite manage unpack_assessment_zip '$ASSESSMENT_SRC'."
     # exit 1
 fi
-
-echo "Removing all permission on $KALITE_DIR"
-if [ -f "$KALITE_DIR " ]; then
-    chmod -R 777 $KALITE_DIR
-fi
-
-
-
-
-
-
-
