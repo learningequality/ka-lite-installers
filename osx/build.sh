@@ -45,8 +45,8 @@ if ! command -v $PACKAGES_EXEC >/dev/null 2>&1; then
     exit 1
 fi
 
-PACKAGES_EXEC="wget"
-if ! command -v $PACKAGES_EXEC >/dev/null 2>&1; then
+WGET_EXEC="wget"
+if ! command -v $WGET_EXEC >/dev/null 2>&1; then
     echo ".. Abort! 'wget' is not installed."
     exit 1
 fi
@@ -269,6 +269,25 @@ else
         exit 1
     fi
 fi
+
+# Build the KA-Lite  installer using `Packages` to generate the .pkg file.
+((STEP++))
+cd "$WORKING_DIR/.."
+OUTPUT_PATH="$WORKING_DIR/output"
+echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
+test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
+
+KALITE_PACKAGES_NAME="KA-Lite.pkg"
+PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Lite.pkgproj"
+PACKAGES_OUTPUT="$SCRIPTPATH/KA-Lite-Packages/build/$KALITE_PACKAGES_NAME"
+
+$PACKAGES_EXEC $PACKAGES_PROJECT
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error building the .pkg file with '$PACKAGES_EXEC'."
+    exit 1
+fi
+mv -v $PACKAGES_OUTPUT $OUTPUT_PATH
+echo "Congratulations! Your newly built installer is at '$OUTPUT_PATH/$KALITE_PACKAGES_NAME'."
 
 
 # TODO(cpauya): Check https://github.com/learningequality/ka-lite/pull/4630#issuecomment-155567771 for running kalite twice to start.
