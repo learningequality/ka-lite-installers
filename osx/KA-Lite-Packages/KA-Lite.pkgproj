@@ -443,7 +443,42 @@
 												</dict>
 												<dict>
 													<key>CHILDREN</key>
-													<array/>
+													<array>
+														<dict>
+															<key>CHILDREN</key>
+															<array/>
+															<key>GID</key>
+															<integer>0</integer>
+															<key>PATH</key>
+															<string>scripts/set_env.sh</string>
+															<key>PATH_TYPE</key>
+															<integer>1</integer>
+															<key>PERMISSIONS</key>
+															<integer>493</integer>
+															<key>TYPE</key>
+															<integer>3</integer>
+															<key>UID</key>
+															<integer>0</integer>
+														</dict>
+														<dict>
+															<key>CHILDREN</key>
+															<array/>
+															<key>GID</key>
+															<integer>0</integer>
+															<key>PATH</key>
+															<string>../KA-Lite/KA-Lite/scripts/shebangcheck.py</string>
+															<key>PATH_TYPE</key>
+															<integer>1</integer>
+															<key>PERMISSIONS</key>
+															<integer>493</integer>
+															<key>TYPE</key>
+															<integer>3</integer>
+															<key>UID</key>
+															<integer>0</integer>
+														</dict>
+													</array>
+													<key>EXPANDED</key>
+													<true/>
 													<key>GID</key>
 													<integer>0</integer>
 													<key>PATH</key>
@@ -461,7 +496,7 @@
 											<key>GID</key>
 											<integer>0</integer>
 											<key>PATH</key>
-											<string>kalite</string>
+											<string>ka-lite</string>
 											<key>PATH_TYPE</key>
 											<integer>0</integer>
 											<key>PERMISSIONS</key>
@@ -523,7 +558,7 @@
 				<key>POSTINSTALL_PATH</key>
 				<dict>
 					<key>PATH</key>
-					<string>../post_installation.sh</string>
+					<string>scripts/post_installation.sh</string>
 					<key>PATH_TYPE</key>
 					<integer>1</integer>
 				</dict>
@@ -538,6 +573,8 @@
 				<integer>0</integer>
 				<key>IDENTIFIER</key>
 				<string>org.learningequality.kalite</string>
+				<key>LOCATION</key>
+				<integer>0</integer>
 				<key>NAME</key>
 				<string>KA-Lite</string>
 				<key>OVERWRITE_PERMISSIONS</key>
