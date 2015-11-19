@@ -78,11 +78,11 @@ update_env
 # Create plist in /tmp and /Library/LaunchAgents folders.
 if [ -f "$PLIST_SRC" ]; then
     echo ".. Found an existing '$PLIST_SRC', now removing it."
-    rm -fr $PLIST_SRC
-    rm -fr $PLIST_DST
+    sudo rm -fr $PLIST_SRC
+    sudo rm -fr $PLIST_DST
 fi
 create_plist
-sudo cp $PLIST_SRC $PLIST_DST
+sudo cp $PLIST_SRC $LAUNCH_AGENTS
 
 $PYRUN $SHEBANGCHECK_PATH/shebangcheck.py
 if [ $? -ne 0 ]; then
@@ -94,7 +94,7 @@ echo "Running manage syncdb..."
 kalite manage syncdb --noinput
 if [ $? -ne 0 ]; then
     syslog -s -l error "Error encountered running kalite manage syncdb --noinput"
-    exit 1
+    # exit 1
 fi
 echo "Running manage setup..."
 kalite manage setup --noinput
@@ -102,12 +102,12 @@ if [ $? -ne 0 ]; then
     syslog -s -l error "Error encountered running kalite manage setup --noinput"
     # TODO(eduard):  We encountered an error on kalite manage setup --noinput 
     # REF: https://github.com/learningequality/ka-lite/pull/4630#issuecomment-155562193
-    exit 1
+    # exit 1
 fi
 
 echo "Unpacking assessment.zip..."
 kalite manage unpack_assessment_zip $ASSESSMENT_SRC
 if [ $? -ne 0 ]; then
     syslog -s -l error "Error encountered running kalite manage unpack_assessment_zip '$ASSESSMENT_SRC'."
-    exit 1
+    # exit 1
 fi
