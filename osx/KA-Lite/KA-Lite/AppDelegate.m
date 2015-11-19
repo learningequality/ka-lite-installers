@@ -21,7 +21,7 @@
 
 @implementation AppDelegate
 
-@synthesize startKalite, stopKalite, openInBrowserMenu, kaliteVersion;
+@synthesize startKalite, stopKalite, openInBrowserMenu, kaliteVersion, customDatabasePath;
 
 
 // REF: http://objcolumnist.com/2009/08/09/reopening-an-applications-main-window-by-clicking-the-dock-icon/
@@ -650,9 +650,15 @@ NSString *getEnvVar(NSString *var) {
 }
 
 
+- (IBAction)customDatabase:(id)sender {
+    NSString *strValue = self.customDatabasePath.stringValue;
+}
+
+
+
 - (void)showPreferences {
     [splash orderOut:self];
-//    [self loadPreferences];
+    [self loadPreferences];
     [window makeKeyAndOrderFront:self];
     [NSApp activateIgnoringOtherApps:YES];
     // REF: http://stackoverflow.com/questions/6994541/cocoa-showing-a-window-on-top-without-giving-it-focus
@@ -660,9 +666,21 @@ NSString *getEnvVar(NSString *var) {
 }
 
 
-//- (void)loadPreferences {
-    // TODO(amodia): Set custom database path in the preferences menu.
-//}
+- (void)loadPreferences {
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+
+    NSString *databasePath = [prefs stringForKey:@"customDatabasePath"];
+    NSLog(@">>>>database path %@", databasePath);
+    
+    if (pathExists(databasePath)) {
+        NSString *standardizedPath = [databasePath stringByStandardizingPath];
+        self.customDatabasePath.stringValue = standardizedPath;
+    }else {
+        databasePath = @"/usr/local/bin";
+        NSString *standardizedPath = [databasePath stringByStandardizingPath];
+        self.customDatabasePath.stringValue = standardizedPath;
+    }
+}
 
 
 - (void)savePreferences {
@@ -671,60 +689,14 @@ NSString *getEnvVar(NSString *var) {
      2. Run `kalite manage setup` if no database was found.
      */
     
-/*
-    //TODO(amodia): Comment this to be reference for setting a custom database path in the preferences menu.
-    NSString *username = self.stringUsername.stringValue;
-    NSString *password = self.stringPassword.stringValue;
-    NSString *confirmPassword = self.stringConfirmPassword.stringValue;
+//    TODO(amodia): Comment this to be reference for setting a custom database path in the preferences menu.
     
-    self.username = username;
-    self.password = password;
-    self.confirmPassword = confirmPassword;
-    
-    if (self.processCounter != 0) {
-        alert(@"KA Lite is still processing, please wait until it is finished.");
-        return;
-    }
-    
-    if (self.username == nil || [self.username isEqualToString:@""]) {
-        alert(@"Username must not be blank and can only contain letters, numbers and @/./+/-/_ characters.");
-        return;
-    }
-    
-    NSString *usernameChars = getUsernameChars();
-    if ([self string:usernameChars containsAllCharactersInString:self.username] == NO) {
-        alert(@"Invalid username characters found, please use letters, numbers and @/./+/-/_ characters.");
-        return;
-    }
-    
-    if ([self.username length] > 30) {
-        alert(@"Username must not exceed 30 characters.");
-        return;
-    }
-    
-    if (self.password == nil || [self.password isEqualToString:@""]) {
-        alert(@"Invalid password or the password does not match on both fields.");
-        return;
-    }
-    
-    if (![self.password isEqualToString:self.confirmPassword]) {
-        alert(@"The password does not match on both fields.");
-        return;
-    }
-    
-    if ([self.password length] > 128) {
-        alert(@"Password must not exceed 128 characters.");
-        return;
-    }
- 
-    
-    // Save the preferences.
-    // REF: http://iosdevelopertips.com/core-services/encode-decode-using-base64.html
+//     Save the preferences.
+//     REF: http:iosdevelopertips.com/core-services/encode-decode-using-base64.html
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    // TO set an object in NSUserDefaults use this sample "[prefs setObject:self.sample forKey:@"sample"];"
-    // REF: https://github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
+    [prefs setObject:self.customDatabasePath.stringValue forKey:@"customDatabasePath"];
+//     REF: https:github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
     [prefs synchronize];
-*/
     
     
     // Automatically run `kalite manage setup` if no database was found.
