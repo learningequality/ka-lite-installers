@@ -10,7 +10,9 @@
 #
 # Steps
 # . Check if requirements are installed: packages, wget.
+# . TODO(cpauya): Check for optional arguments in terminal.
 # . Create temporary directory `temp`.
+# . Download the assessment.zip.
 # . Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
 # . Get Pyrun, then insert path to the Pyrun binaries in $PATH so Pyrun's python runs first instead of the system python.
 # . Upgrade Pyrun's Pip
@@ -19,7 +21,7 @@
 # . Run `pyrun setup.py install --static` inside the `temp/ka-lite/` directory.
 # . Build the Xcode project.
 # . Codesign the built .app if running on build server.
-# . TODO(cpauya): Run Packages script to build the .pkg.
+# . Run Packages script to build the .pkg.
 #
 # REF: Bash References
 # . http://www.peterbe.com/plog/set-ex
@@ -33,7 +35,7 @@
 echo "KA-Lite OS X build script for version 0.16.x and above."
 
 STEP=0
-STEPS=10
+STEPS=13
 
 
 ((STEP++))
@@ -70,6 +72,39 @@ echo "$STEP/$STEPS. Checking '$WORKING_DIR' temporary directory..."
 if ! [ -d "$WORKING_DIR" ]; then
     echo ".. Creating temporary directory named '$WORKING_DIR'..."
     mkdir "$WORKING_DIR"
+fi
+
+
+# Download the assessment.zip.
+((STEP++))
+ASSESSMENT_ZIP="assessment.zip"
+ASSESSMENT_PATH="$WORKING_DIR/$ASSESSMENT_ZIP"
+echo "$STEP/$STEPS. Checking for assessment.zip"
+if [ -f "$ASSESSMENT_PATH" ]; then
+    echo ".. Found '$ASSESSMENT_PATH' so will not re-download.  Delete it to re-download."
+else
+    # TODO(cpauya): Use a "develop" link for assessment items like the one for the Github repo below.
+    ASSESSMENT_URL="https://learningequality.org/downloads/ka-lite/0.15/content/khan_assessment.zip"
+    # Check if an argument was passed as URL for the assessment.zip and use that instead.
+    if [ "$2" != "" ]; then
+        # MUST: Check if valid url!
+        if curl --output /dev/null --silent --head --fail "$1"
+        then
+            # Use the argument as the assessment.zip url.
+            ASSESSMENT_URL=$2
+        else
+            echo "The $2 argument is not a valid URL for the assessment.zip!"
+            exit 1
+        fi
+    fi
+
+    if [ "$ASSESSMENT_URL" != "" ]; then
+        wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $ASSESSMENT_PATH $ASSESSMENT_URL
+        if [ $? -ne 0 ]; then
+            echo "  $0: Can't download '$ASSESSMENT_URL', exiting..."
+            exit 1
+        fi
+    fi
 fi
 
 
@@ -269,6 +304,7 @@ else
         exit 1
     fi
 fi
+
 
 # Build the KA-Lite  installer using `Packages` to generate the .pkg file.
 ((STEP++))
