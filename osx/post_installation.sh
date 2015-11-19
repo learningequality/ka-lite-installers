@@ -4,7 +4,8 @@
 # Global Variables
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 
-KALITE_SHARED="/Users/Shared/kalite"
+KALITE_SHARED="/Users/Shared/ka-lite"
+KALITE_DIR="~/.kalite/"
 PYRUN_NAME="pyrun-2.7"
 PYRUN_DIR="$KALITE_SHARED/$PYRUN_NAME"
 PYRUN="$PYRUN_DIR/bin/pyrun"
@@ -20,9 +21,10 @@ COMMAND_SYMLINK="ln -s $SYMLINK_FILE $SYMLINK_TO"
 TMP="/tmp/"
 ORG="org.learningequality.kalite"
 LAUNCH_AGENTS="/Library/LaunchAgents/"
+LAUNCH_DAEMONS="/Library/LaunchDaemons/"
 KALITE=$(which kalite)
 PLIST_SRC="$TMP$ORG.plist"
-PLIST_DST"$LAUNCH_AGENTS$ORG.plist"
+PLIST_DST"$LAUNCH_DAEMONS$ORG.plist"
 
 
 #----------------------------------------------------------------------
@@ -52,7 +54,7 @@ function create_plist {
     echo -e "\t<array>" >> $PLIST_SRC
     echo -e "\t\t<string>sh</string>" >> $PLIST_SRC
     echo -e "\t\t<string>-c</string>" >> $PLIST_SRC
-    echo -e "\t\t<string>launchctl setenv KALITE_PYTHON \"$TO_KALITE_PYTHON\"</string>" >> $PLIST_SRC
+    echo -e "\t\t<string>launchctl setenv KALITE_PYTHON \"$PYRUN\"</string>" >> $PLIST_SRC
     echo -e "\t</array>" >> $PLIST_SRC
     echo -e "\t<key>RunAtLoad</key>" >> $PLIST_SRC
     echo -e "\t<true/>" >> $PLIST_SRC
@@ -74,7 +76,6 @@ $COMMAND_SYMLINK
 
 
 update_env
-
 # Create plist in /tmp and /Library/LaunchAgents folders.
 if [ -f "$PLIST_SRC" ]; then
     echo ".. Found an existing '$PLIST_SRC', now removing it."
@@ -82,13 +83,21 @@ if [ -f "$PLIST_SRC" ]; then
     sudo rm -fr $PLIST_DST
 fi
 create_plist
-sudo cp $PLIST_SRC $LAUNCH_AGENTS
+sudo cp $PLIST_SRC $LAUNCH_DAEMONS
 
 $PYRUN $SHEBANGCHECK_PATH/shebangcheck.py
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error encountered running '$SHEBANGCHECK_PATH/shebangcheck.py'."
     exit 1
 fi
+
+echo "Removing all permission on $KALITE_SHARED..."
+chmod -R 777 $KALITE_SHARED
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error encountered removing all permission on '$KALITE_SHARED'."
+    exit 1
+fi
+
 
 echo "Running manage syncdb..."
 kalite manage syncdb --noinput
@@ -111,3 +120,5 @@ if [ $? -ne 0 ]; then
     syslog -s -l error "Error encountered running kalite manage unpack_assessment_zip '$ASSESSMENT_SRC'."
     # exit 1
 fi
+
+
