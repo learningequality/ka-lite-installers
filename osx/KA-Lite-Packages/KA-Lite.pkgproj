@@ -17,10 +17,12 @@
 							<key>CHILDREN</key>
 							<array>
 								<dict>
+									<key>BUNDLE_CAN_DOWNGRADE</key>
+									<true/>
 									<key>CHILDREN</key>
 									<array/>
 									<key>GID</key>
-									<integer>80</integer>
+									<integer>0</integer>
 									<key>PATH</key>
 									<string>../KA-Lite/build/Release/KA-Lite.app</string>
 									<key>PATH_TYPE</key>
@@ -533,14 +535,20 @@
 			<key>PACKAGE_SETTINGS</key>
 			<dict>
 				<key>AUTHENTICATION</key>
-				<true/>
+				<false/>
 				<key>CONCLUSION_ACTION</key>
-				<integer>0</integer>
+				<integer>2</integer>
 				<key>IDENTIFIER</key>
 				<string>org.learningequality.kalite</string>
+				<key>LOCATION</key>
+				<integer>0</integer>
 				<key>NAME</key>
 				<string>KA-Lite</string>
 				<key>OVERWRITE_PERMISSIONS</key>
+				<false/>
+				<key>REFERENCE_PATH</key>
+				<string>x-disc:///</string>
+				<key>RELOCATABLE</key>
 				<false/>
 				<key>VERSION</key>
 				<string>1.16.0</string>
