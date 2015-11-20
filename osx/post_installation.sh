@@ -18,13 +18,10 @@ SYMLINK_FILE="$KALITE_SHARED/pyrun-2.7/bin/kalite"
 SYMLINK_TO="/usr/local/bin"
 COMMAND_SYMLINK="ln -s $SYMLINK_FILE $SYMLINK_TO"
 
-TMP="/tmp/"
 ORG="org.learningequality.kalite"
-LAUNCH_AGENTS="/Library/LaunchAgents/"
-LAUNCH_DAEMONS="/Library/LaunchDaemons/"
+LAUNCH_AGENTS="$HOME/Library/LaunchAgents/"
 KALITE=$(which kalite)
-PLIST_SRC="$TMP$ORG.plist"
-PLIST_DST"$LAUNCH_DAEMONS$ORG.plist"
+PLIST_SRC="$LAUNCH_AGENTS$ORG.plist"
 
 
 #----------------------------------------------------------------------
@@ -76,14 +73,12 @@ $COMMAND_SYMLINK
 
 
 update_env
-# Create plist in /tmp and /Library/LaunchAgents folders.
+# Create plist in ~/Library/LaunchAgents folders.
 if [ -f "$PLIST_SRC" ]; then
     echo ".. Found an existing '$PLIST_SRC', now removing it."
-    sudo rm -fr $PLIST_SRC
-    sudo rm -fr $PLIST_DST
+    rm -fr $PLIST_SRC
 fi
 create_plist
-sudo cp $PLIST_SRC $LAUNCH_DAEMONS
 
 $PYRUN $SHEBANGCHECK_PATH/shebangcheck.py
 if [ $? -ne 0 ]; then
