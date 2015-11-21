@@ -467,7 +467,7 @@
 											<key>PATH_TYPE</key>
 											<integer>0</integer>
 											<key>PERMISSIONS</key>
-											<integer>511</integer>
+											<integer>493</integer>
 											<key>TYPE</key>
 											<integer>2</integer>
 											<key>UID</key>
@@ -526,6 +526,13 @@
 				<dict>
 					<key>PATH</key>
 					<string>../post_installation.sh</string>
+					<key>PATH_TYPE</key>
+					<integer>1</integer>
+				</dict>
+				<key>PREINSTALL_PATH</key>
+				<dict>
+					<key>PATH</key>
+					<string>../reset.sh</string>
 					<key>PATH_TYPE</key>
 					<integer>1</integer>
 				</dict>

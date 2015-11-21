@@ -16,7 +16,7 @@ SHEBANGCHECK_PATH="$KALITE_SHARED/scripts/"
 
 SYMLINK_FILE="$KALITE_SHARED/pyrun-2.7/bin/kalite"
 SYMLINK_TO="/usr/local/bin"
-COMMAND_SYMLINK="ln -s $SYMLINK_FILE $SYMLINK_TO"
+COMMAND_SYMLINK="ln -sf $SYMLINK_FILE $SYMLINK_TO"
 
 ORG="org.learningequality.kalite"
 LAUNCH_AGENTS="$HOME/Library/LaunchAgents/"
@@ -70,6 +70,10 @@ if [ -f "$KALITE" ]; then
     rm -fr $KALITE
 fi
 $COMMAND_SYMLINK
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error encountered running '$COMMAND_SYMLINK'."
+    exit 1
+fi
 
 
 update_env
