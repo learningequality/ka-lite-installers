@@ -572,16 +572,6 @@ NSString *getEnvVar(NSString *var) {
 }
 
 
-
-- (IBAction)customKaliteData:(id)sender {
-    NSString *strValue=[[self.customKaliteData URL] path];
-    if(pathExists(strValue)) {
-        NSLog(@">>>>>>custom database value %@", strValue);
-    }
-}
-
-
-
 - (void)showPreferences {
     [splash orderOut:self];
     [self loadPreferences];
@@ -594,12 +584,19 @@ NSString *getEnvVar(NSString *var) {
 
 - (void)loadPreferences {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-
+    
     NSString *customKaliteData = [prefs stringForKey:@"customKaliteData"];
     
     if (pathExists(customKaliteData)) {
         NSString *standardizedPath = [customKaliteData stringByStandardizingPath];
         self.customKaliteData.stringValue = standardizedPath;
+    } else {
+        NSString* envKalitePythonStr = [[[NSProcessInfo processInfo]environment]objectForKey:@"KALITE_PYTHON"];
+        if (pathExists(envKalitePythonStr)) {
+            self.customKaliteData.stringValue = envKalitePythonStr;
+        } else {
+            self.customKaliteData.stringValue = [NSString stringWithFormat:@"%@/.kalite", NSHomeDirectory()];
+        }
     }
 }
 
@@ -615,8 +612,12 @@ NSString *getEnvVar(NSString *var) {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     
     NSString *customKaliteData = [[self.customKaliteData URL] path];
-    [prefs setObject:customKaliteData forKey:@"customKaliteData"];
-//     REF: https:github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
+    if (pathExists(customKaliteData)) {
+        customKaliteData = [NSString stringWithFormat:@"%@/%@", customKaliteData, @".kalite"];
+        [prefs setObject:customKaliteData forKey:@"customKaliteData"];
+    }
+    
+    // REF: https:github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
     [prefs synchronize];
     
     if (!setEnvVars()) {
@@ -665,21 +666,17 @@ BOOL setEnvVars() {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     NSString *kaliteHomePath = [prefs stringForKey:@"customKaliteData"];
     
-    if (pathExists(kaliteHomePath)) {
-        NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath];
-        const char *cmd = [command UTF8String];
-        int i = system(cmd);
-        if (i == 0) {
-            NSString *msg = [NSString stringWithFormat:@"Successfully set KALITE_HOME env to %@.", kaliteHomePath];
-            showNotification(msg);
-        } else {
-            showNotification(@"Failed to set KALITE_HOME env.");
-            return FALSE;
-        }
+    NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath];
+    const char *cmd = [command UTF8String];
+    int i = system(cmd);
+    if (i == 0) {
+        NSString *msg = [NSString stringWithFormat:@"Successfully set KALITE_HOME env to %@.", kaliteHomePath];
+        showNotification(msg);
     } else {
-        showNotification(@"KALITE_HOME path not found.");
+        showNotification(@"Failed to set KALITE_HOME env.");
         return FALSE;
     }
+    
     
     // Path of the KALITE_PYTHON environment variable
     NSString* envKalitePythonStr = [[[NSProcessInfo processInfo]environment]objectForKey:@"KALITE_PYTHON"];

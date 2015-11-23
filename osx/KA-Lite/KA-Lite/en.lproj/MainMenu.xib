@@ -175,9 +175,9 @@ Gw
                                                     </textField>
                                                     <pathControl verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Fr9-lD-cxj">
                                                         <rect key="frame" x="185" y="24" width="200" height="26"/>
-                                                        <pathCell key="cell" selectable="YES" editable="YES" alignment="left" placeholderString="" pathStyle="popUp" id="mgX-4z-WIm">
+                                                        <pathCell key="cell" lineBreakMode="charWrapping" selectable="YES" editable="YES" alignment="left" placeholderString="" pathStyle="popUp" id="mgX-4z-WIm">
                                                             <font key="font" metaFont="system"/>
-                                                            <url key="url" string="~/.kalite">
+                                                            <url key="url" string=".kalite">
                                                                 <url key="baseURL" string="file:///"/>
                                                             </url>
                                                         </pathCell>
