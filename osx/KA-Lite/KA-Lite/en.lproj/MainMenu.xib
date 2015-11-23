@@ -14,7 +14,7 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
-                <outlet property="customDatabasePath" destination="Fr9-lD-cxj" id="ImA-mN-ZQb"/>
+                <outlet property="customKaliteData" destination="Fr9-lD-cxj" id="RLj-fb-pMb"/>
                 <outlet property="kaliteVersion" destination="89o-4x-JIp" id="72c-bS-dBh"/>
                 <outlet property="openBrowserButton" destination="wxg-iv-YDa" id="0er-aA-Ymn"/>
                 <outlet property="openInBrowserMenu" destination="z2m-ls-Z0I" id="mGN-C0-zz5"/>
@@ -159,42 +159,31 @@ Gw
                                     <rect key="frame" x="10" y="33" width="447" height="328"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="Path for Database and Content" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
+                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="Path for Ka Lite data." borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
                                             <rect key="frame" x="11" y="149" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m5s-fK-oBc">
-                                                        <rect key="frame" x="26" y="44" width="135" height="17"/>
-                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Database path" id="QW9-qa-Qra">
-                                                            <font key="font" metaFont="system"/>
-                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                        </textFieldCell>
-                                                    </textField>
-                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="i8n-CM-XYv">
-                                                        <rect key="frame" x="26" y="14" width="135" height="17"/>
-                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Content path" id="5Bh-5m-tWX">
+                                                        <rect key="frame" x="26" y="30" width="135" height="17"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Ka Lite data path" id="QW9-qa-Qra">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                     </textField>
                                                     <pathControl verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Fr9-lD-cxj">
-                                                        <rect key="frame" x="187" y="38" width="200" height="26"/>
+                                                        <rect key="frame" x="185" y="24" width="200" height="26"/>
                                                         <pathCell key="cell" selectable="YES" editable="YES" alignment="left" placeholderString="" pathStyle="popUp" id="mgX-4z-WIm">
                                                             <font key="font" metaFont="system"/>
+                                                            <url key="url" string="~/.kalite">
+                                                                <url key="baseURL" string="file:///"/>
+                                                            </url>
                                                         </pathCell>
                                                         <connections>
-                                                            <action selector="customDatabase:" target="Voe-Tx-rLC" id="XSr-2q-OQf"/>
+                                                            <action selector="customKaliteData:" target="Voe-Tx-rLC" id="UgC-sn-dDp"/>
                                                         </connections>
-                                                    </pathControl>
-                                                    <pathControl verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jq2-BL-rnK">
-                                                        <rect key="frame" x="186" y="10" width="201" height="26"/>
-                                                        <pathCell key="cell" selectable="YES" editable="YES" alignment="left" placeholderString="" pathStyle="popUp" id="fXE-iQ-Q63">
-                                                            <font key="font" metaFont="system"/>
-                                                        </pathCell>
                                                     </pathControl>
                                                 </subviews>
                                             </view>
@@ -232,8 +221,8 @@ Gw
                                                 <action selector="openButton:" target="Voe-Tx-rLC" id="w1v-D6-uCu"/>
                                             </connections>
                                         </button>
-                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="Application behavior (TODO)" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
-                                            <rect key="frame" x="11" y="22" width="414" height="91"/>
+                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="(TODO) Application behavior" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
+                                            <rect key="frame" x="11" y="33" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -247,7 +236,7 @@ Gw
                                                     </button>
                                                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LGO-kK-gKp">
                                                         <rect key="frame" x="16" y="21" width="297" height="18"/>
-                                                        <buttonCell key="cell" type="check" title="Check for updates automatically" bezelStyle="regularSquare" imagePosition="left" enabled="NO" inset="2" id="AGK-J1-S1r">
+                                                        <buttonCell key="cell" type="check" title=" Check for updates automatically" bezelStyle="regularSquare" imagePosition="left" enabled="NO" inset="2" id="AGK-J1-S1r">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>

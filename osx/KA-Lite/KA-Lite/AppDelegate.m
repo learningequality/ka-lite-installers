@@ -21,7 +21,7 @@
 
 @implementation AppDelegate
 
-@synthesize startKalite, stopKalite, openInBrowserMenu, kaliteVersion, customDatabasePath;
+@synthesize startKalite, stopKalite, openInBrowserMenu, kaliteVersion, customKaliteData;
 
 
 // REF: http://objcolumnist.com/2009/08/09/reopening-an-applications-main-window-by-clicking-the-dock-icon/
@@ -388,58 +388,6 @@ void showNotification(NSString *subtitle) {
 }
 
 
-//<##>runRootCommands
-BOOL runRootCommands(NSString *command) {
-//    NSString *msg = [NSString stringWithFormat:@"Running root command/s: %@...", command];
-//    showNotification(msg);
-    
-    NSDictionary *errorInfo = runAsRoot(command);
-    if (errorInfo != nil) {
-//        msg = [NSString stringWithFormat:@"FAILED command/s %@ with ERROR: %@", command, errorInfo];
-//        showNotification(msg);
-        return FALSE;
-    }
-//    msg = [NSString stringWithFormat:@"Done running root command/s %@.", command];
-//    showNotification(msg);
-    return TRUE;
-}
-
-
-//<##>setLaunchAgent
-NSString *getLaunchAgentCommand(NSString *source, NSString *target) {
-    if (pathExists(source)) {
-        return [NSString stringWithFormat:@"cp '%@' '%@'", source, target];
-    }
-    return nil;
-}
-
-
-// Not used for now but is useful to re-run the command individually later.
-BOOL setLaunchAgent(NSString *source, NSString *target) {
-    // Needs to run as root.
-    NSString *msg;
-    if (pathExists(source)) {
-        msg = [NSString stringWithFormat:@"Copying %@ to %@...", source, target];
-        showNotification(msg);
-        
-        NSString *command = [NSString stringWithFormat:@"cp '%@' '%@'", source, target];
-        NSDictionary *errorInfo = runAsRoot(command);
-        if (errorInfo != nil) {
-            msg = [NSString stringWithFormat:@"FAILED command %@ with ERROR: %@", command, errorInfo];
-            showNotification(msg);
-            return FALSE;
-        }
-        msg = [NSString stringWithFormat:@"Done copying %@ to %@.", source, target];
-        showNotification(msg);
-    } else {
-        msg = [NSString stringWithFormat:@"Source %@ OR target: %@ does not exist!", source, target];
-        showNotification(msg);
-        return FALSE;
-    }
-    return TRUE;
-}
-
-
 NSString *getUsrBinKalite() {
     return @"/usr/local/bin/kalite";
 }
@@ -451,32 +399,6 @@ BOOL *checkUsrBinKalitePath() {
         return TRUE;
     }
     return false;
-}
-
-
-NSDictionary *runAsRoot(NSString *command) {
-    // This will run an AppleScript command with admin privileges, thereby prompting the user to
-    // input the admin password so script can continue.
-    // REF: http://stackoverflow.com/questions/4599447/cocoa-gaining-root-access-for-nsfilemanager
-    // REF: https://developer.apple.com/library/mac/samplecode/EvenBetterAuthorizationSample/Introduction/Intro.html
-    
-    // TODO(cpauya): This was supposed to be the approach but doesn't work since we need
-    // admin privileges for symlinking to the target /usr/local/bin/.
-    // This seemed hard, so resorted to running an Apple script for now.
-    // REF: http://stackoverflow.com/questions/4599447/cocoa-gaining-root-access-for-nsfilemanager
-    //        BOOL result = [fileMgr linkItemAtPath:kalitePath toPath:target error:&err];
-    //        BOOL result = [fileMgr createSymbolicLinkAtPath:kalitePath withDestinationPath:target error:&err];
-    //        msg = [NSString stringWithFormat:@"RESULT: %hhd, ERROR: %@", result, err];
-    //        NSLog(msg);
-    NSString *msg;
-    NSDictionary *errorInfo;
-    command = [NSString stringWithFormat:@"do shell script \"%@\" with administrator privileges", command];
-    command = [NSString stringWithFormat:@"%@", command];
-    [[[NSAppleScript alloc]initWithSource:command] executeAndReturnError:&errorInfo];
-    if (errorInfo != nil) {
-        return errorInfo;
-    }
-    return nil;
 }
 
 
@@ -650,8 +572,12 @@ NSString *getEnvVar(NSString *var) {
 }
 
 
-- (IBAction)customDatabase:(id)sender {
-    NSString *strValue = self.customDatabasePath.stringValue;
+
+- (IBAction)customKaliteData:(id)sender {
+    NSString *strValue=[[self.customKaliteData URL] path];
+    if(pathExists(strValue)) {
+        NSLog(@">>>>>>custom database value %@", strValue);
+    }
 }
 
 
@@ -669,16 +595,11 @@ NSString *getEnvVar(NSString *var) {
 - (void)loadPreferences {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 
-    NSString *databasePath = [prefs stringForKey:@"customDatabasePath"];
-    NSLog(@">>>>database path %@", databasePath);
+    NSString *customKaliteData = [prefs stringForKey:@"customKaliteData"];
     
-    if (pathExists(databasePath)) {
-        NSString *standardizedPath = [databasePath stringByStandardizingPath];
-        self.customDatabasePath.stringValue = standardizedPath;
-    }else {
-        databasePath = @"/usr/local/bin";
-        NSString *standardizedPath = [databasePath stringByStandardizingPath];
-        self.customDatabasePath.stringValue = standardizedPath;
+    if (pathExists(customKaliteData)) {
+        NSString *standardizedPath = [customKaliteData stringByStandardizingPath];
+        self.customKaliteData.stringValue = standardizedPath;
     }
 }
 
@@ -689,14 +610,19 @@ NSString *getEnvVar(NSString *var) {
      2. Run `kalite manage setup` if no database was found.
      */
     
-//    TODO(amodia): Comment this to be reference for setting a custom database path in the preferences menu.
-    
-//     Save the preferences.
-//     REF: http:iosdevelopertips.com/core-services/encode-decode-using-base64.html
+    // Save the preferences.
+    // REF: http:iosdevelopertips.com/core-services/encode-decode-using-base64.html
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    [prefs setObject:self.customDatabasePath.stringValue forKey:@"customDatabasePath"];
+    
+    NSString *customKaliteData = [[self.customKaliteData URL] path];
+    [prefs setObject:customKaliteData forKey:@"customKaliteData"];
 //     REF: https:github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
     [prefs synchronize];
+    
+    if (!setEnvVars()) {
+        NSString *msg = @"Failed to set KALITE_HOME env";
+        showNotification(msg);
+    };
     
     
     // Automatically run `kalite manage setup` if no database was found.
@@ -718,6 +644,74 @@ NSString *getEnvVar(NSString *var) {
     
     // Close the preferences dialog after successful save.
     [window orderOut:[window identifier]];
+}
+
+
+//<##>symlinkKalite
+NSString *getSymlinkKaliteCommand() {
+    if (kaliteExists()) {
+        NSString *kalitePath = getUsrBinKalite();
+        NSString *target = getUsrBinKalite();
+        NSString *command = [NSString stringWithFormat:@"ln -f -s '%@' '%@'", kalitePath, target];
+        return command;
+    }
+    return nil;
+}
+
+
+BOOL setEnvVars() {
+    showNotification(@"Setting KALITE_HOME environment variable...");
+    
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSString *kaliteHomePath = [prefs stringForKey:@"customKaliteData"];
+    
+    if (pathExists(kaliteHomePath)) {
+        NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath];
+        const char *cmd = [command UTF8String];
+        int i = system(cmd);
+        if (i == 0) {
+            NSString *msg = [NSString stringWithFormat:@"Successfully set KALITE_HOME env to %@.", kaliteHomePath];
+            showNotification(msg);
+        } else {
+            showNotification(@"Failed to set KALITE_HOME env.");
+            return FALSE;
+        }
+    } else {
+        showNotification(@"KALITE_HOME path not found.");
+        return FALSE;
+    }
+    
+    // Path of the KALITE_PYTHON environment variable
+    NSString* envKalitePythonStr = [[[NSProcessInfo processInfo]environment]objectForKey:@"KALITE_PYTHON"];
+    NSString *KaliteHomeStr = [NSString stringWithFormat:@"%@",
+                               [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath]
+                               ];
+    NSString *KalitePythonStr = [NSString stringWithFormat:@"%@",
+                                 [NSString stringWithFormat:@"launchctl setenv KALITE_PYTHON \"%@\"", envKalitePythonStr]
+                                 ];
+    
+    NSString *org = @"org.learningequality.kalite";
+    NSString *target = [NSString stringWithFormat:@"%@/Library/LaunchAgents/%@.plist", NSHomeDirectory(), org];
+    NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] init];
+    [plistDict setObject:org forKey:@"Label"];
+    
+    
+    NSString *launchStr = [NSString stringWithFormat:@"%@ ; %@", KalitePythonStr, KaliteHomeStr];
+    NSArray *arr = @[@"sh", @"-c", launchStr];
+    [plistDict setObject:arr forKey:@"ProgramArguments"];
+    [plistDict setObject:[NSNumber numberWithBool:TRUE] forKey:@"RunAtLoad"];
+    showNotification([NSString stringWithFormat:@"Setting KALITE_HOME and KALITE_PYTHON environment variables... %@", plistDict]);
+    
+    // Override org.learningequality.kalite.plist content
+    BOOL ret = [plistDict writeToFile:target atomically:YES];
+    if (ret == YES) {
+        NSLog([NSString stringWithFormat:@"SAVED initial .plist file to %@", target]);
+    } else {
+        NSLog([NSString stringWithFormat:@"CANNOT save initial .plist file!  Result: %hhd", ret]);
+    }
+    return TRUE;
+    
+    
 }
 
 
