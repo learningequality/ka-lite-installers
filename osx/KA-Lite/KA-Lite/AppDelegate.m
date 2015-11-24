@@ -74,7 +74,6 @@
             NSLog(@"kalite executable not found, must show preferences.");
             mustShowPreferences = true;
             [self showStatus:statusFailedToStart];
-            [self savePreferences];
             showNotification(@"Kalite executable not found.");
             
         } else {
@@ -207,9 +206,14 @@ NSString *getResourcePath(NSString *pathToAppend) {
 
 
 NSString *getDatabasePath() {
-    // Defaults to ~/.kalite/ folder so check there for now.
-    // TODO(cpauya): Use the KALITE_HOME env var if it exists.
-    NSString *database = @"~/.kalite/database/data.sqlite";
+    NSString *database;
+    NSString* envKaliteHomeStr = getEnvVar(@"KALITE_HOME");
+    database = [NSString stringWithFormat:@"%@%@", envKaliteHomeStr, @"/database/data.sqlite"];
+    if (pathExists(envKaliteHomeStr)) {
+        database = [database stringByStandardizingPath];
+        return database;
+    }
+    database = @"~/.kalite/database/data.sqlite";
     database = [database stringByStandardizingPath];
     return database;
 }
@@ -591,9 +595,9 @@ NSString *getEnvVar(NSString *var) {
         NSString *standardizedPath = [customKaliteData stringByStandardizingPath];
         self.customKaliteData.stringValue = standardizedPath;
     } else {
-        NSString* envKalitePythonStr = [[[NSProcessInfo processInfo]environment]objectForKey:@"KALITE_PYTHON"];
-        if (pathExists(envKalitePythonStr)) {
-            self.customKaliteData.stringValue = envKalitePythonStr;
+        NSString* envKaliteHomeStr = getEnvVar(@"KALITE_HOME");
+        if (pathExists(envKaliteHomeStr)) {
+            self.customKaliteData.stringValue = envKaliteHomeStr;
         } else {
             self.customKaliteData.stringValue = [NSString stringWithFormat:@"%@/.kalite", NSHomeDirectory()];
         }
@@ -613,9 +617,11 @@ NSString *getEnvVar(NSString *var) {
     
     NSString *customKaliteData = [[self.customKaliteData URL] path];
     if (pathExists(customKaliteData)) {
-        customKaliteData = [NSString stringWithFormat:@"%@/%@", customKaliteData, @".kalite"];
         [prefs setObject:customKaliteData forKey:@"customKaliteData"];
     }
+    
+    // Stop kalite
+    [self runKalite:@"stop"];
     
     // REF: https:github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
     [prefs synchronize];
@@ -645,18 +651,9 @@ NSString *getEnvVar(NSString *var) {
     
     // Close the preferences dialog after successful save.
     [window orderOut:[window identifier]];
-}
-
-
-//<##>symlinkKalite
-NSString *getSymlinkKaliteCommand() {
-    if (kaliteExists()) {
-        NSString *kalitePath = getUsrBinKalite();
-        NSString *target = getUsrBinKalite();
-        NSString *command = [NSString stringWithFormat:@"ln -f -s '%@' '%@'", kalitePath, target];
-        return command;
-    }
-    return nil;
+    
+    // Terminate application.
+//    [[NSApplication sharedApplication] terminate:nil];
 }
 
 
@@ -679,7 +676,8 @@ BOOL setEnvVars() {
     
     
     // Path of the KALITE_PYTHON environment variable
-    NSString* envKalitePythonStr = [[[NSProcessInfo processInfo]environment]objectForKey:@"KALITE_PYTHON"];
+    NSString* envKalitePythonStr = getEnvVar(@"KALITE_PYTHON");
+    
     NSString *KaliteHomeStr = [NSString stringWithFormat:@"%@",
                                [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath]
                                ];
@@ -707,7 +705,6 @@ BOOL setEnvVars() {
         NSLog([NSString stringWithFormat:@"CANNOT save initial .plist file!  Result: %hhd", ret]);
     }
     return TRUE;
-    
     
 }
 

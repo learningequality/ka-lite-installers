@@ -65,7 +65,7 @@
             </items>
             <point key="canvasLocation" x="283.5" y="347.5"/>
         </menu>
-        <window title="Starting KA-Lite..." allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="izD-1r-MWo">
+        <window title="Starting KA Lite..." allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="izD-1r-MWo">
             <windowStyleMask key="styleMask" titled="YES"/>
             <rect key="contentRect" x="565" y="404" width="216" height="135"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
@@ -91,7 +91,7 @@
             </view>
             <point key="canvasLocation" x="311" y="144.5"/>
         </window>
-        <window title="KA-Lite Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="BCW-kl-SX8">
+        <window title="KA Lite Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="BCW-kl-SX8">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" unifiedTitleAndToolbar="YES"/>
             <windowCollectionBehavior key="collectionBehavior" canJoinAllSpaces="YES" managed="YES" participatesInCycle="YES"/>
             <rect key="contentRect" x="131" y="158" width="493" height="417"/>
@@ -159,7 +159,7 @@ Gw
                                     <rect key="frame" x="10" y="33" width="447" height="328"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="Path for Ka Lite data." borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
+                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="KA Lite data path" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
                                             <rect key="frame" x="11" y="149" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
@@ -167,7 +167,7 @@ Gw
                                                 <subviews>
                                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m5s-fK-oBc">
                                                         <rect key="frame" x="26" y="30" width="135" height="17"/>
-                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Ka Lite data path" id="QW9-qa-Qra">
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="KA Lite data path" id="QW9-qa-Qra">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -180,6 +180,9 @@ Gw
                                                             <url key="url" string=".kalite">
                                                                 <url key="baseURL" string="file:///"/>
                                                             </url>
+                                                            <allowedTypes>
+                                                                <string>public.folder</string>
+                                                            </allowedTypes>
                                                         </pathCell>
                                                         <connections>
                                                             <action selector="customKaliteData:" target="Voe-Tx-rLC" id="UgC-sn-dDp"/>
@@ -265,10 +268,10 @@ Gw
                                                         <rect key="frame" x="0.0" y="0.0" width="223" height="293"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="436" height="293"/>
+                                                        <size key="minSize" width="451" height="293"/>
                                                         <size key="maxSize" width="463" height="10000000"/>
                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <size key="minSize" width="436" height="293"/>
+                                                        <size key="minSize" width="451" height="293"/>
                                                         <size key="maxSize" width="463" height="10000000"/>
                                                     </textView>
                                                 </subviews>
