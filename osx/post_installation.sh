@@ -114,6 +114,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# This will ensure the $KALITE_SHARED will be accessible after installation
+echo "Changing permission on $KALITE_SHARED..."
+chmod -R 775 $KALITE_SHARED
+
+
 export KALITE_PYTHON="$PYRUN"
 echo "Running manage syncdb..."
 $BIN_PATH/kalite manage syncdb --noinput
