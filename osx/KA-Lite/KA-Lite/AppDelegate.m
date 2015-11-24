@@ -101,7 +101,8 @@
     // TODO(cpauya): Confirm quit action from user.
     if (kaliteExists()) {
         showNotification(@"Stopping and quitting the application...");
-        [self runKalite:@"stop"];
+        // Stop kalite
+        [self stopFunction];
     }
 }
 
@@ -152,7 +153,7 @@ BOOL checkEnvVars() {
     NSString *kalitePath;
     NSString *statusStr;
     NSString *versionStr;
-    NSMutableDictionary *kaliteEnv;
+    NSMutableDictionary *kaliteHomeEnv;
     
     statusStr = @"status";
     versionStr = @"--version";
@@ -165,11 +166,25 @@ BOOL checkEnvVars() {
     self.processCounter += 1;
     
     kalitePath = getUsrBinKalite();
-    kaliteEnv = [[NSMutableDictionary alloc] init];
-
+    
+    kaliteHomeEnv = [[NSMutableDictionary alloc] init];
+    
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSString *kaliteHomePath = [prefs stringForKey:@"customKaliteData"];
+    
+    // Set KALITE_PYTHON environment
+    [kaliteHomeEnv addEntriesFromDictionary:[[NSProcessInfo processInfo] environment]];
+    [kaliteHomeEnv setObject:kaliteHomePath forKey:@"KALITE_HOME"];
+    
     NSTask* task = [[NSTask alloc] init];
     NSString *kaliteCommand = [NSString stringWithFormat:@"%@",command];
     NSArray *array = [kaliteCommand componentsSeparatedByString:@" "];
+    
+    NSDictionary *defaultEnvironment = [[NSProcessInfo processInfo] environment];
+    NSMutableDictionary *environment = [[NSMutableDictionary alloc] initWithDictionary:defaultEnvironment];
+    [environment setObject:kaliteHomePath forKey:@"KALITE_HOME"];
+    [task setEnvironment:environment];
+
     
     [task setLaunchPath: kalitePath];
     [task setArguments: array];
@@ -611,6 +626,9 @@ NSString *getEnvVar(NSString *var) {
      2. Run `kalite manage setup` if no database was found.
      */
     
+    // Stop kalite
+    [self stopFunction];
+    
     // Save the preferences.
     // REF: http:iosdevelopertips.com/core-services/encode-decode-using-base64.html
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
@@ -619,9 +637,6 @@ NSString *getEnvVar(NSString *var) {
     if (pathExists(customKaliteData)) {
         [prefs setObject:customKaliteData forKey:@"customKaliteData"];
     }
-    
-    // Stop kalite
-    [self runKalite:@"stop"];
     
     // REF: https:github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
     [prefs synchronize];
@@ -727,6 +742,7 @@ BOOL setEnvVars() {
 
 - (void)startKaliteTimer {
     // TODO(cpauya): Use initWithFireDate of NSTimer instance.
+    // TODO(amodia): Check if kalite environment variables change.
     [NSTimer scheduledTimerWithTimeInterval:60.0
                                     target:self
                                     selector:@selector(getKaliteStatus)
