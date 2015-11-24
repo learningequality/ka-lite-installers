@@ -159,41 +159,6 @@ Gw
                                     <rect key="frame" x="10" y="33" width="447" height="328"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="KA Lite data path" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
-                                            <rect key="frame" x="11" y="149" width="414" height="91"/>
-                                            <view key="contentView">
-                                                <rect key="frame" x="1" y="1" width="412" height="72"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                <subviews>
-                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m5s-fK-oBc">
-                                                        <rect key="frame" x="26" y="30" width="135" height="17"/>
-                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="KA Lite data path" id="QW9-qa-Qra">
-                                                            <font key="font" metaFont="system"/>
-                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                        </textFieldCell>
-                                                    </textField>
-                                                    <pathControl verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Fr9-lD-cxj">
-                                                        <rect key="frame" x="185" y="24" width="200" height="26"/>
-                                                        <pathCell key="cell" lineBreakMode="charWrapping" selectable="YES" editable="YES" alignment="left" placeholderString="" pathStyle="popUp" id="mgX-4z-WIm">
-                                                            <font key="font" metaFont="system"/>
-                                                            <url key="url" string=".kalite">
-                                                                <url key="baseURL" string="file:///"/>
-                                                            </url>
-                                                            <allowedTypes>
-                                                                <string>public.folder</string>
-                                                            </allowedTypes>
-                                                        </pathCell>
-                                                        <connections>
-                                                            <action selector="customKaliteData:" target="Voe-Tx-rLC" id="UgC-sn-dDp"/>
-                                                        </connections>
-                                                    </pathControl>
-                                                </subviews>
-                                            </view>
-                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                            <font key="titleFont" metaFont="systemBold"/>
-                                        </box>
                                         <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Eur-YG-XhD">
                                             <rect key="frame" x="11" y="269" width="119" height="32"/>
                                             <buttonCell key="cell" type="push" title="Start KA Lite" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="AIv-42-gwi">
@@ -225,7 +190,7 @@ Gw
                                             </connections>
                                         </button>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="(TODO) Application behavior" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
-                                            <rect key="frame" x="11" y="33" width="414" height="91"/>
+                                            <rect key="frame" x="11" y="5" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -244,6 +209,65 @@ Gw
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
                                                     </button>
+                                                </subviews>
+                                            </view>
+                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <font key="titleFont" metaFont="systemBold"/>
+                                        </box>
+                                        <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
+                                            <rect key="frame" x="11" y="100" width="414" height="158"/>
+                                            <view key="contentView">
+                                                <rect key="frame" x="1" y="1" width="412" height="156"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m5s-fK-oBc">
+                                                        <rect key="frame" x="16" y="130" width="135" height="17"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="KA Lite data path" id="QW9-qa-Qra">
+                                                            <font key="font" metaFont="systemBold"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <pathControl verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Fr9-lD-cxj">
+                                                        <rect key="frame" x="197" y="126" width="200" height="26"/>
+                                                        <pathCell key="cell" lineBreakMode="charWrapping" selectable="YES" editable="YES" alignment="left" placeholderString="" pathStyle="popUp" id="mgX-4z-WIm">
+                                                            <font key="font" metaFont="systemBold"/>
+                                                            <url key="url" string=".kalite">
+                                                                <url key="baseURL" string="file:///"/>
+                                                            </url>
+                                                            <allowedTypes>
+                                                                <string>public.folder</string>
+                                                            </allowedTypes>
+                                                        </pathCell>
+                                                        <connections>
+                                                            <action selector="customKaliteData:" target="Voe-Tx-rLC" id="UgC-sn-dDp"/>
+                                                        </connections>
+                                                    </pathControl>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="78i-gL-Vw9">
+                                                        <rect key="frame" x="16" y="5" width="390" height="36"/>
+                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="NOTE: To use your existing KA Lite data, copy it to the selected KA Lite data location." id="ht8-Vz-uVw">
+                                                            <font key="font" metaFont="smallSystemBold"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ccp-Hu-Zn8">
+                                                        <rect key="frame" x="16" y="50" width="390" height="28"/>
+                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Click apply button to save the selected KA Lite data path and Click KA Lite start to serve your selected KA Lite data path." id="svH-f4-7Mc">
+                                                            <font key="font" metaFont="smallSystemBold"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GKg-17-NDh">
+                                                        <rect key="frame" x="16" y="76" width="390" height="37"/>
+                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="left" title="This will set the KALITE_HOME environment variable to the selected KA Lite data location." id="now-0h-WxP">
+                                                            <font key="font" metaFont="smallSystemBold"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
                                                 </subviews>
                                             </view>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>

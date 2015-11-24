@@ -48,7 +48,7 @@
     [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
     [self.statusItem setMenu:self.statusMenu];
     [self.statusItem setHighlightMode:YES];
-    [self.statusItem setToolTip:@"Click to show the KA-Lite menu items."];
+    [self.statusItem setToolTip:@"Click to show the KA Lite menu items."];
 
     // Set the default status.
     self.status = statusCouldNotDetermineStatus;
@@ -172,7 +172,7 @@ BOOL checkEnvVars() {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     NSString *kaliteHomePath = [prefs stringForKey:@"customKaliteData"];
     
-    // Set KALITE_PYTHON environment
+    // Set KALITE_HOME environment
     [kaliteHomeEnv addEntriesFromDictionary:[[NSProcessInfo processInfo] environment]];
     [kaliteHomeEnv setObject:kaliteHomePath forKey:@"KALITE_HOME"];
     
@@ -381,12 +381,18 @@ void showNotification(NSString *subtitle) {
     // REF: http://stackoverflow.com/questions/12267357/nsusernotification-with-custom-soundname?rq=1
     // TODO(cpauya): These must be ticked by user on preferences if they want notifications, sounds, or not.
     NSUserNotification* notification = [[NSUserNotification alloc]init];
-    notification.title = @"KA-Lite";
+    notification.title = @"KA Lite";
     notification.subtitle = subtitle;
     notification.soundName = @"Basso.aiff";
     [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
     // The notification may be optional (based on user preferences) but we must show it on the logs.
     NSLog(subtitle);
+}
+
+- (void)disableKaliteDataPath{
+    // Disable custom kalite data path when kalite is still running.
+    self.customKaliteData.enabled = NO;
+    [self.customKaliteData setToolTip:@"KA Lite is still running. Stop kalite to select data path."];
 }
 
 
@@ -408,7 +414,7 @@ void showNotification(NSString *subtitle) {
 
 
 NSString *getUsrBinKalite() {
-    return @"/usr/local/bin/kalite";
+    return @"/usr/bin/kalite";
 }
 
 
@@ -445,7 +451,12 @@ NSString *getEnvVar(NSString *var) {
             self.openBrowserButton.enabled = NO;
             [self.openInBrowserMenu setEnabled:NO];
             [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
-            [self.statusItem setToolTip:@"KA-Lite failed to start."];
+            [self.statusItem setToolTip:@"KA Lite failed to start."];
+            
+            // Disable custom kalite data path when kalite is still running.
+            self.customKaliteData.enabled = NO;
+            [self.customKaliteData setToolTip:@"KA Lite failed to start"];
+            
             break;
         case statusStartingUp:
             [self.startKalite setEnabled:NO];
@@ -454,8 +465,9 @@ NSString *getEnvVar(NSString *var) {
             self.startButton.enabled = NO;
             self.stopButton.enabled = NO;
             self.openBrowserButton.enabled = NO;
-            [self.statusItem setToolTip:@"KA-Lite is starting..."];
+            [self.statusItem setToolTip:@"KA Lite is starting..."];
             [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
+            [self disableKaliteDataPath];
             break;
         case statusOkRunning:
             [self.startKalite setEnabled:NO];
@@ -465,8 +477,9 @@ NSString *getEnvVar(NSString *var) {
             self.stopButton.enabled = YES;
             self.openBrowserButton.enabled = YES;
             [self.statusItem setImage:[NSImage imageNamed:@"stop"]];
-            [self.statusItem setToolTip:@"KA-Lite is running."];
+            [self.statusItem setToolTip:@"KA Lite is running."];
             showNotification(@"You can now click on 'Open in Browser' menu");
+            [self disableKaliteDataPath];
             break;
         case statusStopped:
             [self.startKalite setEnabled:canStart];
@@ -476,8 +489,10 @@ NSString *getEnvVar(NSString *var) {
             self.stopButton.enabled = NO;
             self.openBrowserButton.enabled = NO;
             [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
-            [self.statusItem setToolTip:@"KA-Lite is stopped."];
+            [self.statusItem setToolTip:@"KA Lite is stopped."];
             showNotification(@"Stopped");
+            self.customKaliteData.enabled = YES;
+            [self.customKaliteData setToolTip:@"Select KA Lite data path."];
             break;
         default:
             [self.startKalite setEnabled:canStart];
@@ -651,9 +666,9 @@ NSString *getEnvVar(NSString *var) {
     NSString *databasePath = getDatabasePath();
     if (!pathExists(databasePath)) {
         if (checkUsrBinKalitePath()) {
-            alert(@"Will now run KA-Lite setup, it will take a few minutes.  Please wait until prompted that setup is done.");
+            alert(@"Will now run KA Lite setup, it will take a few minutes.  Please wait until prompted that setup is done.");
             enum kaliteStatus status = [self setupKalite];
-            showNotification(@"Setup is finished!  You can now start KA-Lite.");
+            showNotification(@"Setup is finished!  You can now start KA Lite.");
             [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
             // TODO(cpauya): Get the result of running `bin/kalite manage setup` not the
             // default result of `bin/kalite status` so we can alert the user that setup failed.
