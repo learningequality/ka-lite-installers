@@ -28,7 +28,7 @@ ASSESSMENT_SRC="$KALITE_SHARED/assessment/assessment.zip"
 SHEBANGCHECK_PATH="$KALITE_SHARED/scripts/"
 
 SYMLINK_FILE="$KALITE_SHARED/pyrun-2.7/bin/kalite"
-SYMLINK_TO="/usr/local/bin"
+SYMLINK_TO="/usr/bin"
 COMMAND_SYMLINK="ln -sf $SYMLINK_FILE $SYMLINK_TO"
 
 ORG="org.learningequality.kalite"
@@ -91,7 +91,7 @@ if [ ! -d "$SYMLINK_TO" ]; then
     fi
 fi
 
-# Symlink kalite executable to /usr/local/bin
+
 if [ -f "$KALITE" ]; then
     echo ".. Found $KALITE executable, it will be removed and will create new one."
     rm -fr $KALITE
@@ -116,7 +116,6 @@ if [ -f "$PLIST_SRC" ]; then
 fi
 
 
-# Create $LAUNCH_AGENTS directory should used sudo
 if [ ! -d "$LAUNCH_AGENTS" ]; then
     echo ".. Now creating '$LAUNCH_AGENTS'..."
     sudo mkdir -p $LAUNCH_AGENTS
