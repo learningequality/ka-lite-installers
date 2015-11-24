@@ -1,11 +1,24 @@
 #!/usr/bin/env bash
 
+# Packages postscript for KA-Lite
+#
+# Steps
+# 1. Symlink kalite executable  to /usr/local/bin.
+# 2. Export KALITE_PYTHON env that point to Pyrun directory.
+# 3. Create plist in ~/Library/LaunchAgents folders.
+# 4. Run shebangcheck that check the BIN_PATH that points to the python/pyrun interpreter to use.
+# 5. Run kalite manage syncdb --noinput.
+# 6. Run kalite manage setup --noinput.
+# 7. Run kalite manage unpack_assessment_zip <assessment_path>.
+# 8. Change the owner of a $HOME/.kalite.
+
+# Note: This script always run on sudo.
 
 # Global Variables
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 
 KALITE_SHARED="/Users/Shared/ka-lite"
-KALITE_DIR="~/.kalite/"
+KALITE_DIR="$HOME/.kalite"
 PYRUN_NAME="pyrun-2.7"
 PYRUN_DIR="$KALITE_SHARED/$PYRUN_NAME"
 PYRUN="$PYRUN_DIR/bin/pyrun"
@@ -62,9 +75,13 @@ function create_plist {
 #----------------------------------------------------------------------
 # Script
 #----------------------------------------------------------------------
+
+STEP=1
+STEPS=8
+
 echo "Now preparing KA-Lite dependencies..."
 
-# Create $SYMLINK_TO directory should used sudo
+echo "$STEP/$STEPS. Symlink kalite executable to /usr/local/bin..."
 if [ ! -d "$SYMLINK_TO" ]; then
     echo ".. Now creating '$SYMLINK_TO'..."
     sudo mkdir -p $SYMLINK_TO
@@ -87,9 +104,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-
+((STEP++))
+echo "$STEP/$STEPS. Export KALITE_PYTHON env that point to Pyrun directory..."
 update_env
-# Create plist in ~/Library/LaunchAgents folders.
+
+((STEP++))
+echo "$STEP/$STEPS. Create plist in ~/Library/LaunchAgents folders..."
 if [ -f "$PLIST_SRC" ]; then
     echo ".. Found an existing '$PLIST_SRC', now removing it."
     rm -fr $PLIST_SRC
@@ -108,26 +128,32 @@ fi
 
 create_plist
 
+((STEP++))
+echo "$STEP/$STEPS. check the BIN_PATH that points to the python/pyrun interpreter to use..."
 $PYRUN $SHEBANGCHECK_PATH/shebangcheck.py
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error encountered running '$SHEBANGCHECK_PATH/shebangcheck.py'."
     exit 1
 fi
 
-# This will ensure the $KALITE_SHARED will be accessible after installation
-echo "Changing permission on $KALITE_SHARED..."
-chmod -R 775 $KALITE_SHARED
-
-
-export KALITE_PYTHON="$PYRUN"
-echo "Running manage syncdb..."
+((STEP++))
+echo "$STEP/$STEPS. Running kalite manage syncdb --noinput..."
 $BIN_PATH/kalite manage syncdb --noinput
 
-
-echo "Running manage setup..."
+((STEP++))
+echo "$STEP/$STEPS. Running kalite manage setup --noinput..."
 $BIN_PATH/kalite manage setup --noinput
 
-echo "Unpacking assessment.zip..."
-$BIN_PATH/kalite manage unpack_assessment_zip $ASSESSMENT_SRC
+((STEP++))
+echo "$STEP/$STEPS. Running kalite manage unpack_assessment_zip '$ASSESSMENT_SRC'..."
+$BIN_PATH/kalite manage unpack_assessment_zip $ASSESSMENT_SRC    
 
+
+((STEP++))
+echo "$STEP/$STEPS. Changing the owner of the '$KALITE_DIR'..."
+chown -R $USER:$SUDO_GID $KALITE_DIR
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error changing permission on '$KALITE_DIR'."
+    exit 1
+fi
 
