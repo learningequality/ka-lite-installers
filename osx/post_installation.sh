@@ -64,11 +64,23 @@ function create_plist {
 #----------------------------------------------------------------------
 echo "Now preparing KA-Lite dependencies..."
 
+# Create $SYMLINK_TO directory should used sudo
+if [ ! -d "$SYMLINK_TO" ]; then
+    echo ".. Now creating '$SYMLINK_TO'..."
+    sudo mkdir -p $SYMLINK_TO
+    if [ $? -ne 0 ]; then
+        echo ".. Abort!  Error encountered creating '$SYMLINK_TO' directory."
+        exit 1
+    fi
+fi
+
 # Symlink kalite executable to /usr/local/bin
 if [ -f "$KALITE" ]; then
     echo ".. Found $KALITE executable, it will be removed and will create new one."
     rm -fr $KALITE
 fi
+
+
 $COMMAND_SYMLINK
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error encountered running '$COMMAND_SYMLINK'."
@@ -82,6 +94,18 @@ if [ -f "$PLIST_SRC" ]; then
     echo ".. Found an existing '$PLIST_SRC', now removing it."
     rm -fr $PLIST_SRC
 fi
+
+
+# Create $LAUNCH_AGENTS directory should used sudo
+if [ ! -d "$LAUNCH_AGENTS" ]; then
+    echo ".. Now creating '$LAUNCH_AGENTS'..."
+    sudo mkdir -p $LAUNCH_AGENTS
+    if [ $? -ne 0 ]; then
+        echo ".. Abort!  Error encountered creating '$LAUNCH_AGENTS' directory."
+        exit 1
+    fi
+fi
+
 create_plist
 
 $PYRUN $SHEBANGCHECK_PATH/shebangcheck.py
@@ -90,34 +114,15 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "Removing all permission on $KALITE_SHARED..."
-chmod -R 777 $KALITE_SHARED
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error encountered removing all permission on '$KALITE_SHARED'."
-    exit 1
-fi
-
-
+export KALITE_PYTHON="$PYRUN"
 echo "Running manage syncdb..."
-kalite manage syncdb --noinput
-if [ $? -ne 0 ]; then
-    syslog -s -l error "Error encountered running kalite manage syncdb --noinput"
-    # exit 1
-fi
+$BIN_PATH/kalite manage syncdb --noinput
+
+
 echo "Running manage setup..."
-kalite manage setup --noinput
-if [ $? -ne 0 ]; then
-    syslog -s -l error "Error encountered running kalite manage setup --noinput"
-    # TODO(eduard):  We encountered an error on kalite manage setup --noinput 
-    # REF: https://github.com/learningequality/ka-lite/pull/4630#issuecomment-155562193
-    # exit 1
-fi
+$BIN_PATH/kalite manage setup --noinput
 
 echo "Unpacking assessment.zip..."
-kalite manage unpack_assessment_zip $ASSESSMENT_SRC
-if [ $? -ne 0 ]; then
-    syslog -s -l error "Error encountered running kalite manage unpack_assessment_zip '$ASSESSMENT_SRC'."
-    # exit 1
-fi
+$BIN_PATH/kalite manage unpack_assessment_zip $ASSESSMENT_SRC
 
 
