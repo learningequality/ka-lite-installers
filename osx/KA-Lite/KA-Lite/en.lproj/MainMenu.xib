@@ -246,7 +246,7 @@ Gw
                                                     </pathControl>
                                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="78i-gL-Vw9">
                                                         <rect key="frame" x="16" y="5" width="390" height="36"/>
-                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="NOTE: To use your existing KA Lite data, copy it to the selected KA Lite data location." id="ht8-Vz-uVw">
+                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="NOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location." id="ht8-Vz-uVw">
                                                             <font key="font" metaFont="smallSystemBold"/>
                                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -254,7 +254,7 @@ Gw
                                                     </textField>
                                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ccp-Hu-Zn8">
                                                         <rect key="frame" x="16" y="50" width="390" height="28"/>
-                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Click apply button to save the selected KA Lite data path and Click KA Lite start to serve your selected KA Lite data path." id="svH-f4-7Mc">
+                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Click the &quot;Apply&quot; button to save your changes and click the &quot;Start KA Lite&quot; button to use your new data location." id="svH-f4-7Mc">
                                                             <font key="font" metaFont="smallSystemBold"/>
                                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

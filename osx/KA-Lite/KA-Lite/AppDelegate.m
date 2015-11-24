@@ -169,8 +169,7 @@ BOOL checkEnvVars() {
     
     kaliteHomeEnv = [[NSMutableDictionary alloc] init];
     
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSString *kaliteHomePath = [prefs stringForKey:@"customKaliteData"];
+    NSString *kaliteHomePath = getCustomKaliteHomePath();
     
     // Set KALITE_HOME environment
     [kaliteHomeEnv addEntriesFromDictionary:[[NSProcessInfo processInfo] environment]];
@@ -417,6 +416,12 @@ NSString *getUsrBinKalite() {
     return @"/usr/bin/kalite";
 }
 
+NSString *getCustomKaliteHomePath() {
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSString *kaliteHomePath = [prefs stringForKey:@"customKaliteData"];
+    return kaliteHomePath;
+}
+
 
 BOOL *checkUsrBinKalitePath() {
     NSString *kalitePath = getUsrBinKalite();
@@ -617,9 +622,8 @@ NSString *getEnvVar(NSString *var) {
 
 
 - (void)loadPreferences {
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     
-    NSString *customKaliteData = [prefs stringForKey:@"customKaliteData"];
+    NSString *customKaliteData = getCustomKaliteHomePath();
     
     if (pathExists(customKaliteData)) {
         NSString *standardizedPath = [customKaliteData stringByStandardizingPath];
@@ -689,10 +693,7 @@ NSString *getEnvVar(NSString *var) {
 
 BOOL setEnvVars() {
     showNotification(@"Setting KALITE_HOME environment variable...");
-    
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSString *kaliteHomePath = [prefs stringForKey:@"customKaliteData"];
-    
+    NSString *kaliteHomePath = getCustomKaliteHomePath();
     NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath];
     const char *cmd = [command UTF8String];
     int i = system(cmd);
