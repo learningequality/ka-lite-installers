@@ -34,6 +34,7 @@ function append() {
     eval $1[\${#$1[*]}]=$2
 }
 
+
 function remove_files_initiator {
     if [ -f $LIBRARY_PLIST ]; then
         append REMOVE_FILES_ARRAY $LIBRARY_PLIST
@@ -49,8 +50,8 @@ function remove_files_initiator {
 
     for file in "${REMOVE_FILES_ARRAY[@]}"; do
         if [ -e "${file}" ]; then
-            echo "Now Removing file: ${file}"
-            syslog -s -l error "Now Removing file: ${file}"
+            echo "Now removing file: ${file}"
+            syslog -s -l error "Now removing file: ${file}"
         fi
     done
 
@@ -61,12 +62,12 @@ function remove_files_initiator {
         if [ -e "${file}" ]; then
             echo "An error must have occurred since a file that was supposed to be"
             echo "removed still exists: ${file}"
-            syslog -s -l error "Removed file still exists: ${file}"
+            syslog -s -l error "File still exists: ${file}"
             echo ""
         fi
     done
-
 }
+
 
 function check_kalite_exc_collector {
     if [ -f "$KALITE_USR_BIN_PATH/$KALITE" ]; then

@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
-# Packages postscript for KA-Lite
-#
+# Post installation script of KA-Lite to be used in Packages.
+
+# Notes: 
+# 1. This script must be run as root.
+# 2. We use `/Users/Shared/ka-lite/` as the installation location which contains the `assessment.zip`, `pyrun`, and `scripts`.
+
 # Steps
-# 1. Symlink kalite executable  to /usr/local/bin.
+# 1. Symlink kalite executable to /usr/bin/.
 # 2. Export KALITE_PYTHON env that point to Pyrun directory.
 # 3. Create plist in ~/Library/LaunchAgents folders.
 # 4. Run shebangcheck that check the BIN_PATH that points to the python/pyrun interpreter to use.
@@ -11,9 +15,8 @@
 # 6. Run kalite manage init_content_items --overwrite.
 # 7. Run kalite manage setup --noinput.
 # 8. Run kalite manage unpack_assessment_zip <assessment_path>.
-# 9. Change the owner of a $HOME/.kalite.
+# 9. Change the owner of the ~/.kalite/ folder.
 
-# Note: This script always run on sudo.
 
 #----------------------------------------------------------------------
 # Global Variables
@@ -87,7 +90,7 @@ STEPS=9
 
 echo "Now preparing KA-Lite dependencies..."
 
-echo "$STEP/$STEPS. Symlink kalite executable to /usr/local/bin..."
+echo "$STEP/$STEPS. Symlink kalite executable to /usr/bin/..."
 if [ ! -d "$SYMLINK_TO" ]; then
     echo ".. Now creating '$SYMLINK_TO'..."
     sudo mkdir -p $SYMLINK_TO
@@ -97,12 +100,10 @@ if [ ! -d "$SYMLINK_TO" ]; then
     fi
 fi
 
-
 if [ -f "$KALITE" ]; then
     echo ".. Found $KALITE executable, it will be removed and will create new one."
     rm -fr $KALITE
 fi
-
 
 $COMMAND_SYMLINK
 if [ $? -ne 0 ]; then
@@ -110,9 +111,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+
 ((STEP++))
 echo "$STEP/$STEPS. Export KALITE_PYTHON env that point to Pyrun directory..."
 update_env
+
 
 ((STEP++))
 echo "$STEP/$STEPS. Create plist in ~/Library/LaunchAgents folders..."
@@ -121,9 +124,8 @@ if [ -f "$PLIST_SRC" ]; then
     rm -fr $PLIST_SRC
 fi
 
-
 if [ ! -d "$LAUNCH_AGENTS" ]; then
-    echo ".. Now creating '$LAUNCH_AGENTS'..."
+    echo ".. Must create '$LAUNCH_AGENTS' folder..."
     sudo mkdir -p $LAUNCH_AGENTS
     if [ $? -ne 0 ]; then
         echo ".. Abort!  Error encountered creating '$LAUNCH_AGENTS' directory."
@@ -133,6 +135,7 @@ fi
 
 create_plist
 
+
 ((STEP++))
 echo "$STEP/$STEPS. Check the BIN_PATH that points to the python/pyrun interpreter to use..."
 $PYRUN $SHEBANGCHECK_PATH/shebangcheck.py
@@ -141,9 +144,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+
 ((STEP++))
 echo "$STEP/$STEPS. Running kalite manage syncdb --noinput..."
 $BIN_PATH/kalite manage syncdb --noinput
+
 
 # REF: https://github.com/learningequality/ka-lite/issues/4682#issuecomment-159113225
 # TODO(djallado): Remove command `kalite manage init_content_items --overwrite` after the issue in pressing `Learn` tab 
@@ -152,9 +157,11 @@ $BIN_PATH/kalite manage syncdb --noinput
 echo "$STEP/$STEPS. Running kalite manage init_content_items --overwrite..."
 $BIN_PATH/kalite manage init_content_items --overwrite
 
+
 ((STEP++))
 echo "$STEP/$STEPS. Running kalite manage setup --noinput..."
 $BIN_PATH/kalite manage setup --noinput
+
 
 ((STEP++))
 echo "$STEP/$STEPS. Running kalite manage unpack_assessment_zip '$ASSESSMENT_SRC'..."
@@ -162,10 +169,10 @@ $BIN_PATH/kalite manage unpack_assessment_zip $ASSESSMENT_SRC
 
 
 ((STEP++))
-echo "$STEP/$STEPS. Changing the owner of the '$KALITE_DIR'..."
+echo "$STEP/$STEPS. Changing the owner of the '$KALITE_DIR' to the current user $USER..."
 chown -R $USER:$SUDO_GID $KALITE_DIR
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error changing permission on '$KALITE_DIR'."
+    echo ".. Abort!  Error changing the owner of '$KALITE_DIR'."
     exit 1
 fi
 
