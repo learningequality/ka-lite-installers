@@ -9,10 +9,18 @@ set -e
 # source debconf library
 . /usr/share/debconf/confmodule
 
-if ! [ "$KALITE_DEB_DEBUG" = "" ]
-then
-    set -x
-fi
+# if ! [ "$KALITE_DEB_DEBUG" = "" ]
+# then
+#     set -x
+# fi
+
+debug()
+{
+    if ! [ "$KALITE_DEB_DEBUG" = "" ]
+    then
+        echo "$1"
+    fi
+}
 
 args=("$@")
 
@@ -28,15 +36,29 @@ major_version() {
     # echo "${args[1]}" | sed 's/\([0-9]*\.[0-9]*\).*/\1/'
 }
 
-get_state() {
-    if [ -f /tmp/kalite.state ]
+export STATE_FILE=/tmp/kaliteinstall.state
+
+has_state() {
+    debug "Checking for state $1"
+    if [ -f "$STATE_FILE" ]
     then
-        cat /tmp/kalite.state
+        grep -q "$1" "$STATE_FILE"
+        has_state=$?
+        debug "Result: $has_state"
+        return $has_state
     fi
+    debug "No state file"
+    return 2
 }
 
-set_state() {
-    echo -n $1 > /tmp/kalite.state
+add_state() {
+    debug "Adding state $1"
+    echo $1 >> $STATE_FILE
+}
+
+rm_states() {
+    debug "Removing states"
+    rm -f "$STATE_FILE"
 }
 
 ##################################################
@@ -87,7 +109,7 @@ kalite_get_config()
 kalite_debconf_ask()
 {
     
-    if [ "`get_state`" = "after_postinst" ]
+    if ! has_state "after_preinst"
     then
         return
     fi
@@ -220,9 +242,7 @@ kalite_debconf_ask()
 # kalite_ask_questions command
 kalite_configure()
 {
-
-    set_state "after_postinst"
-
+    
     kalite_get_config
     
     vers=`major_version`
@@ -346,6 +366,8 @@ kalite_configure()
         invoke-rc.d ka-lite start || true
     fi
 
+    add_state "after_postinst"
+    
 }
 
 
@@ -372,11 +394,12 @@ kalite_purge()
 # and after ka-lite.postinst configure!
 kalite_debconf_set_defaults()
 {
-    # If called for the second time...
-    if [ "`get_state`" = "after_postinst" ]
+    if has_state "did_set_defaults"
     then
         return
     fi
+
+    add_state "did_set_defaults"
   
     if [ "${args[0]}" = "configure" ]
     then
@@ -401,20 +424,18 @@ kalite_debconf_set_defaults()
         db_fset ka-lite/download-assessment-items-storage-error-msg seen false
         db_fset ka-lite/manual-instructions seen false
         db_fset ka-lite/init-instructions seen false
-    fi  
+    fi
+    
 }
 
 
 kalite_preinst()
 {
-    # Only do this if install, not upgrade or abort-upgrade
+    
+    # Only do this if install, abort-upgrade
     if [ "${args[0]}" = "install" ] ||
        [ "${args[0]}" = "upgrade" ]
     then
-        
-        # This is needed because config scrpit runs before preinst
-        # and after postinst
-        set_state "after_preinst"
         
         if [ -x /etc/init.d/ka-lite ]
         then
@@ -438,16 +459,21 @@ kalite_preinst()
         fi
 
     fi
+
+    add_state "after_preinst"
+
 }
 
 
 kalite_debconf_size_check()
 {
-    if [ "`get_state`" = "after_postinst" ]
+    if has_state "did_check_size"
     then
         return
     fi
-
+    
+    add_state "did_check_size"
+    
     # Only do this if install, not upgrade or abort-upgrade
     if [ "${args[0]}" = "configure" ]
     then
@@ -477,15 +503,16 @@ kalite_debconf_size_check()
 
 # Run as the final script in .config
 kalite_debconf_finalize() {
-    if [ "`get_state`" = "after_postinst" ]
-    then
-        rm -f /tmp/kalite.state
-    fi
+    # Nothing to do
+    return 0
 }
 
 
 kalite_prerm()
 {
+    # Ensure there's no state file for tracking states during installs    
+    rm_states
+    
     # Load debconf library
     . /usr/share/debconf/confmodule
 
