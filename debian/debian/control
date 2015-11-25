@@ -12,7 +12,7 @@ Package: ka-lite
 Architecture: all
 Pre-Depends: debconf, bash, wget, unzip
 Depends: python (>= 2.7), python (<< 2.8), ucf, wget, python-pkg-resources
-Recommends: ka-lite-gtk
+Suggests: ka-lite-gtk
 Description: KA Lite
  A lightweight web server for serving core
  Khan Academy content (videos and exercises)
