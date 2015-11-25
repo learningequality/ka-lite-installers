@@ -1,3 +1,10 @@
+ka-lite-source (0.15.0-0ubuntu4) precise; urgency=medium
+
+  * Move ka-lite-gtk from Recommends to Suggests
+  * Track states during install to avoid asking same questions and resetting defaults
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 25 Nov 2015 19:24:53 +0100
+
 ka-lite-source (0.15.0-0ubuntu3) precise; urgency=medium
 
   * Fix error in url file for resuming downloads
