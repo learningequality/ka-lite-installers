@@ -8,9 +8,10 @@
 # 3. Create plist in ~/Library/LaunchAgents folders.
 # 4. Run shebangcheck that check the BIN_PATH that points to the python/pyrun interpreter to use.
 # 5. Run kalite manage syncdb --noinput.
-# 6. Run kalite manage setup --noinput.
-# 7. Run kalite manage unpack_assessment_zip <assessment_path>.
-# 8. Change the owner of a $HOME/.kalite.
+# 6. Run kalite manage init_content_items --overwrite.
+# 7. Run kalite manage setup --noinput.
+# 8. Run kalite manage unpack_assessment_zip <assessment_path>.
+# 9. Change the owner of a $HOME/.kalite.
 
 # Note: This script always run on sudo.
 
@@ -77,7 +78,7 @@ function create_plist {
 #----------------------------------------------------------------------
 
 STEP=1
-STEPS=8
+STEPS=9
 
 echo "Now preparing KA-Lite dependencies..."
 
@@ -138,6 +139,10 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Running kalite manage syncdb --noinput..."
 $BIN_PATH/kalite manage syncdb --noinput
+
+((STEP++))
+echo "$STEP/$STEPS. Running kalite manage init_content_items --overwrite..."
+$BIN_PATH/kalite manage init_content_items --overwrite
 
 ((STEP++))
 echo "$STEP/$STEPS. Running kalite manage setup --noinput..."
