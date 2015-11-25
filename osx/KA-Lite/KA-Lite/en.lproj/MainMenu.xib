@@ -240,9 +240,6 @@ Gw
                                                                 <string>public.folder</string>
                                                             </allowedTypes>
                                                         </pathCell>
-                                                        <connections>
-                                                            <action selector="customKaliteData:" target="Voe-Tx-rLC" id="UgC-sn-dDp"/>
-                                                        </connections>
                                                     </pathControl>
                                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="78i-gL-Vw9">
                                                         <rect key="frame" x="16" y="5" width="390" height="36"/>
@@ -292,10 +289,10 @@ Gw
                                                         <rect key="frame" x="0.0" y="0.0" width="223" height="293"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="451" height="293"/>
+                                                        <size key="minSize" width="436" height="293"/>
                                                         <size key="maxSize" width="463" height="10000000"/>
                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <size key="minSize" width="451" height="293"/>
+                                                        <size key="minSize" width="436" height="293"/>
                                                         <size key="maxSize" width="463" height="10000000"/>
                                                     </textView>
                                                 </subviews>

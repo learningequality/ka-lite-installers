@@ -71,10 +71,10 @@
 
         NSString *kalite = getUsrBinKalite();
         if (!pathExists(kalite)) {
-            NSLog(@"kalite executable not found, must show preferences.");
+            NSLog(@"kalite executable is not found, must show preferences.");
             mustShowPreferences = true;
             [self showStatus:statusFailedToStart];
-            showNotification(@"Kalite executable not found.");
+            showNotification(@"Kalite executable is not found. You need to reinstall the KA Lite application.");
             
         } else {
             NSLog([NSString stringWithFormat:@"FOUND kalite at %@!", kalite]);
@@ -101,7 +101,7 @@
     // TODO(cpauya): Confirm quit action from user.
     if (kaliteExists()) {
         showNotification(@"Stopping and quitting the application...");
-        // Stop kalite
+        // Stop KA Lite
         [self stopFunction];
     }
 }
@@ -222,8 +222,8 @@ NSString *getResourcePath(NSString *pathToAppend) {
 NSString *getDatabasePath() {
     NSString *database;
     NSString* envKaliteHomeStr = getEnvVar(@"KALITE_HOME");
-    database = [NSString stringWithFormat:@"%@%@", envKaliteHomeStr, @"/database/data.sqlite"];
     if (pathExists(envKaliteHomeStr)) {
+        database = [NSString stringWithFormat:@"%@%@", envKaliteHomeStr, @"/database/data.sqlite"];
         database = [database stringByStandardizingPath];
         return database;
     }
@@ -391,7 +391,7 @@ void showNotification(NSString *subtitle) {
 - (void)disableKaliteDataPath{
     // Disable custom kalite data path when kalite is still running.
     self.customKaliteData.enabled = NO;
-    [self.customKaliteData setToolTip:@"KA Lite is still running. Stop kalite to select data path."];
+    [self.customKaliteData setToolTip:@"KA Lite is still running. Stop KA Lite to select data path."];
 }
 
 
@@ -413,7 +413,7 @@ void showNotification(NSString *subtitle) {
 
 
 NSString *getUsrBinKalite() {
-    return @"/usr/local/bin/kalite";
+    return @"/usr/bin/kalite";
 }
 
 NSString *getCustomKaliteHomePath() {
@@ -429,7 +429,7 @@ NSString *getCustomKaliteHomePath() {
             return envKaliteHomeStr;
         } else {
             NSString *defaultKalitePath = [NSString stringWithFormat:@"%@/.kalite", NSHomeDirectory()];
-            if (defaultKalitePath) {
+            if (pathExists(defaultKalitePath)) {
                 return [NSString stringWithFormat:@"%@/.kalite", NSHomeDirectory()];
             } else {
                 showNotification(@"KA Lite data not found.");
@@ -653,7 +653,7 @@ NSString *getEnvVar(NSString *var) {
      2. Run `kalite manage setup` if no database was found.
      */
     
-    // Stop kalite
+    // Stop KA Lite
     [self stopFunction];
     
     // Save the preferences.
