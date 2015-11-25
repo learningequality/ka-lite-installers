@@ -715,7 +715,7 @@ BOOL setEnvVars() {
     
     // Path of the KALITE_PYTHON environment variable
     NSString* envKalitePythonStr = getEnvVar(@"KALITE_PYTHON");
-    if (! pathExist(envKalitePythonStr)) {
+    if (! pathExists(envKalitePythonStr)) {
         return FALSE;
     }
     NSString *KaliteHomeStr = [NSString stringWithFormat:@"%@",

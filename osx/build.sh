@@ -284,6 +284,10 @@ if [ -d "$KA_LITE_PROJECT_DIR" ]; then
     # MUST: xcodebuild needs to be on the same directory as the .xcodeproj file
     cd "$KA_LITE_PROJECT_DIR"
     xcodebuild clean build
+    if [ $? -ne 0 ]; then
+        echo ".. Abort!  Running \"xcodebuild clean build\" failed!"
+        exit 1
+    fi
 fi
 # check if build of Xcode project succeeded
 KA_LITE_APP_PATH="$KA_LITE_PROJECT_DIR/build/Release/KA-Lite.app"
