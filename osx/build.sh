@@ -323,7 +323,7 @@ KALITE_PACKAGES_NAME="KA-Lite.pkg"
 PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Lite.pkgproj"
 PACKAGES_OUTPUT="$SCRIPTPATH/KA-Lite-Packages/build/$KALITE_PACKAGES_NAME"
 
-$PACKAGES_EXEC $PACKAGES_PROJECT
+$PACKAGES_EXEC  $PACKAGES_PROJECT
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error building the .pkg file with '$PACKAGES_EXEC'."
     exit 1

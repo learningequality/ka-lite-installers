@@ -11,6 +11,7 @@ LIBRARY="/Library/LaunchAgents"
 TEMP_PLIST="$TEMP/$KALITE_PLIST"
 LIBRARY_PLIST="$LIBRARY/$KALITE_PLIST"
 KALITE_EXECUTABLE_PATH="$(which kalite)"
+KALITE_SOURCE="/Users/Shared/ka-lite"
 
 
 # Delete the .plist file.
@@ -35,6 +36,16 @@ if which kalite > /dev/null 2>&1; then
     sudo rm $KALITE_EXECUTABLE_PATH
 else
     echo "kalite executable not found."
+fi
+
+# Removing $KALITE_SOURCE
+if [ -d "$KALITE_SOURCE" ]; then
+	echo "Removing '$KALITE_SOURCE'..."
+	rm -fr $KALITE_SOURCE
+	if [ $? -ne 0 ]; then
+    	echo ".. Abort!  Error encountered removing '$KALITE_SOURCE'."
+    	exit 1
+	fi
 fi
 
 # remove KALITE_PYTHON environment variable
