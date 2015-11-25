@@ -413,13 +413,31 @@ void showNotification(NSString *subtitle) {
 
 
 NSString *getUsrBinKalite() {
-    return @"/usr/bin/kalite";
+    return @"/usr/local/bin/kalite";
 }
 
 NSString *getCustomKaliteHomePath() {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSString *kaliteHomePath = [prefs stringForKey:@"customKaliteData"];
-    return kaliteHomePath;
+    NSString *customKaliteData = [prefs stringForKey:@"customKaliteData"];
+    
+    if (pathExists(customKaliteData)) {
+        NSString *standardizedPath = [customKaliteData stringByStandardizingPath];
+        return standardizedPath;
+    } else {
+        NSString* envKaliteHomeStr = getEnvVar(@"KALITE_HOME");
+        if (pathExists(envKaliteHomeStr)) {
+            return envKaliteHomeStr;
+        } else {
+            NSString *defaultKalitePath = [NSString stringWithFormat:@"%@/.kalite", NSHomeDirectory()];
+            if (defaultKalitePath) {
+                return [NSString stringWithFormat:@"%@/.kalite", NSHomeDirectory()];
+            } else {
+                showNotification(@"KA Lite data not found.");
+            }
+        }
+    }
+    
+    return nil;
 }
 
 
@@ -624,18 +642,8 @@ NSString *getEnvVar(NSString *var) {
 - (void)loadPreferences {
     
     NSString *customKaliteData = getCustomKaliteHomePath();
-    
-    if (pathExists(customKaliteData)) {
-        NSString *standardizedPath = [customKaliteData stringByStandardizingPath];
-        self.customKaliteData.stringValue = standardizedPath;
-    } else {
-        NSString* envKaliteHomeStr = getEnvVar(@"KALITE_HOME");
-        if (pathExists(envKaliteHomeStr)) {
-            self.customKaliteData.stringValue = envKaliteHomeStr;
-        } else {
-            self.customKaliteData.stringValue = [NSString stringWithFormat:@"%@/.kalite", NSHomeDirectory()];
-        }
-    }
+    NSString *standardizedPath = [customKaliteData stringByStandardizingPath];
+    self.customKaliteData.stringValue = standardizedPath;
 }
 
 
