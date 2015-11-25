@@ -134,7 +134,7 @@ fi
 create_plist
 
 ((STEP++))
-echo "$STEP/$STEPS. check the BIN_PATH that points to the python/pyrun interpreter to use..."
+echo "$STEP/$STEPS. Check the BIN_PATH that points to the python/pyrun interpreter to use..."
 $PYRUN $SHEBANGCHECK_PATH/shebangcheck.py
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error encountered running '$SHEBANGCHECK_PATH/shebangcheck.py'."
@@ -145,6 +145,9 @@ fi
 echo "$STEP/$STEPS. Running kalite manage syncdb --noinput..."
 $BIN_PATH/kalite manage syncdb --noinput
 
+# REF: https://github.com/learningequality/ka-lite/issues/4682#issuecomment-159113225
+# TODO(djallado): Remove command `kalite manage init_content_items --overwrite` after the issue in pressing `Learn` tab 
+# that results an empty sidebar and `Unexpected error: argument 2 to map() must support iteration` error will be solved.
 ((STEP++))
 echo "$STEP/$STEPS. Running kalite manage init_content_items --overwrite..."
 $BIN_PATH/kalite manage init_content_items --overwrite
