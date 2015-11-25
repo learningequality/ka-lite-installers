@@ -441,7 +441,7 @@ BOOL setLaunchAgent(NSString *source, NSString *target) {
 
 
 NSString *getUsrBinKalite() {
-    return @"/usr/local/bin/kalite";
+    return @"/usr/bin/kalite";
 }
 
 
