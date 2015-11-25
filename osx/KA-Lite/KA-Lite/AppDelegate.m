@@ -432,7 +432,7 @@ NSString *getCustomKaliteHomePath() {
             if (pathExists(defaultKalitePath)) {
                 return [NSString stringWithFormat:@"%@/.kalite", NSHomeDirectory()];
             } else {
-                showNotification(@"KA Lite data not found.");
+                showNotification(@"KA Lite data is not found. Click `Start KA Lite` button to create the KA Lite data. ");
             }
         }
     }
@@ -640,7 +640,6 @@ NSString *getEnvVar(NSString *var) {
 
 
 - (void)loadPreferences {
-    
     NSString *customKaliteData = getCustomKaliteHomePath();
     NSString *standardizedPath = [customKaliteData stringByStandardizingPath];
     self.customKaliteData.stringValue = standardizedPath;
@@ -716,7 +715,9 @@ BOOL setEnvVars() {
     
     // Path of the KALITE_PYTHON environment variable
     NSString* envKalitePythonStr = getEnvVar(@"KALITE_PYTHON");
-    
+    if (! pathExist(envKalitePythonStr)) {
+        return FALSE;
+    }
     NSString *KaliteHomeStr = [NSString stringWithFormat:@"%@",
                                [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath]
                                ];
@@ -739,9 +740,10 @@ BOOL setEnvVars() {
     // Override org.learningequality.kalite.plist content
     BOOL ret = [plistDict writeToFile:target atomically:YES];
     if (ret == YES) {
-        NSLog([NSString stringWithFormat:@"SAVED initial .plist file to %@", target]);
+        NSLog([NSString stringWithFormat:@"SAVED .plist file to %@", target]);
     } else {
-        NSLog([NSString stringWithFormat:@"CANNOT save initial .plist file!  Result: %hhd", ret]);
+        NSLog([NSString stringWithFormat:@"CANNOT save .plist file!  Result: %hhd", ret]);
+        return FALSE;
     }
     return TRUE;
     
