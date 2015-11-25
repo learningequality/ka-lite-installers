@@ -15,7 +15,9 @@
 
 # Note: This script always run on sudo.
 
+#----------------------------------------------------------------------
 # Global Variables
+#----------------------------------------------------------------------
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 
 KALITE_SHARED="/Users/Shared/ka-lite"
@@ -76,6 +78,9 @@ function create_plist {
 #----------------------------------------------------------------------
 # Script
 #----------------------------------------------------------------------
+
+ENV=$(env)
+syslog -s -l error "Packages post-installation initialize with env:'\n'$ENV" 
 
 STEP=1
 STEPS=9
@@ -161,3 +166,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+echo "Done!"
