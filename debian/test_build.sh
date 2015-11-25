@@ -38,3 +38,12 @@ debuild --no-lintian -us -uc | tail
 # Go to the build dir
 cd $DIR
 
+if which dpkg-scanpackages
+then
+	# Turn it into a repository
+	cd test
+	echo "Creating an apt archive in $DIR/test"
+	dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
+fi
+
+cd $DIR
