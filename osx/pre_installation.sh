@@ -1,17 +1,16 @@
 #!/bin/bash
 
+
+# Notes: 
+#    * This script must be run as root.
+#    * The files that will be removed, will be displayed on the console log.
+#
 # What does this script do?
 #    1. Unset environment variable: KALITE_PYTHON.
-#    2. Remove the .plist file, kalite executable, ka-lite resources.
-#    3. Check if the .plist file, kalite executable, ka-lite resources.
+#    2. Remove the .plist file, kalite executable and ka-lite resources.
+#    3. Check if the .plist file, kalite executable and ka-lite resources.
 #    4. Display a console log for this process.
 #
-# Note: 
-#    * This script always run on sudo.
-#    * The files that will be remove will be display on the console log.
-#    * Sometimes calling 'which' to check the executable exist is not enough 
-#         so we check if the executable exist on the path we expected them to exist.
-#         e.g the file has permission so it will not be called on which command.
 
 #----------------------------------------------------------------------
 # Global Variables
@@ -64,6 +63,7 @@ function remove_files_initiator {
             echo "removed still exists: ${file}"
             syslog -s -l error "File still exists: ${file}"
             echo ""
+            exit 1
         fi
     done
 }

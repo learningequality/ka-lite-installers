@@ -100,10 +100,6 @@ if [ ! -d "$SYMLINK_TO" ]; then
     fi
 fi
 
-if [ -f "$KALITE" ]; then
-    echo ".. Found $KALITE executable, it will be removed and will create new one."
-    rm -fr $KALITE
-fi
 
 $COMMAND_SYMLINK
 if [ $? -ne 0 ]; then
@@ -119,11 +115,6 @@ update_env
 
 ((STEP++))
 echo "$STEP/$STEPS. Create plist in ~/Library/LaunchAgents folders..."
-if [ -f "$PLIST_SRC" ]; then
-    echo ".. Found an existing '$PLIST_SRC', now removing it."
-    rm -fr $PLIST_SRC
-fi
-
 if [ ! -d "$LAUNCH_AGENTS" ]; then
     echo ".. Must create '$LAUNCH_AGENTS' folder..."
     sudo mkdir -p $LAUNCH_AGENTS
