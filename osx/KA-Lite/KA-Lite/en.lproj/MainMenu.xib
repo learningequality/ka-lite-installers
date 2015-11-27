@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6751" systemVersion="13F1066" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6751"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -14,6 +14,8 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
+                <outlet property="customKaliteData" destination="Fr9-lD-cxj" id="RLj-fb-pMb"/>
+                <outlet property="kaliteVersion" destination="89o-4x-JIp" id="72c-bS-dBh"/>
                 <outlet property="openBrowserButton" destination="wxg-iv-YDa" id="0er-aA-Ymn"/>
                 <outlet property="openInBrowserMenu" destination="z2m-ls-Z0I" id="mGN-C0-zz5"/>
                 <outlet property="splash" destination="izD-1r-MWo" id="ax5-nI-Mu0"/>
@@ -63,10 +65,10 @@
             </items>
             <point key="canvasLocation" x="283.5" y="347.5"/>
         </menu>
-        <window title="Starting KA-Lite..." allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="izD-1r-MWo">
+        <window title="Starting KA Lite..." allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="izD-1r-MWo">
             <windowStyleMask key="styleMask" titled="YES"/>
             <rect key="contentRect" x="565" y="404" width="216" height="135"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="878"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" id="X7G-oL-gsN">
                 <rect key="frame" x="0.0" y="0.0" width="216" height="135"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -85,18 +87,15 @@
                         <rect key="frame" x="7" y="50" width="203" height="77"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="ka-lite-logo" id="RYn-a9-bqN"/>
                     </imageView>
-                    <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="Whl-jw-4n7">
-                        <rect key="frame" x="148" y="91" width="16" height="16"/>
-                    </progressIndicator>
                 </subviews>
             </view>
             <point key="canvasLocation" x="311" y="144.5"/>
         </window>
-        <window title="KA-Lite Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="BCW-kl-SX8">
+        <window title="KA Lite Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="BCW-kl-SX8">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" unifiedTitleAndToolbar="YES"/>
             <windowCollectionBehavior key="collectionBehavior" canJoinAllSpaces="YES" managed="YES" participatesInCycle="YES"/>
             <rect key="contentRect" x="131" y="158" width="493" height="417"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="878"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" id="TP3-Cd-o99">
                 <rect key="frame" x="0.0" y="0.0" width="493" height="417"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -105,9 +104,6 @@
                         <rect key="frame" x="20" y="2" width="128" height="48"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="ka-lite-logo" id="SrL-UW-fmI"/>
                     </imageView>
-                    <progressIndicator autoresizesSubviews="NO" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" doubleValue="33" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="F58-jA-gsZ">
-                        <rect key="frame" x="106" y="29" width="16" height="16"/>
-                    </progressIndicator>
                     <button autoresizesSubviews="NO" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3rc-kc-VMj">
                         <rect key="frame" x="379" y="10" width="100" height="32"/>
                         <buttonCell key="cell" type="push" title="Apply" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GgK-EM-gBS">
@@ -138,6 +134,22 @@ Gw
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                     </button>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ng4-TD-U8c">
+                        <rect key="frame" x="148" y="-11" width="50" height="35"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="version" id="sgE-hG-5Tb">
+                            <font key="font" metaFont="system" size="10"/>
+                            <color key="textColor" red="0.012429353341100775" green="0.22719754093567834" blue="0.38871433423913049" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="89o-4x-JIp">
+                        <rect key="frame" x="189" y="-11" width="50" height="35"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="0.0.x" id="7oP-WD-SA7">
+                            <font key="font" metaFont="system" size="10"/>
+                            <color key="textColor" red="0.012429353339999999" green="0.22719754089999999" blue="0.38871433420000001" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                     <tabView fixedFrame="YES" initialItem="bsG-cY-LW8" translatesAutoresizingMaskIntoConstraints="NO" id="Elv-hY-FGF">
                         <rect key="frame" x="13" y="40" width="467" height="374"/>
                         <font key="font" metaFont="system" size="14"/>
@@ -147,48 +159,6 @@ Gw
                                     <rect key="frame" x="10" y="33" width="447" height="328"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="Path for Database and Content (TODO)" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
-                                            <rect key="frame" x="11" y="149" width="414" height="91"/>
-                                            <view key="contentView">
-                                                <rect key="frame" x="1" y="1" width="412" height="72"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                <subviews>
-                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m5s-fK-oBc">
-                                                        <rect key="frame" x="26" y="44" width="135" height="17"/>
-                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Database path" id="QW9-qa-Qra">
-                                                            <font key="font" metaFont="system"/>
-                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                        </textFieldCell>
-                                                    </textField>
-                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="i8n-CM-XYv">
-                                                        <rect key="frame" x="26" y="14" width="135" height="17"/>
-                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Content path" id="5Bh-5m-tWX">
-                                                            <font key="font" metaFont="system"/>
-                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                        </textFieldCell>
-                                                    </textField>
-                                                    <pathControl verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Fr9-lD-cxj">
-                                                        <rect key="frame" x="187" y="40" width="200" height="26"/>
-                                                        <pathCell key="cell" selectable="YES" editable="YES" enabled="NO" alignment="left" placeholderString="" pathStyle="popUp" id="mgX-4z-WIm">
-                                                            <font key="font" metaFont="system"/>
-                                                            <url key="url" string="file:///Home/ka-lite"/>
-                                                        </pathCell>
-                                                    </pathControl>
-                                                    <pathControl verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jq2-BL-rnK">
-                                                        <rect key="frame" x="186" y="14" width="200" height="26"/>
-                                                        <pathCell key="cell" selectable="YES" editable="YES" enabled="NO" alignment="left" placeholderString="" pathStyle="popUp" id="fXE-iQ-Q63">
-                                                            <font key="font" metaFont="system"/>
-                                                            <url key="url" string="file:///Home/ka-lite"/>
-                                                        </pathCell>
-                                                    </pathControl>
-                                                </subviews>
-                                            </view>
-                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                            <font key="titleFont" metaFont="systemBold"/>
-                                        </box>
                                         <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Eur-YG-XhD">
                                             <rect key="frame" x="11" y="269" width="119" height="32"/>
                                             <buttonCell key="cell" type="push" title="Start KA Lite" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="AIv-42-gwi">
@@ -219,8 +189,8 @@ Gw
                                                 <action selector="openButton:" target="Voe-Tx-rLC" id="w1v-D6-uCu"/>
                                             </connections>
                                         </button>
-                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="Application behavior (TODO)" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
-                                            <rect key="frame" x="11" y="22" width="414" height="91"/>
+                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="(TODO) Application behavior" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
+                                            <rect key="frame" x="11" y="5" width="414" height="91"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -234,7 +204,7 @@ Gw
                                                     </button>
                                                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LGO-kK-gKp">
                                                         <rect key="frame" x="16" y="21" width="297" height="18"/>
-                                                        <buttonCell key="cell" type="check" title="Check for updates automatically" bezelStyle="regularSquare" imagePosition="left" enabled="NO" inset="2" id="AGK-J1-S1r">
+                                                        <buttonCell key="cell" type="check" title=" Check for updates automatically" bezelStyle="regularSquare" imagePosition="left" enabled="NO" inset="2" id="AGK-J1-S1r">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
@@ -245,107 +215,61 @@ Gw
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                             <font key="titleFont" metaFont="systemBold"/>
                                         </box>
-                                    </subviews>
-                                </view>
-                            </tabViewItem>
-                            <tabViewItem label="Advanced" identifier="2" id="a88-uU-pNE">
-                                <view key="view" id="VVZ-XB-ata">
-                                    <rect key="frame" x="10" y="33" width="447" height="328"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="sGz-9H-SVx">
-                                            <rect key="frame" x="1" y="273" width="440" height="67"/>
+                                        <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
+                                            <rect key="frame" x="11" y="100" width="414" height="158"/>
                                             <view key="contentView">
-                                                <rect key="frame" x="1" y="1" width="438" height="51"/>
+                                                <rect key="frame" x="1" y="1" width="412" height="156"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZZ9-Mn-1Uq">
-                                                        <rect key="frame" x="9" y="17" width="324" height="34"/>
-                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Warning!  This will run `kalite manage setup` and your data might be lost." id="J7r-g1-X1B">
-                                                            <font key="font" metaFont="system"/>
-                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m5s-fK-oBc">
+                                                        <rect key="frame" x="16" y="130" width="135" height="17"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="KA Lite data path" id="QW9-qa-Qra">
+                                                            <font key="font" metaFont="systemBold"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                     </textField>
-                                                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="MOt-uY-Qda">
-                                                        <rect key="frame" x="338" y="13" width="93" height="32"/>
-                                                        <buttonCell key="cell" type="push" title="Setup" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ubr-w0-PHZ">
-                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                            <font key="font" metaFont="system"/>
-                                                        </buttonCell>
-                                                        <connections>
-                                                            <action selector="setupAction:" target="Voe-Tx-rLC" id="fej-bs-Uzy"/>
-                                                        </connections>
-                                                    </button>
+                                                    <pathControl verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Fr9-lD-cxj">
+                                                        <rect key="frame" x="197" y="126" width="200" height="26"/>
+                                                        <pathCell key="cell" lineBreakMode="charWrapping" selectable="YES" editable="YES" alignment="left" placeholderString="" pathStyle="popUp" id="mgX-4z-WIm">
+                                                            <font key="font" metaFont="systemBold"/>
+                                                            <url key="url" string=".kalite">
+                                                                <url key="baseURL" string="file:///"/>
+                                                            </url>
+                                                            <allowedTypes>
+                                                                <string>public.folder</string>
+                                                            </allowedTypes>
+                                                        </pathCell>
+                                                    </pathControl>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="78i-gL-Vw9">
+                                                        <rect key="frame" x="16" y="5" width="390" height="36"/>
+                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="NOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location." id="ht8-Vz-uVw">
+                                                            <font key="font" metaFont="smallSystemBold"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ccp-Hu-Zn8">
+                                                        <rect key="frame" x="16" y="50" width="390" height="28"/>
+                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Click the &quot;Apply&quot; button to save your changes and click the &quot;Start KA Lite&quot; button to use your new data location." id="svH-f4-7Mc">
+                                                            <font key="font" metaFont="smallSystemBold"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GKg-17-NDh">
+                                                        <rect key="frame" x="16" y="76" width="390" height="37"/>
+                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="left" title="This will set the KALITE_HOME environment variable to the selected KA Lite data location." id="now-0h-WxP">
+                                                            <font key="font" metaFont="smallSystemBold"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
                                                 </subviews>
                                             </view>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                        </box>
-                                        <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="R3g-tg-TV7">
-                                            <rect key="frame" x="1" y="0.0" width="440" height="228"/>
-                                            <view key="contentView">
-                                                <rect key="frame" x="1" y="1" width="438" height="212"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                <subviews>
-                                                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="i3l-SV-9sX">
-                                                        <rect key="frame" x="16" y="22" width="427" height="190"/>
-                                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="Yms-9g-Z2D">
-                                                            <font key="font" metaFont="system"/>
-                                                            <string key="title">WARNING:  Do this only if you know what you are doing.  
-
-This will remove the installer files to set a clean environment:
-1. Remove the KALITE_PYTHON environment variable.
-2. Delete the /Library/LaunchAgents/org.learningequality.kalite.plist file which auto-sets the above env var on computer boot.
-3. Delete the symlinked /usr/bin/kalite executable.
-4. Delete the stored user preferences.
-
-Click the Apply button to re-create the installation files mentioned above.</string>
-                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                        </textFieldCell>
-                                                    </textField>
-                                                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PBg-Qp-fqH">
-                                                        <rect key="frame" x="321" y="-3" width="105" height="32"/>
-                                                        <buttonCell key="cell" type="push" title="Reset App" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WkU-Jm-bOB">
-                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                            <font key="font" metaFont="system"/>
-                                                        </buttonCell>
-                                                        <connections>
-                                                            <action selector="resetAppAction:" target="Voe-Tx-rLC" id="RYz-gD-Fwi"/>
-                                                        </connections>
-                                                    </button>
-                                                </subviews>
-                                            </view>
-                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                        </box>
-                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WlP-QT-tst">
-                                            <rect key="frame" x="283" y="229" width="161" height="32"/>
-                                            <buttonCell key="cell" type="push" title="Extract Assessment" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="1cr-ZR-MdD">
-                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                            <connections>
-                                                <action selector="extractAssessment:" target="Voe-Tx-rLC" id="bqW-gK-grs"/>
-                                            </connections>
-                                        </button>
-                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vCF-O4-9Xh">
-                                            <rect key="frame" x="7" y="221" width="282" height="51"/>
-                                            <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="This will run &quot;kalite manage unpack_assessment_zip&quot; to extract assessment items." id="j3U-B3-BqS">
-                                                <font key="font" metaFont="system"/>
-                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                        <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Kn6-w8-2BI">
-                                            <rect key="frame" x="1" y="212" width="440" height="74"/>
-                                            <view key="contentView">
-                                                <rect key="frame" x="1" y="1" width="438" height="58"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                            </view>
-                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <font key="titleFont" metaFont="systemBold"/>
                                         </box>
                                     </subviews>
                                 </view>
@@ -398,14 +322,6 @@ Click the Apply button to re-create the installation files mentioned above.</str
                             </tabViewItem>
                         </tabViewItems>
                     </tabView>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ng4-TD-U8c">
-                        <rect key="frame" x="148" y="-11" width="104" height="35"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="version 1.16.0" id="sgE-hG-5Tb">
-                            <font key="font" metaFont="system" size="10"/>
-                            <color key="textColor" red="0.012429353341100775" green="0.22719754093567834" blue="0.38871433423913049" alpha="1" colorSpace="calibratedRGB"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
                 </subviews>
             </view>
             <point key="canvasLocation" x="733.5" y="285.5"/>

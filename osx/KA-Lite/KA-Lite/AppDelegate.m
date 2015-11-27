@@ -21,41 +21,10 @@
 
 @implementation AppDelegate
 
-@synthesize startKalite, stopKalite, openInBrowserMenu;
+@synthesize startKalite, stopKalite, openInBrowserMenu, kaliteVersion, customKaliteData;
 
 
-- (int) checkShebang{
-    NSString *command;
-    NSString *scriptPath;
-    NSString *binPath;
-    
-    binPath = getResourcePath(@"pyrun-2.7/bin/");
-    scriptPath = getResourcePath(@"scripts/shebangcheck.py");
-    command = [NSString stringWithFormat:@"%@ '%@' '%@'", @"python", scriptPath, binPath];
-    
-    NSLog(@"Running shebang script & command: %@", command);
-
-    const char *runCommand = [command UTF8String];
-    int run = system(runCommand);
-    return run;
-}
-
-- (void) extractAssessment{
-    NSString *command;
-    NSString *assessmentPath;
-    
-    assessmentPath = getResourcePath(@"assessment.zip");
-    command = [NSString stringWithFormat:@"%@ %@", @"manage unpack_assessment_zip", assessmentPath];
-    
-    if (pathExists(assessmentPath)) {
-        [self runKalite:command];
-        showNotification(@"Assessment items successfully extracted.");
-    } else {
-        NSLog([NSString stringWithFormat:@"Assessment file not found"]);
-    }
-}
-
-//REF http://objcolumnist.com/2009/08/09/reopening-an-applications-main-window-by-clicking-the-dock-icon/
+// REF: http://objcolumnist.com/2009/08/09/reopening-an-applications-main-window-by-clicking-the-dock-icon/
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag {
     if(flag==NO) {
         [self showPreferences];
@@ -63,23 +32,23 @@
     return YES;	
 }
 
+
 // TODO(amodia): Show menu bar on dock icon.
 //- (NSMenu *)applicationDockMenu:(NSApplication *)sender {
 //    return self.statusMenu;
 //}
 
+
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
-    
-    [self checkShebang];
     
     // Setup the status menu item.
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
     [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
     [self.statusItem setMenu:self.statusMenu];
     [self.statusItem setHighlightMode:YES];
-    [self.statusItem setToolTip:@"Click to show the KA-Lite menu items."];
+    [self.statusItem setToolTip:@"Click to show the KA Lite menu items."];
 
     // Set the default status.
     self.status = statusCouldNotDetermineStatus;
@@ -102,15 +71,17 @@
 
         NSString *kalite = getUsrBinKalite();
         if (!pathExists(kalite)) {
-            NSLog(@"kalite executable not found, must show preferences.");
+            NSLog(@"kalite executable is not found, must show preferences.");
             mustShowPreferences = true;
             [self showStatus:statusFailedToStart];
-            [self savePreferences];
+            showNotification(@"Kalite executable is not found. You need to reinstall the KA Lite application.");
             
         } else {
             NSLog([NSString stringWithFormat:@"FOUND kalite at %@!", kalite]);
+            showNotification(@"KA Lite is now loaded.");
+            [self runKalite:@"--version"];
+            [self getKaliteStatus];
         }
-        showNotification(@"KA Lite is now loaded.");
     }
     @catch (NSException *ex) {
         NSLog(@"KA Lite had an Error: %@", ex);
@@ -130,7 +101,8 @@
     // TODO(cpauya): Confirm quit action from user.
     if (kaliteExists()) {
         showNotification(@"Stopping and quitting the application...");
-        [self runKalite:@"stop"];
+        // Stop KA Lite
+        [self stopFunction];
     }
 }
 
@@ -143,17 +115,13 @@
 BOOL checkEnvVars() {
     // MUST: Check the KALITE_PYTHON environment variable
     // and default it to the .app Resources folder if not yet set.
-    NSString *pyrun = getEnvVar(@"KALITE_PYTHON");
-    if (!pathExists(pyrun)) {
-        if (!setEnvVars(FALSE)) {
-            NSString *msg = @"FAILED to set environment variables!";
-            showNotification(msg);
-            return FALSE;
-        };
+    NSString *kalitePython = getEnvVar(@"KALITE_PYTHON");
+
+    if (!pathExists(kalitePython)) {
+        NSString *msg = @"Failed to set KALITE_PYTHON environment variable";
+        showNotification(msg);
+        return FALSE;
     }
-    // TODO(cpauya): Just a debug trace
-    pyrun = getPyrunBinPath(true);
-    NSLog([NSString stringWithFormat:@"Pyrun value: %@", pyrun]);
     return TRUE;
 }
 
@@ -165,7 +133,7 @@ BOOL checkEnvVars() {
 
 - (void) displayLogs:(NSString *)outStr {
     dispatch_sync(dispatch_get_main_queue(), ^{
-        //REF: http://stackoverflow.com/questions/10772033/get-current-date-time-with-nsdate-date
+        // REF: http://stackoverflow.com/questions/10772033/get-current-date-time-with-nsdate-date
         //Get the current date time
         NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
         [dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss"];
@@ -182,12 +150,13 @@ BOOL checkEnvVars() {
 
 
 - (void) runTask:(NSString *)command {
-    NSString *pyrun;
     NSString *kalitePath;
     NSString *statusStr;
-    NSMutableDictionary *kaliteEnv;
+    NSString *versionStr;
+    NSMutableDictionary *kaliteHomeEnv;
     
     statusStr = @"status";
+    versionStr = @"--version";
     
     // Set loading indicator icon.
     if (command != statusStr) {
@@ -196,28 +165,31 @@ BOOL checkEnvVars() {
     
     self.processCounter += 1;
     
-    pyrun = getPyrunBinPath(true);
-    // MUST: Let's use the symlinked `/usr/bin/kalite` instead of the
-    // one at `pyrun-2.7/bin/kalite` because it can be found on the PATH
-    // of the app.
     kalitePath = getUsrBinKalite();
     
-    kaliteEnv = [[NSMutableDictionary alloc] init];
-
-    // Set KALITE_PYTHON environment
-    [kaliteEnv addEntriesFromDictionary:[[NSProcessInfo processInfo] environment]];
-    [kaliteEnv setObject:pyrun forKey:@"KALITE_PYTHON"];
- 
+    kaliteHomeEnv = [[NSMutableDictionary alloc] init];
+    
+    NSString *kaliteHomePath = getCustomKaliteHomePath();
+    
+    // Set KALITE_HOME environment
+    [kaliteHomeEnv addEntriesFromDictionary:[[NSProcessInfo processInfo] environment]];
+    [kaliteHomeEnv setObject:kaliteHomePath forKey:@"KALITE_HOME"];
+    
     NSTask* task = [[NSTask alloc] init];
-    NSString *kaliteCommand = [NSString stringWithFormat:@"%@ %@", kalitePath, command];
+    NSString *kaliteCommand = [NSString stringWithFormat:@"%@",command];
     NSArray *array = [kaliteCommand componentsSeparatedByString:@" "];
     
-    [task setEnvironment: kaliteEnv];
-    [task setLaunchPath: pyrun];
+    NSDictionary *defaultEnvironment = [[NSProcessInfo processInfo] environment];
+    NSMutableDictionary *environment = [[NSMutableDictionary alloc] initWithDictionary:defaultEnvironment];
+    [environment setObject:kaliteHomePath forKey:@"KALITE_HOME"];
+    [task setEnvironment:environment];
+
+    
+    [task setLaunchPath: kalitePath];
     [task setArguments: array];
     
-    //REF: http://stackoverflow.com/questions/9965360/async-execution-of-shell-command-not-working-properly
-    //REF: http://www.raywenderlich.com/36537/nstask-tutorial
+    // REF: http://stackoverflow.com/questions/9965360/async-execution-of-shell-command-not-working-properly
+    // REF: http://www.raywenderlich.com/36537/nstask-tutorial
     
     NSPipe *pipeOutput = [NSPipe pipe];
     task.standardOutput = pipeOutput;
@@ -228,6 +200,11 @@ BOOL checkEnvVars() {
         NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
         NSString *outStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         [self displayLogs:outStr];
+        
+        // Set the current kalite version
+        if (command == versionStr){
+            self.kaliteVersion.stringValue = outStr;
+        }
     }];
     
     [task launch];
@@ -243,9 +220,14 @@ NSString *getResourcePath(NSString *pathToAppend) {
 
 
 NSString *getDatabasePath() {
-    // Defaults to ~/.kalite/ folder so check there for now.
-    // TODO(cpauya): Use the KALITE_HOME env var if it exists.
-    NSString *database = @"~/.kalite/database/data.sqlite";
+    NSString *database;
+    NSString* envKaliteHomeStr = getEnvVar(@"KALITE_HOME");
+    if (pathExists(envKaliteHomeStr)) {
+        database = [NSString stringWithFormat:@"%@%@", envKaliteHomeStr, @"/database/data.sqlite"];
+        database = [database stringByStandardizingPath];
+        return database;
+    }
+    database = @"~/.kalite/database/data.sqlite";
     database = [database stringByStandardizingPath];
     return database;
 }
@@ -290,46 +272,9 @@ NSString *getKaliteDir(BOOL useEnvVar) {
 */
 
 
-NSString *getKaliteBinPath() {
-    // Returns the path of `pyrun-2.7/bin/kalite` if it exists or an empty string otherwise.
-    NSString *pyrunDir = getPyrunBinPath(true);
-    NSString *kalitePath = [pyrunDir stringByAppendingString:@"/../kalite"];
-    kalitePath = [kalitePath stringByStandardizingPath];
-    if (pathExists(kalitePath)){
-        return kalitePath;
-    }
-    return @"";
-}
-
-
-NSString *getPyrunBinPath(BOOL useEnvVar) {
-    // Returns the path of `pyrun` binary if it exists or an empty string otherwise.
-    // If `useEnvVar` is set, get the `KALITE_PYTHON` from the environment variables and use it if valid.
-    NSString *pyrun = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"pyrun-2.7/bin/pyrun"];
-    if (useEnvVar) {
-        // Use the KALITE_PYTHON environment variable if set.
-        NSString *var = getEnvVar(@"KALITE_PYTHON");
-        if (pathExists(var) ) {
-            pyrun = var;
-        }
-    }
-    pyrun = [pyrun stringByStandardizingPath];
-    if (pathExists(pyrun)){
-        return pyrun;
-    }
-    return @"";
-}
-
-
 BOOL kaliteExists() {
-    NSString *kalitePath = getKaliteBinPath();
+    NSString *kalitePath = getUsrBinKalite();
     return pathExists(kalitePath);
-}
-
-
-BOOL pyrunExists() {
-    NSString *pyrun = getPyrunBinPath(true);
-    return pathExists(pyrun);
 }
 
 
@@ -353,7 +298,7 @@ BOOL pyrunExists() {
     int status = [[aNotification object] terminationStatus];
 
     taskArguments = [[aNotification object] arguments];
-    statusArguments = [[NSArray alloc]initWithObjects:kalitePath, @"status", nil];
+    statusArguments = [[NSArray alloc]initWithObjects:@"status", nil];
     NSSet *taskArgsSet = [NSSet setWithArray:taskArguments];
     NSSet *statusArgsSet = [NSSet setWithArray:statusArguments];
     
@@ -395,26 +340,7 @@ BOOL pyrunExists() {
 
 
 - (enum kaliteStatus)runKalite:(NSString *)command {
-    // It needs `KALITE_PYTHON` environment variable, so we set it here for every call.
-    // TODO(cpauya): Must prompt user on preferences dialog and persist this.
-    
-    // If command != `status`, we also call `kalite status` so we auto-update the
-    // menu and icon status for every call to this function.
-    
-    // Returns the status of `kalite status`.
-    // TODO(cpauya): Need a flag so this function can return the result of the `system()` call.
-    NSString *pyrun;
-    NSString *kalitePath;
-    
     @try {
-        pyrun = getPyrunBinPath(true);
-        // MUST: Let's use the symlinked `/usr/bin/kalite` instead of the
-        // one at `pyrun-2.7/bin/kalite` because it can be found on the PATH
-        // of the app.
-        kalitePath = getUsrBinKalite();
-        
-        // TODO(cpauya): make sure the pyrun and kalite binaries are not empty
-        
         // MUST: This will make sure the process to run has access to the environment variable
         // because the .app may be loaded the first time.
         
@@ -454,12 +380,18 @@ void showNotification(NSString *subtitle) {
     // REF: http://stackoverflow.com/questions/12267357/nsusernotification-with-custom-soundname?rq=1
     // TODO(cpauya): These must be ticked by user on preferences if they want notifications, sounds, or not.
     NSUserNotification* notification = [[NSUserNotification alloc]init];
-    notification.title = @"KA-Lite";
+    notification.title = @"KA Lite";
     notification.subtitle = subtitle;
     notification.soundName = @"Basso.aiff";
     [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
     // The notification may be optional (based on user preferences) but we must show it on the logs.
     NSLog(subtitle);
+}
+
+- (void)disableKaliteDataPath{
+    // Disable custom kalite data path when kalite is still running.
+    self.customKaliteData.enabled = NO;
+    [self.customKaliteData setToolTip:@"KA Lite is still running. Stop KA Lite to select data path."];
 }
 
 
@@ -480,64 +412,37 @@ void showNotification(NSString *subtitle) {
 }
 
 
-//<##>runRootCommands
-BOOL runRootCommands(NSString *command) {
-//    NSString *msg = [NSString stringWithFormat:@"Running root command/s: %@...", command];
-//    showNotification(msg);
-    
-    NSDictionary *errorInfo = runAsRoot(command);
-    if (errorInfo != nil) {
-//        msg = [NSString stringWithFormat:@"FAILED command/s %@ with ERROR: %@", command, errorInfo];
-//        showNotification(msg);
-        return FALSE;
-    }
-//    msg = [NSString stringWithFormat:@"Done running root command/s %@.", command];
-//    showNotification(msg);
-    return TRUE;
-}
-
-
-//<##>setLaunchAgent
-NSString *getLaunchAgentCommand(NSString *source, NSString *target) {
-    if (pathExists(source)) {
-        return [NSString stringWithFormat:@"cp '%@' '%@'", source, target];
-    }
-    return nil;
-}
-
-// Not used for now but is useful to re-run the command individually later.
-BOOL setLaunchAgent(NSString *source, NSString *target) {
-    // Needs to run as root.
-    NSString *msg;
-    if (pathExists(source)) {
-        msg = [NSString stringWithFormat:@"Copying %@ to %@...", source, target];
-        showNotification(msg);
-        
-        NSString *command = [NSString stringWithFormat:@"cp '%@' '%@'", source, target];
-        NSDictionary *errorInfo = runAsRoot(command);
-        if (errorInfo != nil) {
-            msg = [NSString stringWithFormat:@"FAILED command %@ with ERROR: %@", command, errorInfo];
-            showNotification(msg);
-            return FALSE;
-        }
-        msg = [NSString stringWithFormat:@"Done copying %@ to %@.", source, target];
-        showNotification(msg);
-    } else {
-        msg = [NSString stringWithFormat:@"Source %@ OR target: %@ does not exist!", source, target];
-        showNotification(msg);
-        return FALSE;
-    }
-    return TRUE;
-}
-
-
 NSString *getUsrBinKalite() {
     return @"/usr/bin/kalite";
 }
 
+NSString *getCustomKaliteHomePath() {
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSString *customKaliteData = [prefs stringForKey:@"customKaliteData"];
+    
+    if (pathExists(customKaliteData)) {
+        NSString *standardizedPath = [customKaliteData stringByStandardizingPath];
+        return standardizedPath;
+    } else {
+        NSString* envKaliteHomeStr = getEnvVar(@"KALITE_HOME");
+        if (pathExists(envKaliteHomeStr)) {
+            return envKaliteHomeStr;
+        } else {
+            NSString *defaultKalitePath = [NSString stringWithFormat:@"%@/.kalite", NSHomeDirectory()];
+            if (pathExists(defaultKalitePath)) {
+                return [NSString stringWithFormat:@"%@/.kalite", NSHomeDirectory()];
+            } else {
+                showNotification(@"KA Lite data is not found. Click `Start KA Lite` button to create the KA Lite data. ");
+            }
+        }
+    }
+    
+    return nil;
+}
+
 
 BOOL *checkUsrBinKalitePath() {
-    NSString *kalitePath = @"/usr/bin/kalite";
+    NSString *kalitePath = getUsrBinKalite();
     if (pathExists(kalitePath)) {
         return TRUE;
     }
@@ -545,156 +450,10 @@ BOOL *checkUsrBinKalitePath() {
 }
 
 
-//<##>symlinkKalite
-NSString *getSymlinkKaliteCommand() {
-    if (kaliteExists()) {
-        NSString *kalitePath = getKaliteBinPath();
-        NSString *target = getUsrBinKalite();
-        NSString *command = [NSString stringWithFormat:@"ln -f -s '%@' '%@'", kalitePath, target];
-        return command;
-    }
-    return nil;
-}
-
-// Not used for now but is useful to re-run the command individually later.
-BOOL symlinkKalite() {
-    NSString *msg;
-    if (kaliteExists()) {
-        NSString *kalitePath = getKaliteBinPath();
-        NSString *target = getUsrBinKalite();
-        
-        msg = [NSString stringWithFormat:@"Symlinking %@ to %@...", kalitePath, target];
-        showNotification(msg);
-        
-        NSString *command = [NSString stringWithFormat:@"ln -f -s '%@' '%@'", kalitePath, target];
-        NSDictionary *errorInfo = runAsRoot(command);
-        if (errorInfo != nil) {
-            msg = [NSString stringWithFormat:@"FAILED command %@ with ERROR: %@", command, errorInfo];
-            showNotification(msg);
-            return FALSE;
-        }
-        msg = [NSString stringWithFormat:@"Done symlinking %@ to %@.", kalitePath, target];
-        showNotification(msg);
-    }
-    return TRUE;
-}
-
-
-NSDictionary *runAsRoot(NSString *command) {
-    // This will run an AppleScript command with admin privileges, thereby prompting the user to
-    // input the admin password so script can continue.
-    // REF: http://stackoverflow.com/questions/4599447/cocoa-gaining-root-access-for-nsfilemanager
-    // REF: https://developer.apple.com/library/mac/samplecode/EvenBetterAuthorizationSample/Introduction/Intro.html
-    
-    // TODO(cpauya): This was supposed to be the approach but doesn't work since we need
-    // admin privileges for symlinking to the target /usr/local/bin/.
-    // This seemed hard, so resorted to running an Apple script for now.
-    // REF: http://stackoverflow.com/questions/4599447/cocoa-gaining-root-access-for-nsfilemanager
-    //        BOOL result = [fileMgr linkItemAtPath:kalitePath toPath:target error:&err];
-    //        BOOL result = [fileMgr createSymbolicLinkAtPath:kalitePath withDestinationPath:target error:&err];
-    //        msg = [NSString stringWithFormat:@"RESULT: %hhd, ERROR: %@", result, err];
-    //        NSLog(msg);
-    NSString *msg;
-    NSDictionary *errorInfo;
-    command = [NSString stringWithFormat:@"do shell script \"%@\" with administrator privileges", command];
-    command = [NSString stringWithFormat:@"%@", command];
-    [[[NSAppleScript alloc]initWithSource:command] executeAndReturnError:&errorInfo];
-    if (errorInfo != nil) {
-        return errorInfo;
-    }
-    return nil;
-}
-
-
 NSString *getEnvVar(NSString *var) {
     // Get environment variables as per var argument.
     NSString *path = [[[NSProcessInfo processInfo]environment]objectForKey:var];
     return path;
-}
-
-
-//<##>setEnvVars
-BOOL setEnvVars(BOOL createPlist) {
-    // TODO(cpauya): For now, get the values from current .app Resources folder.  In the future,
-    // it must be taken from user-defined values on the Preferences dialog.
-
-    // Set environment variables using the `launchctl setenv` command for immediate use.
-    // REF: http://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x/588442#588442
-    
-    // MUST: symlink the `pyrun-2.7/bin/kalite` to `/usr/bin/kalite` so the app can run it.
-    
-    showNotification(@"Setting KALITE_PYTHON environment variable...");
-    NSString *pyrun = getPyrunBinPath(false);
-    if (pyrun) {
-        NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_PYTHON \"%@\"", pyrun];
-        const char *cmd = [command UTF8String];
-        int i = system(cmd);
-        if (i == 0) {
-            NSString *msg = [NSString stringWithFormat:@"Successfully set KALITE_PYTHON env to %@.", pyrun];
-            showNotification(msg);
-        } else {
-            showNotification(@"Failed to set KALITE_PYTHON env.");
-            return FALSE;
-        }
-    } else {
-        showNotification(@"Failed to set KALITE_PYTHON env, pyrun does not exist!");
-        return FALSE;
-    }
-    
-    if (!createPlist) {
-        NSLog(@"Not creating a .plist file, this may be the first time the .app is loaded.");
-        return TRUE;
-    }
-    /*
-     MUST: Let's create a org.learningequality.kalite.plist at the /tmp/ folder
-     then use an AppleScript script to combine it with the symlink script
-     with admin privileges so we only ask for the root password once.
-     
-     This is the format:
-
-     NSString *str = [NSString stringWithFormat:@"<?xml version='1.0' encoding='UTF-8'?>" \
-     "    <!DOCTYPE plist PUBLIC '-//Apple//DTD PLIST 1.0//EN' 'http://www.apple.com/DTDs/PropertyList-1.0.dtd'>" \
-     "    <plist version='1.0'>" \
-     "    <dict>" \
-     "      <key>Label</key>" \
-     "      <string>org.learningequality.kalite</string>" \
-     "      <key>ProgramArguments</key>" \
-     "      <array>" \
-     "          <string>sh</string>" \
-     "          <string>-c</string>" \
-     "          <string>" \
-     "              launchctl setenv KALITE_PYTHON '%@'" \
-     "          </string>" \
-     "      </array>" \
-     "      <key>RunAtLoad</key>" \
-     "      <true/>" \
-     "    </dict>" \
-     "    </plist>", kaliteDir];
-     */
-    NSString *org = @"org.learningequality.kalite";
-    NSString *path = [NSString stringWithFormat:@"/tmp/%@.plist", org];
-    NSString *target = [NSString stringWithFormat:@"/Library/LaunchAgents/%@.plist", org];
-    NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] init];
-    [plistDict setObject:org forKey:@"Label"];
-    NSString *launchStr = [NSString stringWithFormat:@"%@",
-                             [NSString stringWithFormat:@"launchctl setenv KALITE_PYTHON \"%@\"", pyrun]
-                          ];
-    NSArray *arr = @[@"sh", @"-c", launchStr];
-    [plistDict setObject:arr forKey:@"ProgramArguments"];
-    [plistDict setObject:[NSNumber numberWithBool:TRUE] forKey:@"RunAtLoad"];
-    showNotification([NSString stringWithFormat:@"Setting KALITE_PYTHON environment variable... %@", plistDict]);
-    BOOL ret = [plistDict writeToFile:path atomically: YES];
-    if (ret == YES) {
-        NSLog([NSString stringWithFormat:@"SAVED initial .plist file to %@", path]);
-    } else {
-        NSLog([NSString stringWithFormat:@"CANNOT save initial .plist file!  Result: %hhd", ret]);
-    }
-    
-    // As root, copy the .plist into /Library/LaunchAgents/
-    NSString *launchAgentCommand = getLaunchAgentCommand(path, target);
-    NSString *symlinkCommand = getSymlinkKaliteCommand();
-    NSString *command = [NSString stringWithFormat:@"%@; %@;", launchAgentCommand, symlinkCommand];
-    return runRootCommands(command);
 }
 
 
@@ -715,7 +474,12 @@ BOOL setEnvVars(BOOL createPlist) {
             self.openBrowserButton.enabled = NO;
             [self.openInBrowserMenu setEnabled:NO];
             [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
-            [self.statusItem setToolTip:@"KA-Lite failed to start."];
+            [self.statusItem setToolTip:@"KA Lite failed to start."];
+            
+            // Disable custom kalite data path when kalite is still running.
+            self.customKaliteData.enabled = NO;
+            [self.customKaliteData setToolTip:@"KA Lite failed to start"];
+            
             break;
         case statusStartingUp:
             [self.startKalite setEnabled:NO];
@@ -724,7 +488,9 @@ BOOL setEnvVars(BOOL createPlist) {
             self.startButton.enabled = NO;
             self.stopButton.enabled = NO;
             self.openBrowserButton.enabled = NO;
-            [self.statusItem setToolTip:@"KA-Lite is starting..."];
+            [self.statusItem setToolTip:@"KA Lite is starting..."];
+            [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
+            [self disableKaliteDataPath];
             break;
         case statusOkRunning:
             [self.startKalite setEnabled:NO];
@@ -734,8 +500,9 @@ BOOL setEnvVars(BOOL createPlist) {
             self.stopButton.enabled = YES;
             self.openBrowserButton.enabled = YES;
             [self.statusItem setImage:[NSImage imageNamed:@"stop"]];
-            [self.statusItem setToolTip:@"KA-Lite is running."];
+            [self.statusItem setToolTip:@"KA Lite is running."];
             showNotification(@"You can now click on 'Open in Browser' menu");
+            [self disableKaliteDataPath];
             break;
         case statusStopped:
             [self.startKalite setEnabled:canStart];
@@ -745,8 +512,10 @@ BOOL setEnvVars(BOOL createPlist) {
             self.stopButton.enabled = NO;
             self.openBrowserButton.enabled = NO;
             [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
-            [self.statusItem setToolTip:@"KA-Lite is stopped."];
+            [self.statusItem setToolTip:@"KA Lite is stopped."];
             showNotification(@"Stopped");
+            self.customKaliteData.enabled = YES;
+            [self.customKaliteData setToolTip:@"Select KA Lite data path."];
             break;
         default:
             [self.startKalite setEnabled:canStart];
@@ -797,6 +566,7 @@ BOOL setEnvVars(BOOL createPlist) {
     [self runKalite:@"stop"];
 }
 
+
 - (IBAction)stop:(id)sender {
     [self stopFunction];
 }
@@ -805,6 +575,7 @@ BOOL setEnvVars(BOOL createPlist) {
 - (IBAction)stopButton:(id)sender {
     [self stopFunction];
 }
+
 
 - (void)openFunction {
     // TODO(cpauya): Get the ip address and port from `local_settings.py` or preferences.
@@ -815,6 +586,7 @@ BOOL setEnvVars(BOOL createPlist) {
         showNotification(msg);
     }
 }
+
 
 - (IBAction)open:(id)sender {
     [self openFunction];
@@ -851,44 +623,6 @@ BOOL setEnvVars(BOOL createPlist) {
     [self discardPreferences];
 }
 
-- (IBAction)extractAssessment:(id)sender {
-    NSString *message = @"It will take a few seconds to extract assessment items. Do you want to continue?";
-    if (self.processCounter != 0) {
-        alert(@"KA Lite is still processing, please wait until it is finished.");
-        return;
-    }
-    if (confirm(message)) {
-        [self extractAssessment];
-    }
-}
-
-- (IBAction)setupAction:(id)sender {
-    if (kaliteExists()) {
-        NSString *message = @"Are you sure you want to run setup?  This will take a few minutes to complete.";
-        if (self.processCounter != 0) {
-            alert(@"KA Lite is still processing, please wait until it is finished.");
-            return;
-        }
-        if (confirm(message)) {
-            [self setupKalite];
-        }
-    } else {
-        alert(@"Sorry but the `kalite` executable was not found!");
-    }
-}
-
-
-- (IBAction)resetAppAction:(id)sender {
-    if (self.processCounter != 0) {
-        alert(@"KA Lite is still processing, please wait until it is finished.");
-        return;
-    }
-    NSString *message = @"This will reset app.  Are you sure?";
-    if (confirm(message)) {
-        [self resetApp];
-    }
-}
-
 
 - (void)closeSplash {
     [splash orderOut:self];
@@ -897,16 +631,20 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (void)showPreferences {
     [splash orderOut:self];
-//    [self loadPreferences];
+    [self loadPreferences];
     [window makeKeyAndOrderFront:self];
     [NSApp activateIgnoringOtherApps:YES];
-    //REF http://stackoverflow.com/questions/6994541/cocoa-showing-a-window-on-top-without-giving-it-focus
+    // REF: http://stackoverflow.com/questions/6994541/cocoa-showing-a-window-on-top-without-giving-it-focus
     [window setLevel:NSFloatingWindowLevel];
 }
 
-//- (void)loadPreferences {
-    // TODO(amodia): Set custom database path in the preferences menu.
-//}
+
+- (void)loadPreferences {
+    NSString *customKaliteData = getCustomKaliteHomePath();
+    NSString *standardizedPath = [customKaliteData stringByStandardizingPath];
+    self.customKaliteData.stringValue = standardizedPath;
+}
+
 
 - (void)savePreferences {
     /*
@@ -914,73 +652,34 @@ BOOL setEnvVars(BOOL createPlist) {
      2. Run `kalite manage setup` if no database was found.
      */
     
-/*
-    //TODO(amodia): Comment this to be reference for setting a custom database path in the preferences menu.
-    NSString *username = self.stringUsername.stringValue;
-    NSString *password = self.stringPassword.stringValue;
-    NSString *confirmPassword = self.stringConfirmPassword.stringValue;
-    
-    self.username = username;
-    self.password = password;
-    self.confirmPassword = confirmPassword;
-    
-    if (self.processCounter != 0) {
-        alert(@"KA Lite is still processing, please wait until it is finished.");
-        return;
-    }
-    
-    if (self.username == nil || [self.username isEqualToString:@""]) {
-        alert(@"Username must not be blank and can only contain letters, numbers and @/./+/-/_ characters.");
-        return;
-    }
-    
-    NSString *usernameChars = getUsernameChars();
-    if ([self string:usernameChars containsAllCharactersInString:self.username] == NO) {
-        alert(@"Invalid username characters found, please use letters, numbers and @/./+/-/_ characters.");
-        return;
-    }
-    
-    if ([self.username length] > 30) {
-        alert(@"Username must not exceed 30 characters.");
-        return;
-    }
-    
-    if (self.password == nil || [self.password isEqualToString:@""]) {
-        alert(@"Invalid password or the password does not match on both fields.");
-        return;
-    }
-    
-    if (![self.password isEqualToString:self.confirmPassword]) {
-        alert(@"The password does not match on both fields.");
-        return;
-    }
-    
-    if ([self.password length] > 128) {
-        alert(@"Password must not exceed 128 characters.");
-        return;
-    }
- 
+    // Stop KA Lite
+    [self stopFunction];
     
     // Save the preferences.
-    // REF: http://iosdevelopertips.com/core-services/encode-decode-using-base64.html
+    // REF: http:iosdevelopertips.com/core-services/encode-decode-using-base64.html
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    // TO set an object in NSUserDefaults use this sample "[prefs setObject:self.sample forKey:@"sample"];"
-    // REF: https://github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
-    [prefs synchronize];
-*/
     
-    if (!setEnvVars(TRUE)) {
-        alert(@"Either the set environment variables or symlink of kalite failed to complete!  Please check the Console.");
-        return;
+    NSString *customKaliteData = [[self.customKaliteData URL] path];
+    if (pathExists(customKaliteData)) {
+        [prefs setObject:customKaliteData forKey:@"customKaliteData"];
     }
+    
+    // REF: https:github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
+    [prefs synchronize];
+    
+    if (!setEnvVars()) {
+        NSString *msg = @"Failed to set KALITE_HOME env";
+        showNotification(msg);
+    };
+    
     
     // Automatically run `kalite manage setup` if no database was found.
     NSString *databasePath = getDatabasePath();
     if (!pathExists(databasePath)) {
         if (checkUsrBinKalitePath()) {
-            alert(@"Will now run KA-Lite setup, it will take a few minutes.  Please wait until prompted that setup is done.");
+            alert(@"Will now run KA Lite setup, it will take a few minutes.  Please wait until prompted that setup is done.");
             enum kaliteStatus status = [self setupKalite];
-            showNotification(@"Setup is finished!  You can now start KA-Lite.");
+            showNotification(@"Setup is finished!  You can now start KA Lite.");
             [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
             // TODO(cpauya): Get the result of running `bin/kalite manage setup` not the
             // default result of `bin/kalite status` so we can alert the user that setup failed.
@@ -991,11 +690,63 @@ BOOL setEnvVars(BOOL createPlist) {
         }
     }
     
-    //Extract assessment
-    [self extractAssessment];
-    
     // Close the preferences dialog after successful save.
     [window orderOut:[window identifier]];
+    
+    // Terminate application.
+//    [[NSApplication sharedApplication] terminate:nil];
+}
+
+
+BOOL setEnvVars() {
+    showNotification(@"Setting KALITE_HOME environment variable...");
+    NSString *kaliteHomePath = getCustomKaliteHomePath();
+    NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath];
+    const char *cmd = [command UTF8String];
+    int i = system(cmd);
+    if (i == 0) {
+        NSString *msg = [NSString stringWithFormat:@"Successfully set KALITE_HOME env to %@.", kaliteHomePath];
+        showNotification(msg);
+    } else {
+        showNotification(@"Failed to set KALITE_HOME env.");
+        return FALSE;
+    }
+    
+    
+    // Path of the KALITE_PYTHON environment variable
+    NSString* envKalitePythonStr = getEnvVar(@"KALITE_PYTHON");
+    if (! pathExists(envKalitePythonStr)) {
+        return FALSE;
+    }
+    NSString *KaliteHomeStr = [NSString stringWithFormat:@"%@",
+                               [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath]
+                               ];
+    NSString *KalitePythonStr = [NSString stringWithFormat:@"%@",
+                                 [NSString stringWithFormat:@"launchctl setenv KALITE_PYTHON \"%@\"", envKalitePythonStr]
+                                 ];
+    
+    NSString *org = @"org.learningequality.kalite";
+    NSString *target = [NSString stringWithFormat:@"%@/Library/LaunchAgents/%@.plist", NSHomeDirectory(), org];
+    NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] init];
+    [plistDict setObject:org forKey:@"Label"];
+    
+    
+    NSString *launchStr = [NSString stringWithFormat:@"%@ ; %@", KalitePythonStr, KaliteHomeStr];
+    NSArray *arr = @[@"sh", @"-c", launchStr];
+    [plistDict setObject:arr forKey:@"ProgramArguments"];
+    [plistDict setObject:[NSNumber numberWithBool:TRUE] forKey:@"RunAtLoad"];
+    showNotification([NSString stringWithFormat:@"Setting KALITE_HOME and KALITE_PYTHON environment variables... %@", plistDict]);
+    
+    // Override org.learningequality.kalite.plist content
+    BOOL ret = [plistDict writeToFile:target atomically:YES];
+    if (ret == YES) {
+        NSLog([NSString stringWithFormat:@"SAVED .plist file to %@", target]);
+    } else {
+        NSLog([NSString stringWithFormat:@"CANNOT save .plist file!  Result: %hhd", ret]);
+        return FALSE;
+    }
+    return TRUE;
+    
 }
 
 
@@ -1009,55 +760,6 @@ BOOL setEnvVars(BOOL createPlist) {
 }
 
 
--(BOOL)resetApp {
-    // This will reset the app like it was never installed.
-    // 1. reset the environment variable: KALITE_PYTHON
-    // 2. remove the .plist file, need admin
-    // 3. delete the symlinked /usr/bin/kalite command, need admin
-    // 4. Reset the user preferences.
-
-    BOOL result = TRUE;
-    
-    showNotification(@"Resetting the app...");
-    
-    // This unsets the KALITE_PYTHON environment variable used by the app.
-    NSString *command = @"launchctl unsetenv KALITE_PYTHON;";
-    const char *cmd = [command UTF8String];
-    int i = system(cmd);
-    if (i != 0) {
-        showNotification(@"Failed to unset KALITE_PYTHON env var.");
-        result = FALSE;
-    }
-
-    // MUST: Run the root commands as one so it only prompts the user once.
-
-    // Delete the .plist file
-    NSString *org = @"org.learningequality.kalite";
-    NSString *tempPath = [NSString stringWithFormat:@"/tmp/%@.plist", org];
-    NSString *agentPath = [NSString stringWithFormat:@"/Library/LaunchAgents/%@.plist", org];
-    NSString *deletePlistCommand = [NSString stringWithFormat:@"rm %@; rm %@;", tempPath, agentPath];
-
-    // Delete the symlinked `kalite` executable.
-    NSString *path = getUsrBinKalite();
-    NSString *deleteSymlinkCommand = [NSString stringWithFormat:@"rm %@;", path];
-
-    command = [NSString stringWithFormat:@"%@ %@", deletePlistCommand, deleteSymlinkCommand];
-    if (!runRootCommands(command)) {
-        showNotification(@"Failed to delete .plist or symlinked kalite executable.");
-        result = FALSE;
-    }
-    
-    // Delete/reset the user preferences.
-    if(result){
-        [self showStatus:statusFailedToStart];
-        showNotification(@"Done resetting the app.  Please click the Apply button to repeat the install process.");
-    } else {
-        showNotification(@"Failed to reset the app.  Please check your console for the following error.");
-    }
-    return result;
-}
-
-
 - (void)discardPreferences {
     // TODO(cpauya): Discard changes and load the saved preferences.
     [window orderOut:[window identifier]];
@@ -1066,6 +768,7 @@ BOOL setEnvVars(BOOL createPlist) {
 
 - (void)startKaliteTimer {
     // TODO(cpauya): Use initWithFireDate of NSTimer instance.
+    // TODO(amodia): Check if kalite environment variables change.
     [NSTimer scheduledTimerWithTimeInterval:60.0
                                     target:self
                                     selector:@selector(getKaliteStatus)
