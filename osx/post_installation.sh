@@ -34,7 +34,7 @@ ASSESSMENT_SRC="$KALITE_SHARED/assessment/assessment.zip"
 SHEBANGCHECK_PATH="$KALITE_SHARED/scripts/"
 
 SYMLINK_FILE="$KALITE_SHARED/pyrun-2.7/bin/kalite"
-SYMLINK_TO="/usr/bin"
+SYMLINK_TO="/usr/local/bin"
 COMMAND_SYMLINK="ln -sf $SYMLINK_FILE $SYMLINK_TO"
 
 ORG="org.learningequality.kalite"

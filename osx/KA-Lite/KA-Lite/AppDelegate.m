@@ -175,9 +175,13 @@ BOOL checkEnvVars() {
     [kaliteHomeEnv addEntriesFromDictionary:[[NSProcessInfo processInfo] environment]];
     [kaliteHomeEnv setObject:kaliteHomePath forKey:@"KALITE_HOME"];
     
+    //REF: http://stackoverflow.com/questions/386783/nstask-not-picking-up-path-from-the-users-environment
     NSTask* task = [[NSTask alloc] init];
-    NSString *kaliteCommand = [NSString stringWithFormat:@"%@",command];
-    NSArray *array = [kaliteCommand componentsSeparatedByString:@" "];
+    NSString *kaliteCommand = [NSString stringWithFormat:@"kalite %@",command];
+    NSArray *array = [NSArray arrayWithObjects:@"-l",
+                      @"-c",
+                      kaliteCommand,
+                      nil];
     
     NSDictionary *defaultEnvironment = [[NSProcessInfo processInfo] environment];
     NSMutableDictionary *environment = [[NSMutableDictionary alloc] initWithDictionary:defaultEnvironment];
@@ -185,7 +189,7 @@ BOOL checkEnvVars() {
     [task setEnvironment:environment];
 
     
-    [task setLaunchPath: kalitePath];
+    [task setLaunchPath: @"/bin/bash"];
     [task setArguments: array];
     
     // REF: http://stackoverflow.com/questions/9965360/async-execution-of-shell-command-not-working-properly
@@ -298,7 +302,7 @@ BOOL kaliteExists() {
     int status = [[aNotification object] terminationStatus];
 
     taskArguments = [[aNotification object] arguments];
-    statusArguments = [[NSArray alloc]initWithObjects:@"status", nil];
+    statusArguments = [[NSArray alloc]initWithObjects:@"-l", @"-c", @"kalite status", nil];
     NSSet *taskArgsSet = [NSSet setWithArray:taskArguments];
     NSSet *statusArgsSet = [NSSet setWithArray:statusArguments];
     
@@ -413,7 +417,7 @@ void showNotification(NSString *subtitle) {
 
 
 NSString *getUsrBinKalite() {
-    return @"/usr/bin/kalite";
+    return @"/usr/local/bin/kalite";
 }
 
 NSString *getCustomKaliteHomePath() {
