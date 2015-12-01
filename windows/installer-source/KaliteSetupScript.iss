@@ -38,6 +38,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "..\ka-lite\dist\ka-lite-static-*.zip"; DestDir: "{app}\ka-lite"
+Source: "..\khan_assessment.zip"; DestDir: "{app}"
 Source: "..\ka-lite\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
@@ -52,7 +53,6 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 
 [Dirs]
 Name: "{app}\"; Permissions: everyone-readexec
-
 
 [InstallDelete]
 Type: Files; Name: "{app}\*"
@@ -376,6 +376,7 @@ begin
     { Copy the bundled empty db to the proper location. }
     { Used to have more responsibility, but we delegated those to the app itself! }
     Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + ExpandConstant('{app}') + '\ka-lite\kalite\database" "%USERPROFILE%\.kalite\database\" /E /Y"', '', SW_HIDE, ewWaitUntilTerminated, retCode);
+    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage unpack_assessment_zip khan_assessment.zip"', ExpandConstant('{app}'), SW_SHOW, ewWaitUntilTerminated, retCode);
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
