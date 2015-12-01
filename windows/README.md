@@ -24,17 +24,15 @@ Note: If you *do* make changes to anything in `gui-source`, be sure to build and
 #### Instructions to build "KALiteSetup.exe":
 To build in Linux, first install `wine`.
 * Clone this repository;
-* Copy `ka-lite` folder from KA Lite's repository, to the root of this repository;
-* Ensure the assessment items have been unpacked in the `ka-lite` directory.
-* Follow the _Instructions to download pip dependency zip files_ above
-* Create an empty db for distribution as per the section _Creating an Empty DB_
-* Run `kalite manage collectstatic` to create the `ka-lite/static-libraries` directory; this is a work-around until the windows installer uses setuptools.
-* Run `npm install` in the `ka-lite` directory to get node dependencies. This will create a `node_modules` subdirectory. (See the section *Node on Windows*.)
-* Run `node build.js` to build js bundle modules -- this is distinct from the `collectstatic` step.
+* Copy `ka-lite` folder from KA Lite's repository, to the root of this repository.
+* Using msys shell from MinGW:
+  * Set the KALITE_PYTHON variable to an appropriate python interpreter (with the required dependencies). (Hint: use `export`.)
+  * Set the PATH variable so that the appropriate interpreter is called when you type "python" in the shell.
+  * Go to the included ka-lite repo and run `make dist`.
 * Then remove the `node_modules` subdirectory. It causes an error with Inno Setup.
-* Run the `compileymltojson` management command.
-* Include built documentation in the appropriate directory -- `docs\_build\html`, but this can be configured. See `STATICFILES_DIRS` setting.
+  * If the path name is too long, then [see this SO answer](http://superuser.com/questions/755298/how-to-delete-a-file-with-a-path-too-long-to-be-deleted).
 * Delete `secretkey.txt` from `kalite` directory.
+* Download the `khan_assessment.zip` file to this directory. Look for it in [the pantry](http://pantry.learningequality.org/downloads/).
 * In Windows, run the following command from this directory:
 ```
 > make.vbs
@@ -44,6 +42,7 @@ To build in Linux, first install `wine`.
 > wine inno-compiler/ISCC.exe installer-source/KaliteSetupScript.iss
 ```
 * The output file named "KALiteSetup-X.X.X.exe" will appear within this project folder.
+* Party on, Garth.
 
 ---
 #### Node on Windows
@@ -58,32 +57,6 @@ Get [Git](https://git-scm.com/).
 Install it and add `c:\Program Files (x86)\Git\bin` (or wherever you installed it) to your path.
 
 After adding both binaries to your path, you're ready to run `npm install` in the `ka-lite` directory.
-
----
-#### Instructions to download pip dependency zip files
-* Clone the `ka-lite` repository.
-* Clone this repository.
-* Install `python-2.7.10.msi` at `/installer/windows/python-setup` directory.
-* Make sure `python.exe` is in your path, or you will have to invoke it using an absolute path below.
-* On your command line navigate to `ka-lite` directory that contain `setup.py`.
-* Run this command `python.exe setup.py sdist --static` to download zip files .
-
-On Linux, ensure you have python 2.7 installed, then:
-* On your command line navigate to `ka-lite` directory that contain `setup.py`.
-* Run this command `python setup.py sdist --static` to download zip files .
-
----
-#### Creating an Empty DB
-After installing `ka-lite`:
-* Ensure the file `ka-lite/kalite/database/data.sqlite` doesn't already exist.
-* Run the command `kalite manage syncdb`. You will see this prompt:
-
-    You just installed Django's auth system, which means you don't have any superusers defined.
-    Would you like to create one now? (yes/no):
-
-* Choose "no".
-* Run the command `kalite manage migrate`.
-* This should create the file `ka-lite/kalite/database/data.sqlite`, which will be copied to the target system by the installer.
 
 ---
 #### To clone ka-lite and this repository, run the following lines:
