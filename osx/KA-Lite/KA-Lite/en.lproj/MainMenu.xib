@@ -199,7 +199,7 @@ Gw
                                                 <subviews>
                                                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZJu-Y8-v7Y">
                                                         <rect key="frame" x="16" y="46" width="168" height="18"/>
-                                                        <buttonCell key="cell" type="check" title="Auto-start on login." bezelStyle="regularSquare" imagePosition="left" inset="2" id="hdP-ma-fi7">
+                                                        <buttonCell key="cell" type="check" title="Auto start on login." bezelStyle="regularSquare" imagePosition="left" inset="2" id="hdP-ma-fi7">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
