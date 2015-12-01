@@ -643,6 +643,10 @@ NSString *getEnvVar(NSString *var) {
     NSString *customKaliteData = getCustomKaliteHomePath();
     NSString *standardizedPath = [customKaliteData stringByStandardizingPath];
     self.customKaliteData.stringValue = standardizedPath;
+    
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"autoStartOnLogin"]){
+        self.startOnLogin.state = YES;
+    }
 }
 
 
