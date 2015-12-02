@@ -731,9 +731,6 @@ BOOL setEnvVars() {
     NSString *KaliteHomeStr = [NSString stringWithFormat:@"%@",
                                [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath]
                                ];
-    NSString *KalitePythonStr = [NSString stringWithFormat:@"%@",
-                                 [NSString stringWithFormat:@"launchctl setenv KALITE_PYTHON \"%@\"", envKalitePythonStr]
-                                 ];
     
     NSString *org = @"org.learningequality.kalite";
     NSString *target = [NSString stringWithFormat:@"%@/Library/LaunchAgents/%@.plist", NSHomeDirectory(), org];
@@ -741,16 +738,16 @@ BOOL setEnvVars() {
     [plistDict setObject:org forKey:@"Label"];
     
     // Append KA Lite app path if autoStartOnLogin value is TRUE.
-    NSString *launchStr = [NSString stringWithFormat:@"%@ ; %@", KalitePythonStr, KaliteHomeStr];
+    NSString *launchStr = [NSString stringWithFormat:@"%@", KaliteHomeStr];
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"autoStartOnLogin"]){
         NSString *kaliteAppPath = [NSString stringWithFormat:@"%@%@", [[NSBundle mainBundle] bundlePath], @"/Contents/MacOS/KA-Lite"];
-         launchStr = [NSString stringWithFormat:@"%@ ; %@ ; %@", KalitePythonStr, KaliteHomeStr, kaliteAppPath];
+         launchStr = [NSString stringWithFormat:@"%@ ; %@", KaliteHomeStr, kaliteAppPath];
     }
    
     NSArray *arr = @[@"sh", @"-c", launchStr];
     [plistDict setObject:arr forKey:@"ProgramArguments"];
     [plistDict setObject:[NSNumber numberWithBool:TRUE] forKey:@"RunAtLoad"];
-    showNotification([NSString stringWithFormat:@"Setting KALITE_HOME and KALITE_PYTHON environment variables... %@", plistDict]);
+    showNotification([NSString stringWithFormat:@"Setting KALITE_HOME environment variables... %@", plistDict]);
     
     // Override org.learningequality.kalite.plist content
     BOOL ret = [plistDict writeToFile:target atomically:YES];
