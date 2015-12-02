@@ -413,7 +413,7 @@ void showNotification(NSString *subtitle) {
 
 
 NSString *getUsrBinKalite() {
-    return @"/usr/bin/kalite";
+    return @"/usr/local/bin/kalite";
 }
 
 NSString *getCustomKaliteHomePath() {
