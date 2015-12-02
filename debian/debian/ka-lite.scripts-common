@@ -394,6 +394,7 @@ kalite_purge()
 # and after ka-lite.postinst configure!
 kalite_debconf_set_defaults()
 {
+
     if has_state "did_set_defaults"
     then
         return
@@ -407,10 +408,14 @@ kalite_debconf_set_defaults()
         # Ask for user name, default is ka-lite
         if ! [ "$SUDO_USER" = "" ]
         then
-            # Set default to the user running the installation
-            db_set ka-lite/user "$SUDO_USER"
-            db_fset ka-lite/user seen false
+            default_user="$SUDO_USER"
+        else
+            # Use first entry of users logged into host
+            default_user=`users | sed -r 's/^([^ ]*).*$/\1/g'`
         fi
+        # Set default to the user running the installation
+        db_set ka-lite/user "$default_user"
+        db_fset ka-lite/user seen false
         # The username value should always be asked
         db_fset ka-lite/download-assessment-items seen false
 
