@@ -22,6 +22,7 @@
 @property (weak) IBOutlet NSButton *openBrowserButton;
 @property (weak) IBOutlet NSTextField *kaliteVersion;
 @property (weak) IBOutlet NSPathControl *customKaliteData;
+@property (weak) IBOutlet NSButton *startOnLogin;
 
 @property (strong, nonatomic) IBOutlet NSMenu *statusMenu;
 @property (strong, nonatomic) NSStatusItem *statusItem;

@@ -21,7 +21,7 @@
 
 @implementation AppDelegate
 
-@synthesize startKalite, stopKalite, openInBrowserMenu, kaliteVersion, customKaliteData;
+@synthesize startKalite, stopKalite, openInBrowserMenu, kaliteVersion, customKaliteData, startOnLogin;
 
 
 // REF: http://objcolumnist.com/2009/08/09/reopening-an-applications-main-window-by-clicking-the-dock-icon/
@@ -643,6 +643,10 @@ NSString *getEnvVar(NSString *var) {
     NSString *customKaliteData = getCustomKaliteHomePath();
     NSString *standardizedPath = [customKaliteData stringByStandardizingPath];
     self.customKaliteData.stringValue = standardizedPath;
+    
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"autoStartOnLogin"]){
+        self.startOnLogin.state = YES;
+    }
 }
 
 
@@ -658,6 +662,12 @@ NSString *getEnvVar(NSString *var) {
     // Save the preferences.
     // REF: http:iosdevelopertips.com/core-services/encode-decode-using-base64.html
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    
+    //Set autoStartOnLogin value.
+    [prefs setBool:FALSE forKey:@"autoStartOnLogin"];
+    if ([self.startOnLogin state] == NSOnState) {
+        [prefs setBool:TRUE forKey:@"autoStartOnLogin"];
+    }
     
     NSString *customKaliteData = [[self.customKaliteData URL] path];
     if (pathExists(customKaliteData)) {
@@ -712,12 +722,12 @@ BOOL setEnvVars() {
         return FALSE;
     }
     
-    
     // Path of the KALITE_PYTHON environment variable
     NSString* envKalitePythonStr = getEnvVar(@"KALITE_PYTHON");
     if (! pathExists(envKalitePythonStr)) {
         return FALSE;
     }
+    
     NSString *KaliteHomeStr = [NSString stringWithFormat:@"%@",
                                [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath]
                                ];
@@ -730,8 +740,13 @@ BOOL setEnvVars() {
     NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] init];
     [plistDict setObject:org forKey:@"Label"];
     
-    
+    // Append KA Lite app path if autoStartOnLogin value is TRUE.
     NSString *launchStr = [NSString stringWithFormat:@"%@ ; %@", KalitePythonStr, KaliteHomeStr];
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"autoStartOnLogin"]){
+        NSString *kaliteAppPath = [NSString stringWithFormat:@"%@%@", [[NSBundle mainBundle] bundlePath], @"/Contents/MacOS/KA-Lite"];
+         launchStr = [NSString stringWithFormat:@"%@ ; %@ ; %@", KalitePythonStr, KaliteHomeStr, kaliteAppPath];
+    }
+   
     NSArray *arr = @[@"sh", @"-c", launchStr];
     [plistDict setObject:arr forKey:@"ProgramArguments"];
     [plistDict setObject:[NSNumber numberWithBool:TRUE] forKey:@"RunAtLoad"];
