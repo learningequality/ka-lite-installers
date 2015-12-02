@@ -34,14 +34,13 @@ ASSESSMENT_SRC="$KALITE_SHARED/assessment/assessment.zip"
 SHEBANGCHECK_PATH="$KALITE_SHARED/scripts/"
 
 SYMLINK_FILE="$KALITE_SHARED/pyrun-2.7/bin/kalite"
-SYMLINK_TO="/usr/bin"
+SYMLINK_TO="/usr/local/bin"
 COMMAND_SYMLINK="ln -sf $SYMLINK_FILE $SYMLINK_TO"
 
 ORG="org.learningequality.kalite"
-LAUNCH_AGENTS="$HOME/Library/LaunchAgents/"
+LAUNCH_AGENTS="/Library/LaunchAgents/"
 KALITE=$(which kalite)
 PLIST_SRC="$LAUNCH_AGENTS$ORG.plist"
-
 
 #----------------------------------------------------------------------
 # Functions
@@ -124,6 +123,17 @@ if [ ! -d "$LAUNCH_AGENTS" ]; then
     fi
 fi
 
+
+((STEP++))
+echo "$STEP/$STEPS. Create plist in /Library/LaunchAgents folders..."
+if [ ! -d "$LAUNCH_AGENTS" ]; then
+    echo ".. Must create '$LAUNCH_AGENTS' folder..."
+    sudo mkdir -p $LAUNCH_AGENTS
+    if [ $? -ne 0 ]; then
+        echo ".. Abort!  Error encountered creating '$LAUNCH_AGENTS' directory."
+        exit 1
+    fi
+fi
 create_plist
 
 
