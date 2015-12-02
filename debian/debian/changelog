@@ -1,3 +1,10 @@
+ka-lite-source (0.15.1-0ubuntu1) precise; urgency=medium
+
+  * New 0.15.1 upstream release
+  * Add new username suggestion for non-sudo envs (e.g. Software Center)
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 02 Dec 2015 20:11:43 +0100
+
 ka-lite-source (0.15.0-0ubuntu4) precise; urgency=medium
 
   * Move ka-lite-gtk from Recommends to Suggests
