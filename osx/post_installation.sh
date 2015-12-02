@@ -40,8 +40,7 @@ COMMAND_SYMLINK="ln -sf $SYMLINK_FILE $SYMLINK_TO"
 ORG="org.learningequality.kalite"
 LAUNCH_AGENTS="/Library/LaunchAgents/"
 KALITE=$(which kalite)
-TMP="/tmp/"
-PLIST_SRC="$TMP$ORG.plist"
+PLIST_SRC="$LAUNCH_AGENTS$ORG.plist"
 
 #----------------------------------------------------------------------
 # Functions
@@ -136,7 +135,6 @@ if [ ! -d "$LAUNCH_AGENTS" ]; then
     fi
 fi
 create_plist
-sudo cp $PLIST_SRC $LAUNCH_AGENTS
 
 
 ((STEP++))
