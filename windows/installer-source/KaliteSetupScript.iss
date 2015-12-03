@@ -29,7 +29,6 @@ SolidCompression=yes
 PrivilegesRequired=admin
 UsePreviousAppDir=yes
 ChangesEnvironment=yes
-AlwaysRestart=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -38,10 +37,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\ka-lite\*"; DestDir: "{app}\ka-lite"; Excludes: ".KALITE_SOURCE_DIR,content\assessment,content\assessment\*,content\assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\ka-lite\content\*"; DestDir: "{app}\ka-lite\content"; Excludes: "assessment,assessment\*,assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\ka-lite\content\assessment\*"; DestDir: "{app}\ka-lite\assessment"; Excludes: "assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\ka-lite\content\assessmentitems.sqlite"; DestDir: "{app}\ka-lite\assessment\khan"; Flags: ignoreversion
+Source: "..\ka-lite\dist\ka-lite-static-*.zip"; DestDir: "{app}\ka-lite"
+Source: "..\khan_assessment.zip"; DestDir: "{app}"
+Source: "..\ka-lite\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\images\logo48.ico"; DestDir: "{app}\images"; Flags: ignoreversion
@@ -53,15 +51,11 @@ Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon ; IconFilename: "{app}\images\logo48.ico"
 
-[Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: shellexec postinstall skipifsilent
-
 [Dirs]
-Name: "{app}\"; Permissions: everyone-modify
-
+Name: "{app}\"; Permissions: everyone-readexec
 
 [InstallDelete]
-Type: Files; Name: "{app}\ka-lite\kalite\updates\utils.*"
+Type: Files; Name: "{app}\*"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\ka-lite*"
@@ -83,15 +77,12 @@ var
   restoreDatabaseTemp : integer;
   forceCancel : boolean;
   prevVerStr : string;
-  prevAppBackupDir : string;
-  runGitmigrate : boolean;
 
 procedure InitializeWizard;
 begin
     isUpgrade := False;
     forceCancel := False;
-    runGitmigrate := False;
-    
+
     if WizardForm.PrevAppDir <> nil then
     begin
         ShellExec('open', 'taskkill.exe', '/F /T /im "KA Lite.exe"', '', SW_HIDE, ewWaitUntilTerminated, stopServerCode);
@@ -196,42 +187,20 @@ begin
     end;
 end;
 
-procedure Backup013Files;
+{ Copy files a la the gitmigrate management command, but use native windows executables instead. }
+{ We assume the installing user is the main user of the app, so content goes into that user's .kalite dir}
+procedure DoGitMigrate;
 var
-    prevDBDir, prevContentDir: String;
-    resCode: integer;
+    retCodeContent, retCodeDB, retCode : integer;
 begin
-    { Copy the old database and content folders, preserving the dir structure, then after installing then new files... }
-    { ...run gitmigrate management command and delete the old stuff. }
-    prevAppBackupDir := ExpandConstant('{tmp}') + '\prev-ka-lite';  // Expand this when we use it, instead of earlier.
-    prevDBDir := WizardForm.PrevAppDir + '\ka-lite\kalite\database';
-    prevContentDir := WizardForm.PrevAppDir + '\ka-lite\content';
-
-    if Not ForceDirectories(prevAppBackupDir + '\kalite\') then
+    MsgBox('Migrating old data to current user''s %USERPROFILE%\.kalite\ directory.', mbInformation, MB_OK);
+    Exec(ExpandConstant('{cmd}'), '/S /C "mkdir "%USERPROFILE%\.kalite""', '', SW_SHOW, ewWaitUntilTerminated, retCode);
+    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + WizardForm.PrevAppDir + '\ka-lite\content" "%USERPROFILE%\.kalite\content\" /Y"', '', SW_SHOW, ewWaitUntilTerminated, retCodeContent);
+    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + WizardForm.PrevAppDir + '\ka-lite\kalite\database" "%USERPROFILE%\.kalite\database\" /Y"', '', SW_SHOW, ewWaitUntilTerminated, retCodeDB);
+    if (retCodeContent <> 0) or (retCodeDB <> 0) then
     begin
-        MsgBox('Fatal error' #13#13 'Failed to create backup directories at: ' + prevAppBackupDir, mbError, MB_OK);
-        forceCancel := True;
-        WizardForm.Close;
+        MsgBox('Something went wrong! Unable to backup your data. Continuing installation.', mbError, MB_OK);
     end;
-
-    MsgBox('Setup will now copy your prior user data for migration. If you have a lot of data, this may take some time!', mbInformation, MB_OK);
-
-    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + prevDBDir + '" "' + prevAppBackupDir + '\kalite\database\" /E "', '', SW_HIDE, ewWaitUntilTerminated, resCode);
-    if resCode <> 0 then
-    begin
-        MsgBox('Fatal error' #13#13 'Failed to backup database directory.', mbError, MB_OK);
-        forceCancel := True;
-        WizardForm.Close;
-    end;
-    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + prevContentDir + '" "' + prevAppBackupDir + '\content\" /E"', '', SW_HIDE, ewWaitUntilTerminated, resCode);
-    if resCode <> 0 then
-    begin
-        MsgBox('Fatal error' #13#13 'Failed to backup content directory.', mbError, MB_OK);
-        forceCancel := True;
-        WizardForm.Close;
-    end;
-
-    runGitmigrate := True;
 end;
 
 procedure HandleUpgrade(targetPath : String);
@@ -256,11 +225,11 @@ begin
             begin
                 if CompareStr('{#TargetVersion}', '0.14.0') >= 0 then
                 begin
-                    Backup013Files;
+                    DoGitMigrate;
                 end;
             end;
         end;
-    { forceCancel will be true if something went awry in Backup013Files... abort instead of trampling the user's data. }
+    { forceCancel will be true if something went awry in DoGitMigrate... abort instead of trampling the user's data. }
     if Not forceCancel then
         RemoveOldInstallation(targetPath);
     end;
@@ -342,15 +311,24 @@ begin
     PipPath := GetPipPath;
     if PipPath = '' then
         exit;
-    PipCommand := 'install "' + ExpandConstant('{app}\ka-lite\dist\ka-lite-static-')  + '{#TargetVersion}' + '.zip"';
+    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka-lite-static-'  + '{#TargetVersion}' + '.zip"';
 
-    MsgBox('Setup will now unpack dependencies for your installation.', mbInformation, MB_OK);
-    if not ShellExec('open', PipPath, PipCommand, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
+    MsgBox('Setup will now install kalite source files to your Python site-packages.', mbInformation, MB_OK);
+    if not ShellExec('open', PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
     begin
       MsgBox('Critical error.' #13#13 'Dependencies have failed to install. Error Number: ' + IntToStr(ErrorCode), mbInformation, MB_OK);
       forceCancel := True;
       WizardForm.Close;
     end;
+
+    { Must set this environment variable so the systray executable knows where to find the installed kalite.bat script}
+    { Should by in the same directory as pip.exe, e.g. 'C:\Python27\Scripts' }
+    RegWriteStringValue(
+        HKLM,
+        'System\CurrentControlSet\Control\Session Manager\Environment',
+        'KALITE_SCRIPT_DIR',
+        ExtractFileDir(PipPath)
+    );
 end;
 
 function InitializeSetup(): Boolean;
@@ -390,31 +368,15 @@ begin
   result := True;
 end;
 
-{ Runs the gitmigrate management command introduced in 0.14 on the backup of a 0.13 installation }
-procedure DoGitMigrate;
-var
-    retCodeContent, retCodeDB, retCode : integer;
-begin
-    MsgBox('Migrating old data to current user''s %USERPROFILE%\.kalite\ directory.', mbInformation, MB_OK);
-    Exec(ExpandConstant('{cmd}'), '/S /C "mkdir "%USERPROFILE%\.kalite""', '', SW_SHOW, ewWaitUntilTerminated, retCode);
-    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + prevAppBackupDir + '\content" "%USERPROFILE%\.kalite\content\" /E /Y"', '', SW_SHOW, ewWaitUntilTerminated, retCodeContent);
-    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + prevAppBackupDir + '\kalite\database" "%USERPROFILE%\.kalite\database\" /E /Y"', '', SW_SHOW, ewWaitUntilTerminated, retCodeDB);
-    if (retCodeContent <> 0) or (retCodeDB <> 0) then
-    begin
-        Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + prevAppBackupDir + '" "' + ExpandConstant('{app}') + '\kalite-backup\" /E /Y"', '', SW_SHOW, ewWaitUntilTerminated, retCode);
-        MsgBox('Unable to migrate your data. Your data is still backed up at the directory: ' + ExpandConstant('{app}') + '\kalite-backup', mbError, MB_OK);
-    end;
-end;
-
 { Completes the setup with bundled empty database file. }
 procedure DoSetup;
 var
-    setupCommand: string;
     retCode: integer;
 begin
     { Copy the bundled empty db to the proper location. }
     { Used to have more responsibility, but we delegated those to the app itself! }
     Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + ExpandConstant('{app}') + '\ka-lite\kalite\database" "%USERPROFILE%\.kalite\database\" /E /Y"', '', SW_HIDE, ewWaitUntilTerminated, retCode);
+    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage unpack_assessment_zip khan_assessment.zip"', ExpandConstant('{app}'), SW_SHOW, ewWaitUntilTerminated, retCode);
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -477,21 +439,7 @@ begin
         begin
             HandlePipSetup();
 
-            { Add KALITE_ROOT_DATA_PATH to environment variables. A workaround for setting kalite.ROOT_DATA_PATH }
-            { In the future, the windows installer should use setuptools to avoid OS-dependent workarounds like this. }
-            RegWriteStringValue(
-                HKLM,
-                'System\CurrentControlSet\Control\Session Manager\Environment',
-                'KALITE_ROOT_DATA_PATH',
-                ExpandConstant('{app}\ka-lite\')
-            );
-
-            { Migrate old database if applicable, otherwise create a new one }
-            if runGitmigrate and Not forceCancel then
-            begin
-                DoGitMigrate;
-            end
-            else if Not forceCancel then
+            if Not forceCancel then
             begin
                 DoSetup;
             end;
@@ -528,15 +476,14 @@ end;
 
 { Called just prior to uninstall finishing. }
 { Clean up things we did during uninstall: }
-{ * Remove environment variable KALITE_ROOT_DATA_PATH }
+{ * Remove environment variable KALITE_SCRIPT_DIR, which is set starting in version 0.16.x }
+{ * Previously (versions 0.13.x to 0.15.x) KALITE_ROOT_DATA_PATH was set -- it should be unset by the respective }
+{   uninstallers of those versions }
 procedure DeinitializeUninstall();
 begin
-    if not RegDeleteValue(
+    RegDeleteValue(
         HKLM,
         'System\CurrentControlSet\Control\Session Manager\Environment',
-        'KALITE_ROOT_DATA_PATH'
-    ) then
-    begin
-        MsgBox('Unable to unset environment variable KALITE_ROOT_DATA_PATH.', mbError, MB_OK);
-    end;
+        'KALITE_SCRIPT_DIR'
+    )
 end;

@@ -17,6 +17,12 @@
 
 - (void)closeSplash;
 
+@property (weak) IBOutlet NSButton *startButton;
+@property (weak) IBOutlet NSButton *stopButton;
+@property (weak) IBOutlet NSButton *openBrowserButton;
+@property (weak) IBOutlet NSTextField *kaliteVersion;
+@property (weak) IBOutlet NSPathControl *customKaliteData;
+
 @property (strong, nonatomic) IBOutlet NSMenu *statusMenu;
 @property (strong, nonatomic) NSStatusItem *statusItem;
 @property (strong, nonatomic) NSStatusItem *startItem;
@@ -24,15 +30,6 @@
 @property (strong, nonatomic) NSStatusItem *openItem;
 @property (unsafe_unretained) IBOutlet NSTextView *taskLogs;
 @property signed int processCounter;
-
-@property (strong, nonatomic) IBOutlet NSString *username;
-@property (strong, nonatomic) IBOutlet NSString *password;
-@property (strong, nonatomic) IBOutlet NSString *confirmPassword;
-
-// get the string from the user preferences textbox.
-@property (weak) IBOutlet NSTextField *stringUsername;
-@property (weak) IBOutlet NSSecureTextField *stringPassword;
-@property (weak) IBOutlet NSSecureTextField *stringConfirmPassword;
 
 @property (weak) IBOutlet NSMenuItem *startKalite;
 @property (weak) IBOutlet NSMenuItem *stopKalite;
