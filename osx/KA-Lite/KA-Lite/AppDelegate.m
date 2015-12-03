@@ -709,6 +709,27 @@ NSString *getEnvVar(NSString *var) {
 
 
 BOOL setEnvVars() {
+    
+    //REF: http://stackoverflow.com/questions/99395/how-to-check-if-a-folder-exists-in-cocoa-objective-c
+    // Check if home Library/LaunchAgents/ path exist.
+    NSString *LibraryLaunchAgents = [NSString stringWithFormat:@"%@%@", NSHomeDirectory(), @"/Library/LaunchAgents/"];
+    BOOL isDir = NO;
+    BOOL isFile = [[NSFileManager defaultManager] fileExistsAtPath:LibraryLaunchAgents isDirectory:&isDir];
+    
+    if(isFile) {
+        //REF: http://stackoverflow.com/questions/20423159/objective-c-create-file-at-path-which-doesnt-exist
+        // Create home Library/LaunchAgents/ path.
+        NSError * error = nil;
+        BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath: LibraryLaunchAgents
+                                                 withIntermediateDirectories:YES
+                                                                  attributes:nil
+                                                                       error:&error];
+        if (!success) {
+            NSLog(@"Failed to create %@ directory", LibraryLaunchAgents);
+            return FALSE;
+        }
+    }
+    
     showNotification(@"Setting KALITE_HOME environment variable...");
     NSString *kaliteHomePath = getCustomKaliteHomePath();
     NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath];
@@ -722,12 +743,6 @@ BOOL setEnvVars() {
         return FALSE;
     }
     
-    // Path of the KALITE_PYTHON environment variable
-    NSString* envKalitePythonStr = getEnvVar(@"KALITE_PYTHON");
-    if (! pathExists(envKalitePythonStr)) {
-        return FALSE;
-    }
-    
     NSString *KaliteHomeStr = [NSString stringWithFormat:@"%@",
                                [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath]
                                ];
@@ -737,7 +752,7 @@ BOOL setEnvVars() {
     NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] init];
     [plistDict setObject:org forKey:@"Label"];
     
-    // Append KA Lite app path if autoStartOnLogin value is TRUE.
+    // Append KA Lite app path to plist if autoStartOnLogin value is TRUE.
     NSString *launchStr = [NSString stringWithFormat:@"%@", KaliteHomeStr];
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"autoStartOnLogin"]){
         NSString *kaliteAppPath = [NSString stringWithFormat:@"%@%@", [[NSBundle mainBundle] bundlePath], @"/Contents/MacOS/KA-Lite"];
@@ -747,7 +762,7 @@ BOOL setEnvVars() {
     NSArray *arr = @[@"sh", @"-c", launchStr];
     [plistDict setObject:arr forKey:@"ProgramArguments"];
     [plistDict setObject:[NSNumber numberWithBool:TRUE] forKey:@"RunAtLoad"];
-    showNotification([NSString stringWithFormat:@"Setting KALITE_HOME environment variables... %@", plistDict]);
+    showNotification([NSString stringWithFormat:@"Setting KALITE_HOME environment variable... %@", plistDict]);
     
     // Override org.learningequality.kalite.plist content
     BOOL ret = [plistDict writeToFile:target atomically:YES];
