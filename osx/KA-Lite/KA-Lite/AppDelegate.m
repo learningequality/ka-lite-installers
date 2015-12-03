@@ -712,20 +712,18 @@ BOOL setEnvVars() {
     
     //REF: http://stackoverflow.com/questions/99395/how-to-check-if-a-folder-exists-in-cocoa-objective-c
     // Check if home Library/LaunchAgents/ path exist.
-    NSString *LibraryLaunchAgents = [NSString stringWithFormat:@"%@%@", NSHomeDirectory(), @"/Library/LaunchAgents/"];
-    BOOL isDir = NO;
-    BOOL isFile = [[NSFileManager defaultManager] fileExistsAtPath:LibraryLaunchAgents isDirectory:&isDir];
-    
-    if(isFile) {
-        //REF: http://stackoverflow.com/questions/20423159/objective-c-create-file-at-path-which-doesnt-exist
+    NSString *LibraryLaunchAgentPath = [NSString stringWithFormat:@"%@%@", NSHomeDirectory(), @"/Library/LaunchAgents/"];
+    NSFileManager*fm = [NSFileManager defaultManager];
+    if(![fm fileExistsAtPath:LibraryLaunchAgentPath]) {
+        //REF: http://stackoverflow.com/questions/99395/how-to-check-if-a-folder-exists-in-cocoa-objective-c
         // Create home Library/LaunchAgents/ path.
         NSError * error = nil;
-        BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath: LibraryLaunchAgents
+        BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath: LibraryLaunchAgentPath
                                                  withIntermediateDirectories:YES
                                                                   attributes:nil
                                                                        error:&error];
         if (!success) {
-            NSLog(@"Failed to create %@ directory", LibraryLaunchAgents);
+            NSLog(@"Failed to create %@ directory", LibraryLaunchAgentPath);
             return FALSE;
         }
     }
@@ -747,7 +745,7 @@ BOOL setEnvVars() {
                                [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath]
                                ];
     
-    NSString *org = @"org.learningequality.kalite";
+    NSString *org = @"org.learningequality.kalite.prefs";
     NSString *target = [NSString stringWithFormat:@"%@/Library/LaunchAgents/%@.plist", NSHomeDirectory(), org];
     NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] init];
     [plistDict setObject:org forKey:@"Label"];

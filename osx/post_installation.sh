@@ -113,12 +113,12 @@ update_env
 
 
 ((STEP++))
-echo "$STEP/$STEPS. Create plist in ~/Library/LaunchAgents folders..."
-if [ ! -d "$LAUNCH_AGENTS" ]; then
-    echo ".. Must create '$LAUNCH_AGENTS' folder..."
-    sudo mkdir -p $LAUNCH_AGENTS
+echo "$STEP/$STEPS. Remove plist in /Library/LaunchAgents folder..."
+if [ ! -f "$PLIST_SRC" ]; then
+    echo ".. Must remove '$PLIST_SRC' file..."
+    sudo rm -rf $PLIST_SRC
     if [ $? -ne 0 ]; then
-        echo ".. Abort!  Error encountered creating '$LAUNCH_AGENTS' directory."
+        echo ".. Abort!  Error encountered removing '$PLIST_SRC' file."
         exit 1
     fi
 fi
