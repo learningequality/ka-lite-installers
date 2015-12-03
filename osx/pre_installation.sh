@@ -15,9 +15,11 @@
 #----------------------------------------------------------------------
 # Global Variables
 #----------------------------------------------------------------------
+KALITE_MONITOR="/Applications/KA-Lite-Monitor.app"
 KALITE="kalite"
 KALITE_PLIST="org.learningequality.kalite.plist"
-LAUNCH_AGENTS="$HOME/Library/LaunchAgents"
+HOME_LAUNCH_AGENTS="$HOME/Library/LaunchAgents"
+ROOT_LAUNCH_AGENTS="/Library/LaunchAgents"
 LIBRARY_PLIST="$LAUNCH_AGENTS/$KALITE_PLIST"
 KALITE_EXECUTABLE_PATH="$(which $KALITE)"
 KALITE_RESOURCES="/Users/Shared/ka-lite"
@@ -35,14 +37,7 @@ function append() {
 
 
 function remove_files_initiator {
-    if [ -f $LIBRARY_PLIST ]; then
-        append REMOVE_FILES_ARRAY $LIBRARY_PLIST
-    fi
-
-    if [ -d "$KALITE_RESOURCES" ]; then
-        append REMOVE_FILES_ARRAY $KALITE_RESOURCES
-    fi
-
+   
     if which kalite > /dev/null 2>&1; then
         append REMOVE_FILES_ARRAY $KALITE_EXECUTABLE_PATH
     fi
@@ -91,6 +86,12 @@ function check_kalite_exc_collector {
 #----------------------------------------------------------------------
 ENV=$(env)
 syslog -s -l error "Packages pre-installation initialize with env:'\n'$ENV" 
+
+# Collect the directories and files to remove
+append REMOVE_FILES_ARRAY $HOME_LAUNCH_AGENTS/$KALITE_PLIST
+append REMOVE_FILES_ARRAY $ROOT_LAUNCH_AGENTS/$KALITE_PLIST
+append REMOVE_FILES_ARRAY $KALITE_RESOURCES
+append REMOVE_FILES_ARRAY $KALITE_MONITOR
 
 echo "Unset the KALITE_PYTHON environment variable"
 launchctl unsetenv KALITE_PYTHON

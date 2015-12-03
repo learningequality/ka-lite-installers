@@ -1,5 +1,28 @@
 #!/usr/bin/env bash
 
+# Override any funny stuff from the user.
+export PATH="/bin:/usr/bin:/sbin:/usr/sbin:$PATH"
+
+#----------------------------------------------------------------------
+# Global Variables
+#----------------------------------------------------------------------
+KALITE_MONITOR_APP="/Applications/KA-Lite-Monitor.app"
+KALITE_APP="/Applications/KA-Lite/KA-Lite.app"
+KALITE="kalite"
+KALITE_PLIST="org.learningequality.kalite.plist"
+HOME_LAUNCH_AGENTS="$HOME/Library/LaunchAgents"
+ROOT_LAUNCH_AGENTS="/Library/LaunchAgents"
+LIBRARY_PLIST="$LAUNCH_AGENTS/$KALITE_PLIST"
+KALITE_EXECUTABLE_PATH="$(which $KALITE)"
+KALITE_RESOURCES="/Users/Shared/ka-lite"
+KALITE_USR_BIN_PATH="/usr/bin"
+KALITE_USR_LOCAL_BIN_PATH="/usr/local/bin"
+
+REMOVE_FILES_ARRAY=()
+
+#----------------------------------------------------------------------
+# Functions
+#----------------------------------------------------------------------
 # @param [Integer] $1 exit code.
 function key_exit() {
     echo "Press any key to exit."
@@ -7,29 +30,67 @@ function key_exit() {
     exit $1
 }
 
-# Appends a value to an array.
-#
-# @param [String] $1 Name of the variable to modify
-# @param [String] $2 Value to append
 function append() {
     eval $1[\${#$1[*]}]=$2
 }
 
 
+function remove_files_initiator {
+   
+    if which kalite > /dev/null 2>&1; then
+        append REMOVE_FILES_ARRAY $KALITE_EXECUTABLE_PATH
+    fi
+
+    for file in "${REMOVE_FILES_ARRAY[@]}"; do
+        if [ -e "${file}" ]; then
+            echo "Now removing file: ${file}"
+        fi
+    done
+
+    # Initiate the actual uninstall, which requires admin privileges.
+    echo "The uninstallation process requires administrative privileges"
+    echo "because some of the installed files cannot be removed by a"
+    echo "normal user. You will be prompted for a password..."
+    echo ""
+
+    # Use AppleScript so we can use a graphical `sudo` prompt.
+    # This way, people can enter the username they wish to use
+    # for sudo, and it is more Apple-like.
+
+    osascript -e "do shell script \"/bin/rm -Rf ${REMOVE_FILES_ARRAY[*]}\" with administrator privileges"
+
+    # Verify that the uninstall succeeded by checking whether every file
+    # we meant to remove is actually removed.
+    for file in "${REMOVE_FILES_ARRAY[@]}"; do
+        if [ -e "${file}" ]; then
+            echo "An error must have occurred since a file that was supposed to be"
+            echo "removed still exists: ${file}"
+            echo ""
+            echo "Please try again."
+            key_exit 1
+        fi
+    done
+}
+
+#----------------------------------------------------------------------
+# Script
+#----------------------------------------------------------------------
 # Delete specific location where the kalite is installed.
 # Reliable way for a bash script to get the full path to itself?
 pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd`
 popd > /dev/null
 
-#----------------------------------------------------------------------
-# Script
-#----------------------------------------------------------------------
 # Collect the directories and files to remove
-KALITE_FILES=()
-append KALITE_FILES "/Applications/KA-Lite"
-append KALITE_FILES "/usr/bin/kalite"
-append KALITE_FILES $SCRIPTPATH
+REMOVE_FILES_ARRAY=()
+append REMOVE_FILES_ARRAY $SCRIPTPATH
+append REMOVE_FILES_ARRAY $HOME_LAUNCH_AGENTS/$KALITE_PLIST
+append REMOVE_FILES_ARRAY $ROOT_LAUNCH_AGENTS/$KALITE_PLIST
+append REMOVE_FILES_ARRAY $KALITE_RESOURCES
+append REMOVE_FILES_ARRAY $KALITE_MONITOR_APP
+append REMOVE_FILES_ARRAY $KALITE_APP
+append REMOVE_FILES_ARRAY $KALITE_USR_BIN_PATH/$KALITE
+append REMOVE_FILES_ARRAY $KALITE_USR_LOCAL_BIN_PATH/$KALITE
 
 # Introduction 
 echo "                                                          "
@@ -58,39 +119,21 @@ fi
 echo "Do you want to remove the .kalite directory (y/n)?"
 read user_input2
 if [ "$user_input2" == "y" ]; then
-    append KALITE_FILES "~/.kalite/"
+    append REMOVE_FILES_ARRAY "~/.kalite/"
     echo "Removing .kalite directory (answer: ${user_input2})"
 fi
 
 echo "The following files and directories will be removed:"
-for file in "${KALITE_FILES[@]}"; do
+for file in "${REMOVE_FILES_ARRAY[@]}"; do
     echo "    $file"
 done
 
- 
-# Initiate the actual uninstall, which requires admin privileges.
-echo "The uninstallation process requires administrative privileges"
-echo "because some of the installed files cannot be removed by a"
-echo "normal user. You will be prompted for a password..."
-echo ""
 
-# Use AppleScript so we can use a graphical `sudo` prompt.
-# This way, people can enter the username they wish to use
-# for sudo, and it is more Apple-like.
+echo "Unset the KALITE_PYTHON environment variable"
+launchctl unsetenv KALITE_PYTHON
 
-osascript -e "do shell script \"/bin/rm -Rf ${KALITE_FILES[*]}\" with administrator privileges"
-
-# Verify that the uninstall succeeded by checking whether every file
-# we meant to remove is actually removed.
-for file in "${KALITE_FILES[@]}"; do
-    if [ -e "${file}" ]; then
-        echo "An error must have occurred since a file that was supposed to be"
-        echo "removed still exists: ${file}"
-        echo ""
-        echo "Please try again."
-        key_exit 1
-    fi
-done
+echo "Removing files..."
+remove_files_initiator
 
 echo "Successfully uninstalled KA-Lite."
 key_exit 0
