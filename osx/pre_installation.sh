@@ -61,6 +61,7 @@ function remove_files_initiator {
 
 
 function check_kalite_exc_collector {
+    
     if which kalite > /dev/null 2>&1; then
         append REMOVE_FILES_ARRAY $KALITE_EXECUTABLE_PATH
     fi
