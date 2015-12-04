@@ -35,6 +35,7 @@
 @property (weak) IBOutlet NSMenuItem *startKalite;
 @property (weak) IBOutlet NSMenuItem *stopKalite;
 @property (weak) IBOutlet NSMenuItem *openInBrowserMenu;
+@property (weak) IBOutlet NSWindow *kaliteDataHelp;
 
 @property (weak) IBOutlet NSButton *resetAppAction;
 

@@ -618,6 +618,11 @@ NSString *getEnvVar(NSString *var) {
     [self savePreferences];
 }
 
+- (IBAction)kaliteDataHelp:(id)sender {
+    [self.kaliteDataHelp makeKeyAndOrderFront:self];
+    [self.kaliteDataHelp setLevel:NSFloatingWindowLevel];
+    
+}
 
 - (IBAction)discardPreferences:(id)sender {
     [self discardPreferences];
