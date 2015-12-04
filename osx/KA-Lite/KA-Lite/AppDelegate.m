@@ -60,7 +60,6 @@
     // Apply button is clicked, we run `kalite manage setup`.
     bool mustShowPreferences = false;
     @try {
-        checkEnvVars();
         NSString *database = getDatabasePath();
         if (!pathExists(database)) {
             NSLog(@"Database not found, must show preferences.");
@@ -118,7 +117,7 @@ BOOL checkEnvVars() {
     NSString *kalitePython = getEnvVar(@"KALITE_PYTHON");
 
     if (!pathExists(kalitePython)) {
-        NSString *msg = @"Failed to set KALITE_PYTHON environment variable";
+        NSString *msg = @"The KALITE_PYTHON environment variable is not set";
         showNotification(msg);
         return FALSE;
     }
