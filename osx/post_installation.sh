@@ -134,6 +134,15 @@ if [ ! -d "$LAUNCH_AGENTS" ]; then
         exit 1
     fi
 fi
+
+if [ -f "$PLIST_SRC" ]; then
+    echo ".. Now removing '$PLIST_SRC'..."
+    rm -fr $PLIST_SRC
+    if [ $? -ne 0 ]; then
+        echo ".. Abort!  Error/s encountered removing '$PLIST_SRC'."
+        exit 1
+    fi
+fi
 create_plist
 
 
