@@ -60,6 +60,7 @@
     // Apply button is clicked, we run `kalite manage setup`.
     bool mustShowPreferences = false;
     @try {
+        checkEnvVars();
         NSString *database = getDatabasePath();
         if (!pathExists(database)) {
             NSLog(@"Database not found, must show preferences.");
@@ -748,6 +749,7 @@ BOOL setEnvVars() {
                                [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath]
                                ];
     
+    // Add prefs to the KALITE_HOME plist name because we have also the same name with KALITE_PYTHON plist at root LaunchAgents.
     NSString *org = @"org.learningequality.kalite.prefs";
     NSString *target = [NSString stringWithFormat:@"%@/Library/LaunchAgents/%@.plist", NSHomeDirectory(), org];
     NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] init];
