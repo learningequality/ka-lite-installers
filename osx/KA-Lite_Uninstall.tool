@@ -36,10 +36,6 @@ function append() {
 
 
 function remove_files_initiator {
-   
-    if which kalite > /dev/null 2>&1; then
-        append REMOVE_FILES_ARRAY $KALITE_EXECUTABLE_PATH
-    fi
 
     for file in "${REMOVE_FILES_ARRAY[@]}"; do
         if [ -e "${file}" ]; then
@@ -83,14 +79,16 @@ popd > /dev/null
 
 # Collect the directories and files to remove
 REMOVE_FILES_ARRAY=()
-append REMOVE_FILES_ARRAY $SCRIPTPATH
-append REMOVE_FILES_ARRAY $HOME_LAUNCH_AGENTS/$KALITE_PLIST
-append REMOVE_FILES_ARRAY $ROOT_LAUNCH_AGENTS/$KALITE_PLIST
-append REMOVE_FILES_ARRAY $KALITE_RESOURCES
-append REMOVE_FILES_ARRAY $KALITE_MONITOR_APP
-append REMOVE_FILES_ARRAY $KALITE_APP
-append REMOVE_FILES_ARRAY $KALITE_USR_BIN_PATH/$KALITE
-append REMOVE_FILES_ARRAY $KALITE_USR_LOCAL_BIN_PATH/$KALITE
+
+test -d /Applications/KA-Lite                   && REMOVE_FILES_ARRAY+=("/Applications/KA-Lite")
+test -f $SCRIPTPATH/KA-Lite_Uninstall.tool      && REMOVE_FILES_ARRAY+=("$SCRIPTPATH/KA-Lite_Uninstall.tool")
+
+test -d $KALITE_RESOURCES                       && REMOVE_FILES_ARRAY+=("$KALITE_RESOURCES")
+test -f $HOME_LAUNCH_AGENTS/$KALITE_PLIST       && REMOVE_FILES_ARRAY+=("$HOME_LAUNCH_AGENTS/$KALITE_PLIST")
+test -f $ROOT_LAUNCH_AGENTS/$KALITE_PLIST       && REMOVE_FILES_ARRAY+=("$ROOT_LAUNCH_AGENTS/$KALITE_PLIST")
+test -f $KALITE_MONITOR_APP                     && REMOVE_FILES_ARRAY+=("$KALITE_MONITOR_APP")
+test -f $KALITE_USR_BIN_PATH/$KALITE            && REMOVE_FILES_ARRAY+=("$KALITE_USR_BIN_PATH/$KALITE")
+test -f $KALITE_USR_LOCAL_BIN_PATH/$KALITE      && REMOVE_FILES_ARRAY+=("$KALITE_USR_LOCAL_BIN_PATH/$KALITE")
 
 # Introduction 
 echo "                                                          "
@@ -109,6 +107,17 @@ echo "                                                          "
 
 # Print the files and directories that are to be removed and verify
 # with the user that that is what he/she really wants to do.
+
+# if [ "$SCRIPTPATH" != "/Applications/KA-Lite" ]; then
+if [ -d "$SCRIPTPATH/KA-Lite.app" ] && [ -f "$SCRIPTPATH/KA-Lite_Uninstall.tool" ]; then
+    REMOVE_FILES_ARRAY+=("$SCRIPTPATH")
+fi
+
+echo "The following files and directories will be removed:"
+for file in "${REMOVE_FILES_ARRAY[@]}"; do
+    echo "    $file"
+done
+
 echo "Do you wish to uninstall KA-Lite (y/n)?"
 read user_input
 if [ "$user_input" != "y" ]; then
@@ -123,14 +132,12 @@ if [ "$user_input2" == "y" ]; then
     echo "Removing .kalite directory (answer: ${user_input2})"
 fi
 
-echo "The following files and directories will be removed:"
-for file in "${REMOVE_FILES_ARRAY[@]}"; do
-    echo "    $file"
-done
-
-
 echo "Unset the KALITE_PYTHON environment variable"
 launchctl unsetenv KALITE_PYTHON
+
+
+echo "Unset the KALITE_HOME environment variable"
+launchctl unsetenv KALITE_HOME
 
 echo "Removing files..."
 remove_files_initiator

@@ -37,10 +37,6 @@ function append() {
 
 
 function remove_files_initiator {
-   
-    if which kalite > /dev/null 2>&1; then
-        append REMOVE_FILES_ARRAY $KALITE_EXECUTABLE_PATH
-    fi
 
     for file in "${REMOVE_FILES_ARRAY[@]}"; do
         if [ -e "${file}" ]; then
@@ -65,6 +61,10 @@ function remove_files_initiator {
 
 
 function check_kalite_exc_collector {
+    if which kalite > /dev/null 2>&1; then
+        append REMOVE_FILES_ARRAY $KALITE_EXECUTABLE_PATH
+    fi
+    
     if [ -f "$KALITE_USR_BIN_PATH/$KALITE" ]; then
         append REMOVE_FILES_ARRAY $KALITE_USR_BIN_PATH/$KALITE
     else
