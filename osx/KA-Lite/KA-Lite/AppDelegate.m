@@ -753,7 +753,7 @@ BOOL setEnvVars() {
     // Append KA Lite app path to plist if autoStartOnLogin value is TRUE.
     NSString *launchStr = [NSString stringWithFormat:@"%@", KaliteHomeStr];
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"autoStartOnLogin"]){
-        NSString *kaliteAppPath = [NSString stringWithFormat:@"%@%@", [[NSBundle mainBundle] bundlePath], @"/Contents/MacOS/KA-Lite"];
+        NSString *kaliteAppPath = [NSString stringWithFormat:@"open %@", [[NSBundle mainBundle] bundlePath]];
          launchStr = [NSString stringWithFormat:@"%@ ; %@", KaliteHomeStr, kaliteAppPath];
     }
    
