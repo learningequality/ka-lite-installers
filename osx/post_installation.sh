@@ -57,6 +57,16 @@ function update_env {
 }
 
 function create_plist {
+
+    if [ -f "$PLIST_SRC" ]; then
+        echo ".. Now removing '$PLIST_SRC'..."
+        rm -fr $PLIST_SRC
+        if [ $? -ne 0 ]; then
+            echo ".. Abort!  Error/s encountered removing '$PLIST_SRC'."
+            exit 1
+        fi
+    fi
+
     # Create Plist 
     echo "Now creating '$PLIST_SRC'..."
     echo "<?xml version='1.0' encoding='UTF-8'?>" >> $PLIST_SRC
@@ -75,6 +85,15 @@ function create_plist {
     echo -e "\t<true/>" >> $PLIST_SRC
     echo "</dict>" >> $PLIST_SRC
     echo "</plist>" >> $PLIST_SRC
+
+    if [ -f "$PLIST_SRC" ]; then
+        echo ".. $PLIST_SRC created successfully"
+    else
+        if [ $? -ne 0 ]; then
+            echo ".. Abort!  Error/s encountered creating '$PLIST_SRC'."
+            exit 1
+        fi
+    fi
 }
 
 #----------------------------------------------------------------------
@@ -131,15 +150,6 @@ if [ ! -d "$LAUNCH_AGENTS" ]; then
     sudo mkdir -p $LAUNCH_AGENTS
     if [ $? -ne 0 ]; then
         echo ".. Abort!  Error encountered creating '$LAUNCH_AGENTS' directory."
-        exit 1
-    fi
-fi
-
-if [ -f "$PLIST_SRC" ]; then
-    echo ".. Now removing '$PLIST_SRC'..."
-    rm -fr $PLIST_SRC
-    if [ $? -ne 0 ]; then
-        echo ".. Abort!  Error/s encountered removing '$PLIST_SRC'."
         exit 1
     fi
 fi
