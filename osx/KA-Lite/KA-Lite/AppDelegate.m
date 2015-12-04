@@ -749,7 +749,7 @@ BOOL setEnvVars() {
                                [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath]
                                ];
     
-    // Add prefs to the KALITE_HOME plist name because we have also the same name with KALITE_PYTHON plist at root LaunchAgents.
+    // Use org.learningequality.kalite.prefs name to the KALITE_HOME plist because we have already org.learningequality.kalite plist at root /Library/LaunchAgents.
     NSString *org = @"org.learningequality.kalite.prefs";
     NSString *target = [NSString stringWithFormat:@"%@/Library/LaunchAgents/%@.plist", NSHomeDirectory(), org];
     NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] init];
