@@ -12,7 +12,6 @@ KALITE="kalite"
 KALITE_PLIST="org.learningequality.kalite.plist"
 HOME_LAUNCH_AGENTS="$HOME/Library/LaunchAgents"
 ROOT_LAUNCH_AGENTS="/Library/LaunchAgents"
-LIBRARY_PLIST="$LAUNCH_AGENTS/$KALITE_PLIST"
 KALITE_EXECUTABLE_PATH="$(which $KALITE)"
 KALITE_RESOURCES="/Users/Shared/ka-lite"
 KALITE_USR_BIN_PATH="/usr/bin"
@@ -108,7 +107,6 @@ echo "                                                          "
 # Print the files and directories that are to be removed and verify
 # with the user that that is what he/she really wants to do.
 
-# if [ "$SCRIPTPATH" != "/Applications/KA-Lite" ]; then
 if [ -d "$SCRIPTPATH/KA-Lite.app" ] && [ -f "$SCRIPTPATH/KA-Lite_Uninstall.tool" ]; then
     REMOVE_FILES_ARRAY+=("$SCRIPTPATH")
 fi
@@ -118,6 +116,7 @@ for file in "${REMOVE_FILES_ARRAY[@]}"; do
     echo "    $file"
 done
 
+echo "         "
 echo "Do you wish to uninstall KA-Lite (y/n)?"
 read user_input
 if [ "$user_input" != "y" ]; then
@@ -125,11 +124,16 @@ if [ "$user_input" != "y" ]; then
     key_exit 2
 fi
 
-echo "Do you want to remove the .kalite directory (y/n)?"
+if [ -z ${KALITE_HOME+0} ]; then 
+  KALITE_HOME="$HOME/.kalite"
+fi
+
+echo "The $KALITE_HOME is the directory where the data files are located."
+echo "Do you want this directory to be deleted (y/n)?"
 read user_input2
 if [ "$user_input2" == "y" ]; then
-    append REMOVE_FILES_ARRAY "~/.kalite/"
-    echo "Removing .kalite directory (answer: ${user_input2})"
+    append REMOVE_FILES_ARRAY $KALITE_HOME
+    echo "Removing $KALITE_HOME directory (answer: ${user_input2})"
 fi
 
 echo "Unset the KALITE_PYTHON environment variable"
