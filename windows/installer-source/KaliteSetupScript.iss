@@ -368,14 +368,12 @@ begin
   result := True;
 end;
 
-{ Completes the setup with bundled empty database file. }
 procedure DoSetup;
 var
     retCode: integer;
 begin
-    { Copy the bundled empty db to the proper location. }
     { Used to have more responsibility, but we delegated those to the app itself! }
-    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + ExpandConstant('{app}') + '\ka-lite\kalite\database" "%USERPROFILE%\.kalite\database\" /E /Y"', '', SW_HIDE, ewWaitUntilTerminated, retCode);
+    { Unpacks the assessment items. }
     Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage unpack_assessment_zip khan_assessment.zip"', ExpandConstant('{app}'), SW_SHOW, ewWaitUntilTerminated, retCode);
 end;
 
