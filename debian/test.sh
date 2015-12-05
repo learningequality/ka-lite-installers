@@ -121,6 +121,8 @@ then
     sudo -E apt-get purge -y ka-lite-raspberry-pi
     # Ensure that there is nothing left after purging, otherwise divertion process failed
     [ -f /etc/nginx/nginx.conf ] || test_fail "/etc/nginx/nginx.conf was not restored"
+    # Ensure there's a file created with the .kalite dir
+    [ -f /etc/ka-lite/nginx.d/username.conf ] || test_fail "/etc/ka-lite/nginx.d/username.conf was not created"
     sudo -E apt-get purge -y nginx-common
     # Ensure that there is nothing left after purging, otherwise divertion process failed
     ! [ -d /etc/nginx ] || test_fail "/etc/nginx not empty after purging nginx"
