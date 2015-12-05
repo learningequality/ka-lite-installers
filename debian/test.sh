@@ -113,7 +113,7 @@ then
 
     # Test ka-lite-raspberry-pi
     echo "ka-lite-raspberry-pi ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
-    sudo -E apt-get install -y -q nginx-light
+    sudo -E apt-get install -y -q nginx-light python-psutil
     sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}_all.deb | tail
     # gdebi is not allowed
     # sudo -E gdebi --n ka-lite-raspberry-pi_${test_version}_all.deb
