@@ -1,3 +1,9 @@
+ka-lite-source (0.15.1-0ubuntu2) precise; urgency=medium
+
+  * Add missing nginx configuration file for custom kalite user account
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 06 Dec 2015 00:34:49 +0100
+
 ka-lite-source (0.15.1-0ubuntu1) precise; urgency=medium
 
   * New 0.15.1 upstream release
