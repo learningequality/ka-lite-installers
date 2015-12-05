@@ -17,3 +17,4 @@ addons:
     - wget
     - dh-exec
     - gdebi
+    - python-psutil
