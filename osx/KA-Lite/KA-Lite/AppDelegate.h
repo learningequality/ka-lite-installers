@@ -35,9 +35,10 @@
 @property (weak) IBOutlet NSMenuItem *startKalite;
 @property (weak) IBOutlet NSMenuItem *stopKalite;
 @property (weak) IBOutlet NSMenuItem *openInBrowserMenu;
-@property (weak) IBOutlet NSWindow *kaliteDataHelp;
 
 @property (weak) IBOutlet NSButton *resetAppAction;
+
+@property (weak) IBOutlet NSButton *kaliteDataHelp;
 
 enum kaliteStatus {
     statusOkRunning = 0,
