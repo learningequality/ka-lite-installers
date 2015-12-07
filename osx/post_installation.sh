@@ -31,7 +31,9 @@ PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
 BIN_PATH="$PYRUN_DIR/bin"
 ASSESSMENT_SRC="$KALITE_SHARED/assessment/assessment.zip"
-SHEBANGCHECK_PATH="$KALITE_SHARED/scripts/"
+SCRIPT_PATH="$KALITE_SHARED/scripts/"
+APPLICATION_PATH="/Applications/KA-Lite"
+PRE_INSTALL_SCRIPT="$SCRIPT_PATH/ka-lite-remover.sh"
 
 SYMLINK_FILE="$KALITE_SHARED/pyrun-2.7/bin/kalite"
 SYMLINK_TO="/usr/local/bin"
@@ -85,7 +87,7 @@ ENV=$(env)
 syslog -s -l error "Packages post-installation initialize with env:'\n'$ENV" 
 
 STEP=1
-STEPS=9
+STEPS=10
 
 echo "Now preparing KA-Lite dependencies..."
 
@@ -139,9 +141,9 @@ create_plist
 
 ((STEP++))
 echo "$STEP/$STEPS. Check the BIN_PATH that points to the python/pyrun interpreter to use..."
-$PYRUN $SHEBANGCHECK_PATH/shebangcheck.py
+$PYRUN $SCRIPT_PATH/shebangcheck.py
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error encountered running '$SHEBANGCHECK_PATH/shebangcheck.py'."
+    echo ".. Abort!  Error encountered running '$SCRIPT_PATH/shebangcheck.py'."
     exit 1
 fi
 
@@ -174,6 +176,14 @@ echo "$STEP/$STEPS. Changing the owner of the '$KALITE_DIR' to the current user 
 chown -R $USER:$SUDO_GID $KALITE_DIR
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error changing the owner of '$KALITE_DIR'."
+    exit 1
+fi
+
+((STEP++))
+echo "$STEP/$STEPS. Creating a KA-Lite_Uninstall.tool..."
+cp -R "$PRE_INSTALL_SCRIPT" "$APPLICATION_PATH/KA-Lite_Uninstall.tool"
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error creating a KA-Lite_Uninstall.tool."
     exit 1
 fi
 
