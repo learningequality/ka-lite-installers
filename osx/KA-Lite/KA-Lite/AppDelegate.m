@@ -120,7 +120,7 @@ BOOL checkEnvVars() {
     NSString *kalitePython = getEnvVar(@"KALITE_PYTHON");
 
     if (!pathExists(kalitePython)) {
-        NSString *msg = @"Failed to set KALITE_PYTHON environment variable";
+        NSString *msg = @"The KALITE_PYTHON environment variable is not set";
         showNotification(msg);
         return FALSE;
     }
@@ -750,6 +750,7 @@ BOOL setEnvVars() {
                                [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath]
                                ];
     
+    // Use org.learningequality.kalite.prefs name to the KALITE_HOME plist because we have already org.learningequality.kalite plist at root /Library/LaunchAgents.
     NSString *org = @"org.learningequality.kalite.prefs";
     NSString *target = [NSString stringWithFormat:@"%@/Library/LaunchAgents/%@.plist", NSHomeDirectory(), org];
     NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] init];
