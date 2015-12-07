@@ -38,6 +38,8 @@
 
 @property (weak) IBOutlet NSButton *resetAppAction;
 
+@property (weak) IBOutlet NSButton *kaliteDataHelp;
+
 enum kaliteStatus {
     statusOkRunning = 0,
     statusStopped = 1,

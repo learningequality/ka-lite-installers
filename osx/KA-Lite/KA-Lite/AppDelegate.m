@@ -21,7 +21,7 @@
 
 @implementation AppDelegate
 
-@synthesize startKalite, stopKalite, openInBrowserMenu, kaliteVersion, customKaliteData, startOnLogin;
+@synthesize startKalite, stopKalite, openInBrowserMenu, kaliteVersion, customKaliteData, startOnLogin, kaliteDataHelp;
 
 
 // REF: http://objcolumnist.com/2009/08/09/reopening-an-applications-main-window-by-clicking-the-dock-icon/
@@ -49,6 +49,8 @@
     [self.statusItem setMenu:self.statusMenu];
     [self.statusItem setHighlightMode:YES];
     [self.statusItem setToolTip:@"Click to show the KA Lite menu items."];
+    
+    [self.kaliteDataHelp setToolTip:@"This will set the KALITE_HOME environment variable to the selected KA Lite data location. \n \n Click the 'Apply' button to save your changes and click the 'Start KA Lite' button to use your new data location. \n \n NOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location."];
 
     // Set the default status.
     self.status = statusCouldNotDetermineStatus;
@@ -621,7 +623,6 @@ NSString *getEnvVar(NSString *var) {
 - (IBAction)savePreferences:(id)sender {
     [self savePreferences];
 }
-
 
 - (IBAction)discardPreferences:(id)sender {
     [self discardPreferences];
