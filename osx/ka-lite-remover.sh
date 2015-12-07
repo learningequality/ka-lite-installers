@@ -4,6 +4,7 @@
 # Notes: 
 #    * This script must be run as root.
 #    * The files that will be removed, will be displayed on the console log.
+#    * The $SCRIPT_NAME env variables is used by the packages.
 #
 # What does this script do?
 #    1. Unset environment variable: KALITE_PYTHON.
@@ -21,7 +22,6 @@ KALITE="kalite"
 KALITE_PLIST="org.learningequality.kalite.plist"
 HOME_LAUNCH_AGENTS="$HOME/Library/LaunchAgents"
 ROOT_LAUNCH_AGENTS="/Library/LaunchAgents"
-LIBRARY_PLIST="$LAUNCH_AGENTS/$KALITE_PLIST"
 KALITE_EXECUTABLE_PATH="$(which $KALITE)"
 KALITE_RESOURCES="/Users/Shared/ka-lite"
 KALITE_USR_BIN_PATH="/usr/bin"
@@ -48,11 +48,18 @@ function remove_files_initiator {
 
     # Collect the directories and files to remove
     if [ "$SCRIPT_NAME" != "preinstall" ]; then
+        # If this script is not run by packages.
+        # Use AppleScript so we can use a graphical `sudo` prompt.
+        # This way, people can enter the username they wish to use
+        # for sudo, and it is more Apple-like.
         osascript -e "do shell script \"/bin/rm -Rf ${REMOVE_FILES_ARRAY[*]}\" with administrator privileges"
     else
-         sudo rm -Rf ${REMOVE_FILES_ARRAY[*]}
+        # If this script is run by packages.
+        sudo rm -Rf ${REMOVE_FILES_ARRAY[*]}
     fi
 
+    # Verify that the uninstall succeeded by checking whether every file
+    # we meant to remove is actually removed.
     for file in "${REMOVE_FILES_ARRAY[@]}"; do
         if [ -e "${file}" ]; then
             echo "An error must have occurred since a file that was supposed to be"
@@ -101,6 +108,9 @@ if [ "$SCRIPT_NAME" != "preinstall" ]; then
 
 fi
 
+
+# Print the files and directories that are to be removed and verify
+# with the user that that is what he/she really wants to do.
 echo "The following files and directories will be removed:"
 for file in "${REMOVE_FILES_ARRAY[@]}"; do
     echo "    $file"
@@ -120,6 +130,7 @@ if [ "$SCRIPT_NAME" != "preinstall" ]; then
         key_exit 0
     fi
 
+    # Check KALITE_HOME exists if not assign a default value for it.
     if [ -z ${KALITE_HOME+0} ]; then 
       KALITE_HOME="$HOME/.kalite"
     fi

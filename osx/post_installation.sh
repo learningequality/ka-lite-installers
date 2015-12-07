@@ -7,16 +7,16 @@
 # 2. We use `/Users/Shared/ka-lite/` as the installation location which contains the `assessment.zip`, `pyrun`, and `scripts`.
 
 # Steps
-# 1. Symlink kalite executable to /usr/bin/.
+# 1. Symlink kalite executable to /usr/local/bin.
 # 2. Export KALITE_PYTHON env that point to Pyrun directory.
-# 3. Create plist in ~/Library/LaunchAgents folders.
+# 3. Create plist in /Library/LaunchAgents/ folders.
 # 4. Run shebangcheck that check the BIN_PATH that points to the python/pyrun interpreter to use.
 # 5. Run kalite manage syncdb --noinput.
 # 6. Run kalite manage init_content_items --overwrite.
 # 7. Run kalite manage setup --noinput.
 # 8. Run kalite manage unpack_assessment_zip <assessment_path>.
 # 9. Change the owner of the ~/.kalite/ folder.
-
+# 10. Create a copy of KA-Lite_Uninstall.tool.
 
 #----------------------------------------------------------------------
 # Global Variables
@@ -25,6 +25,7 @@ SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 
 KALITE_SHARED="/Users/Shared/ka-lite"
 KALITE_DIR="$HOME/.kalite"
+KALITE_UNINSTALL_SCRIPT="KA-Lite_Uninstall.tool"
 PYRUN_NAME="pyrun-2.7"
 PYRUN_DIR="$KALITE_SHARED/$PYRUN_NAME"
 PYRUN="$PYRUN_DIR/bin/pyrun"
@@ -180,10 +181,10 @@ if [ $? -ne 0 ]; then
 fi
 
 ((STEP++))
-echo "$STEP/$STEPS. Creating a KA-Lite_Uninstall.tool..."
-cp -R "$PRE_INSTALL_SCRIPT" "$APPLICATION_PATH/KA-Lite_Uninstall.tool"
+echo "$STEP/$STEPS. Creating a $KALITE_UNINSTALL_SCRIPT..."
+cp -R "$PRE_INSTALL_SCRIPT" "$APPLICATION_PATH/$KALITE_UNINSTALL_SCRIPT"
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error creating a KA-Lite_Uninstall.tool."
+    echo ".. Abort!  Error creating a $KALITE_UNINSTALL_SCRIPT."
     exit 1
 fi
 
