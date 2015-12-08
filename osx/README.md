@@ -1,5 +1,5 @@
-KA-Lite OSX App
-===============
+KA-Lite OS X App
+================
 This folder contains the script and sources to build the installer for KA-Lite.
 
 The application icon sits on the status menu of OS X and uses [PyRun](http://www.egenix.com/products/python/PyRun/) instead of the OS X built-in Python.
@@ -7,8 +7,8 @@ The application icon sits on the status menu of OS X and uses [PyRun](http://www
 
 ## System Requirements
 
-* Mac OSX 10.10 Yosemite
-* Xcode 6.1.x
+* Mac OSX 10.10 Yosemite or later
+* Xcode 6.4.x or later
 * git
 * wget
 * [Packages](http://s.sudre.free.fr/Software/Packages/about.html) by Sudre
@@ -33,8 +33,7 @@ There are two ways to build the installer, automated or manually.
 
 ## Notes
 
-1. The latest OS X version (EL Capitan) is not yet supported.
-1. Please note that this has been tested on Mac OSX 10.10 Yosemite.  It may run on older versions down to Mac OSX Mountain Lion 10.8 but we haven't tested it.
+1. Please note that this has been tested on Mac OSX 10.10 Yosemite and Mac OSX 10.11.1 El Capitan. It may run on older versions down to Mac OSX Mountain Lion 10.8 but we haven't tested it.
 1. `build.sh` downloads the following
 
     * KA-Lite repo on `develop` branch, or the specified repo
@@ -47,6 +46,30 @@ There are two ways to build the installer, automated or manually.
     This is useful if you want to try a different fork or branch on your build.
     It defaults to the `develop` branch at "https://github.com/learningequality/ka-lite/archive/develop.zip".
 
+
+## Changes on installer
+ 
+ * Responsible for setting up environment variable `KALITE_PYTHON`.
+ * Symlink for `Kalite` executable will be done during installation.
+ * Unpack assessment items.
+ * Bundle `KA-Lite.pkg` and `KA-Lite_Uninstall.tool` in `/Applications/KA-Lite` directory.
+
+
+## Uninstaller
+  
+In order to uninstall `KA-Lite.app` and it's dependencies, use `KA-Lite_Uninstall.tool` to uninstall and remove 
+it's dependencies. `KA-Lite.app` and `KA-Lite_Uninstall.tool` are bundled in `/Applications/KA-Lite` folder. 
+In this setup the user can simply locate the uninstaller script and uninstall the `KA-Lite.app`.
+
+During uninstall it removes the following:
+  
+  * `KA-Lite.app` from `/Applications/KA-Lite`.
+  * `org.learningequality.kalite.plist` file in `/Library/LaunchAgents/`.
+  * `/usr/bin/kalite` executable.
+  * `/usr/local/bin/kalite` executable.
+  * `KALITE_PYTHON` environment variable.
+  * `/Users/Shared/ka-lite` directory.
+  * `KALITE_HOME` environment variable and KA-Lite data path.
 
 ## References
 
