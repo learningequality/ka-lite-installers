@@ -115,9 +115,3 @@ Description: The KA Lite system service
  If you are not familiar with the command line, you can
  install the package called 'ka-lite-gtk' for a basic and easy UI.
 
-Template: ka-lite/nginx-rpi
-Type: boolean
-Default: false
-Description: Configure nginx to run KA Lite. This presumes you using a package
- that depends on nginx or have it installed already.
-

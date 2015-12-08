@@ -15,6 +15,12 @@ case "$1" in
 
     kalite_configure
     
+    # Write configurable option for ka-lite's nginx config dir
+    mkdir -p /etc/ka-lite/nginx.d/
+    db_get ka-lite/user
+    USER_CONFIG_DIR=`su -s /bin/sh $RET -c "echo \\$HOME"`/.kalite
+    echo "set \$kalite_home $USER_CONFIG_DIR;" > /etc/ka-lite/nginx.d/username.conf
+    
     # Possibly, restart nginx
     db_get ka-lite/init
     if [ "${RET}" != "false" ];
