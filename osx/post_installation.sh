@@ -7,16 +7,16 @@
 # 2. We use `/Users/Shared/ka-lite/` as the installation location which contains the `assessment.zip`, `pyrun`, and `scripts`.
 
 # Steps
-# 1. Symlink kalite executable to /usr/bin/.
+# 1. Symlink kalite executable to /usr/local/bin.
 # 2. Export KALITE_PYTHON env that point to Pyrun directory.
-# 3. Create plist in ~/Library/LaunchAgents folders.
+# 3. Create plist in /Library/LaunchAgents/ folders.
 # 4. Run shebangcheck that check the BIN_PATH that points to the python/pyrun interpreter to use.
 # 5. Run kalite manage syncdb --noinput.
 # 6. Run kalite manage init_content_items --overwrite.
 # 7. Run kalite manage setup --noinput.
 # 8. Run kalite manage unpack_assessment_zip <assessment_path>.
 # 9. Change the owner of the ~/.kalite/ folder.
-
+# 10. Create a copy of ka-lite-remover.sh and name it as KA-Lite_Uninstall.tool.
 
 #----------------------------------------------------------------------
 # Global Variables
@@ -25,13 +25,16 @@ SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 
 KALITE_SHARED="/Users/Shared/ka-lite"
 KALITE_DIR="$HOME/.kalite"
+KALITE_UNINSTALL_SCRIPT="KA-Lite_Uninstall.tool"
 PYRUN_NAME="pyrun-2.7"
 PYRUN_DIR="$KALITE_SHARED/$PYRUN_NAME"
 PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
 BIN_PATH="$PYRUN_DIR/bin"
 ASSESSMENT_SRC="$KALITE_SHARED/assessment/assessment.zip"
-SHEBANGCHECK_PATH="$KALITE_SHARED/scripts/"
+SCRIPT_PATH="$KALITE_SHARED/scripts/"
+APPLICATION_PATH="/Applications/KA-Lite"
+PRE_INSTALL_SCRIPT="$SCRIPT_PATH/ka-lite-remover.sh"
 
 SYMLINK_FILE="$KALITE_SHARED/pyrun-2.7/bin/kalite"
 SYMLINK_TO="/usr/local/bin"
@@ -104,7 +107,7 @@ ENV=$(env)
 syslog -s -l error "Packages post-installation initialize with env:'\n'$ENV" 
 
 STEP=1
-STEPS=9
+STEPS=10
 
 echo "Now preparing KA-Lite dependencies..."
 
@@ -158,9 +161,9 @@ create_plist
 
 ((STEP++))
 echo "$STEP/$STEPS. Check the BIN_PATH that points to the python/pyrun interpreter to use..."
-$PYRUN $SHEBANGCHECK_PATH/shebangcheck.py
+$PYRUN $SCRIPT_PATH/shebangcheck.py
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error encountered running '$SHEBANGCHECK_PATH/shebangcheck.py'."
+    echo ".. Abort!  Error encountered running '$SCRIPT_PATH/shebangcheck.py'."
     exit 1
 fi
 
@@ -193,6 +196,14 @@ echo "$STEP/$STEPS. Changing the owner of the '$KALITE_DIR' to the current user 
 chown -R $USER:$SUDO_GID $KALITE_DIR
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error changing the owner of '$KALITE_DIR'."
+    exit 1
+fi
+
+((STEP++))
+echo "$STEP/$STEPS. Creating a $KALITE_UNINSTALL_SCRIPT..."
+cp -R "$PRE_INSTALL_SCRIPT" "$APPLICATION_PATH/$KALITE_UNINSTALL_SCRIPT"
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error creating a $KALITE_UNINSTALL_SCRIPT."
     exit 1
 fi
 
