@@ -32,6 +32,13 @@ REMOVE_FILES_ARRAY=()
 #----------------------------------------------------------------------
 # Functions
 #----------------------------------------------------------------------
+# @param [Integer] $1 exit code.
+function key_exit() {
+    echo "Press any key to exit."
+    read
+    exit $1
+}
+
 function append() {
     eval $1[\${#$1[*]}]=$2
 }
@@ -127,7 +134,7 @@ if [ "$SCRIPT_NAME" != "preinstall" ]; then
     read user_input
     if test "$user_input" != "Yes"  -a  "$user_input" != "YES"  -a  "$user_input" != "yes"; then
         echo "Aborting install. (answer: ${user_input})"
-        key_exit 0
+        key_exit 1
     fi
 
     # Check KALITE_HOME exists if not assign a default value for it.
