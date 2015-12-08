@@ -16,7 +16,7 @@
 # 7. Run kalite manage setup --noinput.
 # 8. Run kalite manage unpack_assessment_zip <assessment_path>.
 # 9. Change the owner of the ~/.kalite/ folder.
-# 10. Create a copy of KA-Lite_Uninstall.tool.
+# 10. Create a copy of ka-lite-remover.sh and named it as KA-Lite_Uninstall.tool.
 
 #----------------------------------------------------------------------
 # Global Variables

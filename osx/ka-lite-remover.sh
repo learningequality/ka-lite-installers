@@ -4,14 +4,14 @@
 # Notes: 
 #    * This script must be run as root.
 #    * The files that will be removed, will be displayed on the console log.
-#    * The $SCRIPT_NAME env variables is used by the packages.
+#    * The $SCRIPT_NAME env variables was specified by the `Packages`.
 #
 # What does this script do?
 #    1. Unset environment variable: KALITE_PYTHON.
 #    2. Remove the .plist file, kalite executable and ka-lite resources.
 #    3. Check if the .plist file, kalite executable and ka-lite resources.
 #    4. Display a console log for this process.
-#    5. This script serve two purposes, It can be pre-installation and uninstaller script.
+#    5. This script can be use as uninstaller.
 #
 
 #----------------------------------------------------------------------
