@@ -26,6 +26,7 @@ KALITE_EXECUTABLE_PATH="$(which $KALITE)"
 KALITE_RESOURCES="/Users/Shared/ka-lite"
 KALITE_USR_BIN_PATH="/usr/bin"
 KALITE_USR_LOCAL_BIN_PATH="/usr/local/bin"
+KALITE_UNINSTALL_SCRIPT="KA-Lite_Uninstall.tool"
 
 REMOVE_FILES_ARRAY=()
 
@@ -90,7 +91,7 @@ popd > /dev/null
 
 # Collect the directories and files to remove
 test -d /Applications/KA-Lite                   && REMOVE_FILES_ARRAY+=("/Applications/KA-Lite")
-test -f $SCRIPTPATH/KA-Lite_Uninstall.tool      && REMOVE_FILES_ARRAY+=("$SCRIPTPATH/KA-Lite_Uninstall.tool")
+test -f $SCRIPTPATH/$KALITE_UNINSTALL_SCRIPT    && REMOVE_FILES_ARRAY+=("$SCRIPTPATH/$KALITE_UNINSTALL_SCRIPT")
 test -d $KALITE_RESOURCES                       && REMOVE_FILES_ARRAY+=("$KALITE_RESOURCES")
 test -f $HOME_LAUNCH_AGENTS/$KALITE_PLIST       && REMOVE_FILES_ARRAY+=("$HOME_LAUNCH_AGENTS/$KALITE_PLIST")
 test -f $ROOT_LAUNCH_AGENTS/$KALITE_PLIST       && REMOVE_FILES_ARRAY+=("$ROOT_LAUNCH_AGENTS/$KALITE_PLIST")
@@ -125,7 +126,7 @@ done
 
 if [ "$SCRIPT_NAME" != "preinstall" ]; then
 
-    if [ -d "$SCRIPTPATH/KA-Lite.app" ] && [ -f "$SCRIPTPATH/KA-Lite_Uninstall.tool" ]; then
+    if [ -d "$SCRIPTPATH/KA-Lite.app" ] && [ -f "$SCRIPTPATH/$KALITE_UNINSTALL_SCRIPT" ]; then
         append REMOVE_FILES_ARRAY $SCRIPTPATH
     fi
 
