@@ -93,11 +93,9 @@ popd > /dev/null
 test -d /Applications/KA-Lite                   && REMOVE_FILES_ARRAY+=("/Applications/KA-Lite")
 test -f $SCRIPTPATH/$KALITE_UNINSTALL_SCRIPT    && REMOVE_FILES_ARRAY+=("$SCRIPTPATH/$KALITE_UNINSTALL_SCRIPT")
 test -d $KALITE_RESOURCES                       && REMOVE_FILES_ARRAY+=("$KALITE_RESOURCES")
-test -f $HOME_LAUNCH_AGENTS/$KALITE_PLIST       && REMOVE_FILES_ARRAY+=("$HOME_LAUNCH_AGENTS/$KALITE_PLIST")
-test -f $ROOT_LAUNCH_AGENTS/$KALITE_PLIST       && REMOVE_FILES_ARRAY+=("$ROOT_LAUNCH_AGENTS/$KALITE_PLIST")
 test -f $KALITE_USR_LOCAL_BIN_PATH/$KALITE      && REMOVE_FILES_ARRAY+=("$KALITE_USR_LOCAL_BIN_PATH/$KALITE")
 test -f $KALITE_USR_BIN_PATH/$KALITE            && REMOVE_FILES_ARRAY+=("$KALITE_USR_BIN_PATH/$KALITE")
-test -f $KALITE_MONITOR_APP                     && REMOVE_FILES_ARRAY+=("$KALITE_MONITOR_APP")
+test -d $KALITE_MONITOR                         && REMOVE_FILES_ARRAY+=("$KALITE_MONITOR")
 
 if [ "$SCRIPT_NAME" != "preinstall" ]; then
     # Introduction 
@@ -116,6 +114,13 @@ if [ "$SCRIPT_NAME" != "preinstall" ]; then
 
 fi
 
+for root_plist in $ROOT_LAUNCH_AGENTS/org.learningequality.*.plist; do
+    append REMOVE_FILES_ARRAY $root_plist
+done
+
+for home_plist in $HOME_LAUNCH_AGENTS/org.learningequality.*.plist; do
+    append REMOVE_FILES_ARRAY $home_plist
+done
 
 # Print the files and directories that are to be removed and verify
 # with the user that that is what he/she really wants to do.

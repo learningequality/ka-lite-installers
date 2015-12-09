@@ -13,8 +13,8 @@
 # 4. Run shebangcheck that check the BIN_PATH that points to the python/pyrun interpreter to use.
 # 5. Run kalite manage syncdb --noinput.
 # 6. Run kalite manage init_content_items --overwrite.
-# 7. Run kalite manage setup --noinput.
-# 8. Run kalite manage unpack_assessment_zip <assessment_path>.
+# 7. Run kalite manage unpack_assessment_zip <assessment_path>.
+# 8. Run kalite manage setup --noinput..
 # 9. Change the owner of the ~/.kalite/ folder.
 # 10. Create a copy of ka-lite-remover.sh and name it as KA-Lite_Uninstall.tool.
 
@@ -182,13 +182,13 @@ $BIN_PATH/kalite manage init_content_items --overwrite
 
 
 ((STEP++))
-echo "$STEP/$STEPS. Running kalite manage setup --noinput..."
-$BIN_PATH/kalite manage setup --noinput
+echo "$STEP/$STEPS. Running kalite manage unpack_assessment_zip '$ASSESSMENT_SRC'..."
+$BIN_PATH/kalite manage unpack_assessment_zip $ASSESSMENT_SRC    
 
 
 ((STEP++))
-echo "$STEP/$STEPS. Running kalite manage unpack_assessment_zip '$ASSESSMENT_SRC'..."
-$BIN_PATH/kalite manage unpack_assessment_zip $ASSESSMENT_SRC    
+echo "$STEP/$STEPS. Running kalite manage setup --noinput..."
+$BIN_PATH/kalite manage setup --noinput
 
 
 ((STEP++))
