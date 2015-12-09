@@ -27,7 +27,6 @@ KALITE_RESOURCES="/Users/Shared/ka-lite"
 KALITE_USR_BIN_PATH="/usr/bin"
 KALITE_USR_LOCAL_BIN_PATH="/usr/local/bin"
 KALITE_UNINSTALL_SCRIPT="KA-Lite_Uninstall.tool"
-KALITE_PREFS_PLIST="$HOME_LAUNCH_AGENTS/org.learningequality.kalite.prefs.plist"
 
 REMOVE_FILES_ARRAY=()
 
