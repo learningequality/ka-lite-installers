@@ -50,7 +50,7 @@
     [self.statusItem setHighlightMode:YES];
     [self.statusItem setToolTip:@"Click to show the KA Lite menu items."];
     
-    [self.kaliteDataHelp setToolTip:@"This will set the KALITE_HOME environment variable to the selected KA Lite data location. \n \n Click the 'Apply' button to save your changes and click the 'Start KA Lite' button to use your new data location. \n \n NOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location."];
+    [self.kaliteDataHelp setToolTip:@"This will set the KALITE_HOME environment variable to the selected KA Lite data location. \n \nClick the 'Apply' button to save your changes and click the 'Start KA Lite' button to use your new data location. \n \nNOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location."];
 
     // Set the default status.
     self.status = statusCouldNotDetermineStatus;

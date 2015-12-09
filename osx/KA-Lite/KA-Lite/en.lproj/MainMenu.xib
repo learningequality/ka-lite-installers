@@ -238,7 +238,7 @@ Gw
                                                         </pathCell>
                                                     </pathControl>
                                                     <button autoresizesSubviews="NO" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IFr-HI-gEe">
-                                                        <rect key="frame" x="371" y="15" width="25" height="25"/>
+                                                        <rect key="frame" x="371" y="19" width="25" height="25"/>
                                                         <buttonCell key="cell" type="help" bezelStyle="helpButton" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="8Gk-SG-HUS">
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                             <font key="font" metaFont="system"/>
@@ -268,10 +268,10 @@ Gw
                                                         <rect key="frame" x="0.0" y="0.0" width="223" height="293"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="436" height="293"/>
+                                                        <size key="minSize" width="451" height="293"/>
                                                         <size key="maxSize" width="463" height="10000000"/>
                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <size key="minSize" width="436" height="293"/>
+                                                        <size key="minSize" width="451" height="293"/>
                                                         <size key="maxSize" width="463" height="10000000"/>
                                                     </textView>
                                                 </subviews>

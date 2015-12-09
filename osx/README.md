@@ -50,16 +50,16 @@ There are two ways to build the installer, automated or manually.
 ## Changes on installer
  
  * Responsible for setting up environment variable `KALITE_PYTHON`.
- * Symlink for `Kalite` executable will be done during installation.
+ * Symlink for `kalite` executable will be done during installation.
  * Unpack assessment items.
  * Bundle `KA-Lite.pkg` and `KA-Lite_Uninstall.tool` in `/Applications/KA-Lite` directory.
+ * The `ka-lite` resources and `pyrun` are save in `/Users/Shared/ka-lite`.
 
 
 ## Uninstaller
   
-In order to uninstall `KA-Lite.app` and it's dependencies, use `KA-Lite_Uninstall.tool` to uninstall and remove 
-it's dependencies. `KA-Lite.app` and `KA-Lite_Uninstall.tool` are bundled in `/Applications/KA-Lite` folder. 
-In this setup the user can simply locate the uninstaller script and uninstall the `KA-Lite.app`.
+In order to uninstall `KA-Lite.app` and it's dependencies, use `KA-Lite_Uninstall.tool`. 
+The `KA-Lite.app` and `KA-Lite_Uninstall.tool` are bundled in `/Applications/KA-Lite` folder. In this setup the user can simply locate the uninstaller script and uninstall the `KA-Lite.app`. The uninstaller script check the following list below even if it doesn't exist during uninstalling the previous versions of kalite.
 
 During uninstall it removes the following:
   
@@ -70,6 +70,7 @@ During uninstall it removes the following:
   * `KALITE_PYTHON` environment variable.
   * `/Users/Shared/ka-lite` directory.
   * `KALITE_HOME` environment variable and KA-Lite data path.
+
 
 ## References
 
