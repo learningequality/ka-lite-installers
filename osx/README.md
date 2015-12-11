@@ -49,7 +49,7 @@ There are two ways to build the installer, automated or manually.
 
 ## Changes on installer
  
- * Responsible for setting up environment variable `KALITE_PYTHON`.
+ * Setting up environment variable `KALITE_PYTHON`.
  * Symlink for `kalite` executable will be done during installation.
  * Unpack assessment items.
  * Bundle `KA-Lite.pkg` and `KA-Lite_Uninstall.tool` in `/Applications/KA-Lite` directory.
