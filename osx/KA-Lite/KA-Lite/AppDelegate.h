@@ -39,6 +39,7 @@
 @property (weak) IBOutlet NSButton *resetAppAction;
 
 @property (weak) IBOutlet NSButton *kaliteDataHelp;
+@property (weak) IBOutlet NSButton *savePrefs;
 
 enum kaliteStatus {
     statusOkRunning = 0,

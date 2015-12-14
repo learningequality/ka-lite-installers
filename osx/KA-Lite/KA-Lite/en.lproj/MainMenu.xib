@@ -19,6 +19,7 @@
                 <outlet property="kaliteVersion" destination="89o-4x-JIp" id="72c-bS-dBh"/>
                 <outlet property="openBrowserButton" destination="wxg-iv-YDa" id="0er-aA-Ymn"/>
                 <outlet property="openInBrowserMenu" destination="z2m-ls-Z0I" id="mGN-C0-zz5"/>
+                <outlet property="savePrefs" destination="3rc-kc-VMj" id="bt8-CV-3fm"/>
                 <outlet property="splash" destination="izD-1r-MWo" id="ax5-nI-Mu0"/>
                 <outlet property="startButton" destination="Eur-YG-XhD" id="I4H-kx-9AL"/>
                 <outlet property="startKalite" destination="cmv-NE-Gmn" id="fGw-83-kM1"/>
@@ -107,16 +108,6 @@
                         <rect key="frame" x="20" y="2" width="128" height="48"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="ka-lite-logo" id="SrL-UW-fmI"/>
                     </imageView>
-                    <button autoresizesSubviews="NO" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3rc-kc-VMj">
-                        <rect key="frame" x="379" y="10" width="100" height="32"/>
-                        <buttonCell key="cell" type="push" title="Apply" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GgK-EM-gBS">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="savePreferences:" target="Voe-Tx-rLC" id="vIj-vM-cdP"/>
-                        </connections>
-                    </button>
                     <button autoresizesSubviews="NO" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jrJ-7c-9Me">
                         <rect key="frame" x="264" y="10" width="100" height="32"/>
                         <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="w7y-vp-NDZ">
@@ -197,6 +188,9 @@ Gw
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
+                                                        <connections>
+                                                            <action selector="startOnLogin:" target="Voe-Tx-rLC" id="xmF-x8-8P2"/>
+                                                        </connections>
                                                     </button>
                                                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LGO-kK-gKp">
                                                         <rect key="frame" x="16" y="21" width="297" height="18"/>
@@ -217,14 +211,6 @@ Gw
                                                 <rect key="frame" x="1" y="1" width="412" height="51"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m5s-fK-oBc">
-                                                        <rect key="frame" x="16" y="25" width="135" height="17"/>
-                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="KA Lite data path" id="QW9-qa-Qra">
-                                                            <font key="font" metaFont="systemBold"/>
-                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                        </textFieldCell>
-                                                    </textField>
                                                     <pathControl verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Fr9-lD-cxj">
                                                         <rect key="frame" x="168" y="21" width="200" height="26"/>
                                                         <pathCell key="cell" lineBreakMode="charWrapping" selectable="YES" editable="YES" alignment="left" placeholderString="" pathStyle="popUp" id="mgX-4z-WIm">
@@ -236,6 +222,9 @@ Gw
                                                                 <string>public.folder</string>
                                                             </allowedTypes>
                                                         </pathCell>
+                                                        <connections>
+                                                            <action selector="customKaliteData:" target="Voe-Tx-rLC" id="eQO-GW-dQy"/>
+                                                        </connections>
                                                     </pathControl>
                                                     <button autoresizesSubviews="NO" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IFr-HI-gEe">
                                                         <rect key="frame" x="371" y="19" width="25" height="25"/>
@@ -244,6 +233,14 @@ Gw
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
                                                     </button>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m5s-fK-oBc">
+                                                        <rect key="frame" x="16" y="25" width="135" height="17"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="KA Lite data path" id="QW9-qa-Qra">
+                                                            <font key="font" metaFont="systemBold"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
                                                 </subviews>
                                             </view>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
@@ -268,10 +265,10 @@ Gw
                                                         <rect key="frame" x="0.0" y="0.0" width="223" height="293"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="451" height="293"/>
+                                                        <size key="minSize" width="436" height="293"/>
                                                         <size key="maxSize" width="463" height="10000000"/>
                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <size key="minSize" width="451" height="293"/>
+                                                        <size key="minSize" width="436" height="293"/>
                                                         <size key="maxSize" width="463" height="10000000"/>
                                                     </textView>
                                                 </subviews>
@@ -301,6 +298,16 @@ Gw
                             </tabViewItem>
                         </tabViewItems>
                     </tabView>
+                    <button autoresizesSubviews="NO" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3rc-kc-VMj">
+                        <rect key="frame" x="379" y="10" width="100" height="32"/>
+                        <buttonCell key="cell" type="push" title="Apply" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GgK-EM-gBS">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="savePreferences:" target="Voe-Tx-rLC" id="vIj-vM-cdP"/>
+                        </connections>
+                    </button>
                 </subviews>
             </view>
             <point key="canvasLocation" x="733.5" y="285.5"/>
