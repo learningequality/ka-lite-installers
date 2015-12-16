@@ -37,9 +37,8 @@ Release Notes
 **Mac Application**
 
 * NEW - We show ``ka-lite`` logs in ``Logs`` tab of ``KA Lite Preferences`` dialog.
-* NEW - We Show the logs / output of the kalite command in the GUI or Console app.
+* NEW - We show the logs / output of the kalite command in the GUI or Console app.
 * NEW - Show an indicator during run of ``kalite`` command.
-* NEW - We set the menu bar icon to "processing" while setup is running.
 * FIXED - Reset App must inform user if an anomaly is found in the user's environment.
 * FIXED - Need to restart the app after setup.
 * FIXED - We now use `NSTask` to support asynchronous processing of `kalite` commands.  Which means the application does not "hung" when `kalite start` is ran.
@@ -51,6 +50,8 @@ Release Notes
 **Mac Installer**
 
 * NEW - We bundle KA Lite into PyRun.
+* NEW - Mac installer is already code signed.
+* FIXED - Reboot is required after OSX installation.
 
 **Mac Application**
 
@@ -59,9 +60,5 @@ Release Notes
 * NEW - We provide ``KA Lite Preferences`` dialog for the user.
 * NEW - User can create admin account in ``Preferences`` tab. 
 * FIXED - We provide user a way to "force" start ka-lite.
-* FIXED - We code sign the OS X installer so it passes ``Gatekeeper``.
-* FIXED - Shebang checker corrupts the kalite executable.
-* FIXED - Reboot is required after OSX installation.
-* FIXED - There's a bug that always shows the user preferences dialog.
 
 
