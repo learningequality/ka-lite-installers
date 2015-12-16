@@ -192,9 +192,9 @@ Gw
                                                             <action selector="startOnLogin:" target="Voe-Tx-rLC" id="xmF-x8-8P2"/>
                                                         </connections>
                                                     </button>
-                                                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LGO-kK-gKp">
+                                                    <button hidden="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LGO-kK-gKp">
                                                         <rect key="frame" x="16" y="21" width="297" height="18"/>
-                                                        <buttonCell key="cell" type="check" title=" Check for updates automatically" bezelStyle="regularSquare" imagePosition="left" enabled="NO" inset="2" id="AGK-J1-S1r">
+                                                        <buttonCell key="cell" type="check" title=" Check for updates automatically (TODO)" bezelStyle="regularSquare" imagePosition="left" enabled="NO" inset="2" id="AGK-J1-S1r">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
