@@ -10,6 +10,24 @@ Release Notes
 * NEW - We now have a setup wizard for the installer.
 * NEW - We now support OS X 10.11 El Capitan.
 * NEW - We now bundle application and uninstaller script inside the ``/Applications/KA-Lite/`` folder.
+* NEW - We have pre_installation script that do the following:
+
+ * Remove ``KA-Lite.app`` from ``/Applications/KA-Lite``.
+ * Remove ``org.learningequality.kalite.plist`` file in ``/Library/LaunchAgents/``.
+ * Remove ``kalite`` executable from ``/usr/bin``.
+ * Remove ``kalite`` executable from ``/usr/local/bin/kalite``.
+ * Unset ``KALITE_PYTHON`` environment variable.
+ * Remove ``ka-lite`` directory from ``/Users/Shared/ka-lite`` directory.
+ * Unset ``KALITE_HOME`` environment variable and remove ``KA-Lite`` data that was set by user to a specific location.
+
+* NEW - We have post_installation script that do the following:
+
+ * Set environment variable ``KALITE_PYTHON``.
+ * Symlink for ``kalite`` executable.
+ * Bundle ``KA-Lite.app`` and ``KA-Lite_Uninstall.tool`` in ``/Applications/KA-Lie`` directory.
+ * The ``ka-lite`` resources and ``pyrun`` are save in ``/Users/Shared/ka-lite``.
+ * Run ``kalite manage`` commands like (``syncdb --noinput``, ``initcontent_items --overwrite``, ``unpack_assessment_zip`` and ``setup --noinput``). This will load the app much faster compared to the previous release. 
+
 * REMOVED - We don't use the ``.dmg`` package anymore.
 * REMOVED - We removed the word ``Monitor`` in the installer name.
 
@@ -62,3 +80,5 @@ Release Notes
 * NEW - We have menu extras in our ``KA-Lite`` menu icon at the menu bar.
 * NEW - We provide ``KA Lite Preferences`` dialog for the user.
 * NEW - User can create admin account in ``Preferences`` tab. 
+
+
