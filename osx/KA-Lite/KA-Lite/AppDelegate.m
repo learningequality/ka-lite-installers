@@ -582,6 +582,13 @@ NSString *getEnvVar(NSString *var) {
     [self stopFunction];
 }
 
+- (IBAction)customKaliteData:(id)sender {
+    self.savePrefs.enabled = TRUE;
+}
+
+- (IBAction)startOnLogin:(id)sender {
+    self.savePrefs.enabled = TRUE;
+}
 
 - (void)openFunction {
     // TODO(cpauya): Get the ip address and port from `local_settings.py` or preferences.
@@ -641,6 +648,7 @@ NSString *getEnvVar(NSString *var) {
     [NSApp activateIgnoringOtherApps:YES];
     // REF: http://stackoverflow.com/questions/6994541/cocoa-showing-a-window-on-top-without-giving-it-focus
     [window setLevel:NSFloatingWindowLevel];
+    self.savePrefs.enabled = FALSE;
 }
 
 
