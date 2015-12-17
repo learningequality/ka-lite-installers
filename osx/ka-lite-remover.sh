@@ -3,8 +3,10 @@
 
 # Notes: 
 #    * This script must be run as root.
-#    * The console log will display the files that the user want to remove.
-#    * The $SCRIPT_NAME env variable is specify by the `Packages`.
+#    * The console log will display the files to be removed.
+#    * This script will be used in pre installation.
+#    * The $SCRIPT_NAME environment variable is set by Packages.
+#    * The KA-Lite_Uninstall.tool is a replica of this script. 
 #
 # What does this script do?
 #    1. Unset environment variable: KALITE_PYTHON.

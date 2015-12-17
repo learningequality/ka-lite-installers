@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
-# Post installation script of KA-Lite is use by Packages.
+# This is used by Packages for the post-installation.
 
 # Notes: 
 # 1. This script must be run as root.
 # 2. We use `/Users/Shared/ka-lite/` as the installation location which contains the `assessment.zip`, `pyrun`, and `scripts`.
+# 3. KA-Lite_Uninstall.tool will be created as a replica of ka-lite-remover.sh after the post-installation.
 
 # Steps
 # 1. Symlink kalite executable to /usr/local/bin.
