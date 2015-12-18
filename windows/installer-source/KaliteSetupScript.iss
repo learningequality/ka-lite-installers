@@ -444,7 +444,7 @@ begin
       
             if StartupPage.SelectedValueIndex = 0 then
             begin
-                if ShellExec('open','guitools.vbs','4', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, StartupCode) then
+                if Exec(ExpandConstant('{cmd}'), '/C "schtasks /create /tn "KALite" /tr "\"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat\" start" /sc onstart /ru SYSTEM"', '', SW_HIDE, ewWaitUntilTerminated, StartupCode) then
                 begin
                     if Not SaveStringToFile(ExpandConstant('{app}')+'\CONFIG.dat', 'RUN_AT_STARTUP:TRUE;' + #13#10, False) then
                     begin
