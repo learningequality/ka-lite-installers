@@ -39,7 +39,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "..\ka-lite\dist\ka-lite-static-*.zip"; DestDir: "{app}\ka-lite"
 Source: "..\khan_assessment.zip"; DestDir: "{app}"
-Source: "..\ka-lite\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
+Source: "..\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\images\logo48.ico"; DestDir: "{app}\images"; Flags: ignoreversion
