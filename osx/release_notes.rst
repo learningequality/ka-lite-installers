@@ -9,23 +9,24 @@ Release Notes
 * NEW - You must restart your computer after installation.
 * NEW - We now have a setup wizard for the installer.
 * NEW - We now support OS X 10.11 El Capitan.
+* NEW - We use Packages module.
 * NEW - We now bundle application and uninstaller script inside the ``/Applications/KA-Lite/`` folder.
 * NEW - We have pre_installation script that do the following:
 
- * Remove ``KA-Lite.app`` from ``/Applications/KA-Lite``.
- * Remove ``org.learningequality.kalite.plist`` file in ``/Library/LaunchAgents/``.
- * Remove ``kalite`` executable from ``/usr/bin``.
- * Remove ``kalite`` executable from ``/usr/local/bin/kalite``.
- * Unset ``KALITE_PYTHON`` environment variable.
- * Remove ``ka-lite`` directory from ``/Users/Shared/ka-lite`` directory.
- * Unset ``KALITE_HOME`` environment variable and remove ``KA-Lite`` data that was set by user to a specific location.
+ - Remove ``KA-Lite.app`` from ``/Applications/KA-Lite/``.
+ - Remove ``org.learningequality.kalite.plist`` file in ``/Library/LaunchAgents/``.
+ - Remove ``kalite`` executable from ``/usr/bin/``, the old release symlink ``kalite`` executable to ``/usr/bin/``.
+ - Remove ``kalite`` executable from ``/usr/local/bin/``, for this release we symlink ``kalite`` executable to ``/usr/local/bin/``.
+ - Unset ``KALITE_PYTHON`` environment variable.
+ - Remove ``ka-lite`` directory from ``/Users/Shared/`` directory.
+ - Unset ``KALITE_HOME`` environment variable and remove ``KA-Lite`` data that was set by user to a specific location.
 
 * NEW - We have post_installation script that do the following:
 
  * Set environment variable ``KALITE_PYTHON``.
  * Symlink for ``kalite`` executable.
- * Bundle ``KA-Lite.app`` and ``KA-Lite_Uninstall.tool`` in ``/Applications/KA-Lie`` directory.
- * The ``ka-lite`` resources and ``pyrun`` are save in ``/Users/Shared/ka-lite``.
+ * Bundle ``KA-Lite.app`` and ``KA-Lite_Uninstall.tool`` in ``/Applications/KA-Lie/`` directory.
+ * The ``ka-lite`` resources and ``pyrun`` are save in ``/Users/Shared/``.
  * Run ``kalite manage`` commands like (``syncdb --noinput``, ``initcontent_items --overwrite``, ``unpack_assessment_zip`` and ``setup --noinput``). This will load the app much faster compared to the previous release. 
 
 * REMOVED - We don't use the ``.dmg`` package anymore.
@@ -44,8 +45,8 @@ Release Notes
 **Mac Uninstaller**
 
 * NEW - User can uninstall ``KA-Lite.app`` and it's dependencies by using ``KA-Lite_Uninstall.tool`` script.
-* NEW - User can optionally delete ``~/.kalite`` folder or custom ``KA-Lite`` data path.
-* REMOVED - Removed ``KA-Lite-Monitor.app`` in ``/Applications`` folder.
+* NEW - User can optionally delete ``~/.kalite/`` folder or custom ``KA-Lite`` data path.
+* REMOVED - Removed ``KA-Lite-Monitor.app`` in ``/Applications/`` folder.
 
 0.15.0 (14-Oct-2015)
 --------------------
@@ -57,7 +58,7 @@ Release Notes
 **Mac Application**
 
 * NEW - We show ``ka-lite`` logs in ``Logs`` tab of ``KA Lite Preferences`` dialog.
-* NEW - We show the logs / output of the kalite command in the GUI or Console app.
+* NEW - We show the logs of the kalite command in the GUI or Console app.
 * NEW - Show an indicator during run of ``kalite`` command.
 * FIXED - Reset ``KA-Lite`` application must inform user if an anomaly is found in the user's environment.
 * FIXED - Need to restart the app after setup.
@@ -77,7 +78,6 @@ Release Notes
 * NEW - Mac installer is already code signed.
 * NEW - We make ``kalite`` executable anywhere. 
 * NEW - We show status icon at system menu bar.
-* NEW - We have menu extras in our ``KA-Lite`` menu icon at the menu bar.
 * NEW - We provide ``KA Lite Preferences`` dialog for the user.
 * NEW - User can create admin account in ``Preferences`` tab. 
 
