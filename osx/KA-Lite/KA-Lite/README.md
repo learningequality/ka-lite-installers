@@ -1,7 +1,7 @@
 KA-Lite OS X App
 ================
 
-This is the KA-Lite status menu app with the source and PyRun in one package.
+The application uses the `kalite` executable commands.
 
 To install:
 
@@ -10,7 +10,7 @@ To install:
 
 ## Features
 
-1. Show status icon at system status menu.
+1. Show status icon at system menu bar.
 1. Customize `KA-Lite` data path to any location, the default is `~/.kalite`.
 1. Logs terminal messages so they are accessible at the `Console app`.
 1. Set auto start on login.
