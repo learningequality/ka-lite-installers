@@ -9,7 +9,8 @@ Release Notes
 * NEW - You must restart your computer after installation.
 * NEW - We now have a setup wizard for the installer.
 * NEW - We now support OS X 10.11 El Capitan.
-* NEW - We use Packages module.
+* NEW - We now use Packages_ module by Sudre.
+.. _Packages: http://s.sudre.free.fr/Software/Packages/about.html
 * NEW - We now bundle application and uninstaller script inside the ``/Applications/KA-Lite/`` folder.
 * NEW - We have pre_installation script that does the following:
 
