@@ -11,23 +11,23 @@ Release Notes
 * NEW - We now support OS X 10.11 El Capitan.
 * NEW - We use Packages module.
 * NEW - We now bundle application and uninstaller script inside the ``/Applications/KA-Lite/`` folder.
-* NEW - We have pre_installation script that do the following:
+* NEW - We have pre_installation script that does the following:
 
- - Remove ``KA-Lite.app`` from ``/Applications/KA-Lite/``.
- - Remove ``org.learningequality.kalite.plist`` file in ``/Library/LaunchAgents/``.
- - Remove ``kalite`` executable from ``/usr/bin/``, the old release symlink ``kalite`` executable to ``/usr/bin/``.
- - Remove ``kalite`` executable from ``/usr/local/bin/``, for this release we symlink ``kalite`` executable to ``/usr/local/bin/``.
- - Unset ``KALITE_PYTHON`` environment variable.
- - Remove ``ka-lite`` directory from ``/Users/Shared/`` directory.
- - Unset ``KALITE_HOME`` environment variable and remove ``KA-Lite`` data that was set by user to a specific location.
+  - Remove ``KA-Lite.app`` from ``/Applications/KA-Lite/``.
+  - Remove ``org.learningequality.kalite.plist`` file in ``/Library/LaunchAgents/``.
+  - Remove ``kalite`` executable from ``/usr/bin/``, the old release symlink ``kalite`` executable to ``/usr/bin/``.
+  - Remove ``kalite`` executable from ``/usr/local/bin/``, for this release we symlink ``kalite`` executable to ``/usr/local/bin/``.
+  - Unset ``KALITE_PYTHON`` environment variable.
+  - Remove ``ka-lite`` directory from ``/Users/Shared/`` directory.
+  - Unset ``KALITE_HOME`` environment variable and remove ``KA-Lite`` data that was set by user to a specific location.
 
-* NEW - We have post_installation script that do the following:
+* NEW - We have post_installation script that does the following:
 
- * Set environment variable ``KALITE_PYTHON``.
- * Symlink for ``kalite`` executable.
- * Bundle ``KA-Lite.app`` and ``KA-Lite_Uninstall.tool`` in ``/Applications/KA-Lie/`` directory.
- * The ``ka-lite`` resources and ``pyrun`` are save in ``/Users/Shared/``.
- * Run ``kalite manage`` commands like (``syncdb --noinput``, ``initcontent_items --overwrite``, ``unpack_assessment_zip`` and ``setup --noinput``). This will load the app much faster compared to the previous release. 
+  - Set environment variable ``KALITE_PYTHON``.
+  - Symlink for ``kalite`` executable.
+  - Bundle ``KA-Lite.app`` and ``KA-Lite_Uninstall.tool`` in ``/Applications/KA-Lie/`` directory.
+  - The ``ka-lite`` resources and ``pyrun`` are save in ``/Users/Shared/``.
+  - Run ``kalite manage`` commands like (``syncdb --noinput``, ``initcontent_items --overwrite``, ``unpack_assessment_zip`` and ``setup --noinput``). This will load the app much faster compared to the previous release. 
 
 * REMOVED - We don't use the ``.dmg`` package anymore.
 * REMOVED - We removed the word ``Monitor`` in the installer name.
