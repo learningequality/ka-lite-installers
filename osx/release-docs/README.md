@@ -48,7 +48,7 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA-
 
 To view the KA-Lite's application logs (for debugging or tracing), launch the `Console` application and filter by "ka-lite".
 
-You can also view KA-Lite logs on `Preferences` dialog by click on the `Logs` tab.
+You can also view KA-Lite logs on `Preferences` dialog by clicking on the `Logs` tab.
 
 You can also open `~/.kalite/server.log` to view access and debug logs of the KA-Lite server.
 
