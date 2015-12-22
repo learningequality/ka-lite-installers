@@ -16,7 +16,6 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA-
 1. Click on the KA-Lite logo icon on the Status Menu Bar and select the "Start KA-Lite" menu option.
 1. When prompted that KA-Lite has been started, click on the logo icon again and select "Open in Browser" menu option - this should launch KA-Lite on your preferred web browser.
 1. You will be prompted to create admin user, just specify your username and password on Creat button.
-1. Login using the administrator account you have specified during setup.
 
 
 ## Menu Options
