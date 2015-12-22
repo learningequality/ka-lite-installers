@@ -10,23 +10,23 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA-
 
 ## To Install
 
-1. Open the downloaded "KA-Lite.pkg" package.
-1. Double click the ".pkg" and follow the setup wizard.
-1. Launch "KA-Lite" from your 'Applications' folder.
-1. Click on the KA-Lite logo icon on the Status Menu Bar and select the "Start KA-Lite" menu option.
-1. When prompted that KA-Lite has been started, click on the logo icon again and select "Open in Browser" menu option - this should launch KA-Lite on your preferred web browser.
-1. You will be prompted to create admin user, just specify your username and password on Creat button.
+1. Open the downloaded `KA-Lite.pkg` package.
+1. Double click the `.pkg` and follow the setup wizard.
+1. Launch `KA-Lite` from your `Applications` folder.
+1. Click on the `KA-Lite` logo icon on the Status Menu Bar and select the `Start KA-Lite` menu option.
+1. When prompted that `KA-Lite` has been started, click on the logo icon again and select `Open in Browser` menu option - this should launch `KA-Lite` on your preferred web browser.
+1. You will be prompted to create admin user, just specify your `username` and `password` on `Creat` button.
 
 
 ## Menu Options
 
-1. Start KA Lite == Starts the KA-Lite web server.
-1. Stop KA Lite == Stops the KA-Lite web server.
-1. Open in Browser == Opens the installed KA-Lite web app using your preferred web browser, usually at http://127.0.0.1:8008.
-1. Preferences == Opens the preferences window where you can customize KA Lite data path or view logs in `Logs` tab.
-1. Quit == Stops the KA-Lite web server and closes the application.
+1. `Start KA Lite` == Starts the `KA-Lite` web server.
+1. `Stop KA Lite` == Stops the `KA-Lite` web server.
+1. `Open in Browser` == Opens the installed `KA-Lite` web app using your preferred web browser, usually at `http://127.0.0.1:8008`.
+1. `Preferences` == Opens the preferences window where you can customize `KA Lite` data path or view logs in `Logs` tab.
+1. `Quit` == Stops the `KA-Lite` web server and closes the application.
 
-For setting up custom KA Lite data path:
+## Set custom `KA Lite` data path:
 
  1. Stop the server from running.
  2. Set your custom path in `Preferences` dialog.
@@ -41,7 +41,7 @@ For setting up custom KA Lite data path:
    
 * `KA-Lite_Uninstall.tool` and `KA-Lite.app` are bundled in `/Applications/KA-Lite/` folder.  
 * Uninstall `KA-Lite.app` and it's dependencies.
-* Optionally remove the KA Lite data path.
+* Optionally remove the `KA Lite` data path.
 
 
 ## Help and Logs
