@@ -31,7 +31,7 @@ Release Notes
 
 * NEW - User can now auto-start the application on login.
 * NEW - User can now set custom `KA-Lite` data path, instead of the default `~/.kalite/`.
-* FIXED - Support for OS X 10.11 El Capitan.
+* FIXED - We now required the `kalite` executable to load the `KA-Lite.app`.
 * CHANGED - We now changed `KA-Lite-Monitor.app` to `KA-Lite.app`.
 * REMOVED - We now removed the `Advanced` tab and it's contents.
 * REMOVED - We now removed the creation of admin account during setup.
