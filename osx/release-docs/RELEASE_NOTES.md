@@ -6,41 +6,42 @@ Release Notes
 
 **Mac Installer**
 
-* NEW - We now have a setup wizard for the installer which use [Packages] (http://s.sudre.free.fr/Software/Packages/about.html) module by Sudre. We now restart the computer after installation.
+* NEW - We now have a setup wizard for the installer using the [Packages] (http://s.sudre.free.fr/Software/Packages/about.html) module by Sudre. We confirm to restart the computer after installation.
 * NEW - We now support OS X 10.11 El Capitan.
-* NEW - We now bundle the `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md` and `KA-Lite_Uninstall.tool` script inside the `/Applications/KA-Lite/` folder.
-* NEW - We now have pre-installation script that checks the previous installation if exists and does the following:
+* NEW - We now bundle the `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md`, and `KA-Lite_Uninstall.tool` script inside the `/Applications/KA-Lite/` folder.
+* NEW - We now have a pre-installation script that checks for a previous installation if it exists and does the following:
   - Remove `/Applications/KA-Lite/KA-Lite.app`.
   - Remove `/Library/LaunchAgents/org.learningequality.kalite.plist`.
   - Remove `/usr/bin/kalite` executable.
   - Remove `/usr/local/bin/kalite` executable. 
-  - Remove `/Users/Shared/ka-lite` directory.
+  - Remove `/Users/Shared/ka-lite/` directory.
+  - Removed `/Applications/KA-Lite-Monitor.app`.
   - Unset `KALITE_PYTHON` environment variable.
   - Unset `KALITE_HOME` environment variable.
-* NEW - We now have post-installation script that does the following:
-  - Set environment variable `KALITE_PYTHON`.
+* NEW - We now have the post-installation script that does the following:
+  - Set `KALITE_PYTHON` environment variable.
   - Symlink `kalite` executable to `/usr/local/bin/`.
-  - Bundle `KA-Lite.app` `README.md`, `LICENSE`, `RELEASE_NOTES.md` and `KA-Lite_Uninstall.tool` in `/Applications/KA-Lite/` directory.
-  - We now use `/Users/Shared/ka-lite/` which contains the `assessment.zip`, `pyrun`, and `scripts`.
-  - Run `kalite manage` commands like (`syncdb --noinput`, `initcontent_items --overwrite`, `unpack_assessment_zip` and `setup --noinput`).
-* REMOVED - We don't use the `.dmg` file anymore.
-* REMOVED - We now removed the word `Monitor` in the installer name.
+  - Bundle `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md`, and `KA-Lite_Uninstall.tool` in `/Applications/KA-Lite/` directory.
+  - We now use `/Users/Shared/ka-lite/` which contains the `assessment.zip`, `pyrun`, and `scripts`. This is used as a KA-Lite installer resources.  
+  - Run `kalite manage` commands like `syncdb --noinput`, `initcontent_items --overwrite`, `unpack_assessment_zip`, and `setup --noinput`.
+* REMOVED - We don't produce and use the `.dmg` disk image anymore.
+* REMOVED - We removed the word `Monitor` in the installer name.
 
 
 **Mac Application**
 
 * NEW - User can now auto-start the application on login.
 * NEW - User can now set custom `KA-Lite` data path, instead of the default `~/.kalite/`.
-* FIXED - We now required the `kalite` executable to load the `KA-Lite.app`.
-* CHANGED - We now changed `KA-Lite-Monitor.app` to `KA-Lite.app`.
-* REMOVED - We now removed the `Advanced` tab and it's contents.
-* REMOVED - We now removed the creation of admin account during setup.
+* FIXED - To load the `KA-Lite.app`, it needs the `kalite` executable.
+* CHANGED - We changed `KA-Lite-Monitor.app` to `KA-Lite.app`.
+* REMOVED - We removed the `Advanced` tab and its contents.
+* REMOVED - We removed the creation of admin account.
  
 **Mac Uninstaller**
 
-* NEW - User can uninstall `KA-Lite.app` and it's dependencies by using `KA-Lite_Uninstall.tool` script.
-* NEW - User can optionally delete `~/.kalite/` folder or custom `KA-Lite` data path.
-* REMOVED - Removed `KA-Lite-Monitor.app` in `/Applications/` folder.
+* NEW - User can uninstall `KA-Lite.app` and it's dependencies by using the `KA-Lite_Uninstall.tool` script.
+* NEW - User can optionally delete the `~/.kalite/` folder or a custom `KA-Lite` data path.
+* REMOVED - We removed the `/Applications/KA-Lite-Monitor.app`.
 
 0.15.0 (14-Oct-2015)
 --------------------
