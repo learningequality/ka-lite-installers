@@ -51,12 +51,10 @@ Release Notes
 
 **Mac Application**
 
-* NEW - We now show `ka-lite` logs in `Logs` tab of `KA Lite Preferences` dialog.
-* NEW - We now show the logs of the kalite command in the GUI or Console app.
-* NEW - We now show an indicator during run of `kalite` command.
-* FIXED - We now need to restart the app after setup.
+* NEW - We now show `KA-Lite` logs in the `KA Lite Preferences` dialog.
+* NEW - We now show the logs of the kalite commands in the Console app.
+* NEW - We now show a loading indicator during run of `kalite` commands.
 * FIXED - We now use `NSTask` to support asynchronous processing of `kalite` commands.  Which means the application does not "hung" when `kalite start` is ran.
-* FIXED - Reset `KA-Lite` application must inform user if an anomaly is found in the user's environment.
 
 
 0.14.0 (31-Aug-2015)
