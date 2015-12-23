@@ -23,7 +23,6 @@
                 <outlet property="splash" destination="izD-1r-MWo" id="ax5-nI-Mu0"/>
                 <outlet property="startButton" destination="Eur-YG-XhD" id="I4H-kx-9AL"/>
                 <outlet property="startKalite" destination="cmv-NE-Gmn" id="fGw-83-kM1"/>
-                <outlet property="startOnBoot" destination="ZJu-Y8-v7Y" id="26r-B1-leS"/>
                 <outlet property="startOnLogin" destination="ZJu-Y8-v7Y" id="9e8-5z-ab5"/>
                 <outlet property="statusMenu" destination="3js-7p-b5M" id="TSS-gO-zwP"/>
                 <outlet property="stopButton" destination="ixV-cY-gLJ" id="SE2-g6-EAb"/>
