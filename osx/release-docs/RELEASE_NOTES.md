@@ -23,7 +23,7 @@ Release Notes
   - Bundle `KA-Lite.app` `README.md`, `LICENSE`, `RELEASE_NOTES.md` and `KA-Lite_Uninstall.tool` in `/Applications/KA-Lite/` directory.
   - We now use `/Users/Shared/ka-lite/` which contains the `assessment.zip`, `pyrun`, and `scripts`.
   - Run `kalite manage` commands like (`syncdb --noinput`, `initcontent_items --overwrite`, `unpack_assessment_zip` and `setup --noinput`).
-* REMOVED - We don't use the `.dmg` package anymore.
+* REMOVED - We don't use the `.dmg` file anymore.
 * REMOVED - We now removed the word `Monitor` in the installer name.
 
 
@@ -69,7 +69,7 @@ Release Notes
 
 **Mac Application**
 
-* NEW - Mac installer is already code signed.
+* NEW - We now code signed the Mac installer.
 * NEW - We now make `kalite` executable anywhere. 
 * NEW - We now show status icon at system menu bar.
 * NEW - We now provide `KA Lite Preferences` dialog for the user.
