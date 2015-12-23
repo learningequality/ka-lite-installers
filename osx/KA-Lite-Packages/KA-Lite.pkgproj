@@ -75,7 +75,7 @@
 											<key>GID</key>
 											<integer>0</integer>
 											<key>PATH</key>
-											<string>../release-docs/release_notes.md</string>
+											<string>../release-docs/RELEASE_NOTES.md</string>
 											<key>PATH_TYPE</key>
 											<integer>1</integer>
 											<key>PERMISSIONS</key>
