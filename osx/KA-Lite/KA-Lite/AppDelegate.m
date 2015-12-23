@@ -43,58 +43,61 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
     
-    // Setup the status menu item.
-    self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
-    [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
-    [self.statusItem setMenu:self.statusMenu];
-    [self.statusItem setHighlightMode:YES];
-    [self.statusItem setToolTip:@"Click to show the KA Lite menu items."];
+    NSString *kalite = getUsrBinKalite();
     
-    [self.kaliteDataHelp setToolTip:@"This will set the KALITE_HOME environment variable to the selected KA Lite data location. \n \nClick the 'Apply' button to save your changes and click the 'Start KA Lite' button to use your new data location. \n \nNOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location."];
-
-    // Set the default status.
-    self.status = statusCouldNotDetermineStatus;
-    [self getKaliteStatus];
+    if (!pathExists(kalite)) {
+        NSLog(@"kalite executable is not found.");
+        [self showStatus:statusFailedToStart];
+        alertDialog(@"Kalite executable is not found. You need to reinstall the KA Lite application.");
+        //The application must terminate if kalite executable is not found.
+        [[NSApplication sharedApplication] terminate:nil];
+    } else
     
-    // We need to show preferences if the following does not exist:
-    // 1. database does not exist
-    // 2. symlinked `kalite` executable
-    // Apply button is clicked, we run `kalite manage setup`.
-    bool mustShowPreferences = false;
-    @try {
-        checkEnvVars();
-        NSString *database = getDatabasePath();
-        if (!pathExists(database)) {
-            NSLog(@"Database not found, must show preferences.");
-            mustShowPreferences = true;
-        } else {
-            NSLog([NSString stringWithFormat:@"FOUND database at %@!", database]);
-        }
+    {
+        // Setup the status menu item.
+        self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
+        [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
+        [self.statusItem setMenu:self.statusMenu];
+        [self.statusItem setHighlightMode:YES];
+        [self.statusItem setToolTip:@"Click to show the KA Lite menu items."];
+    
+        [self.kaliteDataHelp setToolTip:@"This will set the KALITE_HOME environment variable to the selected KA Lite data location. \n \nClick the 'Apply' button to save your changes and click the 'Start KA Lite' button to use your new data location. \n \nNOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location."];
 
-        NSString *kalite = getUsrBinKalite();
-        if (!pathExists(kalite)) {
-            NSLog(@"kalite executable is not found, must show preferences.");
-            mustShowPreferences = true;
-            [self showStatus:statusFailedToStart];
-            showNotification(@"Kalite executable is not found. You need to reinstall the KA Lite application.");
-            
-        } else {
+        // Set the default status.
+        self.status = statusCouldNotDetermineStatus;
+        [self getKaliteStatus];
+    
+        // We need to show preferences if the following does not exist:
+        // 1. database does not exist
+        // 2. symlinked `kalite` executable
+        // Apply button is clicked, we run `kalite manage setup`.
+        bool mustShowPreferences = false;
+        @try {
+            checkEnvVars();
+            NSString *database = getDatabasePath();
+            if (!pathExists(database)) {
+                NSLog(@"Database not found, must show preferences.");
+                mustShowPreferences = true;
+            } else {
+                NSLog([NSString stringWithFormat:@"FOUND database at %@!", database]);
+            }
             NSLog([NSString stringWithFormat:@"FOUND kalite at %@!", kalite]);
             showNotification(@"KA Lite is now loaded.");
             [self runKalite:@"--version"];
             [self getKaliteStatus];
+        
         }
-    }
-    @catch (NSException *ex) {
-        NSLog(@"KA Lite had an Error: %@", ex);
-    }
+        @catch (NSException *ex) {
+            NSLog(@"KA Lite had an Error: %@", ex);
+        }
     
-    void *sel = @selector(closeSplash);
-    if (mustShowPreferences) {
-        sel = @selector(showPreferences);
+        void *sel = @selector(closeSplash);
+        if (mustShowPreferences) {
+            sel = @selector(showPreferences);
+        }
+        [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:sel userInfo:nil repeats:NO];
+        [self startKaliteTimer];
     }
-    [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:sel userInfo:nil repeats:NO];
-    [self startKaliteTimer];
 }
 
 
@@ -382,6 +385,14 @@ BOOL confirm(NSString *message) {
 }
 
 
+void alertDialog(NSString *message) {
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:@"OK"];
+    [alert setMessageText:message];
+    [alert runModal];
+}
+
+
 void showNotification(NSString *subtitle) {
     // REF: http://stackoverflow.com/questions/12267357/nsusernotification-with-custom-soundname?rq=1
     // TODO(cpauya): These must be ticked by user on preferences if they want notifications, sounds, or not.
@@ -393,6 +404,7 @@ void showNotification(NSString *subtitle) {
     // The notification may be optional (based on user preferences) but we must show it on the logs.
     NSLog(subtitle);
 }
+
 
 - (void)disableKaliteDataPath{
     // Disable custom kalite data path when kalite is still running.
