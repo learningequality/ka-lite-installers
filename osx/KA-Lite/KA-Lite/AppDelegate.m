@@ -41,9 +41,15 @@
 
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    // Insert code here to initialize your application
+     // Insert code here to initialize your application
+    if (!checkKaliteExecutable()) {
+        NSLog(@"kalite executable is not found.");
+        [self showStatus:statusFailedToStart];
+        alert(@"Kalite executable is not found. You need to reinstall the KA Lite application.");
+        // The application must terminate if kalite executable is not found.
+        [[NSApplication sharedApplication] terminate:nil];
+    }
     
-    // Setup the status menu item.
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
     [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
     [self.statusItem setMenu:self.statusMenu];
@@ -51,50 +57,34 @@
     [self.statusItem setToolTip:@"Click to show the KA Lite menu items."];
     
     [self.kaliteDataHelp setToolTip:@"This will set the KALITE_HOME environment variable to the selected KA Lite data location. \n \nClick the 'Apply' button to save your changes and click the 'Start KA Lite' button to use your new data location. \n \nNOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location."];
-
+    
     // Set the default status.
     self.status = statusCouldNotDetermineStatus;
     [self getKaliteStatus];
     
-    // We need to show preferences if the following does not exist:
-    // 1. database does not exist
-    // 2. symlinked `kalite` executable
-    // Apply button is clicked, we run `kalite manage setup`.
-    bool mustShowPreferences = false;
     @try {
         checkEnvVars();
         NSString *database = getDatabasePath();
+        NSString *kalite = getKaliteExecutable();
         if (!pathExists(database)) {
             NSLog(@"Database not found, must show preferences.");
-            mustShowPreferences = true;
         } else {
             NSLog([NSString stringWithFormat:@"FOUND database at %@!", database]);
         }
-
-        NSString *kalite = getUsrBinKalite();
-        if (!pathExists(kalite)) {
-            NSLog(@"kalite executable is not found, must show preferences.");
-            mustShowPreferences = true;
-            [self showStatus:statusFailedToStart];
-            showNotification(@"Kalite executable is not found. You need to reinstall the KA Lite application.");
-            
-        } else {
-            NSLog([NSString stringWithFormat:@"FOUND kalite at %@!", kalite]);
-            showNotification(@"KA Lite is now loaded.");
-            [self runKalite:@"--version"];
-            [self getKaliteStatus];
-        }
+        NSLog([NSString stringWithFormat:@"FOUND kalite at %@!", kalite]);
+        showNotification(@"KA Lite is now loaded.");
+        [self runKalite:@"--version"];
+        [self getKaliteStatus];
+        
     }
     @catch (NSException *ex) {
         NSLog(@"KA Lite had an Error: %@", ex);
     }
     
     void *sel = @selector(closeSplash);
-    if (mustShowPreferences) {
-        sel = @selector(showPreferences);
-    }
     [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:sel userInfo:nil repeats:NO];
     [self startKaliteTimer];
+
 }
 
 
@@ -167,7 +157,7 @@ BOOL checkEnvVars() {
     
     self.processCounter += 1;
     
-    kalitePath = getUsrBinKalite();
+    kalitePath = getKaliteExecutable();
     
     kaliteHomeEnv = [[NSMutableDictionary alloc] init];
     
@@ -256,30 +246,8 @@ NSString *thisOrOther(NSString *this, NSString *other) {
 }
 
 
-/*
-//<##>getKaliteDir
-NSString *getKaliteDir(BOOL useEnvVar) {
-    // Returns the path of `ka-lite` directory if it exists or an empty string otherwise.
-    // If `useEnvVar` is set, get the `KALITE_DIR` from the environment variables and use it if valid.
-    NSString *kaliteDir = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"ka-lite"];
-    if (useEnvVar) {
-        // Use the KALITE_DIR environment variable if set.
-        NSString *var = getEnvVar(@"KALITE_DIR");
-        if (pathExists(var)) {
-            kaliteDir = var;
-        }
-    }
-    kaliteDir = [kaliteDir stringByStandardizingPath];
-    if (pathExists(kaliteDir)){
-        return kaliteDir;
-    }
-    return @"";
-}
-*/
-
-
 BOOL kaliteExists() {
-    NSString *kalitePath = getUsrBinKalite();
+    NSString *kalitePath = getKaliteExecutable();
     return pathExists(kalitePath);
 }
 
@@ -298,7 +266,7 @@ BOOL kaliteExists() {
 - (enum kaliteStatus)checkRunTask:(NSNotification *)aNotification{
     NSArray *taskArguments;
     NSArray *statusArguments;
-    NSString *kalitePath = getUsrBinKalite();
+    NSString *kalitePath = getKaliteExecutable();
     enum kaliteStatus oldStatus = self.status;
     
     int status = [[aNotification object] terminationStatus];
@@ -315,7 +283,7 @@ BOOL kaliteExists() {
         return self.status;
     }
     
-    if (checkUsrBinKalitePath()) {
+    if (checkKaliteExecutable()) {
         if ([taskArgsSet isEqualToSet:statusArgsSet]) {
             // MUST: The result is on the 9th bit of the returned value.  Not sure why this
             // is but maybe because of the returned values from the `system()` call.  For now
@@ -350,7 +318,7 @@ BOOL kaliteExists() {
         // MUST: This will make sure the process to run has access to the environment variable
         // because the .app may be loaded the first time.
         
-        if (checkUsrBinKalitePath()) {
+        if (checkKaliteExecutable()) {
             [self runTask:command];
         }
     }
@@ -394,6 +362,7 @@ void showNotification(NSString *subtitle) {
     NSLog(subtitle);
 }
 
+
 - (void)disableKaliteDataPath{
     // Disable custom kalite data path when kalite is still running.
     self.customKaliteData.enabled = NO;
@@ -418,7 +387,7 @@ void showNotification(NSString *subtitle) {
 }
 
 
-NSString *getUsrBinKalite() {
+NSString *getKaliteExecutable() {
     return @"/usr/local/bin/kalite";
 }
 
@@ -447,12 +416,12 @@ NSString *getCustomKaliteHomePath() {
 }
 
 
-BOOL *checkUsrBinKalitePath() {
-    NSString *kalitePath = getUsrBinKalite();
+BOOL *checkKaliteExecutable() {
+    NSString *kalitePath = getKaliteExecutable();
     if (pathExists(kalitePath)) {
         return TRUE;
     }
-    return false;
+    return FALSE;
 }
 
 
@@ -470,7 +439,7 @@ NSString *getEnvVar(NSString *var) {
 
 - (void)showStatus:(enum kaliteStatus)status {
     // Enable/disable menu items based on status.
-    BOOL canStart = pathExists(getUsrBinKalite()) > 0 ? YES : NO;
+    BOOL canStart = pathExists(getKaliteExecutable()) > 0 ? YES : NO;
     switch (status) {
         case statusFailedToStart:
             [self.startKalite setEnabled:canStart];
@@ -699,7 +668,7 @@ NSString *getEnvVar(NSString *var) {
     // Automatically run `kalite manage setup` if no database was found.
     NSString *databasePath = getDatabasePath();
     if (!pathExists(databasePath)) {
-        if (checkUsrBinKalitePath()) {
+        if (checkKaliteExecutable()) {
             alert(@"Will now run KA Lite setup, it will take a few minutes.  Please wait until prompted that setup is done.");
             enum kaliteStatus status = [self setupKalite];
             showNotification(@"Setup is finished!  You can now start KA Lite.");
