@@ -1,41 +1,38 @@
 KA-Lite OS X App
-========================
+================
 
-This is the KA-Lite status menu app with the source and PyRun in one package.
+The application uses the `kalite` executable commands.
 
 To install:
 
-* Drag the "KA-Lite" app into the "Applications" folder.
+* Double click the `KA-Lite.pkg` and follow the steps of the setup wizard.
 
 
 ## Features
 
-1. Show status icon at system status menu.
-1. Preferences dialog to customize admin account and run the setup process.
+1. Show status icon at system menu bar.
+1. Customize `KA-Lite` data path to any location, the default is `~/.kalite`.
+1. Logs terminal messages so they are accessible at the `Console app`.
+1. Set auto start on login.
 1. Makes the `kalite` executable runnable from anywhere on the terminal.
-1. Logs terminal messages so they are accessible at the Console app.
+1. Show ka-lite logs in `Logs` tab of `KA Lite Preferences` dialog.
 
 
-## Use of the app
+## Using "Preferences" dialog or "KA-Lite" menu option.
 
-When the app is run, it will automatically show the preferences dialog if the following do not exist:
-
-1. `/usr/bin/kalite` symlink
-2. database at `~/.kalite/database/data.sqlite` - the `~/.kalite/` location can be overridden by setting a `KALITE_HOME` environment variable
-
-The app shows an icon at the system status menu and it uses User Preferences saved at `~/Library/Preferences/FLE.KA-Lite.plist` to save the following:
-
-1. admin username
-2. admin password (encoded)
-3. (TODO) KALITE_PYTHON environment variable - defaults to the `<Resources directory>/pyrun-2.7/bin/pyrun`.
-
-Note that the "Start KA Lite" menu is disabled if the `/usr/bin/kalite` cannot be found.
+ 1. `Start KA Lite`
+ 1. `Open in Browser`
+ 1. `Stop KA Lite`
 
 
-### Use of the preferences dialog
+For setting up custom KA Lite data path:
 
-When the `Apply` button is clicked, the app will ask for an admin password so it can symlink the `<pyrun-directory>/bin/kalite` executable to `/usr/bin/kalite` to make it runnable from anywhere on the Mac.
+ 1. Stop the server from running.
+ 2. Set your custom path in `Preferences` dialog.
+ 3. Click `Apply`.
+ 4. Go to terminal and run command `kalite manage syncdb --noinput`.
+ 5. Run `kalite manage init_content_items --overwrite`.
+ 6. Run `kalite manage setup --noinput`.
+ 7. Start the server again by clicking on `Start KA-Lite` in the menu option.
 
-Click on the `Setup` button at the `Advanced` tab to repeat the setup process.  This will call `kalite manage setup --username=%@ --password=%@ --noinput` with the username and password values coming from the textboxes.
-
-The `Reset App` button at the `Advanced` tab will reset all files/settings as if the app was never installed.
+ Note that the `Start KA Lite` menu is disabled if the `/usr/local/bin/kalite` cannot be found.
