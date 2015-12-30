@@ -1,19 +1,19 @@
 #!/bin/bash
 #
 # Notes: 
-#    * This script must be run as root.  If ran as a standard user, it will prompt for the admin password.
-#    * The files that will be removed, will be displayed on the console log.
-#    * The $SCRIPT_NAME env variables was specified by the `Packages`.
-#    * This is re-used as /Applications/KA-Lite/KA_Lite_Uninstall.tool during installation.
+#   * This script must be run as root.  If ran as a standard user, it will prompt for the admin password.
+#   * The files that will be removed, will be displayed on the console log.
+#   * The $SCRIPT_NAME env variables was specified by the `Packages`.
+#   * This is re-used as /Applications/KA-Lite/KA_Lite_Uninstall.tool during installation.
 #
 # What does this script do?
-#    1. Unset the environment variables: KALITE_PYTHON and KALITE_HOME.
-#    2. Remove the .plist file, kalite executable and the ka-lite resources.
-#    3. When run stand-alone, it confirms removal of the KA Lite data directory as specified by the KALITE_HOME env var.
-#    3. Display a console log for this process.
+#   1. Unset the environment variables: KALITE_PYTHON and KALITE_HOME.
+#   2. Remove the .plist file, kalite executable and the ka-lite resources.
+#   3. When run stand-alone, it confirms removal of the KA-Lite data directory as specified by the KALITE_HOME env var.
+#   4. Display a console log for this process.
 #
 # Some References:
-# * http://stackoverflow.com/a/2264537/845481 - Converting string to lower case in Bash shell scripting
+#   * http://stackoverflow.com/a/2264537/845481 - Converting string to lower case in Bash shell scripting
 #
 
 
@@ -49,14 +49,39 @@ function append() {
 }
 
 
-function remove_files_initiator {
-
+# This function will check if the files or folders exists.
+function check_files() {
+    uninstall_count=0
     for file in "${REMOVE_FILES_ARRAY[@]}"; do
         if [ -e "${file}" ]; then
-            echo "Now removing: ${file}"
-            syslog -s -l error "Now removing: ${file}"
+            ((uninstall_count++))
         fi
     done
+    if [ $uninstall_count -eq 0 ]; then
+        echo
+        echo "Cannot find any KA-Lite files or folders, nothing to uninstall here."
+        return 1
+    fi
+    return 0
+}
+
+
+# This function will remove the files or folders.
+function remove_files_initiator {
+
+    uninstall_count=0
+    for file in "${REMOVE_FILES_ARRAY[@]}"; do
+        if [ -e "${file}" ]; then
+            echo "Will remove: ${file}"
+            syslog -s -l error "Will remove: ${file}"
+            ((uninstall_count++))
+        fi
+    done
+    if [ $uninstall_count -eq 0 ]; then
+        echo
+        echo "Cannot find any KA-Lite files or folders, nothing to uninstall here."
+        exit 1
+    fi
 
     # Collect the directories and files to remove
     if [ "$SCRIPT_NAME" != "preinstall" ]; then
@@ -68,6 +93,10 @@ function remove_files_initiator {
     else
         # This script is being run by the Packages module.
         sudo rm -Rf ${REMOVE_FILES_ARRAY[*]}
+    fi
+    # If process did not succeed, let's return non-zero.
+    if [ $? -ne 0 ]; then
+        return 1
     fi
 
     # Verify that the uninstall succeeded by checking whether every file/folder
@@ -119,28 +148,73 @@ if [ "$SCRIPT_NAME" != "preinstall" ]; then
 fi
 
 for root_plist in $ROOT_LAUNCH_AGENTS/org.learningequality.*.plist; do
-    append REMOVE_FILES_ARRAY $root_plist
+    if [ -e $root_plist ]; then
+        append REMOVE_FILES_ARRAY $root_plist
+    fi
 done
 
 for home_plist in $HOME_LAUNCH_AGENTS/org.learningequality.*.plist; do
-    append REMOVE_FILES_ARRAY $home_plist
+    if [ -e $home_plist ]; then
+        append REMOVE_FILES_ARRAY $home_plist
+    fi
 done
 
-# Print the files and directories that are to be removed and verify
-# with the user that that is what he/she really wants to do.
-echo "The following files and directories will be removed:"
+if [ "$SCRIPT_NAME" != "preinstall" ]; then
+    # Check that KALITE_HOME env var exists, if not, assign it a default value.
+    if [ -z ${KALITE_HOME+0} ]; then 
+      KALITE_HOME="$HOME/.kalite/"
+    fi
+
+    # Check if the directory exists before confirming to include it on the list.
+    if [ -d "$KALITE_HOME" ]; then
+        echo "The KALITE_HOME environment variable points to $KALITE_HOME."
+        echo "This is the directory where the data files are located."
+        echo "Answer no if you want to keep your KA-Lite data files."
+        echo
+        echo -n "Do you want the $KALITE_HOME directory to be deleted? (Yes/No) "
+        read remove_kalite
+        # convert answer to lowercase
+        remove_kalite="$(echo $remove_kalite | tr '[:upper:]' '[:lower:]')"
+        if [ "$remove_kalite" == "yes" ]; then
+            append REMOVE_FILES_ARRAY "$KALITE_HOME"
+            echo "Will remove $KALITE_HOME directory."
+        else
+            echo "NOT Removing $KALITE_HOME directory."
+        fi
+    else
+        echo "The $KALITE_HOME directory does not exist, so there are no KA-Lite data files to delete."
+    fi
+
+    # MUST: Check that the KA-Lite app and the uninstall script exists inside the SCRIPTPATH
+    # before adding the folder to the to-be-deleted list.  This will make sure we don't 
+    # accidentally delete the folder containing this script.
+    if [ -d "$SCRIPTPATH/KA-Lite.app" ] && [ -f "$SCRIPTPATH/$KALITE_UNINSTALL_SCRIPT" ]; then
+        append REMOVE_FILES_ARRAY $SCRIPTPATH
+    fi
+fi
+
+# Done getting files/folders to remove, check if we actually have files to remove.
+check_files
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+# Print the files and directories that well be removed and verify
+# with the user.
+echo
+echo "The following files/directories will be removed:"
 for file in "${REMOVE_FILES_ARRAY[@]}"; do
     echo "    $file"
 done
 
+echo
+echo "And then the following environment variables will be unset:"
+echo "  KALITE_PYTHON with value $KALITE_PYTHON"
+echo "  KALITE_HOME with value $KALITE_HOME"
+
 if [ "$SCRIPT_NAME" != "preinstall" ]; then
-
-    if [ -d "$SCRIPTPATH/KA-Lite.app" ] && [ -f "$SCRIPTPATH/$KALITE_UNINSTALL_SCRIPT" ]; then
-        append REMOVE_FILES_ARRAY $SCRIPTPATH
-    fi
-
     echo "         "
-    echo -n "Do you wish to uninstall KA-Lite (Yes/No)? "
+    echo -n "Do you wish to uninstall KA-Lite? (Yes/No) "
     read uninstall
     # convert answer to lowercase
     uninstall="$(echo $uninstall | tr '[:upper:]' '[:lower:]')"
@@ -148,35 +222,23 @@ if [ "$SCRIPT_NAME" != "preinstall" ]; then
         echo "Aborting uninstall. (answer: ${uninstall})"
         key_exit 1
     fi
+fi
 
-    # Check that KALITE_HOME env var exists, if not, assign it a default value.
-    if [ -z ${KALITE_HOME+0} ]; then 
-      KALITE_HOME="$HOME/.kalite/"
-    fi
-
-    echo
-    echo "The $KALITE_HOME is the directory where the data files are located."
-    echo -n "Do you want this directory to be deleted (Yes/No)? "
-    read remove_kalite
-    # convert answer to lowercase
-    remove_kalite="$(echo $remove_kalite | tr '[:upper:]' '[:lower:]')"
-    if [ "$remove_kalite" == "yes" ]; then
-        append REMOVE_FILES_ARRAY "$KALITE_HOME"
-        echo "Removing $KALITE_HOME directory (answer: ${remove_kalite})"
-    else
-        echo "NOT Removing $KALITE_HOME directory."
-    fi
-
-    echo "Unsetting the KALITE_HOME environment variable..."
-    unset KALITE_HOME
-    launchctl unsetenv KALITE_HOME
+echo "Removing files..."
+# This function will prompt for the admin password which is the 
+# last chance to cancel the uninstall process.
+remove_files_initiator
+if [ $? -ne 0 ]; then
+    echo "Uninstall process cancelled."
+    exit 1
 fi
 
 echo "Unsetting the KALITE_PYTHON environment variable..."
 unset KALITE_PYTHON
 launchctl unsetenv KALITE_PYTHON
 
-echo "Removing files..."
-remove_files_initiator
+echo "Unsetting the KALITE_HOME environment variable..."
+unset KALITE_HOME
+launchctl unsetenv KALITE_HOME
 
 echo "Done!"
