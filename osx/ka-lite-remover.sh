@@ -20,6 +20,12 @@
 #----------------------------------------------------------------------
 # Global Variables
 #----------------------------------------------------------------------
+IS_PREINSTALL=false
+if [ "$SCRIPT_NAME" == "preinstall" ]; then
+    IS_PREINSTALL=true
+fi
+echo "IS_PREINSTALL == $IS_PREINSTALL"
+
 KALITE_MONITOR="/Applications/KA-Lite-Monitor.app"
 KALITE="kalite"
 KALITE_PLIST="org.learningequality.kalite.plist"
@@ -80,11 +86,11 @@ function remove_files_initiator {
     if [ $uninstall_count -eq 0 ]; then
         echo
         echo "Cannot find any KA-Lite files or folders, nothing to uninstall here."
-        exit 1
+        exit
     fi
 
     # Collect the directories and files to remove
-    if [ "$SCRIPT_NAME" != "preinstall" ]; then
+    if [ $IS_PREINSTALL == false ]; then
         # This script is not run by the Packages module.
         # Use AppleScript so we can use a graphical `sudo` prompt.
         # This way, people can enter the username they wish to use
@@ -96,28 +102,16 @@ function remove_files_initiator {
     fi
     # If process did not succeed, let's return non-zero.
     if [ $? -ne 0 ]; then
-        return 1
+        exit 1
     fi
-
-    # Verify that the uninstall succeeded by checking whether every file/folder
-    # we meant to remove was actually removed.
-    for file in "${REMOVE_FILES_ARRAY[@]}"; do
-        if [ -e "${file}" ]; then
-            echo "An error must have occurred since a file/folder that was supposed to be"
-            echo "removed still exists: ${file}"
-            syslog -s -l error "File still exists: ${file}"
-            echo ""
-            exit 1
-        fi
-    done
 }
 
 
 #----------------------------------------------------------------------
 # Script
 #----------------------------------------------------------------------
-ENV=$(env)
-syslog -s -l error "Packages pre-installation initialize with env:'\n'$ENV" 
+# ENV=$(env)
+# syslog -s -l error "Packages pre-installation initialize with env:'\n'$ENV" 
 
 pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd`
@@ -131,7 +125,7 @@ test -f $KALITE_USR_LOCAL_BIN_PATH/$KALITE      && REMOVE_FILES_ARRAY+=("$KALITE
 test -f $KALITE_USR_BIN_PATH/$KALITE            && REMOVE_FILES_ARRAY+=("$KALITE_USR_BIN_PATH/$KALITE")
 test -d $KALITE_MONITOR                         && REMOVE_FILES_ARRAY+=("$KALITE_MONITOR")
 
-if [ "$SCRIPT_NAME" != "preinstall" ]; then
+if [ $IS_PREINSTALL == false ]; then
     # Introduction 
     echo "                                                          "
     echo "   _   __  ___    _     _ _                               "
@@ -159,7 +153,7 @@ for home_plist in $HOME_LAUNCH_AGENTS/org.learningequality.*.plist; do
     fi
 done
 
-if [ "$SCRIPT_NAME" != "preinstall" ]; then
+if [ $IS_PREINSTALL == false ]; then
     # Check that KALITE_HOME env var exists, if not, assign it a default value.
     if [ -z ${KALITE_HOME+0} ]; then 
       KALITE_HOME="$HOME/.kalite/"
@@ -196,7 +190,7 @@ fi
 # Done getting files/folders to remove, check if we actually have files to remove.
 check_files
 if [ $? -ne 0 ]; then
-    exit 1
+    exit
 fi
 
 # Print the files and directories that well be removed and verify
@@ -212,7 +206,7 @@ echo "And then the following environment variables will be unset:"
 echo "  KALITE_PYTHON with value $KALITE_PYTHON"
 echo "  KALITE_HOME with value $KALITE_HOME"
 
-if [ "$SCRIPT_NAME" != "preinstall" ]; then
+if [ $IS_PREINSTALL == false ]; then
     echo "         "
     echo -n "Do you wish to uninstall KA-Lite? (Yes/No) "
     read uninstall
