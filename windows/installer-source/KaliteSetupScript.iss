@@ -386,6 +386,8 @@ var
   restoreKaliteFolder: integer;
   restoreContentFolder: integer;
   informationBoxFlagged: boolean;
+  kaliteSchtaskCmd: string;
+  windowsVersion: TWindowsVersion;
 
 begin
     if CurStep = ssInstall then
@@ -444,7 +446,18 @@ begin
       
             if StartupPage.SelectedValueIndex = 0 then
             begin
-                if Exec(ExpandConstant('{cmd}'), ExpandConstant('/C "schtasks /create /tn "KALite" /tr "\"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat\" start" /sc onstart /ru SYSTEM"'), '', SW_HIDE, ewWaitUntilTerminated, StartupCode) then
+                GetWindowsVersionEx(windowsVersion);
+
+                { Windows 5.1 is XP, and 5.2 is Server 2003/64-bit XP. See https://msdn.microsoft.com/en-us/library/windows/desktop/ms724832(v=vs.85).aspx }
+                if (windowsVersion.Major = 5) and (windowsVersion.Minor <= 2) then
+                begin
+                    kaliteSchtaskCmd := ExpandConstant('/C "schtasks /create /tn "KALite" /tr "\"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat\" start" /sc onstart"');
+                end
+                else begin
+                    kaliteSchtaskCmd := ExpandConstant('/C "schtasks /create /tn "KALite" /tr "\"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat\" start" /sc onstart /ru SYSTEM"');
+                end;
+
+                if Exec(ExpandConstant('{cmd}'), kaliteSchtaskCmd, '', SW_HIDE, ewWaitUntilTerminated, StartupCode) then
                 begin
                     if Not SaveStringToFile(ExpandConstant('{app}')+'\CONFIG.dat', 'RUN_AT_STARTUP:TRUE;' + #13#10, False) then
                     begin
