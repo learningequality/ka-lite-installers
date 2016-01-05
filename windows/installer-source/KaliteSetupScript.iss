@@ -451,7 +451,7 @@ begin
                 { Windows 5.1 is XP, and 5.2 is Server 2003/64-bit XP. See https://msdn.microsoft.com/en-us/library/windows/desktop/ms724832(v=vs.85).aspx }
                 if (windowsVersion.Major = 5) and (windowsVersion.Minor <= 2) then
                 begin
-                    kaliteSchtaskCmd := ExpandConstant('/C "schtasks /create /tn "KALite" /tr "\"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat\" start" /sc onstart"');
+                    MsgBox('Start at boot option is unavailable on this version of Windows.' #13#13 'The installation will now proceed.', mbError, MB_OK);
                 end
                 else begin
                     kaliteSchtaskCmd := ExpandConstant('/C "schtasks /create /tn "KALite" /tr "\"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat\" start" /sc onstart /ru SYSTEM"');
