@@ -67,7 +67,7 @@ var
   installFlag : boolean;
   startupFlag : string;
   ServerInformationPage : TInputQueryWizardPage;
-  StartupPage : TInputOptionWizardPage;
+  StartupOptionsPage : TOutputMsgWizardPage;
   isUpgrade : boolean;
   stopServerCode: integer;
   removeOldGuiTool: integer;
@@ -98,14 +98,12 @@ begin
     ServerInformationPage.Add('Server name:', False);
     ServerInformationPage.Add('Server description:', False);
 
-    // Run at windows startup.
-    StartupPage := CreateInputOptionPage(ServerInformationPage.ID,
-    'Server Configuration', 'Startup configuration',
-    'The server can run automatically. You may choose one of the following options:', True, False);
-    StartupPage.Add('Run the server at windows startup');
-    StartupPage.Add('Run the server when this user logs in');
-    StartupPage.Add('Do not run the server at startup.');
-    StartupPage.SelectedValueIndex := 2;
+    StartupOptionsPage := CreateOutputMsgPage(ServerInformationPage.ID,
+        'Startup options', 'Please read the following important information.',
+        'In prior versions of KA Lite you could choose to start the server or task-tray program automatically during installation.' #13#13
+        'This is no longer possible during installation, but you can set these options using the task-tray program after installation finishes.' #13#13
+        'To enable or disable these features, start the task-tray program and right click on it to find a list of options.'
+    )
 end;
 
 procedure CancelButtonClick(CurPageID: Integer; var Cancel, Confirm: Boolean);
@@ -379,15 +377,12 @@ end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
-  StartupCode: integer;
   moveKaliteFolderTemp: integer;
   moveContentFolderTemp: integer;
   cleanKaliteFolder: integer;
   restoreKaliteFolder: integer;
   restoreContentFolder: integer;
   informationBoxFlagged: boolean;
-  kaliteSchtaskCmd: string;
-  windowsVersion: TWindowsVersion;
 
 begin
     if CurStep = ssInstall then
@@ -442,44 +437,6 @@ begin
             if Not forceCancel then
             begin
                 DoSetup;
-            end;
-      
-            if StartupPage.SelectedValueIndex = 0 then
-            begin
-                GetWindowsVersionEx(windowsVersion);
-
-                { Windows 5.1 is XP, and 5.2 is Server 2003/64-bit XP. See https://msdn.microsoft.com/en-us/library/windows/desktop/ms724832(v=vs.85).aspx }
-                if (windowsVersion.Major = 5) and (windowsVersion.Minor <= 2) then
-                begin
-                    MsgBox('Start at boot option is unavailable on this version of Windows.' #13#13 'The installation will now proceed.', mbError, MB_OK);
-                end
-                else begin
-                    kaliteSchtaskCmd := ExpandConstant('/C "schtasks /create /tn "KALite" /tr "\"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat\" start" /sc onstart /ru SYSTEM"');
-                end;
-
-                if Exec(ExpandConstant('{cmd}'), kaliteSchtaskCmd, '', SW_HIDE, ewWaitUntilTerminated, StartupCode) then
-                begin
-                    if Not SaveStringToFile(ExpandConstant('{app}')+'\CONFIG.dat', 'RUN_AT_STARTUP:TRUE;' + #13#10, False) then
-                    begin
-                        MsgBox('Configuration file error.' #13#13 'Setup has failed to add the entry in the configuration file to run KA Lite at Windows startup. The installation may proceed and you can set this option later while using KA Lite.', mbError, MB_OK);
-                    end;
-                end
-                else begin
-                    MsgBox('GUI tools error.' #13#13 'Setup has failed to register a task to run KA Lite at Windows startup. The installation may proceed and you can set this option later while using KA Lite.', mbError, MB_OK);
-                end;      
-            end
-            else if StartupPage.SelectedValueIndex = 1 then
-            begin
-                if ShellExec('open', 'guitools.vbs', '0', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, StartupCode) then
-                begin
-                    if Not SaveStringToFile(ExpandConstant('{app}')+'\CONFIG.dat', 'RUN_AT_USER_LOGIN:TRUE;' + #13#10, False) then
-                    begin
-                        MsgBox('Configuration file error.' #13#13 'Setup has failed to add the entry in the configuration file to run KA Lite on user login. The installation may proceed and you can set this option later while using KA Lite.', mbError, MB_OK);
-                    end;
-                end
-                else begin
-                    MsgBox('GUI tools error.' #13#13 'Setup has failed to add the shortcut at the startup folder to run KA Lite on user login. The installation may proceed and you can set this option later while using KA Lite.', mbError, MB_OK);
-                end;
             end;
         end;
     end;
