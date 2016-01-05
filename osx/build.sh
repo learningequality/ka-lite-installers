@@ -91,7 +91,7 @@ if [ "$1" != "" ]; then
 fi
 
 # TODO(cpauya): Use a "develop" link for assessment items like the one for the Github repo below.
-ASSESSMENT_URL="https://learningequality.org/downloads/ka-lite/0.15/content/khan_assessment.zip"
+ASSESSMENT_URL="http://pantry.learningequality.org/downloads/ka-lite/0.16/content/khan_assessment.zip"
 # Check if an argument was passed as URL for the assessment.zip and use that instead.
 if [ "$2" != "" ]; then
     echo ".. Checking validity of assessment.zip argument -- $2..."
