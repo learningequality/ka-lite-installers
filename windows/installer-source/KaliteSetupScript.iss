@@ -39,7 +39,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "..\ka-lite\dist\ka-lite-static-*.zip"; DestDir: "{app}\ka-lite"
 Source: "..\khan_assessment.zip"; DestDir: "{app}"
-Source: "..\ka-lite\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
+Source: "..\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\images\logo48.ico"; DestDir: "{app}\images"; Flags: ignoreversion
@@ -386,6 +386,8 @@ var
   restoreKaliteFolder: integer;
   restoreContentFolder: integer;
   informationBoxFlagged: boolean;
+  kaliteSchtaskCmd: string;
+  windowsVersion: TWindowsVersion;
 
 begin
     if CurStep = ssInstall then
@@ -444,7 +446,18 @@ begin
       
             if StartupPage.SelectedValueIndex = 0 then
             begin
-                if ShellExec('open','guitools.vbs','4', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, StartupCode) then
+                GetWindowsVersionEx(windowsVersion);
+
+                { Windows 5.1 is XP, and 5.2 is Server 2003/64-bit XP. See https://msdn.microsoft.com/en-us/library/windows/desktop/ms724832(v=vs.85).aspx }
+                if (windowsVersion.Major = 5) and (windowsVersion.Minor <= 2) then
+                begin
+                    MsgBox('Start at boot option is unavailable on this version of Windows.' #13#13 'The installation will now proceed.', mbError, MB_OK);
+                end
+                else begin
+                    kaliteSchtaskCmd := ExpandConstant('/C "schtasks /create /tn "KALite" /tr "\"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat\" start" /sc onstart /ru SYSTEM"');
+                end;
+
+                if Exec(ExpandConstant('{cmd}'), kaliteSchtaskCmd, '', SW_HIDE, ewWaitUntilTerminated, StartupCode) then
                 begin
                     if Not SaveStringToFile(ExpandConstant('{app}')+'\CONFIG.dat', 'RUN_AT_STARTUP:TRUE;' + #13#10, False) then
                     begin
