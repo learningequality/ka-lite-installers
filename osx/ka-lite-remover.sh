@@ -161,19 +161,25 @@ if [ $IS_PREINSTALL == false ]; then
 
     # Check if the directory exists before confirming to include it on the list.
     if [ -d "$KALITE_HOME" ]; then
-        echo "The KALITE_HOME environment variable points to $KALITE_HOME."
-        echo "This is the directory where the data files are located."
-        echo "Answer no if you want to keep your KA-Lite data files."
-        echo
-        echo -n "Do you want the $KALITE_HOME directory to be deleted? (Yes/No) "
-        read remove_kalite
-        # convert answer to lowercase
-        remove_kalite="$(echo $remove_kalite | tr '[:upper:]' '[:lower:]')"
-        if [ "$remove_kalite" == "yes" ]; then
+        # Check if the first input arguments in the script was passed.
+        if [ "$2" == "delete data --noinput" ]; then
             append REMOVE_FILES_ARRAY "$KALITE_HOME"
-            echo "Will remove $KALITE_HOME directory."
         else
-            echo "NOT Removing $KALITE_HOME directory."
+        
+            echo "The KALITE_HOME environment variable points to $KALITE_HOME."
+            echo "This is the directory where the data files are located."
+            echo "Answer no if you want to keep your KA-Lite data files."
+            echo
+            echo -n "Do you want the $KALITE_HOME directory to be deleted? (Yes/No) "
+            read remove_kalite
+            # convert answer to lowercase
+            remove_kalite="$(echo $remove_kalite | tr '[:upper:]' '[:lower:]')"
+            if [ "$remove_kalite" == "yes" ]; then
+                append REMOVE_FILES_ARRAY "$KALITE_HOME"
+                echo "Will remove $KALITE_HOME directory."
+            else
+                echo "NOT Removing $KALITE_HOME directory."
+            fi
         fi
     else
         echo "The $KALITE_HOME directory does not exist, so there are no KA-Lite data files to delete."
@@ -207,14 +213,19 @@ echo "  KALITE_PYTHON with value $KALITE_PYTHON"
 echo "  KALITE_HOME with value $KALITE_HOME"
 
 if [ $IS_PREINSTALL == false ]; then
-    echo "         "
-    echo -n "Do you wish to uninstall KA-Lite? (Yes/No) "
-    read uninstall
-    # convert answer to lowercase
-    uninstall="$(echo $uninstall | tr '[:upper:]' '[:lower:]')"
-    if [ "$uninstall" != "yes" ]; then
-        echo "Aborting uninstall. (answer: ${uninstall})"
-        key_exit 1
+    # Check if the second input arguments in the script was passed.
+    if [ "$1" != "uninstall --noinput" ]; then
+        echo "         "
+        echo -n "Do you wish to uninstall KA-Lite? (Yes/No) "
+        read uninstall
+        # convert answer to lowercase
+        uninstall="$(echo $uninstall | tr '[:upper:]' '[:lower:]')"
+        if [ "$uninstall" != "yes" ]; then
+            echo "Aborting uninstall. (answer: ${uninstall})"
+            key_exit 1
+        fi
+    else
+        syslog -s -l error "Uninstalling using uninstall --noinput"
     fi
 fi
 
