@@ -51,7 +51,7 @@ KA Lite will be installed in the `/Applications/KA-Lite/` folder along with the 
 
 When testing package installations, we recommend you use VirtualBox for a clean environment.
 
-**Note** A computer restart is required to complete the install process, thus our suggestion to use VirtualBox.
+**Note:** A computer restart is required to complete the install process, thus our suggestion to use VirtualBox.
 
 Alternatively, you can also clone the [KA Lite](https://github.com/learningequality/ka-lite) repository and follow the [Getting Started](https://github.com/learningequality/ka-lite/wiki/Getting-started) instructions.  Then symlink the `bin/kalite` into your `/usr/local/bin/` folder so that it will be available in all of your Terminal sessions.  Lastly, set a `KALITE_PYTHON` environment variable to point to your Python executable.
 
@@ -83,12 +83,15 @@ Launch Xcode and open `KA-Lite/KA-Lite.xcodeproj`.  Build and run the project to
     * KA Lite repo on `develop` branch, or the specified repo
     * PyRun version 2.7
     * [Assessment](http://pantry.learningequality.org/downloads/ka-lite/) zip - this can take a very long time because it's 500MB+ in size.  We suggest you keep a copy of this in `temp/assessment.zip` to save in build time.
-1. You can optionally pass a ka-lite archive repo url as an argument in this format:
+1. You can optionally pass two arguments for the `build.sh` script:
+
+    > ./build.sh \<ka-lite-archive-repository-url> \<assessment-zip-url>
+
+    Example:
 
     > ./build.sh "https://github.com/learningequality/ka-lite/archive/0.16.x.zip" "http://pantry.learningequality.org/downloads/ka-lite/0.16/content/khan_assessment.zip"
 
-    This is useful if you want to try a different fork or branch on your build.
-    It defaults to the `develop` branch of the KA Lite repository at "https://github.com/learningequality/ka-lite/archive/develop.zip".
+    This is useful if you want to try a different fork or branch on your build.  The first argument defaults to the `develop` branch of the KA Lite repository at "https://github.com/learningequality/ka-lite/archive/develop.zip".
 1. The installation process requires a computer restart to complete.
 
 
