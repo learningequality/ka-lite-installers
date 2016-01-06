@@ -201,6 +201,15 @@ begin
     end;
 end;
 
+{ In version 0.13.x or below, users who selected the "Run KA Lite at system startup" option ran KA Lite as the }
+{ SYSTEM user. Starting in 0.16.0, it will be run as the current user. Consequently, data must be migrated from the }
+{ SYSTEM user's profile to the new location. }
+procedure WarnAboutSystemData;
+var
+begin
+    MsgBox('You may need to migrate data from the SYSTEM user''s profile to the current user''s profile.', mbInformation, MB_OK);
+end;
+
 procedure HandleUpgrade(targetPath : String);
 begin
     GetPreviousVersion;
@@ -219,6 +228,7 @@ begin
         else
         begin
             { This is where version-specific migration stuff should happen. }
+
             if CompareStr(prevVerStr, '0.13.99') < 0 then
             begin
                 if CompareStr('{#TargetVersion}', '0.14.0') >= 0 then
@@ -226,6 +236,16 @@ begin
                     DoGitMigrate;
                 end;
             end;
+
+            { Migrating from 0.14.x and 0.15.x to 0.16.x }
+            if CompareStr(prevVerStr, '0.14.0') >= 0 and CompareStr(prevVerStr, '0.15.99') < 0 then
+            begin
+                if CompareStr('{#TargetVersion}', '0.16.0') >= 0 then
+                begin
+                    WarnAboutSystemData;
+                end;
+            end;
+
         end;
     { forceCancel will be true if something went awry in DoGitMigrate... abort instead of trampling the user's data. }
     if Not forceCancel then
