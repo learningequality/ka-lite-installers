@@ -169,7 +169,7 @@ if [ $IS_PREINSTALL == false ]; then
         echo
         echo -n "Do you want the $KALITE_HOME directory to be deleted? (Yes/No) "
         # Check if the second input argument in the script was passed.
-        if [ "$2" == "yes" ]; then
+        if [ "$2" != "" ]; then
             remove_kalite="yes"
             syslog -s -l error "Auto confirm since $2 has value."
         else
@@ -219,7 +219,7 @@ if [ $IS_PREINSTALL == false ]; then
     echo "         "
     echo -n "Do you wish to uninstall KA-Lite? (Yes/No) "
     # Check if the first input argument in the script was passed.
-    if [ "$1" == "yes" ]; then
+    if [ "$1" != "" ]; then
         uninstall="yes"
         syslog -s -l error "Auto confirm since $1 has value."
     else
