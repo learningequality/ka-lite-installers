@@ -15,7 +15,9 @@
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
                 <outlet property="customKaliteData" destination="Fr9-lD-cxj" id="RLj-fb-pMb"/>
+                <outlet property="deleteKaliteData" destination="ogp-QS-1iO" id="PQn-Dn-Yqa"/>
                 <outlet property="kaliteDataHelp" destination="IFr-HI-gEe" id="Vyj-fM-fsS"/>
+                <outlet property="kaliteUninstallHelp" destination="79E-YB-w3D" id="DDS-66-jTo"/>
                 <outlet property="kaliteVersion" destination="89o-4x-JIp" id="72c-bS-dBh"/>
                 <outlet property="openBrowserButton" destination="wxg-iv-YDa" id="0er-aA-Ymn"/>
                 <outlet property="openInBrowserMenu" destination="z2m-ls-Z0I" id="mGN-C0-zz5"/>
@@ -66,7 +68,7 @@
                     </connections>
                 </menuItem>
             </items>
-            <point key="canvasLocation" x="283.5" y="347.5"/>
+            <point key="canvasLocation" x="283" y="347.5"/>
         </menu>
         <window title="Starting KA Lite..." allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="izD-1r-MWo">
             <windowStyleMask key="styleMask" titled="YES"/>
@@ -175,37 +177,8 @@ Gw
                                                 <action selector="openButton:" target="Voe-Tx-rLC" id="w1v-D6-uCu"/>
                                             </connections>
                                         </button>
-                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="Application behavior" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
-                                            <rect key="frame" x="11" y="72" width="414" height="91"/>
-                                            <view key="contentView">
-                                                <rect key="frame" x="1" y="1" width="412" height="72"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                <subviews>
-                                                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZJu-Y8-v7Y">
-                                                        <rect key="frame" x="16" y="46" width="168" height="18"/>
-                                                        <buttonCell key="cell" type="check" title="Auto start on login." bezelStyle="regularSquare" imagePosition="left" inset="2" id="hdP-ma-fi7">
-                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                            <font key="font" metaFont="system"/>
-                                                        </buttonCell>
-                                                        <connections>
-                                                            <action selector="startOnLogin:" target="Voe-Tx-rLC" id="xmF-x8-8P2"/>
-                                                        </connections>
-                                                    </button>
-                                                    <button hidden="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LGO-kK-gKp">
-                                                        <rect key="frame" x="16" y="21" width="297" height="18"/>
-                                                        <buttonCell key="cell" type="check" title=" Check for updates automatically (TODO)" bezelStyle="regularSquare" imagePosition="left" enabled="NO" inset="2" id="AGK-J1-S1r">
-                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                            <font key="font" metaFont="system"/>
-                                                        </buttonCell>
-                                                    </button>
-                                                </subviews>
-                                            </view>
-                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                            <font key="titleFont" metaFont="systemBold"/>
-                                        </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
-                                            <rect key="frame" x="11" y="189" width="414" height="53"/>
+                                            <rect key="frame" x="11" y="205" width="414" height="53"/>
                                             <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="412" height="51"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -240,6 +213,71 @@ Gw
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                     </textField>
+                                                </subviews>
+                                            </view>
+                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <font key="titleFont" metaFont="systemBold"/>
+                                        </box>
+                                        <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="2Uh-zQ-2n5">
+                                            <rect key="frame" x="11" y="18" width="414" height="69"/>
+                                            <view key="contentView">
+                                                <rect key="frame" x="1" y="1" width="412" height="67"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TAD-bw-wMN">
+                                                        <rect key="frame" x="-2" y="17" width="142" height="32"/>
+                                                        <buttonCell key="cell" type="push" title="Uninstall KA Lite" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="IDN-bi-OgE">
+                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                            <font key="font" metaFont="system"/>
+                                                        </buttonCell>
+                                                        <connections>
+                                                            <action selector="kaliteUninstall:" target="Voe-Tx-rLC" id="msu-gm-gIM"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button autoresizesSubviews="NO" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="79E-YB-w3D">
+                                                        <rect key="frame" x="135" y="21" width="25" height="25"/>
+                                                        <buttonCell key="cell" type="help" bezelStyle="helpButton" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="jhv-gG-CXO">
+                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                            <font key="font" metaFont="system"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ogp-QS-1iO">
+                                                        <rect key="frame" x="195" y="23" width="201" height="23"/>
+                                                        <buttonCell key="cell" type="check" title="Delete KA Lite data path." bezelStyle="regularSquare" imagePosition="left" inset="2" id="HVP-Yj-lWN">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="system"/>
+                                                        </buttonCell>
+                                                    </button>
+                                                </subviews>
+                                            </view>
+                                            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <font key="titleFont" metaFont="systemBold"/>
+                                        </box>
+                                        <box autoresizesSubviews="NO" fixedFrame="YES" title="Application behavior" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
+                                            <rect key="frame" x="11" y="102" width="414" height="91"/>
+                                            <view key="contentView">
+                                                <rect key="frame" x="1" y="1" width="412" height="72"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZJu-Y8-v7Y">
+                                                        <rect key="frame" x="16" y="46" width="168" height="18"/>
+                                                        <buttonCell key="cell" type="check" title="Auto start on login." bezelStyle="regularSquare" imagePosition="left" inset="2" id="hdP-ma-fi7">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="system"/>
+                                                        </buttonCell>
+                                                        <connections>
+                                                            <action selector="startOnLogin:" target="Voe-Tx-rLC" id="xmF-x8-8P2"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button hidden="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LGO-kK-gKp">
+                                                        <rect key="frame" x="16" y="21" width="297" height="18"/>
+                                                        <buttonCell key="cell" type="check" title=" Check for updates automatically (TODO)" bezelStyle="regularSquare" imagePosition="left" enabled="NO" inset="2" id="AGK-J1-S1r">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="system"/>
+                                                        </buttonCell>
+                                                    </button>
                                                 </subviews>
                                             </view>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>

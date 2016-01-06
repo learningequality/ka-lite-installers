@@ -57,6 +57,7 @@
     [self.statusItem setToolTip:@"Click to show the KA Lite menu items."];
     
     [self.kaliteDataHelp setToolTip:@"This will set the KALITE_HOME environment variable to the selected KA Lite data location. \n \nClick the 'Apply' button to save your changes and click the 'Start KA Lite' button to use your new data location. \n \nNOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location."];
+    [self.kaliteUninstallHelp setToolTip:@"This will uninstall KA Lite application. \n The `delete KA Lite data path` checkbox will delete the KA Lite data after the KA Lite application uninstall"];
     
     // Set the default status.
     self.status = statusCouldNotDetermineStatus;
@@ -604,11 +605,24 @@ NSString *getEnvVar(NSString *var) {
     [self discardPreferences];
 }
 
+- (IBAction)kaliteUninstall:(id)sender {
+    if (confirm(@"Are you sure that you want to uninstall the KA Lite application")) {
+        
+        if ([self.deleteKaliteData state]==NSOnState) {
+            // This will delete the KA Lite data.
+            system("/Users/richard/installers/osx/ka-lite-remover.sh yes yes");
+        } else {
+            system("/Users/richard/installers/osx/ka-lite-remover.sh yes no");
+        }
+        
+        // Terminate application.
+       [[NSApplication sharedApplication] terminate:nil];
+    }
+}
 
 - (void)closeSplash {
     [splash orderOut:self];
 }
-
 
 - (void)showPreferences {
     [splash orderOut:self];
