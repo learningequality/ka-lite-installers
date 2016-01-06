@@ -5,6 +5,7 @@
 #   * The files that will be removed, will be displayed on the console log.
 #   * The $SCRIPT_NAME env variables was specified by the `Packages`.
 #   * This is re-used as /Applications/KA-Lite/KA_Lite_Uninstall.tool during installation.
+#   * This script support uninstallation without user confirmation. Sample usage: ./ka-lite-remover.sh "uninstall --noinput" "delete data --noinput" 
 #
 # What does this script do?
 #   1. Unset the environment variables: KALITE_PYTHON and KALITE_HOME.
