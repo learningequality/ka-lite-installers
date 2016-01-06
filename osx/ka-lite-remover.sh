@@ -169,9 +169,12 @@ if [ $IS_PREINSTALL == false ]; then
         echo
         echo -n "Do you want the $KALITE_HOME directory to be deleted? (Yes/No) "
         # Check if the second input argument in the script was passed.
-        if [ "$2" != "" ]; then
+        if [ "$2" == "yes" ]; then
             remove_kalite="yes"
             syslog -s -l error "Auto confirm since $2 has value."
+        elif [ "$2" == "no" ]; then
+            remove_kalite="no"
+            syslog -s -l error "NOT Removing $KALITE_HOME directory."
         else
             read remove_kalite
         fi
