@@ -1,28 +1,24 @@
 #ifndef config
 #define config
 
-#define FILE_BUFFER_SIZE                            2048
+#define FILE_BUFFER_SIZE 2048
 
-
-
-/*
-*	Functions declaration.
-*/
-int readConfigurationFileBuffer(char * resultConfigurationBuffer);
-int writeConfigurationFileBuffer(char * configurationBuffer);
-bool compareKeys(const char * key1, const char * key2);
-int extractValue(const char * configurationBuffer, const char * targetKey, char * resultValue, int resultValueArraySize);
-int searchKeyIndex(const char * configurationBuffer, const char * targetKey);
-int addValue(const char * configurationBuffer, const char * targetKey, const char * value, char * resultConfigurationBuffer, int resultConfigurationBufferSize);
-void formatResultBuffer(const char * configurationBuffer, char * resultConfigurationBuffer);
-int getConfigurationValue(char * targetKey, char * resultValue, int resultValueBufferSize);
-int setConfigurationValue(const char * targetKey, const char * value);
-
+int readConfigurationFileBuffer(char* const& resultConfigurationBuffer);
+int writeConfigurationFileBuffer(const char* const configurationBuffer);
+bool compareKeys(const char* const key1, const char* const key2);
+int extractValue(const char* const configurationBuffer, const char* const targetKey, char* const& resultValue, int const resultValueArraySize);
+int searchKeyIndex(const char* const configurationBuffer, const char* const targetKey);
+int addValue(const char* const configurationBuffer, const char* const targetKey, const char* const value, char* const& resultConfigurationBuffer, int const resultConfigurationBufferSize);
+int formatResultBuffer(const char* const configurationBuffer, char* const& resultConfigurationBuffer, const int resultBufferSize);
+int isSetConfigurationValueTrue(const char* const targetKey);
+int setConfigurationValue(const char* const targetKey, const char* const value);
 
 /*
 *	Read the configuration file to some buffer.
+*	:param char* const& resultConfigurationBuffer: The buffer into which the configuration file is read.
+*	:returns int: 0 indicating success, or 1 indicating failure
 */
-int readConfigurationFileBuffer(char * resultConfigurationBuffer)
+int readConfigurationFileBuffer(char* const& resultConfigurationBuffer)
 {
 	HANDLE hFile;
 	DWORD bytesRead = 0;
@@ -88,8 +84,10 @@ int readConfigurationFileBuffer(char * resultConfigurationBuffer)
 
 /*
 *	Write the configuration file from some buffer.
+*	:param const char* const configurationBuffer: The buffer from which the configuration file is written.
+*	:returns int: 0 indicating success, or 1 indicating failure
 */
-int writeConfigurationFileBuffer(char * configurationBuffer)
+int writeConfigurationFileBuffer(const char* const configurationBuffer)
 {
 	HANDLE hFile;
 	DWORD bytesToWrite = (DWORD) strlen(configurationBuffer);
@@ -124,31 +122,26 @@ int writeConfigurationFileBuffer(char * configurationBuffer)
 
 /*
 *	Compare two buffers.
+*	:param const char* const key1, key2: The two string buffers to compare.
+*	:returns bool: true if the strings have the same content, otherwise false.
 */
-bool compareKeys(const char * key1, const char * key2)
+bool compareKeys(const char* const key1, const char* const key2)
 {
-	const int key1_size = (unsigned)strlen(key1);
-	const int key2_size = (unsigned)strlen(key2);
-
-	if(key1_size != key1_size) return false;
-
-	int size_test = 0;
-
-	while( (*key1++ == *key2++) && (size_test < key1_size) )
-	{
-		size_test++;
-	}
-
-	if( (size_test == key1_size) && (size_test == key2_size) ) return true;
 	return false;
 }
 
 
 
 /*
-*	Extract the value of a key if that key exists.
+*	Extract the value of a key from a buffer if that key is in the buffer.
+*	:param const char* const configurationBuffer: The string buffer to read from.
+*	:param const char* const targetKey: The string we're searching for.
+*	:char* const& resultValue: String buffer to hold result value.
+*	:int const resultValueArraySize: The size of the resultValue array.
+*
+*	:returns int: 0 for success, 1 if the targetKey is not found, 2 if the resultValue buffer is not long enough.
 */
-int extractValue(const char * configurationBuffer, const char * targetKey, char * resultValue, int resultValueArraySize)
+int extractValue(const char* const configurationBuffer, const char* const targetKey, char* const& resultValue, int const resultValueArraySize)
 {
 	int tempIndex = 0;
 	int index = searchKeyIndex(configurationBuffer, targetKey);
@@ -170,9 +163,12 @@ int extractValue(const char * configurationBuffer, const char * targetKey, char 
 
 
 /*
-*	Return the index of a key if it exists.
+*	Return the index of a key in a buffer if it exists.
+*	:param const char* const configurationBuffer: The string buffer to search.
+*	:param const char* const targetKey: The key to search for.
+*	:returns int: The index in configurationBuffer where the targetKey starts if found, otherwise -1.
 */
-int searchKeyIndex(const char * configurationBuffer, const char * targetKey)
+int searchKeyIndex(const char* const configurationBuffer, const char* const targetKey)
 {
 	char * resultValueBuffer = (char*)malloc(sizeof(char) * FILE_BUFFER_SIZE);
 	int i = 0;
@@ -242,9 +238,16 @@ int searchKeyIndex(const char * configurationBuffer, const char * targetKey)
 
 
 /*
-*	Updates the value of the given key or add it if it doesn't exist.
+*	Updates the value of the given key in a configuration buffer, or add it if it doesn't exist.
+*	:param const char* const configurationBuffer: The buffer to be searched
+*	:param const char* const targetKey: The key we're looking to update.
+*	:param const char* const value: The updated value to be set.
+*	:param char* const& resultConfigurationBuffer: Another buffer which will hold the updated buffer -- the original cofigurationBuffer is not modified.
+*	:param int const resultConfigurationBufferSize: the size of resultConfigurationBuffer.
+*
+*	:returns int: 0 on success, 1 if the targetKey or value strings are empty, 2 if resultConfigurationBuffer is not long enough.
 */
-int addValue(const char * configurationBuffer, const char * targetKey, const char * value, char * resultConfigurationBuffer, int resultConfigurationBufferSize)
+int addValue(const char* const configurationBuffer, const char* const targetKey, const char* const value, char* const& resultConfigurationBuffer, int const resultConfigurationBufferSize)
 {
 	const int key_size = (unsigned)strlen(targetKey);
 	const int value_size = (unsigned)strlen(value);
@@ -326,8 +329,13 @@ int addValue(const char * configurationBuffer, const char * targetKey, const cha
 
 /*
 *	Prepare the buffer for file writing.
+*	:param const char* const configurationBuffer: The input buffer to be prepared.
+*	:param char* const& resultConfigurationBuffer: Another buffer to hold the output.
+*	:param const int resultBufferSize: The size of resultConfigurationBuffer.
+*
+*	:returns int: 0 on success, 2 if resultConfigurationBuffer is not long enough.
 */
-void formatResultBuffer(char * configurationBuffer, char * resultConfigurationBuffer)
+int formatResultBuffer(const char* const configurationBuffer, char* const& resultConfigurationBuffer, const int resultBufferSize)
 {
 	int i = 0;
 	int tempIndex = 0;
@@ -350,8 +358,10 @@ void formatResultBuffer(char * configurationBuffer, char * resultConfigurationBu
 
 /*
 *	Read key from configuration file.
+*	:param const char* const targetKey: The key to check.
+*	:returns int: TRUE if the file has the key and it's set to "TRUE", otherwise FALSE. TRUE and FALSE are defined by preprocessor directives.
 */
-int isSetConfigurationValueTrue(char * targetKey)
+int isSetConfigurationValueTrue(const char* const targetKey)
 {
 	char configurationFileBuffer[FILE_BUFFER_SIZE];
 
@@ -380,9 +390,11 @@ int isSetConfigurationValueTrue(char * targetKey)
 
 
 /*
-*	General write key to configuration file.
+*	Write a key-value pair to the configuration file.
+*	:param const char* const targetKey, value: The key-value pair strings to be written.
+*	:reutns int: 0 on success, 1 on any other error.
 */
-int setConfigurationValue(const char * targetKey, const char * value)
+int setConfigurationValue(const char* const targetKey, const char* const value)
 {
 	char configurationFileBuffer[FILE_BUFFER_SIZE];
 	char resultConfigurationBuffer[FILE_BUFFER_SIZE];
