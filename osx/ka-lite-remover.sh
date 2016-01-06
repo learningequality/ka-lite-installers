@@ -161,7 +161,7 @@ if [ $IS_PREINSTALL == false ]; then
 
     # Check if the directory exists before confirming to include it on the list.
     if [ -d "$KALITE_HOME" ]; then
-        # Check if the first input arguments in the script was passed.
+        # Check if the second input argument in the script was passed.
         if [ "$2" == "delete data --noinput" ]; then
             append REMOVE_FILES_ARRAY "$KALITE_HOME"
         else
@@ -213,7 +213,7 @@ echo "  KALITE_PYTHON with value $KALITE_PYTHON"
 echo "  KALITE_HOME with value $KALITE_HOME"
 
 if [ $IS_PREINSTALL == false ]; then
-    # Check if the second input arguments in the script was passed.
+    # Check if the first input argument in the script was passed.
     if [ "$1" != "uninstall --noinput" ]; then
         echo "         "
         echo -n "Do you wish to uninstall KA-Lite? (Yes/No) "
