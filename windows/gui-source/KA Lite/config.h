@@ -1,5 +1,7 @@
 #ifndef config
 #define config
+#include <ShlObj.h>
+#include <Strsafe.h>
 
 #define FILE_BUFFER_SIZE 2048
 
@@ -12,6 +14,9 @@ int addValue(const char* const configurationBuffer, const char* const targetKey,
 int formatResultBuffer(const char* const configurationBuffer, char* const& resultConfigurationBuffer, const int resultBufferSize);
 int isSetConfigurationValueTrue(const char* const targetKey);
 int setConfigurationValue(const char* const targetKey, const char* const value);
+int joinPath(LPCTSTR const path1, LPCTSTR const path2, LPTSTR const& resultBuffer, const UINT resBuffLen);
+int getConfigFilePath(LPTSTR const& resultBuffer, const UINT resBuffLen);
+
 
 /*
 *	Read the configuration file to some buffer.
@@ -23,8 +28,11 @@ int readConfigurationFileBuffer(char* const& resultConfigurationBuffer)
 	HANDLE hFile;
 	DWORD bytesRead = 0;
 	char readConfigurationBuffer[FILE_BUFFER_SIZE];
+	TCHAR configFilePath[MAX_PATH];
 
-	hFile = CreateFile(L"CONFIG.dat", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	getConfigFilePath(configFilePath, MAX_PATH);
+
+	hFile = CreateFile(configFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if(hFile == INVALID_HANDLE_VALUE)
 	{
@@ -81,6 +89,83 @@ int readConfigurationFileBuffer(char* const& resultConfigurationBuffer)
 }
 
 
+/*
+*	Gets a user-specific config file path. Creates directories if necessary.
+*	:param LPTSTR const& resultBuffer: A string buffer where the path will be stored.
+*	:param const UINT resBuffLen: the buffer length
+*	:return int: 0 for success, 1 for error
+*/
+int getConfigFilePath(LPTSTR const& resultBuffer, const UINT resBuffLen)
+{
+	TCHAR basePath[MAX_PATH];
+	LPCTSTR const kaliteSubdir = TEXT("KA Lite");
+	LPCTSTR const filename = TEXT("CONFIG.dat");
+
+	if (FAILED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, basePath))) {
+		return 1;
+	}
+
+	joinPath(basePath, kaliteSubdir, resultBuffer, resBuffLen);
+	int create_result = CreateDirectory(resultBuffer, NULL);
+	if (!create_result && GetLastError() != ERROR_ALREADY_EXISTS ) {
+		return 1;
+	}
+
+	TCHAR cpy[MAX_PATH];
+	StringCchCopy(cpy, MAX_PATH, resultBuffer);
+	joinPath(cpy, filename, resultBuffer, resBuffLen);
+	return 0;
+}
+
+
+
+/*
+*	Join two path strings. Handles leading & terminating "/" characters well enough.
+*	:param LPCTSTR path1, LPCTSTR path2: The two componenets to join.
+*	:param LPTSTR resultBuffer: A buffer to hold the result.
+*	:param const UINT resBuffLen: The length of the resultBuffer.
+*	:return int: 0 for success, 2 if resultBuffer is not long enough.
+*/
+int joinPath(LPCTSTR const path1, LPCTSTR const path2, LPTSTR const& resultBuffer, const UINT resBuffLen)
+{
+	if (resBuffLen < 2) { // Must be at least length 1 to be the empty null-terminated string
+		return 2;
+	}
+	resultBuffer[0] = TEXT('\0');
+	
+	const TCHAR sep = TEXT('\\');
+	int path1len;
+	if (path1[lstrlen(path1) - 1] == sep) {
+		path1len = lstrlen(path1) - 1;
+	}
+	else {
+		path1len = lstrlen(path1);
+	}
+
+	if (FAILED(StringCchCatN(resultBuffer, resBuffLen, path1, path1len))) {
+		return 2;
+	}
+
+	if (FAILED(StringCchCatN(resultBuffer, resBuffLen, TEXT("\\"), 1))) {
+		return 2;
+	}
+
+	int path2offset;
+	if (path2[0] == sep) {
+		path2offset = 1;
+	}
+	else {
+		path2offset = 0;
+	}
+	
+	if (FAILED(StringCchCatN(resultBuffer, resBuffLen, &path2[path2offset], lstrlen(&path2[path2offset])))) {
+		return 2;
+	}
+
+	return 0;
+}
+
+
 
 /*
 *	Write the configuration file from some buffer.
@@ -93,8 +178,11 @@ int writeConfigurationFileBuffer(const char* const configurationBuffer)
 	DWORD bytesToWrite = (DWORD) strlen(configurationBuffer);
 	DWORD bytesWritten = 0;
 	BOOL errorFlag = FALSE;
+	TCHAR configFilePath[MAX_PATH];
 
-	hFile = CreateFile(L"CONFIG.dat", GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	getConfigFilePath(configFilePath, MAX_PATH);
+
+	hFile = CreateFile(configFilePath, GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if(hFile == INVALID_HANDLE_VALUE)
 	{
@@ -127,7 +215,7 @@ int writeConfigurationFileBuffer(const char* const configurationBuffer)
 */
 bool compareKeys(const char* const key1, const char* const key2)
 {
-	return false;
+	return strcmp(key1, key2) == 0 ? true : false;
 }
 
 
@@ -352,6 +440,7 @@ int formatResultBuffer(const char* const configurationBuffer, char* const& resul
 	}
 
 	resultConfigurationBuffer[tempIndex] = '\0';
+	return 0;
 }
 
 
@@ -404,7 +493,7 @@ int setConfigurationValue(const char* const targetKey, const char* const value)
 
 	if(addValue(configurationFileBuffer, targetKey, value, resultConfigurationBuffer, FILE_BUFFER_SIZE) == 1) return 1;
 
-	formatResultBuffer(resultConfigurationBuffer, formatedResultConfigurationBuffer);
+	formatResultBuffer(resultConfigurationBuffer, formatedResultConfigurationBuffer, FILE_BUFFER_SIZE);
 
 	if(writeConfigurationFileBuffer(formatedResultConfigurationBuffer) == 1) return 1;
 
