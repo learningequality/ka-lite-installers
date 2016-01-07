@@ -57,7 +57,7 @@
     [self.statusItem setToolTip:@"Click to show the KA Lite menu items."];
     
     [self.kaliteDataHelp setToolTip:@"This will set the KALITE_HOME environment variable to the selected KA Lite data location. \n \nClick the 'Apply' button to save your changes and click the 'Start KA Lite' button to use your new data location. \n \nNOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location."];
-    [self.kaliteUninstallHelp setToolTip:@"This will uninstall KA Lite application. \n The `delete KA Lite data path` checkbox will delete the KA Lite data after the KA Lite application uninstall"];
+    [self.kaliteUninstallHelp setToolTip:@"This will uninstall the KA Lite application. \n \nCheck the `Delete KA Lite data folder` option if you want to delete your KA Lite data. \n \nNOTE: This will require admin privileges."];
     
     // Set the default status.
     self.status = statusCouldNotDetermineStatus;
@@ -616,7 +616,7 @@ NSString *getEnvVar(NSString *var) {
         
     if (pathExists(kaliteUninstallPath)) {
     
-        if (confirm(@"Are you sure that you want to uninstall the KA Lite application")) {
+        if (confirm(@"Are you sure that you want to uninstall the KA Lite application?")) {
             
             const char *runCommand;
             if ([self.deleteKaliteData state]==NSOnState) {
@@ -637,7 +637,7 @@ NSString *getEnvVar(NSString *var) {
         }
         
     } else {
-        alert(@"The KA Lite uninstall script is not found.");
+        alert(@"The KA Lite uninstall script is not found. You need to reinstall the KA Lite application.");
     }
 }
 
