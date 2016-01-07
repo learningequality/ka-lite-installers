@@ -219,8 +219,7 @@ if [ $IS_PREINSTALL == false ]; then
     echo "         "
     echo -n "Do you wish to uninstall KA-Lite? (Yes/No) "
      # Check if the first argument has a value. 
-     uninstall="$1"
-     uninstall="$(echo $uninstall | tr '[:upper:]' '[:lower:]')"
+     uninstall="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
     if [ "$uninstall" == "yes" ]; then
         syslog -s -l alert "KALITE: Auto confirm uninstallation process."
     elif [ "$uninstall" == "no" ]; then
