@@ -606,17 +606,38 @@ NSString *getEnvVar(NSString *var) {
 }
 
 - (IBAction)kaliteUninstall:(id)sender {
-    if (confirm(@"Are you sure that you want to uninstall the KA Lite application")) {
         
-        if ([self.deleteKaliteData state]==NSOnState) {
-            // This will delete the KA Lite data.
-            system("/Users/richard/installers/osx/ka-lite-remover.sh yes yes");
-        } else {
-            system("/Users/richard/installers/osx/ka-lite-remover.sh yes no");
+    // Get the KA Lite application directory path.
+    NSString *appPath = [[NSBundle mainBundle] bundlePath];
+    NSRange searchLastWord = [appPath rangeOfString:@"/" options:NSBackwardsSearch];
+    NSString *lastWord = [appPath substringFromIndex:searchLastWord.location+1];
+    NSString *kaliteAppDir = [appPath stringByReplacingOccurrencesOfString:lastWord withString:@""];
+    NSString *kaliteUninstallPath = [NSString stringWithFormat: @"%@%@", kaliteAppDir, @"KA-Lite_Uninstall.tool"];
+        
+    if (pathExists(kaliteUninstallPath)) {
+    
+        if (confirm(@"Are you sure that you want to uninstall the KA Lite application")) {
+            
+            const char *runCommand;
+            if ([self.deleteKaliteData state]==NSOnState) {
+                // Delete the KA Lite data.
+                NSString *kaliteUninstallData = [NSString stringWithFormat: @"%@ %@", kaliteUninstallPath, @"yes yes"];
+                runCommand = [kaliteUninstallData UTF8String];
+            } else {
+                NSString *kaliteAppUninstall = [NSString stringWithFormat: @"%@ %@", kaliteUninstallPath, @"yes no"];
+                runCommand = [kaliteAppUninstall UTF8String];
+            }
+            
+            int runCommandStatus = system(runCommand);
+            
+            if (runCommandStatus == 0) {
+                // Terminate application.
+                [[NSApplication sharedApplication] terminate:nil];
+            }
         }
         
-        // Terminate application.
-       [[NSApplication sharedApplication] terminate:nil];
+    } else {
+        alert(@"The KA Lite uninstall script is not found.");
     }
 }
 
