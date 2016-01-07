@@ -609,30 +609,27 @@ NSString *getEnvVar(NSString *var) {
         
     // Get the KA Lite application directory path.
     NSString *appPath = [[NSBundle mainBundle] bundlePath];
-    NSRange searchLastWord = [appPath rangeOfString:@"/" options:NSBackwardsSearch];
-    NSString *lastWord = [appPath substringFromIndex:searchLastWord.location+1];
-    NSString *kaliteAppDir = [appPath stringByReplacingOccurrencesOfString:lastWord withString:@""];
-    NSString *kaliteUninstallPath = [NSString stringWithFormat: @"%@%@", kaliteAppDir, @"KA-Lite_Uninstall.tool"];
-        
-    if (pathExists(kaliteUninstallPath)) {
+    // REF: http://stackoverflow.com/questions/7469425/how-to-parse-nsstring-by-removing-2-folders-in-path-in-objective-c
+    NSString *kaliteAppDir = [appPath stringByDeletingLastPathComponent];
+    // REF: http://stackoverflow.com/questions/1489522/stringbyappendingpathcomponent-hows-it-work
+    NSString *kaliteUninstallPath = [[kaliteAppDir stringByAppendingPathComponent:@"/KA-Lite_Uninstall.tool"] stringByStandardizingPath];
     
+    if (pathExists(kaliteUninstallPath)) {
         if (confirm(@"Are you sure that you want to uninstall the KA Lite application?")) {
-            
-            const char *runCommand;
+            NSString *kaliteUninstallArg;
             if ([self.deleteKaliteData state]==NSOnState) {
                 // Delete the KA Lite data.
-                NSString *kaliteUninstallData = [NSString stringWithFormat: @"%@ %@", kaliteUninstallPath, @"yes yes"];
-                runCommand = [kaliteUninstallData UTF8String];
+                kaliteUninstallArg = @"yes yes";
             } else {
-                NSString *kaliteAppUninstall = [NSString stringWithFormat: @"%@ %@", kaliteUninstallPath, @"yes no"];
-                runCommand = [kaliteAppUninstall UTF8String];
+                kaliteUninstallArg = @"yes no";
             }
-            
+            const char *runCommand = [[NSString stringWithFormat: @"%@ %@", kaliteUninstallPath, kaliteUninstallArg] UTF8String];
             int runCommandStatus = system(runCommand);
-            
             if (runCommandStatus == 0) {
                 // Terminate application.
                 [[NSApplication sharedApplication] terminate:nil];
+            }else {
+                alert(@"The KA Lite uninstall did not succeed. You can see the logs at console application.");
             }
         }
         
