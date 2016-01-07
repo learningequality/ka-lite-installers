@@ -5,8 +5,7 @@
 #   * The files that will be removed, will be displayed on the console log.
 #   * The $SCRIPT_NAME env variables was specified by the `Packages`.
 #   * This is re-used as /Applications/KA-Lite/KA_Lite_Uninstall.tool during installation.
-#   * This script support uninstallation without user confirmation.
-#   * The script args are use in the application which auto confirms the removing of `.kalite` and uninstalling the .app. 
+#   * The script args are use to auto confirms the removing of `.kalite` and the uninstallation process.
 #
 # What does this script do?
 #   1. Unset the environment variables: KALITE_PYTHON and KALITE_HOME.
@@ -17,7 +16,6 @@
 # Some References:
 #   * http://stackoverflow.com/a/2264537/845481 - Converting string to lower case in Bash shell scripting
 #
-
 
 #----------------------------------------------------------------------
 # Global Variables
@@ -81,7 +79,7 @@ function remove_files_initiator {
     for file in "${REMOVE_FILES_ARRAY[@]}"; do
         if [ -e "${file}" ]; then
             echo "Will remove: ${file}"
-            syslog -s -l error "Will remove: ${file}"
+            syslog -s -l alert "KALITE: Will remove: ${file}"
             ((uninstall_count++))
         fi
     done
@@ -113,7 +111,7 @@ function remove_files_initiator {
 # Script
 #----------------------------------------------------------------------
 # ENV=$(env)
-# syslog -s -l error "Packages pre-installation initialize with env:'\n'$ENV" 
+# syslog -s -l alert "Packages pre-installation initialize with env:'\n'$ENV" 
 
 pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd`
@@ -168,18 +166,17 @@ if [ $IS_PREINSTALL == false ]; then
         echo "Answer no if you want to keep your KA-Lite data files."
         echo
         echo -n "Do you want the $KALITE_HOME directory to be deleted? (Yes/No) "
-        # Check if the second input argument in the script was passed.
-        if [ "$2" == "yes" ]; then
-            remove_kalite="yes"
-            syslog -s -l error "Auto confirm since $2 has value."
-        elif [ "$2" == "no" ]; then
-            remove_kalite="no"
-            syslog -s -l error "NOT Removing $KALITE_HOME directory."
+        # Check if the second argument has a value. 
+        remove_kalite="$(echo $2 | tr '[:upper:]' '[:lower:]')"
+        if [ "$remove_kalite" == "yes" ]; then
+            syslog -s -l alert "KALITE: Auto confirm removing of $KALITE_HOME directory."
+        elif [ "$remove_kalite" == "no" ]; then
+            syslog -s -l alert "KALITE: NOT Removing $KALITE_HOME directory."
         else
             read remove_kalite
+            # convert answer to lowercase
+            remove_kalite="$(echo $remove_kalite | tr '[:upper:]' '[:lower:]')"
         fi
-        # convert answer to lowercase
-        remove_kalite="$(echo $remove_kalite | tr '[:upper:]' '[:lower:]')"
         if [ "$remove_kalite" == "yes" ]; then
             append REMOVE_FILES_ARRAY "$KALITE_HOME"
             echo "Will remove $KALITE_HOME directory."
@@ -221,15 +218,18 @@ echo "  KALITE_HOME with value $KALITE_HOME"
 if [ $IS_PREINSTALL == false ]; then
     echo "         "
     echo -n "Do you wish to uninstall KA-Lite? (Yes/No) "
-    # Check if the first input argument in the script was passed.
-    if [ "$1" != "" ]; then
-        uninstall="yes"
-        syslog -s -l error "Auto confirm since $1 has value."
+     # Check if the first argument has a value. 
+     uninstall="$1"
+     uninstall="$(echo $uninstall | tr '[:upper:]' '[:lower:]')"
+    if [ "$uninstall" == "yes" ]; then
+        syslog -s -l alert "KALITE: Auto confirm uninstallation process."
+    elif [ "$uninstall" == "no" ]; then
+        syslog -s -l alert "KALITE: NOT Removing $KALITE_HOME directory."
     else
         read uninstall
+        # convert answer to lowercase
+        uninstall="$(echo $uninstall | tr '[:upper:]' '[:lower:]')"
     fi
-    # convert answer to lowercase
-    uninstall="$(echo $uninstall | tr '[:upper:]' '[:lower:]')"
     if [ "$uninstall" != "yes" ]; then
         echo "Aborting uninstall. (answer: ${uninstall})"
         key_exit 1
