@@ -283,77 +283,42 @@ int searchKeyIndex(const char* const configurationBuffer, const char* const targ
 */
 int addValue(const char* const configurationBuffer, const char* const targetKey, const char* const value, char* const& resultConfigurationBuffer, int const resultConfigurationBufferSize)
 {
-	const int key_size = (unsigned)strlen(targetKey);
-	const int value_size = (unsigned)strlen(value);
+	size_t key_size = strlen(targetKey);
+	size_t value_size = strlen(value);
+	size_t configBuffSize = strlen(configurationBuffer);
 
-	if(key_size == 0 || value_size == 0) return 1;
+	if (key_size == 0 || value_size == 0) return 1;
+	if (resultConfigurationBufferSize < 1) return 2;
 
-	int keyIndex = 0;
-	keyIndex = searchKeyIndex(configurationBuffer, targetKey);
+	int keyIndex = searchKeyIndex(configurationBuffer, targetKey);
 
 	int tempIndex = 0;
 	int tempUpdateIndex = 0;
 	int i = 0;
 
-	if(keyIndex == -1)
+	if(keyIndex == -1) // The key is not in configurationBuffer
 	{
-		while( configurationBuffer[i] != '\0' )
-		{
-			resultConfigurationBuffer[i] = configurationBuffer[i];
-			i++;
+		resultConfigurationBuffer[0] = '\0';
+		if (FAILED(StringCchCatA(resultConfigurationBuffer, resultConfigurationBufferSize, configurationBuffer))) return 2;
+		if (FAILED(StringCchCatA(resultConfigurationBuffer, resultConfigurationBufferSize, targetKey))) return 2;
+		if (FAILED(StringCchCatA(resultConfigurationBuffer, resultConfigurationBufferSize, ":"))) return 2;
+		if (FAILED(StringCchCatA(resultConfigurationBuffer, resultConfigurationBufferSize, value))) return 2;
+		if (FAILED(StringCchCatA(resultConfigurationBuffer, resultConfigurationBufferSize, ";"))) return 2;
+	}
+	else {
+		// Copy up to the key + the trailing ':', splice in the new value, then find where the old value ended and concat the rest
+		resultConfigurationBuffer[0] = '\0';
+		if (FAILED(StringCchCatNA(resultConfigurationBuffer, resultConfigurationBufferSize, configurationBuffer, keyIndex + key_size + 1))) return 2;
+		if (FAILED(StringCchCatA(resultConfigurationBuffer, resultConfigurationBufferSize, value))) return 2;
+		int afterValueInd;
+		for (int i = keyIndex + key_size + 1; i < configBuffSize; i++) {
+			if (configurationBuffer[i] == ';') {
+				afterValueInd = i;
+				break;
+			}
 		}
-		while( targetKey[tempIndex] != '\0' )
-		{
-			resultConfigurationBuffer[i] = targetKey[tempIndex];
-			i++;
-			tempIndex++;
-		}
-		resultConfigurationBuffer[i] = ':';
-		i++;
-		tempIndex = 0;
-		while( value[tempIndex] != '\0' )
-		{
-			resultConfigurationBuffer[i] = value[tempIndex];
-			i++;
-			tempIndex++;
-		}
-		resultConfigurationBuffer[i] = ';';
-		i++;
-		resultConfigurationBuffer[i] = '\0';
-
-		return 0;
+		if (FAILED(StringCchCatA(resultConfigurationBuffer, resultConfigurationBufferSize, &configurationBuffer[afterValueInd]))) return 2;
 	}
-
-
-	for(i=0;i<keyIndex;i++)
-	{
-		resultConfigurationBuffer[i] = configurationBuffer[i];
-	}
-
-	resultConfigurationBuffer[i] = ':';
-	i++;
-	tempUpdateIndex = i;
-	for(tempIndex=0; tempIndex<value_size; tempIndex++)
-	{
-		if(value[tempIndex] == '\0') break;
-		resultConfigurationBuffer[tempUpdateIndex] = value[tempIndex];
-		tempUpdateIndex++;
-	}
-
-	resultConfigurationBuffer[tempUpdateIndex] = ';';
-	tempIndex = tempUpdateIndex;
-	while(configurationBuffer[i]!=';')
-	{
-		i++;
-	}
-
-	for(i=i; i<FILE_BUFFER_SIZE; i++)
-	{
-		if(configurationBuffer[i] == '\0') break;
-		resultConfigurationBuffer[tempIndex] = configurationBuffer[i];
-		tempIndex++;
-	}
-	resultConfigurationBuffer[tempIndex] = '\0';
 
 	return 0;
 }
