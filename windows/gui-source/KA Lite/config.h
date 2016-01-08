@@ -18,6 +18,7 @@ int joinPath(LPCTSTR const path1, LPCTSTR const path2, LPTSTR const& resultBuffe
 int getConfigFilePath(LPTSTR const& resultBuffer, const UINT resBuffLen);
 
 
+
 /*
 *	Read the configuration file to some buffer.
 *	:param char* const& resultConfigurationBuffer: The buffer into which the configuration file is read.
@@ -43,7 +44,7 @@ int readConfigurationFileBuffer(char* const& resultConfigurationBuffer)
 
 	if(ReadFile(hFile, readConfigurationBuffer, (FILE_BUFFER_SIZE-1), &bytesRead, NULL) == FALSE)
 	{
-		MessageBox(NULL, L"Failed to read the config file", L"Error", MB_OK | MB_ICONERROR);
+		MessageBox(NULL, TEXT("Failed to read the config file"), TEXT("Error"), MB_OK | MB_ICONERROR);
 		CloseHandle(hFile);
 		return 1;
 	}
@@ -80,7 +81,7 @@ int readConfigurationFileBuffer(char* const& resultConfigurationBuffer)
 	}
 	else
 	{
-		MessageBox(NULL, L"Unexpected value", L"Error", MB_OK | MB_ICONERROR);
+		MessageBox(NULL, TEXT("Unexpected value"), TEXT("Error"), MB_OK | MB_ICONERROR);
 		CloseHandle(hFile);
 		return 1;
 	}
@@ -186,24 +187,22 @@ int writeConfigurationFileBuffer(const char* const configurationBuffer)
 
 	if(hFile == INVALID_HANDLE_VALUE)
 	{
-		MessageBox(NULL, L"Failed to create config file", L"Error", MB_OK | MB_ICONERROR);
+		MessageBox(NULL, TEXT("Failed to create config file"), TEXT("Error"), MB_OK | MB_ICONERROR);
 		CloseHandle(hFile);
 		return 1;
-	} else { 
+	} 
 
-		errorFlag = WriteFile(hFile, configurationBuffer, bytesToWrite, &bytesWritten, NULL);
+	errorFlag = WriteFile(hFile, configurationBuffer, bytesToWrite, &bytesWritten, NULL);
 
-		if(FALSE == errorFlag)
-		{
-			MessageBox(NULL, L"Failed to write to config file", L"Error", MB_OK | MB_ICONERROR);
-			CloseHandle(hFile);
-			return 1;
-		}
-
+	if(!errorFlag)
+	{
+		MessageBox(NULL, TEXT("Failed to write to config file"), TEXT("Error"), MB_OK | MB_ICONERROR);
 		CloseHandle(hFile);
-		return 0;
+		return 1;
 	}
+
 	CloseHandle(hFile);
+	return 0;
 }
 
 
@@ -250,6 +249,7 @@ int extractValue(const char* const configurationBuffer, const char* const target
 
 
 
+
 /*
 *	Return the index of a key in a buffer if it exists.
 *	:param const char* const configurationBuffer: The string buffer to search.
@@ -258,68 +258,14 @@ int extractValue(const char* const configurationBuffer, const char* const target
 */
 int searchKeyIndex(const char* const configurationBuffer, const char* const targetKey)
 {
-	char * resultValueBuffer = (char*)malloc(sizeof(char) * FILE_BUFFER_SIZE);
-	int i = 0;
-	int j = 0;
-	int lowIndex = 0;
-	int highIndex = 0;
-	int resultBufferIndex = 0;
-	bool ignoreFound = FALSE;
-
-	for(i=0; i<FILE_BUFFER_SIZE; i++)
-	{
-		if(configurationBuffer[i] == '#')
-		{
-			ignoreFound = TRUE;
-		}
-
-		if(ignoreFound)
-		{
-			if(configurationBuffer[i] == ';')
-			{
-				ignoreFound = FALSE;
-				lowIndex = i;
-				resultBufferIndex = 0;
-			}
-		}
-		else
-		{
-			if(configurationBuffer[i] == ';')
-			{
-				for(j=lowIndex; j<=highIndex; j++)
-				{
-					if(configurationBuffer[j] == ';')
-					{
-						lowIndex = i+1;
-						resultBufferIndex = 0;
-						continue;
-					}
-
-					if(configurationBuffer[j] ==':')
-					{
-						resultValueBuffer[resultBufferIndex] = '\0';
-
-						if(compareKeys(resultValueBuffer, targetKey))
-						{
-							return j;
-						}
-						else
-						{
-							lowIndex = i+1;
-							resultBufferIndex = 0;
-							break;
-						}					
-					}
-					else
-					{
-						resultValueBuffer[resultBufferIndex] = configurationBuffer[j];
-						resultBufferIndex++;
-					}				
-				}			
-			}
-		}
-		highIndex++;		
+	const int buffLen = strlen(configurationBuffer);
+	const int targetLen = strlen(targetKey);
+	char* substr = new char[targetLen + 1];
+	for (int i = 0; i < buffLen - targetLen; i++) {
+		if (FAILED(StringCchCopyNA(substr, targetLen + 1, &configurationBuffer[i], targetLen))) return -1;
+		if (lstrcmpA(substr, targetKey) == 0) return i;
 	}
+	delete[] substr;
 	return -1;
 }
 
@@ -463,7 +409,7 @@ int isSetConfigurationValueTrue(const char* const targetKey)
 	{
 		if(setConfigurationValue(targetKey, "FALSE") == 1)
 		{
-			MessageBox(NULL, L"Failed to set the configuration option", L"Error", MB_OK | MB_ICONERROR);
+			MessageBox(NULL, TEXT("Failed to set the configuration option"), TEXT("Error"), MB_OK | MB_ICONERROR);
 		}
 		return FALSE;
 	}
