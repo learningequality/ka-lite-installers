@@ -48,7 +48,7 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
  8. Run `kalite manage setup --noinput`.
  9. Start the server again by clicking on `Start KA Lite` in the menu option.
 
-**Note:** You can specify another another assessment items archive that you've downloaded at the `unpack_assessment_zip` step above, as long as it's compatible on this version of KA Lite.
+**Note:** You can specify another assessment items archive that you've downloaded at the `unpack_assessment_zip` step above, as long as it's compatible on this version of KA Lite.
 
 
 ## Uninstall KA Lite
