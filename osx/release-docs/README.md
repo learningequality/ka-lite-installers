@@ -3,34 +3,43 @@ README for KA Lite Mac OS X Application
 
 This is the [KA Lite](https://github.com/learningequality/ka-lite/) application that sits on the menu bar of Mac OS X.
 
-It's used to install and monitor the [KA Lite](https://github.com/learningequality/ka-lite/) server by [Foundation for Learning Equality](https://learningequality.org/).
+It is used to control and monitor the [KA Lite](https://github.com/learningequality/ka-lite/) server by [Foundation for Learning Equality](https://learningequality.org/).
 
 It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA Lite environment from your system's [Python](https://www.python.org/) application.
 
 
-## To Install
+## Install KA Lite
 
 1. Download the [KA Lite Mac OS X Installer for 0.16](http://pantry.learningequality.org/downloads/ka-lite/0.16/installers/mac/).
-1. Double-click the downloaded `KA-Lite.pkg` package and follow the setup wizard.
+1. Double-click the downloaded `KA-Lite.pkg` package and follow the setup wizard.  The installation requires admin privileges.
 1. The installer will create the `/Applications/KA-Lite/` folder that contains the KA-Lite application, uninstaller tool, licence, readme, and release notes documents.
-1. Launch `KA-Lite` from the `Applications/KA-Lite/` folder.
+1. The install process is quite lengthy because the installer had to copy assessment items and run some management commands including the setup process.  Please be patient.
+
+**Note:** A computer restart is needed to complete the installation.
+
+
+## Using the KA Lite OS X Application
+
+
+### To start the KA Lite server
+
+1. Launch `KA-Lite` from the `/Applications/KA-Lite/` folder.
 1. Click the `KA-Lite` icon in the menu bar and select the `Start KA Lite` menu option.
 1. When prompted that KA Lite has been started, click on the icon again and select the `Open in Browser` menu option - this should launch KA Lite in your preferred web browser.
 
 
-## Menu Options
+### Menu Options
 
-1. `Start KA Lite` == Starts the KA Lite web server.
-1. `Stop KA Lite` == Stops the KA Lite web server.
-1. `Open in Browser` == Opens the installed KA Lite web app using your preferred web browser, usually at `http://127.0.0.1:8008`.
-1. `Preferences` == Opens the preferences window where you can customize the KA Lite data path, view application logs in the `Logs` tab, or uninstall KA Lite.
-1. `Quit` == Stops the KA Lite web server and closes the application.
+1. `Start KA Lite` - Starts the KA Lite web server.
+1. `Stop KA Lite` - Stops the KA Lite web server.  This is available when the KA Lite server has started.
+1. `Open in Browser` - Opens the installed KA Lite web app using your preferred web browser, usually at `http://127.0.0.1:8008`.  This is available when the KA Lite server has started.
+1. `Preferences` - Opens the preferences window where you can customize the KA Lite data folder, view application logs in the `Logs` tab, or uninstall KA Lite.
+1. `Quit` - Stops the KA Lite web server and closes the application.
 
-
-## How to set a custom KA Lite data path:
+### How to set a custom KA Lite data folder:
 
  1. Stop the KA Lite server from running.
- 2. Set your custom KA Lite data path in the `Preferences` dialog.
+ 2. Set your custom KA Lite data folder in the `Preferences` dialog.
  3. Click `Apply`.  This will update the `KALITE_HOME` environment variable.
  4. Launch a new Terminal session to use the updated `KALITE_HOME` environment variable.
  5. Run `kalite manage syncdb --noinput`.
@@ -39,12 +48,15 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
  8. Run `kalite manage setup --noinput`.
  9. Start the server again by clicking on `Start KA Lite` in the menu option.
 
+**Note:** You can specify another another assessment items archive that you've downloaded at the `unpack_assessment_zip` step above, as long as it's compatible on this version of KA Lite.
 
-## Uninstaller
-   
+
+## Uninstall KA Lite
+
+* This will require admin privileges.
 * Double-click the `/Applications/KA-Lite/KA-Lite_Uninstall.tool`, this is a bash script that will do the following:
   - uninstall `KA-Lite.app` and remove its dependencies, then unset the environment variables.
-  - optionally remove the KA Lite data path folder.
+  - optionally remove the KA Lite data folder.
 
 
 ## Help and Logs
