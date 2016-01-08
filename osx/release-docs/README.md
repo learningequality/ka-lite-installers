@@ -1,60 +1,78 @@
-KA-Lite Mac OSX App
-===========================
+README for KA Lite Mac OS X Application
+=======================================
 
-This is the KA-Lite application that sits on the status menu of Mac OSX.  
+This is the [KA Lite](https://github.com/learningequality/ka-lite/) application that sits on the menu bar of Mac OS X.
 
-It's used to install and monitor the [KA-Lite](https://github.com/learningequality/ka-lite/) server by [Foundation for Learning Equality](https://learningequality.org/).
+It is used to control and monitor the [KA Lite](https://github.com/learningequality/ka-lite/) server by [Foundation for Learning Equality](https://learningequality.org/).
 
-It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA-Lite environment from your system's [Python](https://www.python.org/) application.
-
-
-## To Install
-
-1. Double the downloaded `KA-Lite.pkg` package and follow the setup wizard.
-1. Launch `KA-Lite` from your `Applications` folder.
-1. Click on `KA-Lite` icon in menu bar and select the `Start KA-Lite` menu option.
-1. When prompted that `KA-Lite` has been started, click on the icon again and select `Open in Browser` menu option - this should launch `KA-Lite` on your preferred web browser.
-1. You will be prompted to create admin user in a modal dialog, just specify your `username` and `password` then click on `Create` button.
+It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA Lite environment from your system's [Python](https://www.python.org/) application.
 
 
-## Menu Options
+## Install KA Lite
 
-1. `Start KA Lite` == Starts the `KA-Lite` web server.
-1. `Stop KA Lite` == Stops the `KA-Lite` web server.
-1. `Open in Browser` == Opens the installed `KA-Lite` web app using your preferred web browser, usually at `http://127.0.0.1:8008`.
-1. `Preferences` == Opens the preferences window where you can customize the `KA-Lite` data path or view logs in `Logs` tab.
-1. `Quit` == Stops the `KA-Lite` web server and closes the application.
+1. Download the [KA Lite Mac OS X Installer for 0.16](http://pantry.learningequality.org/downloads/ka-lite/0.16/installers/mac/).
+1. Double-click the downloaded `KA-Lite.pkg` package and follow the setup wizard.  The installation requires admin privileges.
+1. The installer will create the `/Applications/KA-Lite/` folder that contains the KA-Lite application, uninstaller tool, licence, readme, and release notes documents.
+1. The install process is quite lengthy because the installer had to copy assessment items and run some management commands including the setup process.  Please be patient.
 
-## Set custom `KA Lite` data path:
-
- 1. Stop the server from running.
- 2. Set your custom path in `Preferences` dialog.
- 3. Click `Apply`.
- 4. Go to terminal and run command `kalite manage syncdb --noinput`.
- 5. Run `kalite manage init_content_items --overwrite`.
- 6. Run `kalite manage setup --noinput`.
- 7. Start the server again by clicking on `Start KA Lite` in the menu option.
+**Note:** A computer restart is needed to complete the installation.
 
 
-## Uninstaller
-   
-* `KA-Lite_Uninstall.tool` and `KA-Lite.app` are bundled in `/Applications/KA-Lite/` folder.  
-* Double clicking on `KA-Lite_Uninstall.tool` does the following:
-  - uninstall `KA-Lite.app` and it's dependencies. 
-  - optionally remove the `KA-Lite` data path.
+## Using the KA Lite OS X Application
+
+
+### To start the KA Lite server
+
+1. Launch `KA-Lite` from the `/Applications/KA-Lite/` folder.
+1. Click the `KA-Lite` icon in the menu bar and select the `Start KA Lite` menu option.
+1. When prompted that KA Lite has been started, click on the icon again and select the `Open in Browser` menu option - this should launch KA Lite in your preferred web browser.
+
+
+### Menu Options
+
+1. `Start KA Lite` - Starts the KA Lite web server.
+1. `Stop KA Lite` - Stops the KA Lite web server.  This is available when the KA Lite server has started.
+1. `Open in Browser` - Opens the installed KA Lite web app using your preferred web browser, usually at `http://127.0.0.1:8008`.  This is available when the KA Lite server has started.
+1. `Preferences` - Opens the preferences window where you can customize the KA Lite data folder, view application logs in the `Logs` tab, or uninstall KA Lite.
+1. `Quit` - Stops the KA Lite web server and closes the application.
+
+### How to set a custom KA Lite data folder:
+
+ 1. Stop the KA Lite server from running.
+ 2. Set your custom KA Lite data folder in the `Preferences` dialog.
+ 3. Click `Apply`.  This will update the `KALITE_HOME` environment variable.
+ 4. Launch a new Terminal session to use the updated `KALITE_HOME` environment variable.
+ 5. Run `kalite manage syncdb --noinput`.
+ 6. Run `kalite manage init_content_items --overwrite`.
+ 7. Run `kalite manage unpack_assessment_zip /Users/Shared/ka-lite/assessment/assessment.zip`.
+ 8. Run `kalite manage setup --noinput`.
+ 9. Start the server again by clicking on `Start KA Lite` in the menu option.
+
+**Note:** You can specify another assessment items archive that you've downloaded at the `unpack_assessment_zip` step above, as long as it's compatible on this version of KA Lite.
+
+
+## Uninstall KA Lite
+
+* This will require admin privileges.
+* Double-click the `/Applications/KA-Lite/KA-Lite_Uninstall.tool`, this is a bash script that will do the following:
+  - uninstall `KA-Lite.app` and remove its dependencies, then unset the environment variables.
+  - optionally remove the KA Lite data folder.
 
 
 ## Help and Logs
 
-To view the KA-Lite's application logs (for debugging or tracing), launch the `Console` application and filter by "ka-lite".
+To view the KA Lite's application logs (for debugging or tracing), launch the `Console` application and filter by "ka-lite".
 
-You can also view KA-Lite logs on `Preferences` dialog by clicking on the `Logs` tab.
+You can view KA Lite logs in the `Preferences` dialog by clicking on the `Logs` tab.
 
-You can also open `~/.kalite/server.log` to view access and debug logs of the KA-Lite server.
+You can open `~/.kalite/server.log` to view access and debug logs of the KA Lite server.
 
-If you encounter issues, please file them at the [KA-Lite Installers repository](https://github.com/learningequality/installers).
+If you encounter issues, please file them at the [KA Lite Installers repository](https://github.com/learningequality/installers) or at the [KA Lite repository](https://github.com/learningequality/ka-lite/issues/).
 
-Please note that we have tested this application on `MAC OSX El Capitan 10.11.1`.
+Please note that we have tested this application on the following Mac OS X versions:
+
+* 10.10.5 Yosemite
+* 10.11.1 El Capitan
 
 
 ## ToDos
