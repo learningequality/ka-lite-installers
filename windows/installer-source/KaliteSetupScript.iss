@@ -206,8 +206,28 @@ end;
 { SYSTEM user's profile to the new location. }
 procedure WarnAboutSystemData;
 var
+    systemKaliteDir: String;
+    userKaliteDir: String;
+    userKaliteDirBackup: String;
 begin
-    MsgBox('You may need to migrate data from the SYSTEM user''s profile to the current user''s profile.', mbInformation, MB_OK);
+    systemKaliteDir := 'C:\Windows\System32\config\systemprofile\.kalite';
+    if DirExists(systemKaliteDir) then
+    begin
+        if(MsgBox('You may need to migrate data from the SYSTEM user''s profile to the current user''s profile.' #13#13
+                  'This is because of a change in the behavior of KA Lite using the "Start at system start..." option' #13#13
+                  'If you use this option, we recommend clicking yes. Your data will be backed up.' #13#13
+                  'Would you like to migrate data from the SYSTEM user''s profile to the current user''s profile?', mbConfirmation, MB_YESNO) = idYes) then
+        begin
+            userKaliteDir := ExpandConstant('{%USERPROFILE}\.kalite');
+            userKaliteDirBackup := userKaliteDir + '.backup';
+            if DirExists(userKaliteDir) then
+            begin
+                MsgBox(userKaliteDir + ' already exists, backing up to ' + userKaliteDirBackup, mbInformation, MB_OK);
+                FileCopy(userKaliteDir, userKaliteDirBackup, False);
+            end;
+            FileCopy(systemKaliteDir, userKaliteDir, False);
+        end;
+    end;
 end;
 
 procedure HandleUpgrade(targetPath : String);
@@ -238,7 +258,7 @@ begin
             end;
 
             { Migrating from 0.14.x and 0.15.x to 0.16.x }
-            if CompareStr(prevVerStr, '0.14.0') >= 0 and CompareStr(prevVerStr, '0.15.99') < 0 then
+            if (CompareStr(prevVerStr, '0.14.0') >= 0) and (CompareStr(prevVerStr, '0.15.99') < 0) then
             begin
                 if CompareStr('{#TargetVersion}', '0.16.0') >= 0 then
                 begin
