@@ -1,11 +1,14 @@
 #!/bin/bash
+# 
+# Arguments:
+#   * $1 - Optional, used for the confirmation of the uninstall process.  Pass "yes" to auto-confirm the uninstall process, "no" will cancel the process.  If not passed, it will confirm the action with the user.
+#   * $2 - Optional, used for the deletion of the KA Lite data folder.  Pass "yes" to auto-confirm, "no" will not delete it.  If not passed, it will confirm the action with the user.
 #
 # Notes: 
 #   * This script must be run as root.  If ran as a standard user, it will prompt for the admin password.
-#   * The files that will be removed, will be displayed on the console log.
+#   * The files that will be removed, will be displayed in the Console application.
 #   * The $SCRIPT_NAME env variables was specified by the `Packages`.
 #   * This is re-used as /Applications/KA-Lite/KA_Lite_Uninstall.tool during installation.
-#   * The script args are use to auto confirms the removing of `.kalite` and the uninstallation process.
 #
 # What does this script do?
 #   1. Unset the environment variables: KALITE_PYTHON and KALITE_HOME.
@@ -78,8 +81,7 @@ function remove_files_initiator {
     uninstall_count=0
     for file in "${REMOVE_FILES_ARRAY[@]}"; do
         if [ -e "${file}" ]; then
-            echo "Will remove: ${file}"
-            syslog -s -l alert "KALITE: Will remove: ${file}"
+            msg "Will remove: ${file}"
             ((uninstall_count++))
         fi
     done
@@ -102,8 +104,15 @@ function remove_files_initiator {
     fi
     # If process did not succeed, let's return non-zero.
     if [ $? -ne 0 ]; then
+        msg "Uninstall process cancelled."
         exit 1
     fi
+}
+
+
+function msg() {
+    echo "$1"
+    syslog -s -l alert "KA-Lite: $1"
 }
 
 
@@ -169,9 +178,9 @@ if [ $IS_PREINSTALL == false ]; then
         # Check if the second argument has a value. 
         remove_kalite="$(echo $2 | tr '[:upper:]' '[:lower:]')"
         if [ "$remove_kalite" == "yes" ]; then
-            syslog -s -l alert "KALITE: Auto confirm removing of $KALITE_HOME directory."
+            msg "Auto confirm removing the $KALITE_HOME directory."
         elif [ "$remove_kalite" == "no" ]; then
-            syslog -s -l alert "KALITE: NOT Removing $KALITE_HOME directory."
+            msg "NOT Removing $KALITE_HOME directory."
         else
             read remove_kalite
             # convert answer to lowercase
@@ -185,7 +194,7 @@ if [ $IS_PREINSTALL == false ]; then
         fi
 
     else
-        echo "The $KALITE_HOME directory does not exist, so there are no KA-Lite data files to delete."
+        msg "The $KALITE_HOME directory does not exist, so there are no KA-Lite data files to delete."
     fi
 
     # MUST: Check that the KA-Lite app and the uninstall script exists inside the SCRIPTPATH
@@ -218,12 +227,12 @@ echo "  KALITE_HOME with value $KALITE_HOME"
 if [ $IS_PREINSTALL == false ]; then
     echo "         "
     echo -n "Do you wish to uninstall KA-Lite? (Yes/No) "
-     # Check if the first argument has a value. 
-     uninstall="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+    # Check if the first argument has a value. 
+    uninstall="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
     if [ "$uninstall" == "yes" ]; then
-        syslog -s -l alert "KALITE: Auto confirm uninstallation process."
+        msg "Auto confirm uninstallation process."
     elif [ "$uninstall" == "no" ]; then
-        syslog -s -l alert "KALITE: NOT Removing $KALITE_HOME directory."
+        msg "NOT proceeding with the uninstall process."
     else
         read uninstall
         # convert answer to lowercase
@@ -240,16 +249,16 @@ echo "Removing files..."
 # last chance to cancel the uninstall process.
 remove_files_initiator
 if [ $? -ne 0 ]; then
-    echo "Uninstall process cancelled."
+    msg "Uninstall process cancelled."
     exit 1
 fi
 
-echo "Unsetting the KALITE_PYTHON environment variable..."
+msg "Unsetting the KALITE_PYTHON environment variable..."
 unset KALITE_PYTHON
 launchctl unsetenv KALITE_PYTHON
 
-echo "Unsetting the KALITE_HOME environment variable..."
+msg "Unsetting the KALITE_HOME environment variable..."
 unset KALITE_HOME
 launchctl unsetenv KALITE_HOME
 
-echo "Done!"
+msg "Done! KA Lite is now uninstalled."
