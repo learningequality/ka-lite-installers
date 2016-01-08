@@ -5,6 +5,7 @@
 #   * The files that will be removed, will be displayed on the console log.
 #   * The $SCRIPT_NAME env variables was specified by the `Packages`.
 #   * This is re-used as /Applications/KA-Lite/KA_Lite_Uninstall.tool during installation.
+#   * The script args are use to auto confirms the removing of `.kalite` and the uninstallation process.
 #
 # What does this script do?
 #   1. Unset the environment variables: KALITE_PYTHON and KALITE_HOME.
@@ -15,7 +16,6 @@
 # Some References:
 #   * http://stackoverflow.com/a/2264537/845481 - Converting string to lower case in Bash shell scripting
 #
-
 
 #----------------------------------------------------------------------
 # Global Variables
@@ -79,7 +79,7 @@ function remove_files_initiator {
     for file in "${REMOVE_FILES_ARRAY[@]}"; do
         if [ -e "${file}" ]; then
             echo "Will remove: ${file}"
-            syslog -s -l error "Will remove: ${file}"
+            syslog -s -l alert "KALITE: Will remove: ${file}"
             ((uninstall_count++))
         fi
     done
@@ -111,7 +111,7 @@ function remove_files_initiator {
 # Script
 #----------------------------------------------------------------------
 # ENV=$(env)
-# syslog -s -l error "Packages pre-installation initialize with env:'\n'$ENV" 
+# syslog -s -l alert "Packages pre-installation initialize with env:'\n'$ENV" 
 
 pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd`
@@ -166,15 +166,24 @@ if [ $IS_PREINSTALL == false ]; then
         echo "Answer no if you want to keep your KA-Lite data files."
         echo
         echo -n "Do you want the $KALITE_HOME directory to be deleted? (Yes/No) "
-        read remove_kalite
-        # convert answer to lowercase
-        remove_kalite="$(echo $remove_kalite | tr '[:upper:]' '[:lower:]')"
+        # Check if the second argument has a value. 
+        remove_kalite="$(echo $2 | tr '[:upper:]' '[:lower:]')"
+        if [ "$remove_kalite" == "yes" ]; then
+            syslog -s -l alert "KALITE: Auto confirm removing of $KALITE_HOME directory."
+        elif [ "$remove_kalite" == "no" ]; then
+            syslog -s -l alert "KALITE: NOT Removing $KALITE_HOME directory."
+        else
+            read remove_kalite
+            # convert answer to lowercase
+            remove_kalite="$(echo $remove_kalite | tr '[:upper:]' '[:lower:]')"
+        fi
         if [ "$remove_kalite" == "yes" ]; then
             append REMOVE_FILES_ARRAY "$KALITE_HOME"
             echo "Will remove $KALITE_HOME directory."
         else
             echo "NOT Removing $KALITE_HOME directory."
         fi
+
     else
         echo "The $KALITE_HOME directory does not exist, so there are no KA-Lite data files to delete."
     fi
@@ -209,9 +218,17 @@ echo "  KALITE_HOME with value $KALITE_HOME"
 if [ $IS_PREINSTALL == false ]; then
     echo "         "
     echo -n "Do you wish to uninstall KA-Lite? (Yes/No) "
-    read uninstall
-    # convert answer to lowercase
-    uninstall="$(echo $uninstall | tr '[:upper:]' '[:lower:]')"
+     # Check if the first argument has a value. 
+     uninstall="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+    if [ "$uninstall" == "yes" ]; then
+        syslog -s -l alert "KALITE: Auto confirm uninstallation process."
+    elif [ "$uninstall" == "no" ]; then
+        syslog -s -l alert "KALITE: NOT Removing $KALITE_HOME directory."
+    else
+        read uninstall
+        # convert answer to lowercase
+        uninstall="$(echo $uninstall | tr '[:upper:]' '[:lower:]')"
+    fi
     if [ "$uninstall" != "yes" ]; then
         echo "Aborting uninstall. (answer: ${uninstall})"
         key_exit 1

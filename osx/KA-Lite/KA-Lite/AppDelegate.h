@@ -38,6 +38,8 @@
 
 @property (weak) IBOutlet NSButton *resetAppAction;
 
+@property (weak) IBOutlet NSButton *deleteKaliteData;
+@property (weak) IBOutlet NSButton *kaliteUninstallHelp;
 @property (weak) IBOutlet NSButton *kaliteDataHelp;
 @property (weak) IBOutlet NSButton *savePrefs;
 

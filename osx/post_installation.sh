@@ -104,7 +104,7 @@ function create_plist {
 #----------------------------------------------------------------------
 
 ENV=$(env)
-syslog -s -l error "Packages post-installation initialize with env:'\n'$ENV" 
+syslog -s -l alert "Packages post-installation initialize with env:'\n'$ENV" 
 
 STEP=1
 STEPS=10
