@@ -289,7 +289,6 @@ int addValue(const char* const configurationBuffer, const char* const targetKey,
 	if(key_size == 0 || value_size == 0) return 1;
 
 	int keyIndex = 0;
-	char * writeBuffer = (char*)malloc(sizeof(char) * FILE_BUFFER_SIZE);
 	keyIndex = searchKeyIndex(configurationBuffer, targetKey);
 
 	int tempIndex = 0;
