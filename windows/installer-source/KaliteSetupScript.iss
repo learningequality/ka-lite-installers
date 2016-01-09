@@ -63,6 +63,8 @@ Type: files; Name: "{userstartup}\KA Lite.lnk"
 Type: files; Name: "{app}\CONFIG.dat"
 
 [Code]
+function GetPreviousVersion : String; Forward;
+
 var
   installFlag : boolean;
   startupFlag : string;
@@ -76,7 +78,6 @@ var
   cleanOldKaliteFolder : integer;
   restoreDatabaseTemp : integer;
   forceCancel : boolean;
-  prevVerStr : string;
 
 procedure InitializeWizard;
 begin
@@ -144,24 +145,24 @@ end;
 
 { Get the previous version number by checking the uninstall key registry values. }
 { IS writes quite a bit of information to the registry by default: https://github.com/jrsoftware/issrc/blob/5203240a7de9b83c5432bee0b5b09d467869a02b/Projects/Install.pas#L434 }
-procedure GetPreviousVersion;
+function GetPreviousVersion : String;
 var
     subkey : String;
 begin
     subkey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\KA Lite-Foundation for Learning Equality_is1';
-    prevVerStr := ''
+    result := '';
     { 32-bit programs have a virtualized registry on 64-bit windows. So check all possible root keys. }
-    if Not RegQueryStringValue(HKLM, subkey, 'DisplayVersion', prevVerStr) then
+    if Not RegQueryStringValue(HKLM, subkey, 'DisplayVersion', result) then
     begin
-        if Not RegQueryStringValue(HKCU, subkey, 'DisplayVersion', prevVerStr) then
+        if Not RegQueryStringValue(HKCU, subkey, 'DisplayVersion', result) then
         begin
             if IsWin64 then
             begin
-                if Not RegQueryStringValue(HKLM64, subkey, 'DisplayVersion', prevVerStr) then
+                if Not RegQueryStringValue(HKLM64, subkey, 'DisplayVersion', result) then
                 begin
-                    if Not RegQueryStringValue(HKCU64, subkey, 'DisplayVersion', prevVerStr) then
+                    if Not RegQueryStringValue(HKCU64, subkey, 'DisplayVersion', result) then
                     begin
-                        { Couldn't determine the previous version, so prevVerStr is '' }
+                        { Couldn't determine the previous version, so result is '' }
                     end;
                 end;
             end;
@@ -204,17 +205,18 @@ end;
 { In version 0.13.x or below, users who selected the "Run KA Lite at system startup" option ran KA Lite as the }
 { SYSTEM user. Starting in 0.16.0, it will be run as the current user. Consequently, data must be migrated from the }
 { SYSTEM user's profile to the new location. }
-procedure WarnAboutSystemData;
+procedure MoveSystemKaliteData;
 var
     systemKaliteDir: String;
     userKaliteDir: String;
     userKaliteDirBackup: String;
+    resultCode: Integer;
 begin
     systemKaliteDir := 'C:\Windows\System32\config\systemprofile\.kalite';
     if DirExists(systemKaliteDir) then
     begin
         if(MsgBox('You may need to migrate data from the SYSTEM user''s profile to the current user''s profile.' #13#13
-                  'This is because of a change in the behavior of KA Lite using the "Start at system start..." option' #13#13
+                  'This is because of a change in the behavior of KA Lite using the "Run KA Lite at system startup" option.' #13
                   'If you use this option, we recommend clicking yes. Your data will be backed up.' #13#13
                   'Would you like to migrate data from the SYSTEM user''s profile to the current user''s profile?', mbConfirmation, MB_YESNO) = idYes) then
         begin
@@ -223,17 +225,25 @@ begin
             if DirExists(userKaliteDir) then
             begin
                 MsgBox(userKaliteDir + ' already exists, backing up to ' + userKaliteDirBackup, mbInformation, MB_OK);
-                FileCopy(userKaliteDir, userKaliteDirBackup, False);
+                if not Exec(ExpandConstant('{cmd}'), '/C "xcopy  "' + userKaliteDir +'" "' + userKaliteDirBackup +'\" /Y /S"', '', SW_SHOW, ewWaitUntilTerminated, resultCode) then
+                begin
+                    MsgBox('Backup .kalite file copy fail.', mbInformation, MB_OK);
+                end;
             end;
-            FileCopy(systemKaliteDir, userKaliteDir, False);
+            if not Exec(ExpandConstant('{cmd}'), '/C "xcopy  "' + systemKaliteDir +'" "' + userKaliteDir +'\" /Y /S"', '', SW_SHOW, ewWaitUntilTerminated, resultCode) then
+            begin
+                MsgBox('System .kalite file copy fail.', mbInformation, MB_OK);
+            end;
         end;
     end;
 end;
 
 procedure HandleUpgrade(targetPath : String);
+var
+    prevVerStr : String;
 begin
-    GetPreviousVersion;
-    if FileExists(targetPath + '\ka-lite\kalite\database\data.sqlite') then
+    prevVerStr := GetPreviousVersion();
+    if CompareStr('{#TargetVersion}', prevVerStr) >= 0 then
     begin
         ConfirmUpgradeDialog;
         if Not isUpgrade then
@@ -262,7 +272,7 @@ begin
             begin
                 if CompareStr('{#TargetVersion}', '0.16.0') >= 0 then
                 begin
-                    WarnAboutSystemData;
+                    MoveSystemKaliteData;
                 end;
             end;
 
