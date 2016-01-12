@@ -202,6 +202,9 @@ Gw
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
+                                                        <connections>
+                                                            <action selector="kaliteDataHelp:" target="Voe-Tx-rLC" id="zXp-Qw-AMP"/>
+                                                        </connections>
                                                     </button>
                                                 </subviews>
                                             </view>
@@ -231,6 +234,9 @@ Gw
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
+                                                        <connections>
+                                                            <action selector="uninstallHelp:" target="Voe-Tx-rLC" id="7O8-KZ-HWN"/>
+                                                        </connections>
                                                     </button>
                                                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ogp-QS-1iO">
                                                         <rect key="frame" x="16" y="22" width="201" height="23"/>
