@@ -107,7 +107,7 @@ ENV=$(env)
 syslog -s -l alert "Packages post-installation initialize with env:'\n'$ENV" 
 
 STEP=1
-STEPS=10
+STEPS=11
 
 echo "Now preparing KA-Lite dependencies..."
 
@@ -192,10 +192,18 @@ $BIN_PATH/kalite manage setup --noinput
 
 
 ((STEP++))
-echo "$STEP/$STEPS. Changing the owner of the '$KALITE_DIR' to the current user $USER..."
+echo "$STEP/$STEPS. Changing the owner of the '$KALITE_DIR' and '$PLIST_SRC' to the current user $USER..."
+# PLIST_SRC="/Library/LaunchAgents/org.learningequality.kalite.plist"
 chown -R $USER:$SUDO_GID $KALITE_DIR
+chown -R $USER:$SUDO_GID $PLIST_SRC
+
+((STEP++))
+echo "$STEP/$STEPS. Manually load the '$PLIST_SRC.'"
+# su $USER -c '"'launchctl load -w $PLIST_SRC'"'
+# TODO(arceduardvincent): Used $PLIST_SRC
+su $USER -c "launchctl load -w /Library/LaunchAgents/org.learningequality.kalite.plist"
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error changing the owner of '$KALITE_DIR'."
+    echo ".. Abort!  Error loading of '$PLIST_SRC'."
     exit 1
 fi
 

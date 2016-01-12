@@ -644,7 +644,7 @@
 				<key>AUTHENTICATION</key>
 				<false/>
 				<key>CONCLUSION_ACTION</key>
-				<integer>2</integer>
+				<integer>0</integer>
 				<key>IDENTIFIER</key>
 				<string>org.learningequality.kalite</string>
 				<key>LOCATION</key>
