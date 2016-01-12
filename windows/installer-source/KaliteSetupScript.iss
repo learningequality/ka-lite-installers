@@ -243,7 +243,7 @@ var
     prevVerStr : String;
 begin
     prevVerStr := GetPreviousVersion();
-    if CompareStr('{#TargetVersion}', prevVerStr) >= 0 then
+    if (CompareStr('{#TargetVersion}', prevVerStr) >= 0) and not (prevVerStr = '') then
     begin
         ConfirmUpgradeDialog;
         if Not isUpgrade then
@@ -275,11 +275,13 @@ begin
                     MoveSystemKaliteData;
                 end;
             end;
-
         end;
-    { forceCancel will be true if something went awry in DoGitMigrate... abort instead of trampling the user's data. }
-    if Not forceCancel then
-        RemoveOldInstallation(targetPath);
+
+        { forceCancel will be true if something went awry in DoGitMigrate... abort instead of trampling the user's data. }
+        if Not forceCancel then
+        begin
+            RemoveOldInstallation(targetPath);
+        end;
     end;
 end;
 
