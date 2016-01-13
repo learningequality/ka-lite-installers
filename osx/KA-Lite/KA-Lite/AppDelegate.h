@@ -43,6 +43,9 @@
 @property (weak) IBOutlet NSButton *kaliteDataHelp;
 @property (weak) IBOutlet NSButton *savePrefs;
 
+@property (weak) IBOutlet NSPopover *popover;
+@property (weak) IBOutlet NSTextField *popoverMsg;
+
 enum kaliteStatus {
     statusOkRunning = 0,
     statusStopped = 1,
