@@ -11,12 +11,13 @@
 # 2. Export KALITE_PYTHON env that point to Pyrun directory.
 # 3. Create plist in /Library/LaunchAgents/ folders.
 # 4. Run shebangcheck that check the BIN_PATH that points to the python/pyrun interpreter to use.
-# 5. Run kalite manage syncdb --noinput.
-# 6. Run kalite manage init_content_items --overwrite.
-# 7. Run kalite manage unpack_assessment_zip <assessment_path>.
-# 8. Run kalite manage setup --noinput..
-# 9. Change the owner of the ~/.kalite/ folder.
-# 10. Create a copy of ka-lite-remover.sh and name it as KA-Lite_Uninstall.tool.
+# 5. Remove current assets and replace into a newer one.
+# 6. Run kalite manage syncdb --noinput.
+# 7. Run kalite manage init_content_items --overwrite.
+# 8. Run kalite manage unpack_assessment_zip <assessment_path>.
+# 9. Run kalite manage setup --noinput..
+# 10. Change the owner of the ~/.kalite/ folder.
+# 11. Create a copy of ka-lite-remover.sh and name it as KA-Lite_Uninstall.tool.
 
 #----------------------------------------------------------------------
 # Global Variables
@@ -107,7 +108,7 @@ ENV=$(env)
 syslog -s -l alert "Packages post-installation initialize with env:'\n'$ENV" 
 
 STEP=1
-STEPS=10
+STEPS=11
 
 echo "Now preparing KA-Lite dependencies..."
 
@@ -164,6 +165,19 @@ echo "$STEP/$STEPS. Check the BIN_PATH that points to the python/pyrun interpret
 $PYRUN $SCRIPT_PATH/shebangcheck.py
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error encountered running '$SCRIPT_PATH/shebangcheck.py'."
+    exit 1
+fi
+
+# REF: https://github.com/learningequality/installers/issues/337#issuecomment-171127297
+# TODO(arceduardvincent): Remove this step when the issue of replacing the current assets into the newer one will be solved.
+((STEP++))
+echo "$STEP/$STEPS. Removing current assets $HOME/.kalite/httpsrv/ and replace into a newer one..."
+if [ -z ${KALITE_HOME+0} ]; then 
+  KALITE_HOME="$HOME/.kalite/"
+fi
+rm -Rf $KALITE_HOME/httpsrv
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error removing a $HOME/.kalite/httpsrv/."
     exit 1
 fi
 
