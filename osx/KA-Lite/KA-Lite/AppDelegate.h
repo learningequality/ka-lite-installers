@@ -15,7 +15,6 @@
     IBOutlet id window;
 }
 
-- (void)closeSplash;
 
 @property (weak) IBOutlet NSButton *startButton;
 @property (weak) IBOutlet NSButton *stopButton;
@@ -45,6 +44,8 @@
 
 @property (weak) IBOutlet NSPopover *popover;
 @property (weak) IBOutlet NSTextField *popoverMsg;
+@property (weak) IBOutlet NSView *aView;
+
 
 enum kaliteStatus {
     statusOkRunning = 0,
@@ -61,6 +62,9 @@ enum kaliteStatus {
 };
 
 @property enum kaliteStatus status;
+
+
+- (void)closeSplash;
 
 
 @end

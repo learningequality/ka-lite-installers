@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9531" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <development version="6300" identifier="xcode"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
+        <capability name="box content view" minToolsVersion="7.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -14,33 +14,34 @@
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="pZI-cL-XQn">
-            <rect key="frame" x="0.0" y="0.0" width="311" height="187"/>
+            <rect key="frame" x="0.0" y="0.0" width="213" height="335"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zKN-e6-XtP">
-                    <rect key="frame" x="4" y="5" width="304" height="176"/>
-                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="4jU-XX-dzN">
+                <textField canDrawConcurrently="YES" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8q5-Rg-nPu">
+                    <rect key="frame" x="0.0" y="20" width="213" height="315"/>
+                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" drawsBackground="YES" id="uiv-Q8-ee6">
                         <font key="font" metaFont="system"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
             </subviews>
-            <point key="canvasLocation" x="411.5" y="74.5"/>
+            <point key="canvasLocation" x="142.5" y="123.5"/>
         </customView>
         <viewController id="WPK-6f-Onm" userLabel="Popover View Controller">
             <connections>
                 <outlet property="view" destination="pZI-cL-XQn" id="sYl-rK-MfO"/>
             </connections>
         </viewController>
-        <popover id="AAs-fZ-3f7">
+        <popover behavior="t" id="AAs-fZ-3f7">
             <connections>
                 <outlet property="contentViewController" destination="WPK-6f-Onm" id="yDs-gD-ZV6"/>
-                <outlet property="delegate" destination="Voe-Tx-rLC" id="wZR-JL-ggj"/>
+                <outlet property="delegate" destination="Voe-Tx-rLC" id="a7m-j9-tQG"/>
             </connections>
         </popover>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
+                <outlet property="aView" destination="pZI-cL-XQn" id="4qq-fO-dqH"/>
                 <outlet property="customKaliteData" destination="Fr9-lD-cxj" id="RLj-fb-pMb"/>
                 <outlet property="deleteKaliteData" destination="ogp-QS-1iO" id="PQn-Dn-Yqa"/>
                 <outlet property="kaliteDataHelp" destination="IFr-HI-gEe" id="Vyj-fM-fsS"/>
@@ -49,7 +50,7 @@
                 <outlet property="openBrowserButton" destination="wxg-iv-YDa" id="0er-aA-Ymn"/>
                 <outlet property="openInBrowserMenu" destination="z2m-ls-Z0I" id="mGN-C0-zz5"/>
                 <outlet property="popover" destination="AAs-fZ-3f7" id="Dbq-r8-eq8"/>
-                <outlet property="popoverMsg" destination="zKN-e6-XtP" id="376-0e-BSm"/>
+                <outlet property="popoverMsg" destination="8q5-Rg-nPu" id="3eN-Ef-zJq"/>
                 <outlet property="savePrefs" destination="3rc-kc-VMj" id="bt8-CV-3fm"/>
                 <outlet property="splash" destination="izD-1r-MWo" id="ax5-nI-Mu0"/>
                 <outlet property="startButton" destination="Eur-YG-XhD" id="I4H-kx-9AL"/>
@@ -102,7 +103,7 @@
         <window title="Starting KA Lite..." allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="izD-1r-MWo">
             <windowStyleMask key="styleMask" titled="YES"/>
             <rect key="contentRect" x="565" y="404" width="216" height="135"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1057"/>
             <view key="contentView" id="X7G-oL-gsN">
                 <rect key="frame" x="0.0" y="0.0" width="216" height="135"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -129,7 +130,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" unifiedTitleAndToolbar="YES"/>
             <windowCollectionBehavior key="collectionBehavior" canJoinAllSpaces="YES" managed="YES" participatesInCycle="YES"/>
             <rect key="contentRect" x="131" y="158" width="493" height="417"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1057"/>
             <view key="contentView" id="TP3-Cd-o99">
                 <rect key="frame" x="0.0" y="0.0" width="493" height="417"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -173,7 +174,7 @@ Gw
                         <tabViewItems>
                             <tabViewItem label="Preferences" identifier="1" id="bsG-cY-LW8">
                                 <view key="view" ambiguous="YES" id="B8D-my-NmZ">
-                                    <rect key="frame" x="10" y="33" width="130" height="0.0"/>
+                                    <rect key="frame" x="10" y="33" width="128" height="0.0"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Eur-YG-XhD">
@@ -198,7 +199,7 @@ Gw
                                         </button>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
                                             <rect key="frame" x="14" y="-123" width="419" height="53"/>
-                                            <view key="contentView">
+                                            <view key="contentView" id="YHW-HJ-bTo">
                                                 <rect key="frame" x="1" y="1" width="417" height="51"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
@@ -243,7 +244,7 @@ Gw
                                         </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Uninstall KA Lite" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="2Uh-zQ-2n5">
                                             <rect key="frame" x="14" y="-323" width="419" height="82"/>
-                                            <view key="contentView">
+                                            <view key="contentView" id="noi-EB-vce">
                                                 <rect key="frame" x="1" y="1" width="417" height="63"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
@@ -282,7 +283,7 @@ Gw
                                         </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Application behavior" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
                                             <rect key="frame" x="14" y="-227" width="419" height="91"/>
-                                            <view key="contentView">
+                                            <view key="contentView" id="O91-s2-ClK">
                                                 <rect key="frame" x="1" y="1" width="417" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
