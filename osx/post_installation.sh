@@ -115,13 +115,13 @@ function msg() {
 # Script
 #----------------------------------------------------------------------
 
-ENV=$(env)
-syslog -s -l alert "Packages post-installation initialize with env:'\n'$ENV" 
-
 STEP=1
 STEPS=11
 
-msg "Now preparing KA-Lite dependencies..."
+msg "Post-installation: Preparing KA-Lite dependencies..."
+
+ENV=$(env)
+msg ".. Packages post-installation env:'\n'$ENV" 
 
 msg "$STEP/$STEPS. Symlink kalite executable to $SYMLINK_TO..."
 if [ ! -d "$SYMLINK_TO" ]; then
