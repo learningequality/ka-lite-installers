@@ -15,13 +15,9 @@
 
 @import Foundation;
 
-@interface AppDelegate ()
-//    @property (weak) IBOutlet NSWindow *window;
-@end
-
 @implementation AppDelegate
 
-@synthesize startKalite, stopKalite, openInBrowserMenu, kaliteVersion, customKaliteData, startOnLogin, kaliteDataHelp;
+@synthesize startKalite, stopKalite, openInBrowserMenu, kaliteVersion, customKaliteData, startOnLogin, kaliteDataHelp, popover, popoverMsg;
 
 
 // REF: http://objcolumnist.com/2009/08/09/reopening-an-applications-main-window-by-clicking-the-dock-icon/
@@ -523,16 +519,6 @@ NSString *getEnvVar(NSString *var) {
 }
 
 
-- (IBAction)start:(id)sender {
-    [self startFunction];
-}
-
-
-- (IBAction)startButton:(id)sender {
-    [self startFunction];
-}
-
-
 - (void)stopFunction {
     showNotification(@"Stopping...");
     if (self.processCounter != 0) {
@@ -540,6 +526,26 @@ NSString *getEnvVar(NSString *var) {
         return;
     }
     [self runKalite:@"stop"];
+}
+
+
+- (void)openFunction {
+    // REF: http://stackoverflow.com/a/7129543/845481
+    NSURL *url = [NSURL URLWithString:@"http://127.0.0.1:8008/"];
+    if( ![[NSWorkspace sharedWorkspace] openURL:url] ) {
+        NSString *msg = [NSString stringWithFormat:@" Failed to open url: %@",[url description]];
+        showNotification(msg);
+    }
+}
+
+
+- (IBAction)start:(id)sender {
+    [self startFunction];
+}
+
+
+- (IBAction)startButton:(id)sender {
+    [self startFunction];
 }
 
 
@@ -552,22 +558,14 @@ NSString *getEnvVar(NSString *var) {
     [self stopFunction];
 }
 
+
 - (IBAction)customKaliteData:(id)sender {
     self.savePrefs.enabled = TRUE;
 }
 
+
 - (IBAction)startOnLogin:(id)sender {
     self.savePrefs.enabled = TRUE;
-}
-
-- (void)openFunction {
-    // TODO(cpauya): Get the ip address and port from `local_settings.py` or preferences.
-    // REF: http://stackoverflow.com/a/7129543/845481
-    NSURL *url = [NSURL URLWithString:@"http://127.0.0.1:8008/"];
-    if( ![[NSWorkspace sharedWorkspace] openURL:url] ) {
-        NSString *msg = [NSString stringWithFormat:@" Failed to open url: %@",[url description]];
-        showNotification(msg);
-    }
 }
 
 
@@ -601,12 +599,14 @@ NSString *getEnvVar(NSString *var) {
     [self savePreferences];
 }
 
+
 - (IBAction)discardPreferences:(id)sender {
     [self discardPreferences];
 }
 
+
 - (IBAction)kaliteUninstall:(id)sender {
-        
+    
     // Get the KA Lite application directory path.
     NSString *appPath = [[NSBundle mainBundle] bundlePath];
     // REF: http://stackoverflow.com/questions/7469425/how-to-parse-nsstring-by-removing-2-folders-in-path-in-objective-c
@@ -638,17 +638,23 @@ NSString *getEnvVar(NSString *var) {
     }
 }
 
+
 - (IBAction)uninstallHelp:(id)sender {
-    alert(@"This will uninstall the KA Lite application. \n \nCheck the `Delete KA Lite data folder` option if you want to delete your KA Lite data. \n \nNOTE: This will require admin privileges.");
+    NSString* msg = @"This will uninstall the KA Lite application. \n \nCheck the `Delete KA Lite data folder` option if you want to delete your KA Lite data. \n \nNOTE: This will require admin privileges.";
+    [self showPopOver:sender withMsg:msg];
 }
 
+
 - (IBAction)kaliteDataHelp:(id)sender {
-    alert(@"This will set the KALITE_HOME environment variable to the selected KA Lite data location. \n \nClick the 'Apply' button to save your changes and click the 'Start KA Lite' button to use your new data location. \n \nNOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location.");
+    NSString* msg = @"This will set the KALITE_HOME environment variable to the selected KA Lite data location. \n \nClick the 'Apply' button to save your changes and click the 'Start KA Lite' button to use your new data location. \n \nNOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location.\n \nFor more information, please refer to the README document.";
+    [self showPopOver:sender withMsg:msg];
 }
+
 
 - (void)closeSplash {
     [splash orderOut:self];
 }
+
 
 - (void)showPreferences {
     [splash orderOut:self];
@@ -730,14 +736,34 @@ NSString *getEnvVar(NSString *var) {
 }
 
 
+- (void)showPopOver:(id)sender withMsg:(NSString*) msg {
+    [popoverMsg setStringValue:msg];
+    
+    // Show the popover first, then set it's size so it is rendered correctly.
+    [popover showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
+
+    // REF: http://stackoverflow.com/a/16239550/845481
+    // Getting NSTextView to perfectly fit its contents
+    NSString *text = popoverMsg.stringValue;
+    NSSize newSize = NSMakeSize(popoverMsg.bounds.size.width, 0);
+    NSStringDrawingOptions options = NSStringDrawingUsesLineFragmentOrigin;
+    NSRect bounds = [text boundingRectWithSize:newSize options:options attributes:nil];
+    // TODO(cpauya): Using this code on a popover with shorter height yields an extra space at the
+    // bottom.  Find a way to remove that without affecting the other popover with longer height.
+    NSRect rect = NSMakeRect(0, 0, newSize.width, bounds.size.height + 50);
+    popoverMsg.frame = rect;
+    popover.contentSize = rect.size;
+}
+
+
 BOOL setEnvVars() {
     
-    //REF: http://stackoverflow.com/questions/99395/how-to-check-if-a-folder-exists-in-cocoa-objective-c
+    // REF: http://stackoverflow.com/questions/99395/how-to-check-if-a-folder-exists-in-cocoa-objective-c
     // Check if home Library/LaunchAgents/ path exist.
     NSString *LibraryLaunchAgentPath = [NSString stringWithFormat:@"%@%@", NSHomeDirectory(), @"/Library/LaunchAgents/"];
     NSFileManager*fm = [NSFileManager defaultManager];
     if(![fm fileExistsAtPath:LibraryLaunchAgentPath]) {
-        //REF: http://stackoverflow.com/questions/99395/how-to-check-if-a-folder-exists-in-cocoa-objective-c
+        // REF: http://stackoverflow.com/questions/99395/how-to-check-if-a-folder-exists-in-cocoa-objective-c
         // Create home Library/LaunchAgents/ path.
         NSError * error = nil;
         BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath: LibraryLaunchAgentPath
