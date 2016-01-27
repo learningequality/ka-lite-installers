@@ -26,6 +26,9 @@
 #----------------------------------------------------------------------
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 
+STEP=1
+STEPS=12
+
 KALITE_SHARED="/Users/Shared/ka-lite"
 KALITE_DIR="$HOME/.kalite"
 KALITE_UNINSTALL_SCRIPT="KA-Lite_Uninstall.tool"
@@ -115,9 +118,6 @@ function msg() {
 #----------------------------------------------------------------------
 # Script
 #----------------------------------------------------------------------
-
-STEP=1
-STEPS=11
 
 msg "Post-installation: Preparing KA-Lite dependencies..."
 
