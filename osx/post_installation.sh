@@ -11,19 +11,23 @@
 # 2. Set KALITE_PYTHON environment variable to the Pyrun executable.
 # 3. Create plist in /Library/LaunchAgents/ folder.
 # 4. Run shebangcheck script that checks the python/pyrun interpreter to use.
-# 5. Run kalite manage syncdb --noinput.
-# 6. Run kalite manage init_content_items --overwrite.
-# 7. Run kalite manage unpack_assessment_zip <assessment_path>.
-# 8. Run kalite manage setup --noinput..
-# 9. Change the owner of the ~/.kalite/ folder and .plist file to current user.
-# 10. Set the KALITE_PYTHON env var for the user doing the install so we don't need to restart after installation.
-# 11. Create a copy of ka-lite-remover.sh and name it as KA-Lite_Uninstall.tool.
+# 5. Remove the old asset folder to be replaced by newer assets later.
+# 6. Run kalite manage syncdb --noinput.
+# 7. Run kalite manage init_content_items --overwrite.
+# 8. Run kalite manage unpack_assessment_zip <assessment_path>.
+# 9. Run kalite manage setup --noinput..
+# 10. Change the owner of the ~/.kalite/ folder and .plist file to current user.
+# 11. Set the KALITE_PYTHON env var for the user doing the install so we don't need to restart after installation.
+# 12. Create a copy of ka-lite-remover.sh and name it as KA-Lite_Uninstall.tool.
 
 
 #----------------------------------------------------------------------
 # Global Variables
 #----------------------------------------------------------------------
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
+
+STEP=1
+STEPS=12
 
 KALITE_SHARED="/Users/Shared/ka-lite"
 KALITE_DIR="$HOME/.kalite"
@@ -115,13 +119,11 @@ function msg() {
 # Script
 #----------------------------------------------------------------------
 
-STEP=1
-STEPS=11
-
 msg "Post-installation: Preparing KA-Lite dependencies..."
 
 ENV=$(env)
 msg ".. Packages post-installation env:'\n'$ENV" 
+
 
 msg "$STEP/$STEPS. Symlink kalite executable to $SYMLINK_TO..."
 if [ ! -d "$SYMLINK_TO" ]; then
@@ -132,7 +134,6 @@ if [ ! -d "$SYMLINK_TO" ]; then
         exit 1
     fi
 fi
-
 
 $COMMAND_SYMLINK
 if [ $? -ne 0 ]; then
@@ -166,6 +167,26 @@ $PYRUN $SCRIPT_PATH/shebangcheck.py
 if [ $? -ne 0 ]; then
     msg ".. Abort!  Error encountered running '$SCRIPT_PATH/shebangcheck.py'."
     exit 1
+fi
+
+# REF: https://github.com/learningequality/installers/issues/337#issuecomment-171127297
+# TODO(arceduardvincent): Remove this step when the issue is solved.
+((STEP++))
+
+# Use the KALITE_HOME env var if it exists or use the default value.
+if [ -z ${KALITE_HOME+0} ]; then 
+  KALITE_HOME="$HOME/.kalite/"
+fi
+
+# Remove the old asset folder to be replaced by newer assets later.
+KALITE_ASSET_FOLDER="$KALITE_HOME/httpsrv/"
+if [ -d "$KALITE_ASSET_FOLDER" ]; then
+    msg "$STEP/$STEPS. Removing the old asset folder at $KALITE_ASSET_FOLDER..."
+    rm -Rf "$KALITE_ASSET_FOLDER"
+    if [ $? -ne 0 ]; then
+        msg ".. Abort!  Error removing the $KALITE_ASSET_FOLDER."
+        exit 1
+    fi
 fi
 
 
