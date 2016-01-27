@@ -2,8 +2,8 @@
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
+        <development version="6300" identifier="xcode"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
-        <capability name="box content view" minToolsVersion="7.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -199,7 +199,7 @@ Gw
                                         </button>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="PbE-4O-LPb">
                                             <rect key="frame" x="14" y="-123" width="419" height="53"/>
-                                            <view key="contentView" id="YHW-HJ-bTo">
+                                            <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="417" height="51"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
@@ -244,7 +244,7 @@ Gw
                                         </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Uninstall KA Lite" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="2Uh-zQ-2n5">
                                             <rect key="frame" x="14" y="-323" width="419" height="82"/>
-                                            <view key="contentView" id="noi-EB-vce">
+                                            <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="417" height="63"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
@@ -283,7 +283,7 @@ Gw
                                         </box>
                                         <box autoresizesSubviews="NO" fixedFrame="YES" title="Application behavior" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="Sqz-dv-Dpy">
                                             <rect key="frame" x="14" y="-227" width="419" height="91"/>
-                                            <view key="contentView" id="O91-s2-ClK">
+                                            <view key="contentView">
                                                 <rect key="frame" x="1" y="1" width="417" height="72"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
