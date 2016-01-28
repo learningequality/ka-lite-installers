@@ -48,7 +48,7 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
  8. Run `kalite manage setup --noinput`.
  9. Start the server again by clicking on `Start KA Lite` in the menu option.
 
-**Note:** You can specify another assessment items archive that you've downloaded at the `unpack_assessment_zip` step above, as long as it's compatible on this version of KA Lite.
+**Note:** You can specify another assessment items archive that you've downloaded at the `unpack_assessment_zip` step above.  Make sure you use the archive for the installed version of KA Lite.
 
 
 ## Uninstall KA Lite
@@ -71,8 +71,9 @@ If you encounter issues, please file them at the [KA Lite Installers repository]
 
 Please note that we have tested this application on the following Mac OS X versions:
 
-* 10.10.5 Yosemite
-* 10.11.1 El Capitan
+* OS X El Capitan - version 10.11.1
+* OS X Yosemite - version 10.10.5
+* OS X Mavericks - version 10.9.5
 
 
 ## ToDos
