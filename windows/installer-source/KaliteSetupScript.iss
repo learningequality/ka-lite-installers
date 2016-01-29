@@ -241,6 +241,7 @@ end;
 procedure HandleUpgrade(targetPath : String);
 var
     prevVerStr : String;
+    retCode: Integer;
 begin
     prevVerStr := GetPreviousVersion();
     if (CompareStr('{#TargetVersion}', prevVerStr) >= 0) and not (prevVerStr = '') then
@@ -264,6 +265,16 @@ begin
                 if CompareStr('{#TargetVersion}', '0.14.0') >= 0 then
                 begin
                     DoGitMigrate;
+                end;
+            end;
+
+            { A special case where we'd like to remove a scheduled task, since it should now be run as current user }
+            { instead of the SYSTEM user. }
+            if CompareStr(prevVerStr, '0.15.99') < 0 then
+            begin
+                if CompareStr('{#TargetVersion}', '0.16.0') >= 0 then
+                begin
+                    Exec(ExpandConstant('{cmd}'),'/C "schtasks /delete /tn "KALite" /f"', '', SW_SHOW, ewWaitUntilTerminated, retCode);
                 end;
             end;
 
