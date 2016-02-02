@@ -15,8 +15,6 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
 1. The installer will create the `/Applications/KA-Lite/` folder that contains the KA-Lite application, uninstaller tool, licence, readme, and release notes documents.
 1. The install process is quite lengthy because the installer had to copy assessment items and run some management commands including the setup process.  Please be patient.
 
-**Note:** A computer restart is needed to complete the installation.
-
 
 ## Using the KA Lite OS X Application
 
@@ -71,7 +69,7 @@ If you encounter issues, please file them at the [KA Lite Installers repository]
 
 Please note that we have tested this application on the following Mac OS X versions:
 
-* OS X El Capitan - version 10.11.1
+* OS X El Capitan - version 10.11.3
 * OS X Yosemite - version 10.10.5
 * OS X Mavericks - version 10.9.5
 
