@@ -299,12 +299,12 @@ fi
 
 # Check if to codesign or not
 ((STEP++))
-echo "$STEP/$STEPS. Checking if to codesign or not..."
+echo "$STEP/$STEPS. Checking if to codesign the application or not..."
 SIGNER_IDENTITY_APPLICATION="Developer ID Application: Foundation for Learning Equality, Inc. (H83B64B6AV)"
 if [ -z ${IS_BAMBOO+0} ]; then 
-    echo ".. Running on local machine, don't codesign!"
+    echo ".. Running on local machine, don't codesign the application!"
 else 
-    echo ".. Running on bamboo server, so MUST codesign..."
+    echo ".. Running on bamboo server, so MUST codesign the application..."
     # sign the .app file
     # unlock the keychain first so we can access the private key
     # security unlock-keychain -p $KEYCHAIN_PASSWORD
@@ -332,9 +332,25 @@ if [ $? -ne 0 ]; then
     echo ".. Abort!  Error building the .pkg file with '$PACKAGES_EXEC'."
     exit 1
 fi
+
+echo ".. Checking if to codesign the package or not..."
+SIGNER_IDENTITY_APPLICATION="Developer ID Application: Foundation for Learning Equality, Inc. (H83B64B6AV)"
+if [ -z ${IS_BAMBOO+0} ]; then 
+    echo ".. Running on local machine, don't codesign the package!"
+else 
+    echo ".. Running on bamboo server, so MUST codesign the package..."
+    # sign the .pkg file
+    # unlock the keychain first so we can access the private key
+    # security unlock-keychain -p $KEYCHAIN_PASSWORD
+    codesign -d -s "$SIGNER_IDENTITY_APPLICATION" --force "$PACKAGES_OUTPUT"
+    if [ $? -ne 0 ]; then
+        echo ".. Abort!  Error/s encountered codesigning '$PACKAGES_OUTPUT'."
+        exit 1
+    fi
+fi
+
 mv -v $PACKAGES_OUTPUT $OUTPUT_PATH
 echo "Congratulations! Your newly built installer is at '$OUTPUT_PATH/$KALITE_PACKAGES_NAME'."
-
 
 # TODO(cpauya): Check https://github.com/learningequality/ka-lite/pull/4630#issuecomment-155567771 for running kalite twice to start.
 
