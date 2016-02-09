@@ -7,7 +7,7 @@ Release Notes for KA Lite Mac OS X Application
 **Mac Installer**
 
 * NEW - We now support Mac OS X 10.11 El Capitan.
-* NEW - We now use a .pkg installer which uses a setup wizard GUI.  We also confirm to restart the computer to complete the installation.
+* NEW - We now use a .pkg installer which uses a setup wizard GUI.
 * NEW - We now bundle the `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md`, and `KA-Lite_Uninstall.tool` script inside the `/Applications/KA-Lite/` folder.
 * NEW - We now have a pre-installation script that checks for a previous installation if it exists and does the following:
   - Remove `/Applications/KA-Lite/KA-Lite.app`.

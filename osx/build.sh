@@ -31,6 +31,13 @@
 # . http://stackoverflow.com/questions/592620/check-if-a-program-exists-from-a-bash-script
 # . http://stackoverflow.com/questions/2924422/how-do-i-determine-if-a-web-page-exists-with-shell-scripting/20988182#20988182
 # . http://stackoverflow.com/questions/2751227/how-to-download-source-in-zip-format-from-github/18222354#18222354
+#
+# 
+# MUST: test the signed .pkg on a target Mac with:
+# pkgutil --check-signature KA-Lite.pkg -- or;
+# pkgutil --check-signature KA-Lite.app -- or;
+# spctl --assess --type install KA-Lite.pkg
+
 
 echo "KA-Lite OS X build script for version 0.16.x and above."
 
@@ -299,12 +306,12 @@ fi
 
 # Check if to codesign or not
 ((STEP++))
-echo "$STEP/$STEPS. Checking if to codesign or not..."
+echo "$STEP/$STEPS. Checking if to codesign the application or not..."
 SIGNER_IDENTITY_APPLICATION="Developer ID Application: Foundation for Learning Equality, Inc. (H83B64B6AV)"
 if [ -z ${IS_BAMBOO+0} ]; then 
-    echo ".. Running on local machine, don't codesign!"
+    echo ".. Running on local machine, don't codesign the application!"
 else 
-    echo ".. Running on bamboo server, so MUST codesign..."
+    echo ".. Running on bamboo server, so MUST codesign the application..."
     # sign the .app file
     # unlock the keychain first so we can access the private key
     # security unlock-keychain -p $KEYCHAIN_PASSWORD
@@ -332,9 +339,24 @@ if [ $? -ne 0 ]; then
     echo ".. Abort!  Error building the .pkg file with '$PACKAGES_EXEC'."
     exit 1
 fi
-mv -v $PACKAGES_OUTPUT $OUTPUT_PATH
-echo "Congratulations! Your newly built installer is at '$OUTPUT_PATH/$KALITE_PACKAGES_NAME'."
 
+echo ".. Checking if to productsign the package or not..."
+OUTPUT_PKG="$OUTPUT_PATH/$KALITE_PACKAGES_NAME"
+SIGNER_IDENTITY_INSTALLER="Developer ID Installer: Foundation for Learning Equality, Inc. (H83B64B6AV)"
+if [ -z ${IS_BAMBOO+0} ]; then 
+    echo ".. Running on local machine, don't productsign the package!"
+    mv -v $PACKAGES_OUTPUT $OUTPUT_PATH
+else 
+    echo ".. Running on bamboo server, so MUST productsign the package..."
+    # sign the .pkg file
+    productsign --sign "$SIGNER_IDENTITY_INSTALLER" "$PACKAGES_OUTPUT" "$OUTPUT_PKG"
+    if [ $? -ne 0 ]; then
+        echo ".. Abort!  Error/s encountered productsigning '$PACKAGES_OUTPUT'."
+        exit 1
+    fi
+fi
+
+echo "Congratulations! Your newly built installer is at '$OUTPUT_PKG'."
 
 # TODO(cpauya): Check https://github.com/learningequality/ka-lite/pull/4630#issuecomment-155567771 for running kalite twice to start.
 
