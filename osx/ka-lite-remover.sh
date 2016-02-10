@@ -6,13 +6,13 @@
 #
 # Notes: 
 #   * This script must be run as root.  If ran as a standard user, it will prompt for the admin password.
-#   * The files that will be removed, will be displayed in the Console application.
+#   * The files that will be removed will be displayed in the Console application.
 #   * The $SCRIPT_NAME env variables was specified by the `Packages`.
 #   * This is re-used as /Applications/KA-Lite/KA_Lite_Uninstall.tool during installation.
 #
 # What does this script do?
 #   1. Unset the environment variables: KALITE_PYTHON and KALITE_HOME.
-#   2. Remove the .plist file, kalite executable and the ka-lite resources.
+#   2. Remove the .plist and preferences files, kalite executable and the ka-lite resources.
 #   3. When run stand-alone, it confirms removal of the KA-Lite data directory as specified by the KALITE_HOME env var.
 #   4. Display a console log for this process.
 #
@@ -27,11 +27,12 @@ IS_PREINSTALL=false
 if [ "$SCRIPT_NAME" == "preinstall" ]; then
     IS_PREINSTALL=true
 fi
-echo "IS_PREINSTALL == $IS_PREINSTALL"
 
 KALITE_MONITOR="/Applications/KA-Lite-Monitor.app"
 KALITE="kalite"
-KALITE_PLIST="org.learningequality.kalite.plist"
+ORG_LE="org.learningequality"
+ORG_LE_KALITE="$ORG_LE.kalite"
+KALITE_PLIST="$ORG_LE_KALITE.plist"
 HOME_LAUNCH_AGENTS="$HOME/Library/LaunchAgents"
 ROOT_LAUNCH_AGENTS="/Library/LaunchAgents"
 KALITE_EXECUTABLE_PATH="$(which $KALITE)"
@@ -39,6 +40,13 @@ KALITE_RESOURCES="/Users/Shared/ka-lite"
 KALITE_USR_BIN_PATH="/usr/bin"
 KALITE_USR_LOCAL_BIN_PATH="/usr/local/bin"
 KALITE_UNINSTALL_SCRIPT="KA-Lite_Uninstall.tool"
+
+# remove the preferences files too
+HOME_PREFERENCES="$HOME/Library/Preferences"
+# prefs plist from v0.16
+PREFS_PLIST="$HOME_PREFERENCES/$KALITE_PLIST"
+# old prefs plist from v0.14 to v0.15
+OLD_PREFS_PLIST="$HOME_PREFERENCES/FLE.KA-Lite-Monitor.plist"
 
 REMOVE_FILES_ARRAY=()
 
@@ -150,17 +158,25 @@ if [ $IS_PREINSTALL == false ]; then
     echo "                                                          "
 fi
 
-for root_plist in $ROOT_LAUNCH_AGENTS/org.learningequality.*.plist; do
+for root_plist in $ROOT_LAUNCH_AGENTS/$ORG_LE.*.plist; do
     if [ -e $root_plist ]; then
         append REMOVE_FILES_ARRAY $root_plist
     fi
 done
 
-for home_plist in $HOME_LAUNCH_AGENTS/org.learningequality.*.plist; do
+for home_plist in $HOME_LAUNCH_AGENTS/$ORG_LE.*.plist; do
     if [ -e $home_plist ]; then
         append REMOVE_FILES_ARRAY $home_plist
     fi
 done
+
+if [ -e $PREFS_PLIST ]; then
+    append REMOVE_FILES_ARRAY $PREFS_PLIST
+fi
+
+if [ -e $OLD_PREFS_PLIST ]; then
+    append REMOVE_FILES_ARRAY $OLD_PREFS_PLIST
+fi
 
 if [ $IS_PREINSTALL == false ]; then
     # Check that KALITE_HOME env var exists, if not, assign it a default value.
