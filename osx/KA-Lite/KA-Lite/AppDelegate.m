@@ -158,7 +158,7 @@ BOOL checkEnvVars() {
     
     kaliteHomeEnv = [[NSMutableDictionary alloc] init];
     
-    NSString *kaliteHomePath = getCustomKaliteHomePath();
+    NSString *kaliteHomePath = getKaliteDataPath();
     
     // Set KALITE_HOME environment
     [kaliteHomeEnv addEntriesFromDictionary:[[NSProcessInfo processInfo] environment]];
@@ -388,7 +388,15 @@ NSString *getKaliteExecutable() {
     return @"/usr/local/bin/kalite";
 }
 
-NSString *getCustomKaliteHomePath() {
+
+NSString *getKaliteDataPath() {
+    /*
+    This function returns these possible locations for the KA Lite data path:
+        1. Custom KA Lite data set by the user at the preferences dialog.
+        2. Path based on the KALITE_HOME environment variable.
+        3. The default location of the KA Lite data folder at ~/.kalite/.
+        4. nil - The above locations do not exist.
+    */
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     NSString *customKaliteData = [prefs stringForKey:@"customKaliteData"];
     
@@ -402,13 +410,11 @@ NSString *getCustomKaliteHomePath() {
         } else {
             NSString *defaultKalitePath = [NSString stringWithFormat:@"%@/.kalite", NSHomeDirectory()];
             if (pathExists(defaultKalitePath)) {
-                return [NSString stringWithFormat:@"%@/.kalite", NSHomeDirectory()];
-            } else {
-                showNotification(@"KA Lite data is not found. Click `Start KA Lite` button to create the KA Lite data. ");
+                return defaultKalitePath;
             }
         }
     }
-    
+    // Return this if we cannot find a data folder path anywhere.
     return nil;
 }
 
@@ -668,8 +674,11 @@ NSString *getEnvVar(NSString *var) {
 
 
 - (void)loadPreferences {
-    NSString *customKaliteData = getCustomKaliteHomePath();
-    NSString *standardizedPath = [customKaliteData stringByStandardizingPath];
+    NSString *kaliteDataPath = getKaliteDataPath();
+    if (!kaliteDataPath) {
+        showNotification(@"KA Lite data folder is not found. Click the `Start KA Lite` button to auto-create the KA Lite data folder.");
+    }
+    NSString *standardizedPath = [kaliteDataPath stringByStandardizingPath];
     self.customKaliteData.stringValue = standardizedPath;
     
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"autoStartOnLogin"]){
@@ -705,11 +714,7 @@ NSString *getEnvVar(NSString *var) {
     // REF: https:github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
     [prefs synchronize];
     
-    if (!setEnvVars()) {
-        NSString *msg = @"Failed to set KALITE_HOME env";
-        showNotification(msg);
-    };
-    
+    setEnvVarsAndPlist();
     
     // Automatically run `kalite manage setup` if no database was found.
     NSString *databasePath = getDatabasePath();
@@ -756,71 +761,81 @@ NSString *getEnvVar(NSString *var) {
 }
 
 
-BOOL setEnvVars() {
-    
+BOOL setEnvVarsAndPlist() {
+    /*
+    TODO(cpauya): This function does ...
+    */
+
     // REF: http://stackoverflow.com/questions/99395/how-to-check-if-a-folder-exists-in-cocoa-objective-c
-    // Check if home Library/LaunchAgents/ path exist.
-    NSString *LibraryLaunchAgentPath = [NSString stringWithFormat:@"%@%@", NSHomeDirectory(), @"/Library/LaunchAgents/"];
-    NSFileManager*fm = [NSFileManager defaultManager];
-    if(![fm fileExistsAtPath:LibraryLaunchAgentPath]) {
+
+    // MUST: Check if ~/Library/LaunchAgents/ path exists and create it if it doesn't.
+    // We do this because some fresh install of Mac OS X does not have this folder.
+    NSString *libraryLaunchAgentsPath = [NSString stringWithFormat:@"%@%@", NSHomeDirectory(), @"/Library/LaunchAgents/"];
+    if (!pathExists(libraryLaunchAgentsPath)) {
         // REF: http://stackoverflow.com/questions/99395/how-to-check-if-a-folder-exists-in-cocoa-objective-c
-        // Create home Library/LaunchAgents/ path.
+        // Create ~/Library/LaunchAgents/ path.
         NSError * error = nil;
-        BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath: LibraryLaunchAgentPath
+        BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath: libraryLaunchAgentsPath
                                                  withIntermediateDirectories:YES
                                                                   attributes:nil
                                                                        error:&error];
         if (!success) {
-            NSLog(@"Failed to create %@ directory", LibraryLaunchAgentPath);
+            NSLog(@"Failed to create %@ directory", libraryLaunchAgentsPath);
             return FALSE;
         }
     }
     
-    showNotification(@"Setting KALITE_HOME environment variable...");
-    NSString *kaliteHomePath = getCustomKaliteHomePath();
-    NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath];
+    // Set the KALITE_HOME environment variable using the system() function
+    // so that it will be updated if already set and used by the app.
+    NSString *kaliteDataPath = getKaliteDataPath();
+    showNotification([NSString stringWithFormat:@"Setting KALITE_HOME environment variable to %@...", kaliteDataPath]);
+    if (!kaliteDataPath) {
+        showNotification(@"KA Lite data folder is not found. Click the `Start KA Lite` button to auto-create the KA Lite data folder.");
+        return FALSE;
+    }
+    NSString *command = [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteDataPath];
     const char *cmd = [command UTF8String];
     int i = system(cmd);
-    if (i == 0) {
-        NSString *msg = [NSString stringWithFormat:@"Successfully set KALITE_HOME env to %@.", kaliteHomePath];
-        showNotification(msg);
-    } else {
+    if (i != 0) {
         showNotification(@"Failed to set KALITE_HOME env.");
         return FALSE;
     }
     
-    NSString *KaliteHomeStr = [NSString stringWithFormat:@"%@",
-                               [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteHomePath]
-                               ];
-    
-    // Use org.learningequality.kalite.prefs name to the KALITE_HOME plist because we have already org.learningequality.kalite plist at root /Library/LaunchAgents.
-    NSString *org = @"org.learningequality.kalite.prefs";
-    NSString *target = [NSString stringWithFormat:@"%@/Library/LaunchAgents/%@.plist", NSHomeDirectory(), org];
+    // Use a different .plist name because the LaunchDaemon does not load plists with duplicate names.
+    // We already have /Library/LaunchAgents/org.learningequality.kalite.plist for setting the KALITE_PYTHON env var,
+    // so we name this into: ~/Library/LaunchAgents/org.learningequality.kalite.user.plist.
+    NSString *plist = @"org.learningequality.kalite.user.plist";
+    NSString *target = [NSString stringWithFormat:@"%@%@", libraryLaunchAgentsPath, plist];
     NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] init];
-    [plistDict setObject:org forKey:@"Label"];
-    
-    // Append KA Lite app path to plist if autoStartOnLogin value is TRUE.
-    NSString *launchStr = [NSString stringWithFormat:@"%@", KaliteHomeStr];
+    [plistDict setObject:plist forKey:@"Label"];
+
+    // If autoStartOnLogin value is TRUE, append the command to "open the Kalite.app" to the plist.
+    NSString *kaliteHomeStr = [NSString stringWithFormat:@"%@",
+                               [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteDataPath]
+                               ];    
+    NSString *launchStr = [NSString stringWithFormat:@"%@", kaliteHomeStr];
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"autoStartOnLogin"]){
         NSString *kaliteAppPath = [NSString stringWithFormat:@"open %@", [[NSBundle mainBundle] bundlePath]];
-         launchStr = [NSString stringWithFormat:@"%@ ; %@", KaliteHomeStr, kaliteAppPath];
+         launchStr = [NSString stringWithFormat:@"%@ ; %@", kaliteHomeStr, kaliteAppPath];
     }
-   
+
+    // More contents for the .plist command.
     NSArray *arr = @[@"sh", @"-c", launchStr];
     [plistDict setObject:arr forKey:@"ProgramArguments"];
     [plistDict setObject:[NSNumber numberWithBool:TRUE] forKey:@"RunAtLoad"];
-    showNotification([NSString stringWithFormat:@"Setting KALITE_HOME environment variable... %@", plistDict]);
-    
-    // Override org.learningequality.kalite.plist content
+
+    // Write the formed content to set the KALITE_HOME env var to the .plist.
+    NSLog([NSString stringWithFormat:@"Writing the .plist for the KALITE_HOME environment variable... %@", plistDict]);
     BOOL ret = [plistDict writeToFile:target atomically:YES];
-    if (ret == YES) {
-        NSLog([NSString stringWithFormat:@"SAVED .plist file to %@", target]);
-    } else {
-        NSLog([NSString stringWithFormat:@"CANNOT save .plist file!  Result: %hhd", ret]);
+    if (ret == NO) {
+        NSLog([NSString stringWithFormat:@"Failed to save .plist file!  Result: %hhd", ret]);
         return FALSE;
     }
+    NSLog([NSString stringWithFormat:@"Saved .plist file to %@", target]);
+
+    NSString *msg = [NSString stringWithFormat:@"Successfully set KALITE_HOME env to %@.", kaliteDataPath];
+    showNotification(msg);
     return TRUE;
-    
 }
 
 
