@@ -9,5 +9,5 @@ if %WIN_VERSION% LEQ "5.2" (
     echo This feature is unavailable on this version of Windows.
     pause
 ) else (
-    schtasks /create /tn "KALite" /tr "\"%KALITE_SCRIPT_DIR%\kalite.bat\" start" /sc onstart /ru %USERNAME% /f
+    schtasks /create /tn "KALite" /tr "\"%KALITE_SCRIPT_DIR%\kalite.bat\" start" /sc onstart /ru %USERNAME% /rp /f
 )
