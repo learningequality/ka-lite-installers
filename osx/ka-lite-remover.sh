@@ -28,6 +28,9 @@ if [ "$SCRIPT_NAME" == "preinstall" ]; then
     IS_PREINSTALL=true
 fi
 
+# TODO(cpauya): get version from `ka-lite/kalite/version.py`
+VERSION="0.16"
+
 KALITE_MONITOR="/Applications/KA-Lite-Monitor.app"
 KALITE="kalite"
 ORG_LE="org.learningequality"
@@ -154,7 +157,7 @@ if [ $IS_PREINSTALL == false ]; then
     echo "                                                          "
     echo "https://learningequality.org/ka-lite/                     "
     echo "                                                          "
-    echo "     version 0.16.x                                       "
+    echo "     version $VERSION.x                                       "
     echo "                                                          "
 fi
 

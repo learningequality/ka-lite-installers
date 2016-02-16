@@ -13,7 +13,12 @@
 # 4. Run shebangcheck script that checks the python/pyrun interpreter to use.
 # 5. Remove the old asset folder to be replaced by newer assets later.
 # 6. Run kalite manage syncdb --noinput.
+
 # 7. Run kalite manage init_content_items --overwrite.
+# TODO(cpauya): use Pantry's content.db or retrievecontentpack
+# * replace /ka-lite/content_databases/content_khan_en.sqlite with Pantry's content.db
+# * use retrievecontentpack
+
 # 8. Run kalite manage unpack_assessment_zip <assessment_path>.
 # 9. Run kalite manage setup --noinput..
 # 10. Change the owner of the ~/.kalite/ folder and .plist file to current user.
@@ -37,7 +42,7 @@ PYRUN_DIR="$KALITE_SHARED/$PYRUN_NAME"
 PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
 BIN_PATH="$PYRUN_DIR/bin"
-ASSESSMENT_SRC="$KALITE_SHARED/assessment/assessment.zip"
+ASSESSMENT_SRC="$KALITE_SHARED/content/assessment.zip"
 SCRIPT_PATH="$KALITE_SHARED/scripts/"
 APPLICATION_PATH="/Applications/KA-Lite"
 PRE_INSTALL_SCRIPT="$SCRIPT_PATH/ka-lite-remover.sh"
@@ -199,13 +204,17 @@ $BIN_PATH/kalite manage syncdb --noinput
 # TODO(djallado): Remove command `kalite manage init_content_items --overwrite` after the issue in pressing `Learn` tab 
 # that results an empty sidebar and `Unexpected error: argument 2 to map() must support iteration` error will be solved.
 ((STEP++))
-msg "$STEP/$STEPS. Running kalite manage init_content_items --overwrite..."
-$BIN_PATH/kalite manage init_content_items --overwrite
+# msg "$STEP/$STEPS. Running kalite manage init_content_items --overwrite..."
+# $BIN_PATH/kalite manage init_content_items --overwrite
+
+msg "$STEP/$STEPS. Running $BIN_PATH/kalite manage retrievecontentpack local en $CONTENTPACK_ZIP..."
+CONTENTPACK_ZIP="$KALITE_SHARED/content/contentpacks/en.zip"
+$BIN_PATH/kalite manage retrievecontentpack local en $CONTENTPACK_ZIP
 
 
 ((STEP++))
 msg "$STEP/$STEPS. Running kalite manage unpack_assessment_zip '$ASSESSMENT_SRC'..."
-$BIN_PATH/kalite manage unpack_assessment_zip $ASSESSMENT_SRC    
+$BIN_PATH/kalite manage unpack_assessment_zip $ASSESSMENT_SRC
 
 
 ((STEP++))

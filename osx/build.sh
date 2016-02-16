@@ -13,6 +13,7 @@
 # . Check for valid arguments in terminal.
 # . Create temporary directory `temp`.
 # . Download the assessment.zip.
+# . Download the contentpacks/en.zip.
 # . Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
 # . Get Pyrun, then insert path to the Pyrun binaries in $PATH so Pyrun's python runs first instead of the system python.
 # . Upgrade Pyrun's Pip
@@ -42,7 +43,10 @@
 echo "KA-Lite OS X build script for version 0.16.x and above."
 
 STEP=0
-STEPS=13
+STEPS=14
+
+# TODO(cpauya): get version from `ka-lite/kalite/version.py`
+VERSION="0.16"
 
 
 ((STEP++))
@@ -82,7 +86,10 @@ echo "$STEP/$STEPS. Checking the arguments..."
 #    ka-lite-develop
 #    ka-lite-0.14.x.zip
 # this will make it easier to "rename" the archive.
-KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/develop.zip"
+# Example: KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/develop.zip"
+# KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/develop.zip"
+KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/$VERSION.x.zip"
+
 
 # Check if an argument was passed as URL for the script and use that instead.
 if [ "$1" != "" ]; then
@@ -98,7 +105,7 @@ if [ "$1" != "" ]; then
 fi
 
 # TODO(cpauya): Use a "develop" link for assessment items like the one for the Github repo below.
-ASSESSMENT_URL="http://pantry.learningequality.org/downloads/ka-lite/0.16/content/khan_assessment.zip"
+ASSESSMENT_URL="http://pantry.learningequality.org/downloads/ka-lite/$VERSION/content/khan_assessment.zip"
 # Check if an argument was passed as URL for the assessment.zip and use that instead.
 if [ "$2" != "" ]; then
     echo ".. Checking validity of assessment.zip argument -- $2..."
@@ -136,6 +143,27 @@ else
     wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $ASSESSMENT_PATH $ASSESSMENT_URL
     if [ $? -ne 0 ]; then
         echo ".. Abort!  Can't download '$ASSESSMENT_URL'."
+        exit 1
+    fi
+fi
+
+
+# Download the contentpacks/en.zip.
+((STEP++))
+CONTENTPACKS_DIR="$WORKING_DIR/content/contentpacks"
+test ! -d "$CONTENTPACKS_DIR" && mkdir -p "$CONTENTPACKS_DIR"
+
+CONTENTPACKS_EN_ZIP="en.zip"
+CONTENTPACKS_EN_URL="http://pantry.learningequality.org/downloads/ka-lite/$VERSION/content/contentpacks/$CONTENTPACKS_EN_ZIP"
+CONTENTPACKS_EN_PATH="$CONTENTPACKS_DIR/$CONTENTPACKS_EN_ZIP"
+echo "$STEP/$STEPS. Checking for en.zip"
+if [ -f "$CONTENTPACKS_EN_PATH" ]; then
+    echo ".. Found '$CONTENTPACKS_EN_PATH' so will not re-download.  Delete it to re-download."
+else
+    echo ".. Downloading from '$CONTENTPACKS_EN_URL' to '$CONTENTPACKS_EN_PATH'..."
+    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CONTENTPACKS_EN_PATH $CONTENTPACKS_EN_URL
+    if [ $? -ne 0 ]; then
+        echo ".. Abort!  Can't download '$CONTENTPACKS_EN_URL'."
         exit 1
     fi
 fi
