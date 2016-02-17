@@ -13,7 +13,8 @@
 # . Check for valid arguments in terminal.
 # . Create temporary directory `temp`.
 # . Download the assessment.zip.
-# . Download the contentpacks/en.zip.
+# . Download the contentpacks/content.db.
+# . TODO(cpauya): Download the contentpacks/en.zip.  Replace the content.db step below when the retrievecontentpacks command is okay.
 # . Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
 # . Get Pyrun, then insert path to the Pyrun binaries in $PATH so Pyrun's python runs first instead of the system python.
 # . Upgrade Pyrun's Pip
@@ -47,6 +48,8 @@ STEPS=14
 
 # TODO(cpauya): get version from `ka-lite/kalite/version.py`
 VERSION="0.16"
+
+PANTRY_CONTENT_URL="http://pantry.learningequality.org/downloads/ka-lite/$VERSION/content"
 
 
 ((STEP++))
@@ -105,7 +108,7 @@ if [ "$1" != "" ]; then
 fi
 
 # TODO(cpauya): Use a "develop" link for assessment items like the one for the Github repo below.
-ASSESSMENT_URL="http://pantry.learningequality.org/downloads/ka-lite/$VERSION/content/khan_assessment.zip"
+ASSESSMENT_URL="$PANTRY_CONTENT_URL/khan_assessment.zip"
 # Check if an argument was passed as URL for the assessment.zip and use that instead.
 if [ "$2" != "" ]; then
     echo ".. Checking validity of assessment.zip argument -- $2..."
@@ -148,22 +151,44 @@ else
 fi
 
 
-# Download the contentpacks/en.zip.
+# # TODO(cpauya): Download the contentpacks/en.zip.  Replace the content.db codes below when the retrievecontentpacks command is okay.
+# We keep these here for future use.
+# ((STEP++))
+# CONTENTPACKS_DIR="$WORKING_DIR/content/contentpacks"
+# test ! -d "$CONTENTPACKS_DIR" && mkdir -p "$CONTENTPACKS_DIR"
+
+# CONTENTPACKS_EN_ZIP="en.zip"
+# CONTENTPACKS_EN_URL="$PANTRY_CONTENT_URL/contentpacks/$CONTENTPACKS_EN_ZIP"
+# CONTENTPACKS_EN_PATH="$CONTENTPACKS_DIR/$CONTENTPACKS_EN_ZIP"
+# echo "$STEP/$STEPS. Checking for en.zip"
+# if [ -f "$CONTENTPACKS_EN_PATH" ]; then
+#     echo ".. Found '$CONTENTPACKS_EN_PATH' so will not re-download.  Delete it to re-download."
+# else
+#     echo ".. Downloading from '$CONTENTPACKS_EN_URL' to '$CONTENTPACKS_EN_PATH'..."
+#     wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CONTENTPACKS_EN_PATH $CONTENTPACKS_EN_URL
+#     if [ $? -ne 0 ]; then
+#         echo ".. Abort!  Can't download '$CONTENTPACKS_EN_URL'."
+#         exit 1
+#     fi
+# fi
+
+
+# Download the contentpacks/content.db.
 ((STEP++))
 CONTENTPACKS_DIR="$WORKING_DIR/content/contentpacks"
 test ! -d "$CONTENTPACKS_DIR" && mkdir -p "$CONTENTPACKS_DIR"
 
-CONTENTPACKS_EN_ZIP="en.zip"
-CONTENTPACKS_EN_URL="http://pantry.learningequality.org/downloads/ka-lite/$VERSION/content/contentpacks/$CONTENTPACKS_EN_ZIP"
-CONTENTPACKS_EN_PATH="$CONTENTPACKS_DIR/$CONTENTPACKS_EN_ZIP"
-echo "$STEP/$STEPS. Checking for en.zip"
-if [ -f "$CONTENTPACKS_EN_PATH" ]; then
-    echo ".. Found '$CONTENTPACKS_EN_PATH' so will not re-download.  Delete it to re-download."
+CONTENT_DB="content.db"
+CONTENT_DB_URL="$PANTRY_CONTENT_URL/contentpacks/$CONTENT_DB"
+CONTENT_DB_DEST="$CONTENTPACKS_DIR/$CONTENT_DB"
+echo "$STEP/$STEPS. Checking for $CONTENT_DB_DEST"
+if [ -f "$CONTENT_DB_DEST" ]; then
+    echo ".. Found '$CONTENT_DB_DEST' so will not re-download.  Delete it to re-download."
 else
-    echo ".. Downloading from '$CONTENTPACKS_EN_URL' to '$CONTENTPACKS_EN_PATH'..."
-    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CONTENTPACKS_EN_PATH $CONTENTPACKS_EN_URL
+    echo ".. Downloading from '$CONTENT_DB_URL' to '$CONTENT_DB_DEST'..."
+    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CONTENT_DB_DEST $CONTENT_DB_URL
     if [ $? -ne 0 ]; then
-        echo ".. Abort!  Can't download '$CONTENTPACKS_EN_URL'."
+        echo ".. Abort!  Can't download '$CONTENT_DB_URL'."
         exit 1
     fi
 fi

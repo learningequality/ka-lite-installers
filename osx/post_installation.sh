@@ -200,16 +200,19 @@ msg "$STEP/$STEPS. Running kalite manage syncdb --noinput..."
 $BIN_PATH/kalite manage syncdb --noinput
 
 
-# REF: https://github.com/learningequality/ka-lite/issues/4682#issuecomment-159113225
-# TODO(djallado): Remove command `kalite manage init_content_items --overwrite` after the issue in pressing `Learn` tab 
-# that results an empty sidebar and `Unexpected error: argument 2 to map() must support iteration` error will be solved.
-((STEP++))
-# msg "$STEP/$STEPS. Running kalite manage init_content_items --overwrite..."
-# $BIN_PATH/kalite manage init_content_items --overwrite
+# TODO(cpauya): use `kalite manage retrievecontentpack local en path-to-en.zip`.
+# ((STEP++))
+# msg "$STEP/$STEPS. Running $BIN_PATH/kalite manage retrievecontentpack local en $CONTENTPACK_ZIP..."
+# CONTENTPACK_ZIP="$KALITE_SHARED/content/contentpacks/en.zip"
+# $BIN_PATH/kalite manage retrievecontentpack local en $CONTENTPACK_ZIP
 
-msg "$STEP/$STEPS. Running $BIN_PATH/kalite manage retrievecontentpack local en $CONTENTPACK_ZIP..."
-CONTENTPACK_ZIP="$KALITE_SHARED/content/contentpacks/en.zip"
-$BIN_PATH/kalite manage retrievecontentpack local en $CONTENTPACK_ZIP
+
+# TODO(cpauya): For now, use the `content.db` from Pantry and copy it to `~/.kalite/content_databases/content_khan_en.sqlite`.
+((STEP++))
+CONTENT_DB="$KALITE_SHARED/content/contentpacks/content.db"
+CONTENT_DB_DEST="$KALITE_HOME/content_databases/content_khan_en.sqlite"
+msg "$STEP/$STEPS. Copying CONTENT_DB to CONTENT_DB_DEST..."
+cp "$CONTENT_DB" "$CONTENT_DB_DEST"
 
 
 ((STEP++))
