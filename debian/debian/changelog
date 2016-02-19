@@ -1,3 +1,79 @@
+ka-lite-source (0.15.1-0ubuntu2) precise; urgency=medium
+
+  * Add missing nginx configuration file for custom kalite user account
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 06 Dec 2015 00:34:49 +0100
+
+ka-lite-source (0.15.1-0ubuntu1) precise; urgency=medium
+
+  * New 0.15.1 upstream release
+  * Add new username suggestion for non-sudo envs (e.g. Software Center)
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 02 Dec 2015 20:11:43 +0100
+
+ka-lite-source (0.15.0-0ubuntu4) precise; urgency=medium
+
+  * Move ka-lite-gtk from Recommends to Suggests
+  * Track states during install to avoid asking same questions and resetting defaults
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 25 Nov 2015 19:24:53 +0100
+
+ka-lite-source (0.15.0-0ubuntu3) precise; urgency=medium
+
+  * Fix error in url file for resuming downloads
+  * Add debug output for config script
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 15 Nov 2015 13:49:32 +0100
+
+ka-lite-source (0.15.0-0ubuntu2) precise; urgency=medium
+
+  * Refactored debian maintainer scripts
+  * Added new RPI friendly settings
+  * Better instructions in debconf
+  * Fixed possible errors during upgrade or borked downloads
+  * 
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 22 Oct 2015 23:40:05 +0200
+
+ka-lite-source (0.15.0-0ubuntu1) precise; urgency=medium
+
+  * New final upstream release
+  * Adding man pages
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 14 Oct 2015 01:11:52 +0200
+
+ka-lite-source (0.15~b5-0ubuntu2) precise; urgency=medium
+
+  * Adding instructions for low disk space in cases of downloading assessment items
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 13 Oct 2015 17:56:44 +0200
+
+ka-lite-source (0.15~b5-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+  * Prepare source pkg assessment items from 0.15 location
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 13 Oct 2015 00:50:37 +0200
+
+ka-lite-source (0.15~b3-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 02 Oct 2015 13:29:40 +0200
+
+ka-lite-source (0.15~b2-0ubuntu1) precise; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 29 Sep 2015 18:56:25 +0200
+
+ka-lite-source (0.15~b1-0ubuntu1) precise; urgency=medium
+
+  * Fetch 0.15 assessment items
+  * New upstream 0.15b1 release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 28 Sep 2015 23:44:10 +0200
+
 ka-lite-source (0.14.0-0ubuntu1) precise; urgency=medium
 
   * Final 0.14 release 

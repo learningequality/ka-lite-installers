@@ -16,17 +16,45 @@ fle_TrayMenuItem * menu8;
 bool needNotify = false;
 bool isServerStarting = false;
 
+void kaliteScriptPath(char *buffer, const DWORD MAX_SIZE)
+{
+	/*
+		Gets the path to kalite.bat script directory, from KALITE_SCRIPT_DIR environment variable.
+		KALITE_SCRIPT_DIR should be set at install time to e.g. C:\Python27\Scripts, or wherever pip puts the kalite.bat script.
+		
+		:param char *buffer: the buffer to hold the path string. If KALITE_SCRIPT_DIR is not set or is longer than MAX_SIZE, then this will be set to 0.
+		:param const DWORD MAX_SIZE: the max size of the buffer parameter. Must be large enough for path string and terminating null byte.
+		:returns: void
+	*/
+	LPCSTR kalite_script_dir = "KALITE_SCRIPT_DIR";
+	DWORD bufsize = GetEnvironmentVariableA(kalite_script_dir, buffer, MAX_SIZE);
+	if (bufsize == 0)
+	{
+		window->sendTrayMessage("KA Lite", "Error: Environment variable KALITE_SCRIPT_DIR is not set.");
+		buffer = 0;
+	} 
+	else if (bufsize > MAX_SIZE)
+	{
+		char err_message[255];
+		sprintf(err_message, "Error: the value of KALITE_SCRIPT_DIR must be less than %d, but it was length %d. Please start KA Lite from the command line.", MAX_SIZE, bufsize);
+		window->sendTrayMessage("KA Lite", err_message);
+		buffer = 0;
+	}
+	return;
+}
+
 void startServerAction()
 {
-	if(!runShellScript("kalite.bat", "start", "ka-lite\\bin\\windows\\"))
+	const DWORD MAX_SIZE = 255;
+	char script_dir[MAX_SIZE];
+	kaliteScriptPath(script_dir, MAX_SIZE);
+	if(!runShellScript("kalite.bat", "start", script_dir))
 	{
 		// Handle error.
-		printConsole("Failed to run the script.\n");
 	}
 	else
 	{
 		menu1->disable();
-		printConsole("The script was run successfully.\n");
 
 		needNotify = true;
 		isServerStarting = true;
@@ -37,17 +65,18 @@ void startServerAction()
 
 void stopServerAction()
 {
-	if(!runShellScript("kalite.bat", "stop", "ka-lite\\bin\\windows\\"))
+	const DWORD MAX_SIZE = 255;
+	char script_dir[MAX_SIZE];
+	kaliteScriptPath(script_dir, MAX_SIZE);
+	if(!runShellScript("kalite.bat", "stop", script_dir))
 	{
 		// Handle error.
-		printConsole("Failed to run the script.\n");
 	}
 	else
 	{
 		menu1->enable();
 		menu2->disable();
 		menu3->disable();
-		printConsole("The script was run successfully.\n");
 	}
 }
 

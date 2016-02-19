@@ -29,7 +29,6 @@ SolidCompression=yes
 PrivilegesRequired=admin
 UsePreviousAppDir=yes
 ChangesEnvironment=yes
-AlwaysRestart=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -38,10 +37,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\ka-lite\*"; DestDir: "{app}\ka-lite"; Excludes: ".KALITE_SOURCE_DIR,content\assessment,content\assessment\*,content\assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\ka-lite\content\*"; DestDir: "{app}\ka-lite\content"; Excludes: "assessment,assessment\*,assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\ka-lite\content\assessment\*"; DestDir: "{app}\ka-lite\assessment"; Excludes: "assessmentitems.sqlite"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\ka-lite\content\assessmentitems.sqlite"; DestDir: "{app}\ka-lite\assessment\khan"; Flags: ignoreversion
+Source: "..\ka-lite\dist\ka-lite-static-*.zip"; DestDir: "{app}\ka-lite"
+Source: "..\khan_assessment.zip"; DestDir: "{app}"
+Source: "..\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\images\logo48.ico"; DestDir: "{app}\images"; Flags: ignoreversion
@@ -53,15 +51,11 @@ Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon ; IconFilename: "{app}\images\logo48.ico"
 
-[Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: shellexec postinstall skipifsilent
-
 [Dirs]
-Name: "{app}\"; Permissions: everyone-modify
-
+Name: "{app}\"; Permissions: everyone-readexec
 
 [InstallDelete]
-Type: Files; Name: "{app}\ka-lite\kalite\updates\utils.*"
+Type: Files; Name: "{app}\*"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\ka-lite*"
@@ -69,11 +63,13 @@ Type: files; Name: "{userstartup}\KA Lite.lnk"
 Type: files; Name: "{app}\CONFIG.dat"
 
 [Code]
+function GetPreviousVersion : String; Forward;
+
 var
   installFlag : boolean;
   startupFlag : string;
   ServerInformationPage : TInputQueryWizardPage;
-  StartupPage : TInputOptionWizardPage;
+  StartupOptionsPage : TOutputMsgWizardPage;
   isUpgrade : boolean;
   stopServerCode: integer;
   removeOldGuiTool: integer;
@@ -82,7 +78,6 @@ var
   cleanOldKaliteFolder : integer;
   restoreDatabaseTemp : integer;
   forceCancel : boolean;
-  prevVerStr : string;
 
 procedure InitializeWizard;
 begin
@@ -104,14 +99,12 @@ begin
     ServerInformationPage.Add('Server name:', False);
     ServerInformationPage.Add('Server description:', False);
 
-    // Run at windows startup.
-    StartupPage := CreateInputOptionPage(ServerInformationPage.ID,
-    'Server Configuration', 'Startup configuration',
-    'The server can run automatically. You may choose one of the following options:', True, False);
-    StartupPage.Add('Run the server at windows startup');
-    StartupPage.Add('Run the server when this user logs in');
-    StartupPage.Add('Do not run the server at startup.');
-    StartupPage.SelectedValueIndex := 2;
+    StartupOptionsPage := CreateOutputMsgPage(ServerInformationPage.ID,
+        'Startup options', 'Please read the following important information.',
+        'In prior versions of KA Lite you could choose to start the server or task-tray program automatically during installation.' #13#13
+        'This is no longer possible during installation, but you can set these options using the task-tray program after installation finishes.' #13#13
+        'To enable or disable these features, start the task-tray program and right click on it to find a list of options.'
+    )
 end;
 
 procedure CancelButtonClick(CurPageID: Integer; var Cancel, Confirm: Boolean);
@@ -152,24 +145,24 @@ end;
 
 { Get the previous version number by checking the uninstall key registry values. }
 { IS writes quite a bit of information to the registry by default: https://github.com/jrsoftware/issrc/blob/5203240a7de9b83c5432bee0b5b09d467869a02b/Projects/Install.pas#L434 }
-procedure GetPreviousVersion;
+function GetPreviousVersion : String;
 var
     subkey : String;
 begin
     subkey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\KA Lite-Foundation for Learning Equality_is1';
-    prevVerStr := ''
+    result := '';
     { 32-bit programs have a virtualized registry on 64-bit windows. So check all possible root keys. }
-    if Not RegQueryStringValue(HKLM, subkey, 'DisplayVersion', prevVerStr) then
+    if Not RegQueryStringValue(HKLM, subkey, 'DisplayVersion', result) then
     begin
-        if Not RegQueryStringValue(HKCU, subkey, 'DisplayVersion', prevVerStr) then
+        if Not RegQueryStringValue(HKCU, subkey, 'DisplayVersion', result) then
         begin
             if IsWin64 then
             begin
-                if Not RegQueryStringValue(HKLM64, subkey, 'DisplayVersion', prevVerStr) then
+                if Not RegQueryStringValue(HKLM64, subkey, 'DisplayVersion', result) then
                 begin
-                    if Not RegQueryStringValue(HKCU64, subkey, 'DisplayVersion', prevVerStr) then
+                    if Not RegQueryStringValue(HKCU64, subkey, 'DisplayVersion', result) then
                     begin
-                        { Couldn't determine the previous version, so prevVerStr is '' }
+                        { Couldn't determine the previous version, so result is '' }
                     end;
                 end;
             end;
@@ -209,10 +202,48 @@ begin
     end;
 end;
 
-procedure HandleUpgrade(targetPath : String);
+{ In version 0.13.x or below, users who selected the "Run KA Lite at system startup" option ran KA Lite as the }
+{ SYSTEM user. Starting in 0.16.0, it will be run as the current user. Consequently, data must be migrated from the }
+{ SYSTEM user's profile to the new location. }
+procedure MoveSystemKaliteData;
+var
+    systemKaliteDir: String;
+    userKaliteDir: String;
+    userKaliteDirBackup: String;
+    resultCode: Integer;
 begin
-    GetPreviousVersion;
-    if FileExists(targetPath + '\ka-lite\kalite\database\data.sqlite') then
+    systemKaliteDir := 'C:\Windows\System32\config\systemprofile\.kalite';
+    if DirExists(systemKaliteDir) then
+    begin
+        if(MsgBox('You may need to migrate data from the SYSTEM user''s profile to the current user''s profile.' #13#13
+                  'This is because of a change in the behavior of KA Lite using the "Run KA Lite at system startup" option.' #13
+                  'If you use this option, we recommend clicking yes. Your data will be backed up.' #13#13
+                  'Would you like to migrate data from the SYSTEM user''s profile to the current user''s profile?', mbConfirmation, MB_YESNO) = idYes) then
+        begin
+            userKaliteDir := ExpandConstant('{%USERPROFILE}\.kalite');
+            userKaliteDirBackup := userKaliteDir + '.backup';
+            if DirExists(userKaliteDir) then
+            begin
+                MsgBox(userKaliteDir + ' already exists, backing up to ' + userKaliteDirBackup, mbInformation, MB_OK);
+                if not Exec(ExpandConstant('{cmd}'), '/C "xcopy  "' + userKaliteDir +'" "' + userKaliteDirBackup +'\" /Y /S"', '', SW_SHOW, ewWaitUntilTerminated, resultCode) then
+                begin
+                    MsgBox('Backup .kalite file copy fail.', mbInformation, MB_OK);
+                end;
+            end;
+            if not Exec(ExpandConstant('{cmd}'), '/C "xcopy  "' + systemKaliteDir +'" "' + userKaliteDir +'\" /Y /S"', '', SW_SHOW, ewWaitUntilTerminated, resultCode) then
+            begin
+                MsgBox('System .kalite file copy fail.', mbInformation, MB_OK);
+            end;
+        end;
+    end;
+end;
+
+procedure HandleUpgrade(targetPath : String);
+var
+    prevVerStr : String;
+begin
+    prevVerStr := GetPreviousVersion();
+    if (CompareStr('{#TargetVersion}', prevVerStr) >= 0) and not (prevVerStr = '') then
     begin
         ConfirmUpgradeDialog;
         if Not isUpgrade then
@@ -227,6 +258,7 @@ begin
         else
         begin
             { This is where version-specific migration stuff should happen. }
+
             if CompareStr(prevVerStr, '0.13.99') < 0 then
             begin
                 if CompareStr('{#TargetVersion}', '0.14.0') >= 0 then
@@ -234,10 +266,22 @@ begin
                     DoGitMigrate;
                 end;
             end;
+
+            { Migrating from 0.14.x and 0.15.x to 0.16.x }
+            if (CompareStr(prevVerStr, '0.14.0') >= 0) and (CompareStr(prevVerStr, '0.15.99') < 0) then
+            begin
+                if CompareStr('{#TargetVersion}', '0.16.0') >= 0 then
+                begin
+                    MoveSystemKaliteData;
+                end;
+            end;
         end;
-    { forceCancel will be true if something went awry in DoGitMigrate... abort instead of trampling the user's data. }
-    if Not forceCancel then
-        RemoveOldInstallation(targetPath);
+
+        { forceCancel will be true if something went awry in DoGitMigrate... abort instead of trampling the user's data. }
+        if Not forceCancel then
+        begin
+            RemoveOldInstallation(targetPath);
+        end;
     end;
 end;
 
@@ -317,15 +361,24 @@ begin
     PipPath := GetPipPath;
     if PipPath = '' then
         exit;
-    PipCommand := 'install "' + ExpandConstant('{app}\ka-lite\dist\ka-lite-static-')  + '{#TargetVersion}' + '.zip"';
+    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka-lite-static-'  + '{#TargetVersion}' + '.zip"';
 
-    MsgBox('Setup will now unpack dependencies for your installation.', mbInformation, MB_OK);
-    if not ShellExec('open', PipPath, PipCommand, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
+    MsgBox('Setup will now install kalite source files to your Python site-packages.', mbInformation, MB_OK);
+    if not ShellExec('open', PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
     begin
       MsgBox('Critical error.' #13#13 'Dependencies have failed to install. Error Number: ' + IntToStr(ErrorCode), mbInformation, MB_OK);
       forceCancel := True;
       WizardForm.Close;
     end;
+
+    { Must set this environment variable so the systray executable knows where to find the installed kalite.bat script}
+    { Should by in the same directory as pip.exe, e.g. 'C:\Python27\Scripts' }
+    RegWriteStringValue(
+        HKLM,
+        'System\CurrentControlSet\Control\Session Manager\Environment',
+        'KALITE_SCRIPT_DIR',
+        ExtractFileDir(PipPath)
+    );
 end;
 
 function InitializeSetup(): Boolean;
@@ -365,19 +418,17 @@ begin
   result := True;
 end;
 
-{ Completes the setup with bundled empty database file. }
 procedure DoSetup;
 var
     retCode: integer;
 begin
-    { Copy the bundled empty db to the proper location. }
     { Used to have more responsibility, but we delegated those to the app itself! }
-    Exec(ExpandConstant('{cmd}'), '/S /C "xcopy "' + ExpandConstant('{app}') + '\ka-lite\kalite\database" "%USERPROFILE%\.kalite\database\" /E /Y"', '', SW_HIDE, ewWaitUntilTerminated, retCode);
+    { Unpacks the assessment items. }
+    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage unpack_assessment_zip khan_assessment.zip"', ExpandConstant('{app}'), SW_SHOW, ewWaitUntilTerminated, retCode);
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
-  StartupCode: integer;
   moveKaliteFolderTemp: integer;
   moveContentFolderTemp: integer;
   cleanKaliteFolder: integer;
@@ -435,45 +486,9 @@ begin
         begin
             HandlePipSetup();
 
-            { Add KALITE_ROOT_DATA_PATH to environment variables. A workaround for setting kalite.ROOT_DATA_PATH }
-            { In the future, the windows installer should use setuptools to avoid OS-dependent workarounds like this. }
-            RegWriteStringValue(
-                HKLM,
-                'System\CurrentControlSet\Control\Session Manager\Environment',
-                'KALITE_ROOT_DATA_PATH',
-                ExpandConstant('{app}\ka-lite\')
-            );
-
             if Not forceCancel then
             begin
                 DoSetup;
-            end;
-      
-            if StartupPage.SelectedValueIndex = 0 then
-            begin
-                if ShellExec('open','guitools.vbs','4', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, StartupCode) then
-                begin
-                    if Not SaveStringToFile(ExpandConstant('{app}')+'\CONFIG.dat', 'RUN_AT_STARTUP:TRUE;' + #13#10, False) then
-                    begin
-                        MsgBox('Configuration file error.' #13#13 'Setup has failed to add the entry in the configuration file to run KA Lite at Windows startup. The installation may proceed and you can set this option later while using KA Lite.', mbError, MB_OK);
-                    end;
-                end
-                else begin
-                    MsgBox('GUI tools error.' #13#13 'Setup has failed to register a task to run KA Lite at Windows startup. The installation may proceed and you can set this option later while using KA Lite.', mbError, MB_OK);
-                end;      
-            end
-            else if StartupPage.SelectedValueIndex = 1 then
-            begin
-                if ShellExec('open', 'guitools.vbs', '0', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, StartupCode) then
-                begin
-                    if Not SaveStringToFile(ExpandConstant('{app}')+'\CONFIG.dat', 'RUN_AT_USER_LOGIN:TRUE;' + #13#10, False) then
-                    begin
-                        MsgBox('Configuration file error.' #13#13 'Setup has failed to add the entry in the configuration file to run KA Lite on user login. The installation may proceed and you can set this option later while using KA Lite.', mbError, MB_OK);
-                    end;
-                end
-                else begin
-                    MsgBox('GUI tools error.' #13#13 'Setup has failed to add the shortcut at the startup folder to run KA Lite on user login. The installation may proceed and you can set this option later while using KA Lite.', mbError, MB_OK);
-                end;
             end;
         end;
     end;
@@ -481,15 +496,14 @@ end;
 
 { Called just prior to uninstall finishing. }
 { Clean up things we did during uninstall: }
-{ * Remove environment variable KALITE_ROOT_DATA_PATH }
+{ * Remove environment variable KALITE_SCRIPT_DIR, which is set starting in version 0.16.x }
+{ * Previously (versions 0.13.x to 0.15.x) KALITE_ROOT_DATA_PATH was set -- it should be unset by the respective }
+{   uninstallers of those versions }
 procedure DeinitializeUninstall();
 begin
-    if not RegDeleteValue(
+    RegDeleteValue(
         HKLM,
         'System\CurrentControlSet\Control\Session Manager\Environment',
-        'KALITE_ROOT_DATA_PATH'
-    ) then
-    begin
-        MsgBox('Unable to unset environment variable KALITE_ROOT_DATA_PATH.', mbError, MB_OK);
-    end;
+        'KALITE_SCRIPT_DIR'
+    )
 end;
