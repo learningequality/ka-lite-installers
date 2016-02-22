@@ -37,8 +37,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\ka-lite\dist\ka-lite-static-*.zip"; DestDir: "{app}\ka-lite"
-Source: "..\khan_assessment.zip"; DestDir: "{app}"
+Source: "..\ka-lite-static-*.zip"; DestDir: "{app}\ka-lite"
+Source: "..\en.zip"; DestDir: "{app}"
 Source: "..\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
@@ -434,8 +434,8 @@ var
     retCode: integer;
 begin
     { Used to have more responsibility, but we delegated those to the app itself! }
-    { Unpacks the assessment items. }
-    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage unpack_assessment_zip khan_assessment.zip"', ExpandConstant('{app}'), SW_SHOW, ewWaitUntilTerminated, retCode);
+    { Unpacks the English content pack. }
+    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage retrievecontentpack local en en.zip"', ExpandConstant('{app}'), SW_SHOW, ewWaitUntilTerminated, retCode);
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
