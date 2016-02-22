@@ -78,6 +78,8 @@ fi
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 TEMP_DIR_NAME="temp"
 WORKING_DIR="$SCRIPTPATH/$TEMP_DIR_NAME"
+CONTENT_DIR="$WORKING_DIR/content"
+CONTENTPACKS_DIR="$CONTENT_DIR/contentpacks"
 
 
 # Check the arguments
@@ -137,7 +139,10 @@ fi
 # Download the assessment.zip.
 ((STEP++))
 ASSESSMENT_ZIP="assessment.zip"
-ASSESSMENT_PATH="$WORKING_DIR/$ASSESSMENT_ZIP"
+# ASSESSMENT_PATH="$WORKING_DIR/$ASSESSMENT_ZIP"
+ASSESSMENT_PATH="$CONTENT_DIR/$ASSESSMENT_ZIP"
+test ! -d "$CONTENT_DIR" && mkdir -p "$CONTENT_DIR"
+
 echo "$STEP/$STEPS. Checking for assessment.zip"
 if [ -f "$ASSESSMENT_PATH" ]; then
     echo ".. Found '$ASSESSMENT_PATH' so will not re-download.  Delete it to re-download."
