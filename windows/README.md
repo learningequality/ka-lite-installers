@@ -28,6 +28,9 @@ skip using msys and use bash instead.
 * Clone this repository;
 * Download ka-lite-static sdist zipfile from https://pypi.python.org/pypi/ka-lite-static/
 * Download the English content pack `en.zip` file to this directory. Look for it in [the pantry](http://pantry.learningequality.org/downloads/).
+* Set the environment variable KALITE_BUILD_VERSION to the desired version for the installer, e.g. `0.16.0`.
+  This should match the version in the sdist *exactly*, so `ka-lite-static-0.17.3` means that `KALITE_BUILD_VERSION`
+  should have the value `0.17.3`.
 * In Windows, run the following command from this directory:
 ```
 > make.vbs

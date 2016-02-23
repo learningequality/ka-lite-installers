@@ -4,7 +4,7 @@
 #define MyAppExeName "KA Lite.exe"
 
 #define getKALiteVersion() \
-    Local[1] = Exec(SourcePath+"\getversion.bat") == 0 ? StringChange(FileRead(FileOpen(SourcePath+"\version.temp")), " ", "") : "null"
+    Local[1] = GetEnv("KALITE_BUILD_VERSION")
 
 #define TargetVersion = getKALiteVersion();
 
@@ -375,7 +375,7 @@ begin
     PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka-lite-static-'  + '{#TargetVersion}' + '.zip"';
 
     MsgBox('Setup will now install kalite source files to your Python site-packages.', mbInformation, MB_OK);
-    if not ShellExec('open', PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
+    if not Exec(PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
     begin
       MsgBox('Critical error.' #13#13 'Dependencies have failed to install. Error Number: ' + IntToStr(ErrorCode), mbInformation, MB_OK);
       forceCancel := True;
