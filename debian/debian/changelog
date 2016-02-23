@@ -1,3 +1,17 @@
+ka-lite-source (0.16~a3-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Fixes location of assessment items
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 22 Feb 2016 19:53:25 +0100
+
+ka-lite-source (0.16~a2-0ubuntu1) trusty; urgency=medium
+
+  * Drop precise support
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 22 Feb 2016 03:06:06 +0100
+
 ka-lite-source (0.15.1-0ubuntu2) precise; urgency=medium
 
   * Add missing nginx configuration file for custom kalite user account

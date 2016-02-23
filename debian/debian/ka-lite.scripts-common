@@ -31,7 +31,7 @@ args=("$@")
 # http://www.fifi.org/doc/debconf-doc/tutorial.html
 
 major_version() {
-    echo -n "0.15"
+    echo -n "0.16"
     # This doesn't work for all maintainer scripts
     # echo "${args[1]}" | sed 's/\([0-9]*\.[0-9]*\).*/\1/'
 }
@@ -216,7 +216,7 @@ kalite_debconf_ask()
                 upgrading_assessment_items=false
                 if [ -f $version_file ]; then
                     old_version="`cat $version_file`"
-                    [ "$old_version" != "0.15" ] && upgrading_assessment_items=true || upgrading_assessment_items=false
+                    [ "$old_version" != "`major_version`" ] && upgrading_assessment_items=true || upgrading_assessment_items=false
                 fi
                 
                 if $upgrading_assessment_items
@@ -447,8 +447,8 @@ kalite_preinst()
         # Remove pyc files from previous installations
         # Why not with pyclean? BECAUSE PYTHON IS NOT IN PRE-DEPENDS, SO WE CANNOT
         # ASSUME THAT IT EXISTS!!
-        # TODO: This can be removed once we stop support for 0.15 upgrades, because
-        # these directories will not contain non-managed pyc files from 0.16+
+        # TODO: This can be removed once we stop support for 0.16 upgrades, because
+        # these directories will not contain non-managed pyc files from 0.17+
         if [ -d usr/share/kalite/python-packages ]
         then
             find /usr/share/kalite/python-packages -name '*pyc' -exec rm {} \;
@@ -534,8 +534,8 @@ kalite_prerm()
 
     # Nevermind testing, pyclean is part of python-minimal, we let it be a dependency
     # and don't mind cases where someone even removes python-minimal
-    # TODO: This can be removed once we stop support for 0.15 upgrades, because
-    # these directories will not contain non-managed pyc files from 0.16+
+    # TODO: This can be removed once we stop support for 0.16 upgrades, because
+    # these directories will not contain non-managed pyc files from 0.17+
     
     pyclean -p $DPKG_MAINTSCRIPT_PACKAGE
 
