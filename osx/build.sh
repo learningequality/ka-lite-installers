@@ -9,21 +9,19 @@
 # . $1 == $KA_LITE_REPO_ZIP == URL of the Github .zip of the KA-Lite branch to use. 
 #
 # Steps
-# . Check if requirements are installed: packages, wget.
-# . Check for valid arguments in terminal.
-# . Create temporary directory `temp`.
-# . Download the assessment.zip.
-# . Download the contentpacks/content.db.
-# . TODO(cpauya): Download the contentpacks/en.zip.  Replace the content.db step below when the retrievecontentpacks command is okay.
-# . Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
-# . Get Pyrun, then insert path to the Pyrun binaries in $PATH so Pyrun's python runs first instead of the system python.
-# . Upgrade Pyrun's Pip
-# . Run `pip install -r requirements_dev.txt` to install the Makefile executables.
-# . Run `make dist` for assets and docs.
-# . Run `pyrun setup.py install --static` inside the `temp/ka-lite/` directory.
-# . Build the Xcode project.
-# . Codesign the built .app if running on build server.
-# . Run Packages script to build the .pkg.
+# 1. Check if requirements are installed: packages, wget.
+# 2. Check for valid arguments in terminal.
+# 3. Create temporary directory `temp`.
+# 4. Download the contentpacks/en.zip.
+# 5. Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
+# 6. Get Pyrun, then insert path to the Pyrun binaries in $PATH so Pyrun's python runs first instead of the system python.
+# 7. Upgrade Pyrun's Pip
+# 8. Run `pip install -r requirements_dev.txt` to install the Makefile executables.
+# 9. Run `make dist` for assets and docs.
+# 10. Run `pyrun setup.py install --static` inside the `temp/ka-lite/` directory.
+# 11. Build the Xcode project.
+# 12. Codesign the built .app if running on build server.
+# 13. Run Packages script to build the .pkg.
 #
 # REF: Bash References
 # . http://www.peterbe.com/plog/set-ex
@@ -44,7 +42,7 @@
 echo "KA-Lite OS X build script for version 0.16.x and above."
 
 STEP=0
-STEPS=14
+STEPS=13
 
 # TODO(cpauya): get version from `ka-lite/kalite/version.py`
 VERSION="0.16"
@@ -109,18 +107,19 @@ if [ "$1" != "" ]; then
     fi
 fi
 
-# TODO(cpauya): Use a "develop" link for assessment items like the one for the Github repo below.
-ASSESSMENT_URL="$PANTRY_CONTENT_URL/khan_assessment.zip"
-# Check if an argument was passed as URL for the assessment.zip and use that instead.
+
+# Check if an argument was passed as URL for the en.zip and use that instead.
+CONTENTPACKS_EN_ZIP="en.zip"
+CONTENTPACKS_EN_URL="$PANTRY_CONTENT_URL/contentpacks/$CONTENTPACKS_EN_ZIP"
 if [ "$2" != "" ]; then
-    echo ".. Checking validity of assessment.zip argument -- $2..."
+    echo ".. Checking validity of en.zip argument -- $2..."
     # MUST: Check if valid url!
     if curl --output /dev/null --silent --head --fail "$2"
     then
-        # Use the argument as the assessment.zip url.
-        ASSESSMENT_URL=$2
+        # Use the argument as the en.zip url.
+        CONTENTPACKS_EN_URL=$2
     else
-        echo ".. Abort!  The '$2' argument is not a valid URL for the assessment.zip!"
+        echo ".. Abort!  The '$2' argument is not a valid URL for the en.zip!"
         exit 1
     fi
 fi
@@ -136,67 +135,23 @@ if ! [ -d "$WORKING_DIR" ]; then
 fi
 
 
-# Download the assessment.zip.
+# Download the contentpacks/en.zip.
 ((STEP++))
-ASSESSMENT_ZIP="assessment.zip"
-# ASSESSMENT_PATH="$WORKING_DIR/$ASSESSMENT_ZIP"
-ASSESSMENT_PATH="$CONTENT_DIR/$ASSESSMENT_ZIP"
-test ! -d "$CONTENT_DIR" && mkdir -p "$CONTENT_DIR"
+CONTENTPACKS_DIR="$WORKING_DIR/content/contentpacks"
+test ! -d "$CONTENTPACKS_DIR" && mkdir -p "$CONTENTPACKS_DIR"
 
-echo "$STEP/$STEPS. Checking for assessment.zip"
-if [ -f "$ASSESSMENT_PATH" ]; then
-    echo ".. Found '$ASSESSMENT_PATH' so will not re-download.  Delete it to re-download."
+CONTENTPACKS_EN_PATH="$CONTENTPACKS_DIR/$CONTENTPACKS_EN_ZIP"
+echo "$STEP/$STEPS. Checking for en.zip"
+if [ -f "$CONTENTPACKS_EN_PATH" ]; then
+    echo ".. Found '$CONTENTPACKS_EN_PATH' so will not re-download.  Delete it to re-download."
 else
-    echo ".. Downloading from '$ASSESSMENT_URL' to '$ASSESSMENT_PATH'..."
-    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $ASSESSMENT_PATH $ASSESSMENT_URL
+    echo ".. Downloading from '$CONTENTPACKS_EN_URL' to '$CONTENTPACKS_EN_PATH'..."
+    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CONTENTPACKS_EN_PATH $CONTENTPACKS_EN_URL
     if [ $? -ne 0 ]; then
-        echo ".. Abort!  Can't download '$ASSESSMENT_URL'."
+        echo ".. Abort!  Can't download '$CONTENTPACKS_EN_URL'."
         exit 1
     fi
 fi
-
-
-# # TODO(cpauya): Download the contentpacks/en.zip.  Replace the content.db codes below when the retrievecontentpacks command is okay.
-# We keep these here for future use.
-# ((STEP++))
-# CONTENTPACKS_DIR="$WORKING_DIR/content/contentpacks"
-# test ! -d "$CONTENTPACKS_DIR" && mkdir -p "$CONTENTPACKS_DIR"
-
-# CONTENTPACKS_EN_ZIP="en.zip"
-# CONTENTPACKS_EN_URL="$PANTRY_CONTENT_URL/contentpacks/$CONTENTPACKS_EN_ZIP"
-# CONTENTPACKS_EN_PATH="$CONTENTPACKS_DIR/$CONTENTPACKS_EN_ZIP"
-# echo "$STEP/$STEPS. Checking for en.zip"
-# if [ -f "$CONTENTPACKS_EN_PATH" ]; then
-#     echo ".. Found '$CONTENTPACKS_EN_PATH' so will not re-download.  Delete it to re-download."
-# else
-#     echo ".. Downloading from '$CONTENTPACKS_EN_URL' to '$CONTENTPACKS_EN_PATH'..."
-#     wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CONTENTPACKS_EN_PATH $CONTENTPACKS_EN_URL
-#     if [ $? -ne 0 ]; then
-#         echo ".. Abort!  Can't download '$CONTENTPACKS_EN_URL'."
-#         exit 1
-#     fi
-# fi
-
-
-# # Download the contentpacks/content.db.
-# ((STEP++))
-# CONTENTPACKS_DIR="$WORKING_DIR/content/contentpacks"
-# test ! -d "$CONTENTPACKS_DIR" && mkdir -p "$CONTENTPACKS_DIR"
-
-# CONTENT_DB="content.db"
-# CONTENT_DB_URL="$PANTRY_CONTENT_URL/contentpacks/$CONTENT_DB"
-# CONTENT_DB_DEST="$CONTENTPACKS_DIR/$CONTENT_DB"
-# echo "$STEP/$STEPS. Checking for $CONTENT_DB_DEST"
-# if [ -f "$CONTENT_DB_DEST" ]; then
-#     echo ".. Found '$CONTENT_DB_DEST' so will not re-download.  Delete it to re-download."
-# else
-#     echo ".. Downloading from '$CONTENT_DB_URL' to '$CONTENT_DB_DEST'..."
-#     wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CONTENT_DB_DEST $CONTENT_DB_URL
-#     if [ $? -ne 0 ]; then
-#         echo ".. Abort!  Can't download '$CONTENT_DB_URL'."
-#         exit 1
-#     fi
-# fi
 
 
 ((STEP++))
@@ -300,7 +255,7 @@ fi
 echo "$STEP/$STEPS. Installing Pip requirements for use of Makefile..."
 
 PIP_CMD="$PYRUN_PIP install -r requirements_dev.txt"
-# TODO(cpauya): Streamline this to install only the needed modules/executables for `make dist` below.
+# TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
 cd "$KA_LITE_DIR"
 echo ".. Running $PIP_CMD..."
 $PIP_CMD
@@ -415,14 +370,5 @@ else
 fi
 
 echo "Congratulations! Your newly built installer is at '$OUTPUT_PKG'."
-
-# TODO(cpauya): Check https://github.com/learningequality/ka-lite/pull/4630#issuecomment-155567771 for running kalite twice to start.
-
-# TODO(cpauya): To run KA-Lite on the terminal for testing, run the following:
-# ./temp/pyrun-2.7/bin/kalite manage syncdb --noinput;
-# ./temp/pyrun-2.7/bin/kalite manage setup --noinput;
-# ./temp/pyrun-2.7/bin/kalite start;
-
-
 cd "$WORKING_DIR/.."
 echo "Done!"
