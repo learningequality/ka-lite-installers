@@ -207,22 +207,27 @@ $BIN_PATH/kalite manage syncdb --noinput
 # $BIN_PATH/kalite manage retrievecontentpack local en $CONTENTPACK_ZIP
 
 
-# TODO(cpauya): For now, use the `content.db` from Pantry and copy it to `~/.kalite/content_databases/content_khan_en.sqlite`.
+# # TODO(cpauya): For now, use the `content.db` from Pantry and copy it to `~/.kalite/content_databases/content_khan_en.sqlite`.
+# ((STEP++))
+# CONTENT_DB="$KALITE_SHARED/content/contentpacks/content.db"
+# CONTENT_DB_DEST="$KALITE_HOME/content_databases/content_khan_en.sqlite"
+# msg "$STEP/$STEPS. Copying CONTENT_DB to CONTENT_DB_DEST..."
+# cp "$CONTENT_DB" "$CONTENT_DB_DEST"
+
+
+# TODO(cpauya): Must be run first so that the .sqlite database is not skipped!
+# ...
+# Installed 0 object(s) from 0 fixture(s)
+# Skipping /Users/Shared/ka-lite/pyrun-2.7/lib/python2.7/site-packages/ka_lite_static-0.16.0-py2.7.egg/kalite/database/templates/content_items/content_khan_en.sqlite
+# ...
 ((STEP++))
-CONTENT_DB="$KALITE_SHARED/content/contentpacks/content.db"
-CONTENT_DB_DEST="$KALITE_HOME/content_databases/content_khan_en.sqlite"
-msg "$STEP/$STEPS. Copying CONTENT_DB to CONTENT_DB_DEST..."
-cp "$CONTENT_DB" "$CONTENT_DB_DEST"
+msg "$STEP/$STEPS. Running kalite manage setup --noinput..."
+$BIN_PATH/kalite manage setup --noinput
 
 
 ((STEP++))
 msg "$STEP/$STEPS. Running kalite manage unpack_assessment_zip '$ASSESSMENT_SRC'..."
 $BIN_PATH/kalite manage unpack_assessment_zip $ASSESSMENT_SRC
-
-
-((STEP++))
-msg "$STEP/$STEPS. Running kalite manage setup --noinput..."
-$BIN_PATH/kalite manage setup --noinput
 
 
 ((STEP++))

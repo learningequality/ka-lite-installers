@@ -178,25 +178,25 @@ fi
 # fi
 
 
-# Download the contentpacks/content.db.
-((STEP++))
-CONTENTPACKS_DIR="$WORKING_DIR/content/contentpacks"
-test ! -d "$CONTENTPACKS_DIR" && mkdir -p "$CONTENTPACKS_DIR"
+# # Download the contentpacks/content.db.
+# ((STEP++))
+# CONTENTPACKS_DIR="$WORKING_DIR/content/contentpacks"
+# test ! -d "$CONTENTPACKS_DIR" && mkdir -p "$CONTENTPACKS_DIR"
 
-CONTENT_DB="content.db"
-CONTENT_DB_URL="$PANTRY_CONTENT_URL/contentpacks/$CONTENT_DB"
-CONTENT_DB_DEST="$CONTENTPACKS_DIR/$CONTENT_DB"
-echo "$STEP/$STEPS. Checking for $CONTENT_DB_DEST"
-if [ -f "$CONTENT_DB_DEST" ]; then
-    echo ".. Found '$CONTENT_DB_DEST' so will not re-download.  Delete it to re-download."
-else
-    echo ".. Downloading from '$CONTENT_DB_URL' to '$CONTENT_DB_DEST'..."
-    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CONTENT_DB_DEST $CONTENT_DB_URL
-    if [ $? -ne 0 ]; then
-        echo ".. Abort!  Can't download '$CONTENT_DB_URL'."
-        exit 1
-    fi
-fi
+# CONTENT_DB="content.db"
+# CONTENT_DB_URL="$PANTRY_CONTENT_URL/contentpacks/$CONTENT_DB"
+# CONTENT_DB_DEST="$CONTENTPACKS_DIR/$CONTENT_DB"
+# echo "$STEP/$STEPS. Checking for $CONTENT_DB_DEST"
+# if [ -f "$CONTENT_DB_DEST" ]; then
+#     echo ".. Found '$CONTENT_DB_DEST' so will not re-download.  Delete it to re-download."
+# else
+#     echo ".. Downloading from '$CONTENT_DB_URL' to '$CONTENT_DB_DEST'..."
+#     wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CONTENT_DB_DEST $CONTENT_DB_URL
+#     if [ $? -ne 0 ]; then
+#         echo ".. Abort!  Can't download '$CONTENT_DB_URL'."
+#         exit 1
+#     fi
+# fi
 
 
 ((STEP++))
