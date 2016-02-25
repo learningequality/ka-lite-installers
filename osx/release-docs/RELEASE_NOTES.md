@@ -8,22 +8,23 @@ Release Notes for KA Lite Mac OS X Application
 
 * NEW - We now support Mac OS X 10.11 El Capitan.
 * NEW - We now use a .pkg installer which uses a setup wizard GUI.
-* NEW - We now bundle the `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md`, and `KA-Lite_Uninstall.tool` script inside the `/Applications/KA-Lite/` folder.
+* NEW - We now bundle the `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md`, `KA-Lite_Uninstall.tool` script, and the `support` folder inside the `/Applications/KA-Lite/` folder.
+* NEW - You can now use the `Console` utility application to view the KA-Lite installer and application logs.
 * NEW - We now have a pre-installation script that checks for a previous installation if it exists and does the following:
   - Remove `/Applications/KA-Lite/KA-Lite.app`.
   - Remove `/Applications/KA-Lite-Monitor.app`.
   - Remove `/Library/LaunchAgents/org.learningequality.kalite.plist`.
   - Remove `/usr/bin/kalite` executable.
   - Remove `/usr/local/bin/kalite` executable. 
-  - Remove `/Users/Shared/ka-lite/` directory.
+  - Remove `/Applications/KA-Lite/support/` directory.
   - Unset `KALITE_PYTHON` environment variable.
   - Unset `KALITE_HOME` environment variable.
 * NEW - We now have a post-installation script that does the following:
   - Set `KALITE_PYTHON` environment variable.
   - Symlink `kalite` executable to `/usr/local/bin/`.
-  - Bundle `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md`, and `KA-Lite_Uninstall.tool` in the `/Applications/KA-Lite/` directory.
-  - We now use the `/Users/Shared/ka-lite/` folder which contains the `assessment.zip`, `pyrun`, and `scripts`. This is used as the KA Lite installer resources.  
-  - Run `kalite manage` commands like `syncdb --noinput`, `initcontent_items --overwrite`, `unpack_assessment_zip`, and `setup --noinput`.
+  - Bundle `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md`, `KA-Lite_Uninstall.tool` script, and the `support` folder in the `/Applications/KA-Lite/` directory.
+  - We now use the `/Applications/KA-Lite/support/` folder which contains the `content/contentpacks/en.zip`, `pyrun`, and `scripts`. This is used as the KA Lite installer resources.  
+  - Run `kalite manage` commands like `syncdb --noinput`, `retrievecontentpack`, and `setup --noinput`.
 * REMOVED - We don't produce and use the `.dmg` disk image anymore.
 * REMOVED - We removed the word `Monitor` in the installer name.
 

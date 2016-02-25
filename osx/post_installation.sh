@@ -4,7 +4,7 @@
 
 # Notes: 
 # 1. This script must be run as root.
-# 2. We use `/Users/Shared/ka-lite/` as the installation location which contains the `content/contentpacks/en.zip`, `pyrun`, and `scripts`.
+# 2. We use `/Applications/KA-Lite/support/` as the installation location which contains the `content/contentpacks/en.zip`, `pyrun`, and `scripts`.
 
 # Steps
 # 1. Symlink kalite executable to /usr/local/bin.
@@ -28,7 +28,7 @@ SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 STEP=0
 STEPS=11
 
-KALITE_SHARED="/Users/Shared/ka-lite"
+KALITE_SHARED="/Applications/KA-Lite/support"
 KALITE_DIR="$HOME/.kalite"
 KALITE_UNINSTALL_SCRIPT="KA-Lite_Uninstall.tool"
 PYRUN_NAME="pyrun-2.7"

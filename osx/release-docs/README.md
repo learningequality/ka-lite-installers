@@ -12,7 +12,7 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
 
 1. Download the [KA Lite Mac OS X Installer for 0.16](http://pantry.learningequality.org/downloads/ka-lite/0.16/installers/mac/).
 1. Double-click the downloaded `KA-Lite.pkg` package and follow the setup wizard.  The installation requires admin privileges.
-1. The installer will create the `/Applications/KA-Lite/` folder that contains the KA-Lite application, uninstaller tool, licence, readme, and release notes documents.
+1. The installer will create the `/Applications/KA-Lite/` folder that contains the KA-Lite application, uninstall tool, licence, readme, release notes, and the support folder.
 1. The install process is quite lengthy because the installer had to copy assessment items and run some management commands including the setup process.  Please be patient.
 
 
@@ -23,7 +23,7 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
 
 1. Launch `KA-Lite` from the `/Applications/KA-Lite/` folder.
 1. Click the `KA-Lite` icon in the menu bar and select the `Start KA Lite` menu option.
-1. When prompted that KA Lite has been started, click on the icon again and select the `Open in Browser` menu option - this should launch KA Lite in your preferred web browser.
+1. When notified that KA Lite has been started, click on the icon again and select the `Open in Browser` menu option - this should launch KA Lite in your preferred web browser.
 
 
 ### Menu Options
@@ -34,6 +34,7 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
 1. `Preferences` - Opens the preferences window where you can customize the KA Lite data folder, view application logs in the `Logs` tab, or uninstall KA Lite.
 1. `Quit` - Stops the KA Lite web server and closes the application.
 
+
 ### How to set a custom KA Lite data folder:
 
  1. Stop the KA Lite server from running.
@@ -41,12 +42,11 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
  3. Click `Apply`.  This will update the `KALITE_HOME` environment variable.
  4. Launch a new Terminal session to use the updated `KALITE_HOME` environment variable.
  5. Run `kalite manage syncdb --noinput`.
- 6. Run `kalite manage init_content_items --overwrite`.
- 7. Run `kalite manage unpack_assessment_zip /Users/Shared/ka-lite/assessment/assessment.zip`.
+ 7. Run `kalite manage retrievecontentpack local en /Applications/KA-Lite/support/content/contentpacks/en.zip`.
  8. Run `kalite manage setup --noinput`.
  9. Start the server again by clicking on `Start KA Lite` in the menu option.
 
-**Note:** You can specify another assessment items archive that you've downloaded at the `unpack_assessment_zip` step above.  Make sure you use the archive for the installed version of KA Lite.
+**Note:** You can specify another content pack archive that you've downloaded from http://pantry.learningequality.org/downloads/ka-lite at the `retrievecontentpack` step above.  Make sure you download the content pack archive for the installed version of KA Lite.
 
 
 ## Uninstall KA Lite
@@ -59,13 +59,11 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
 
 ## Help and Logs
 
-To view the KA Lite's application logs (for debugging or tracing), launch the `Console` application and filter by "ka-lite".
+To view the KA Lite installer and application logs, launch the `Console` application and filter by "ka-lite".  You can also view the KA Lite application logs in the `Preferences` dialog by clicking on the `Logs` tab.
 
-You can view KA Lite logs in the `Preferences` dialog by clicking on the `Logs` tab.
+To view the KA Lite web server logs, open `~/.kalite/server.log` to view access and debug logs.
 
-You can open `~/.kalite/server.log` to view access and debug logs of the KA Lite server.
-
-If you encounter issues, please file them at the [KA Lite Installers repository](https://github.com/learningequality/installers) or at the [KA Lite repository](https://github.com/learningequality/ka-lite/issues/).
+If you encounter issues, please file them at the [KA Lite repository](https://github.com/learningequality/ka-lite/issues/) or at the [KA Lite Installers repository](https://github.com/learningequality/installers).
 
 Please note that we have tested this application on the following Mac OS X versions:
 
