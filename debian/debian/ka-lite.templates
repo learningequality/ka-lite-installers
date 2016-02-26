@@ -63,7 +63,8 @@ Template: ka-lite/download-assessment-items-url
 Type: string
 Default: http://learningequality.org/downloads/ka-lite/0.15/content/khan_assessment.zip
 Description: From where do you wish to download the assessment items?
- To use a local file, type "file:///path/to/items.zip".
+ To use a local file, type "file:///path/to/items.zip", only absolute paths are valid,
+ for instance "file:///home/user/assessment_items.zip".
 
 Template: ka-lite/assessment-items-dir
 Type: string
