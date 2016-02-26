@@ -551,7 +551,7 @@ kalite_prerm()
 # We started diverting /etc/nginx/nginx.conf in 0.14
 diversion_added_version=0.14
 
-# Called from postinst
+# Called from preinst
 kalite_nginx_divert_add()
 {
     # Diversion for /etc/nginx/nginx.conf
@@ -576,7 +576,10 @@ kalite_nginx_divert_add()
         dpkg-divert --package "$pkg" --add --rename --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
         
         # Copy the distributed file to the location of nginx.conf
-        ln -s "/etc/nginx/nginx.conf.kalite" "/etc/nginx/nginx.conf"
+        if ! [ -h /etc/nginx/nginx.conf ]
+        then
+            ln -s "/etc/nginx/nginx.conf.kalite" "/etc/nginx/nginx.conf"
+        fi
     fi
 
 }
