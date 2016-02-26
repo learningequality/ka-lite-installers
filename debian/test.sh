@@ -30,7 +30,9 @@ fi
 test_fail()
 {
     error=$1
-    echo $error
+    echo ""
+    echo "!!! exiting due to test failure"
+    echo "!!! $error"
     exit 1
 }
 
@@ -147,14 +149,11 @@ then
     echo "ka-lite-raspberry-pi ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
     sudo -E apt-get install -y -q nginx-light
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}_all.deb" "tail"
-    # gdebi is not allowed
-    # sudo -E gdebi --n ka-lite-raspberry-pi_${test_version}_all.deb
     kalite status
-    sudo -E apt-get purge -y ka-lite-raspberry-pi
-    # Ensure that there is nothing left after purging, otherwise divertion process failed
-    [ -f /etc/nginx/nginx.conf ] || test_fail "/etc/nginx/nginx.conf was not restored"
     # Ensure there's a file created with the .kalite dir
     [ -f /etc/ka-lite/nginx.d/username.conf ] || test_fail "/etc/ka-lite/nginx.d/username.conf was not created"
+    sudo -E apt-get purge -y ka-lite-raspberry-pi
+    [ -f /etc/nginx/nginx.conf ] || test_fail "/etc/nginx/nginx.conf was not restored"
     sudo -E apt-get purge -y nginx-common
     # Ensure that there is nothing left after purging, otherwise divertion process failed
     ! [ -d /etc/nginx ] || test_fail "/etc/nginx not empty after purging nginx"
@@ -181,19 +180,23 @@ then
     ./test_build.sh ${test_version}.1 1
     cd test
 
-    sudo -E dpkg -i --debug=2 ka-lite_${test_version}.1_all.deb | tail
+    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}.1_all.deb" "tail"
     sudo -E apt-get purge -y ka-lite
-    echo "Done with upgrade tests"
-    cd -
 
     
     # ka-lite-raspberry-pi
     # ...the one with diversions!
     # Install previous test
+
+    sudo -E apt-get install -y -q nginx-light
+
     echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}_all.deb" "tail"
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}.1_all.deb" "tail"
     sudo -E apt-get purge -y ka-lite-raspberry-pi
+  
+    sudo -E apt-get purge -y nginx-common
+
     echo "Done with upgrade tests"
 
 

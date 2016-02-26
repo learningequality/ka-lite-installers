@@ -2,6 +2,19 @@
 
 set -e
 
+# When piping, you loose the status code and non-0 exit commands are lost
+# so we need this...
+test_command_with_pipe()
+{
+    cmd=$1
+    pipe=$2
+    $1 | $2
+    if [ ! ${PIPESTATUS[0]} -eq 0 ]
+    then
+        exit 123
+    fi
+}
+
 # Builds the test package
 
 test_version="$1"
@@ -33,7 +46,7 @@ rm -rf "$build_dir"
 cd "$build_dir"
 
 # Build the test package
-debuild --no-lintian -us -uc | tail
+test_command_with_pipe "debuild --no-lintian -us -uc" "tail"
 
 # Go to the build dir
 cd $DIR
