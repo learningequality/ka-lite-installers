@@ -34,6 +34,19 @@ test_fail()
     exit 1
 }
 
+# When piping, you loose the status code and non-0 exit commands are lost
+# so we need this...
+test_command_with_pipe()
+{
+    cmd=$1
+    pipe=$2
+    $1 | $2
+    if [ ! ${PIPESTATUS[0]} -eq 0 ]
+    then
+        exit 123
+    fi
+}
+
 get_conf_value()
 {
   pkg=$1
@@ -57,19 +70,26 @@ zip test.zip assessmentitems.version
 export DEBIAN_FRONTEND=noninteractive
 
 
+echo ""
+echo "=============================="
+echo " Testing ka-lite"
+echo "=============================="
+echo ""
+
+
 if $target_kalite
 then
     # Run a test that uses a local archive
-    echo "ka-lite ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
-    sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
+    echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
+    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb" "tail"
     [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
     tmp_location=`get_conf_value ka-lite ka-lite/download-assessment-items-tmp`
     [ -f "$tmp_location/assessment_items.zip" ] && test_fail "Temporary zip not cleaned up"
     sudo -E apt-get purge -y ka-lite
 
     # Run a test that uses a local archive
-    echo "ka-lite ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
-    sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
+    echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
+    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb" "tail"
     [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
     # Should not delete archive in this case
     [ -f "$DIR/test/test.zip" ] || test_fail "local zip archive deleted after usage"
@@ -78,16 +98,16 @@ then
 
     # Run a test that downloads assessment items
     echo "ka-lite ka-lite/download-assessment-items-url select http://overtag.dk/upload/assessment_test.zip" | sudo debconf-set-selections
-    sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
+    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb" "tail"
     [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
     kalite status
     sudo -E apt-get purge -y ka-lite
 
     # Run a test that uses a specific /tmp location
-    echo "ka-lite ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
+    echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
     mkdir -p /tmp/test
     echo "ka-lite ka-lite/download-assessment-items-tmp select /tmp/test" | sudo debconf-set-selections
-    sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
+    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb" "tail"
     [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
     kalite status
     sudo -E apt-get purge -y ka-lite
@@ -96,25 +116,37 @@ then
 
 fi
 
+echo ""
+echo "=============================="
+echo " Testing ka-lite-bundle"
+echo "=============================="
+echo ""
+
 
 if $target_bundle
 then
 
     # Test ka-lite-bundle
-    sudo -E dpkg -i --debug=2 ka-lite-bundle_${test_version}_all.deb | tail
+    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-bundle_${test_version}_all.deb" "tail"
     kalite status
     sudo -E apt-get purge -y ka-lite-bundle
 
     echo "Done with ka-lite-bundle tests"
 fi
 
+echo ""
+echo "=============================="
+echo " Testing ka-lite-raspberry-pi"
+echo "=============================="
+echo ""
+
 if $target_rpi
 then
 
     # Test ka-lite-raspberry-pi
-    echo "ka-lite-raspberry-pi ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
+    echo "ka-lite-raspberry-pi ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
     sudo -E apt-get install -y -q nginx-light
-    sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}_all.deb | tail
+    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}_all.deb" "tail"
     # gdebi is not allowed
     # sudo -E gdebi --n ka-lite-raspberry-pi_${test_version}_all.deb
     kalite status
@@ -130,18 +162,39 @@ then
 fi
 
 
+echo ""
+echo "=============================="
+echo " Testing upgrades"
+echo "=============================="
+echo ""
+
+
 # Test upgrades
 if $target_upgrade
 then
     # Install previous test
-    echo "ka-lite ka-lite/download-assessment-items-url select file://$DIR/test/test.zip" | sudo debconf-set-selections
-    sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb | tail
+    echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
+    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb" "tail"
 
     # Then install a version with .1 appended
     cd $DIR
     ./test_build.sh ${test_version}.1 1
     cd test
+
     sudo -E dpkg -i --debug=2 ka-lite_${test_version}.1_all.deb | tail
     sudo -E apt-get purge -y ka-lite
     echo "Done with upgrade tests"
+    cd -
+
+    
+    # ka-lite-raspberry-pi
+    # ...the one with diversions!
+    # Install previous test
+    echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
+    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}_all.deb" "tail"
+    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}.1_all.deb" "tail"
+    sudo -E apt-get purge -y ka-lite-raspberry-pi
+    echo "Done with upgrade tests"
+
+
 fi
