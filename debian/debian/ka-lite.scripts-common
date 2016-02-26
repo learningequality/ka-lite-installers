@@ -278,6 +278,9 @@ kalite_configure()
         # foreign items there such as something that was downloaded with another .deb
         rm -rf /usr/share/kalite/assessment/khan
         
+        # Ensure it exists
+        mkdir -p $DOWNLOAD_ASSESSMENT_TMP
+        
         # Where to write temporary during download
         download_tmp="$DOWNLOAD_ASSESSMENT_TMP/assessment_items.zip"
 
