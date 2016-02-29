@@ -13,8 +13,8 @@
 # 4. Run shebangcheck script that checks the python/pyrun interpreter to use.
 # 5. Remove the old asset folder to be replaced by newer assets later.
 # 6. Run kalite manage syncdb --noinput.
-# 7. Run kalite manage retrievecontentpack local en path-to-en.zip
 # 8. Run kalite manage setup --noinput..
+# 7. Run kalite manage retrievecontentpack local en path-to-en.zip
 # 9. Change the owner of the ~/.kalite/ folder and .plist file to current user.
 # 10. Set the KALITE_PYTHON env var for the user doing the install so we don't need to restart after installation.
 # 11. Create a copy of ka-lite-remover.sh and name it as KA-Lite_Uninstall.tool.
@@ -200,16 +200,16 @@ msg "$STEP/$STEPS. Running kalite manage syncdb --noinput..."
 $BIN_PATH/kalite manage syncdb --noinput
 
 
+((STEP++))
+msg "$STEP/$STEPS. Running kalite manage setup --noinput..."
+$BIN_PATH/kalite manage setup --noinput
+
+
 # Use `kalite manage retrievecontentpack local en path-to-en.zip`.
 ((STEP++))
 msg "$STEP/$STEPS. Running $BIN_PATH/kalite manage retrievecontentpack local en $CONTENTPACK_ZIP..."
 CONTENTPACK_ZIP="$KALITE_SHARED/content/contentpacks/en.zip"
 $BIN_PATH/kalite manage retrievecontentpack local en $CONTENTPACK_ZIP
-
-
-((STEP++))
-msg "$STEP/$STEPS. Running kalite manage setup --noinput..."
-$BIN_PATH/kalite manage setup --noinput
 
 
 ((STEP++))
