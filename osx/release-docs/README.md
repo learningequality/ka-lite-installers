@@ -42,8 +42,8 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
  3. Click `Apply`.  This will update the `KALITE_HOME` environment variable.
  4. Launch a new Terminal session to use the updated `KALITE_HOME` environment variable.
  5. Run `kalite manage syncdb --noinput`.
- 7. Run `kalite manage retrievecontentpack local en /Applications/KA-Lite/support/content/contentpacks/en.zip`.
- 8. Run `kalite manage setup --noinput`.
+ 7. Run `kalite manage setup --noinput`.
+ 8. Run `kalite manage retrievecontentpack local en /Applications/KA-Lite/support/content/contentpacks/en.zip`.
  9. Start the server again by clicking on `Start KA Lite` in the menu option.
 
 **Note:** You can specify another content pack archive that you've downloaded from http://pantry.learningequality.org/downloads/ka-lite at the `retrievecontentpack` step above.  Make sure you download the content pack archive for the installed version of KA Lite.

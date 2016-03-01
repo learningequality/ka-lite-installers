@@ -164,7 +164,7 @@
 		F1DDD4041A6E5DC10022F1C9 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = "Learning Equality";
 				TargetAttributes = {
 					F1DDD40B1A6E5DC10022F1C9 = {
@@ -277,6 +277,7 @@
 				CODE_SIGN_IDENTITY = "";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -352,6 +353,7 @@
 				INFOPLIST_FILE = "KA-Lite/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_BUNDLE_IDENTIFIER = org.learningequality.kalite;
 				PRODUCT_NAME = "KA-Lite";
 				SDKROOT = macosx;
 			};
@@ -377,6 +379,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.learningequality.kalite;
 				PRODUCT_NAME = "KA-Lite";
 				SDKROOT = macosx;
 			};
@@ -397,6 +400,7 @@
 				);
 				INFOPLIST_FILE = "KA-Lite-Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "FLE.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "KA-LiteTests";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KA-Lite.app/Contents/MacOS/KA-Lite";
 			};
@@ -413,6 +417,7 @@
 				);
 				INFOPLIST_FILE = "KA-Lite-Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "FLE.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "KA-LiteTests";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KA-Lite.app/Contents/MacOS/KA-Lite";
 			};
