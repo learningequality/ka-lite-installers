@@ -22,17 +22,15 @@ Note: If you *do* make changes to anything in `gui-source`, be sure to build and
 
 ---
 #### Instructions to build "KALiteSetup.exe":
-To build in Linux, first install `wine`.
+To build in Linux, first install `wine`. These directions assume you're building on Windows -- if not, you can 
+skip using msys and use bash instead.
+
 * Clone this repository;
-* Copy `ka-lite` folder from KA Lite's repository, to the root of this repository.
-* Using msys shell from MinGW:
-  * Set the KALITE_PYTHON variable to an appropriate python interpreter (with the required dependencies). (Hint: use `export`.)
-  * Set the PATH variable so that the appropriate interpreter is called when you type "python" in the shell.
-  * Go to the included ka-lite repo and run `make dist`.
-* Then remove the `node_modules` subdirectory. It causes an error with Inno Setup.
-  * If the path name is too long, then [see this SO answer](http://superuser.com/questions/755298/how-to-delete-a-file-with-a-path-too-long-to-be-deleted).
-* Delete `secretkey.txt` from `kalite` directory.
-* Download the `khan_assessment.zip` file to this directory. Look for it in [the pantry](http://pantry.learningequality.org/downloads/).
+* Download ka-lite-static sdist zipfile from https://pypi.python.org/pypi/ka-lite-static/
+* Download the English content pack `en.zip` file to this directory. Look for it in [the pantry](http://pantry.learningequality.org/downloads/).
+* Set the environment variable KALITE_BUILD_VERSION to the desired version for the installer, e.g. `0.16.0`.
+  This should match the version in the sdist *exactly*, so `ka-lite-static-0.17.3` means that `KALITE_BUILD_VERSION`
+  should have the value `0.17.3`.
 * In Windows, run the following command from this directory:
 ```
 > make.vbs
