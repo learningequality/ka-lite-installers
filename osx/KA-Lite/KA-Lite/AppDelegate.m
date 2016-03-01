@@ -105,9 +105,8 @@ BOOL checkEnvVars() {
     // MUST: Check the KALITE_PYTHON environment variable
     // and default it to the .app Resources folder if not yet set.
     NSString *kalitePython = getEnvVar(@"KALITE_PYTHON");
-
     if (!pathExists(kalitePython)) {
-        NSString *msg = @"The KALITE_PYTHON environment variable is not set";
+        NSString *msg = [NSString stringWithFormat:@"The KALITE_PYTHON environment variable points to '%@' is not valid.", kalitePython];
         showNotification(msg);
         return FALSE;
     }
@@ -263,7 +262,6 @@ BOOL kaliteExists() {
 - (enum kaliteStatus)checkRunTask:(NSNotification *)aNotification{
     NSArray *taskArguments;
     NSArray *statusArguments;
-    NSString *kalitePath = getKaliteExecutable();
     enum kaliteStatus oldStatus = self.status;
     
     int status = [[aNotification object] terminationStatus];
@@ -295,9 +293,8 @@ BOOL kaliteExists() {
             return self.status;
         } else {
             // If command is not "status", run `kalite status` to get status of ka-lite.
-            // We need this check because this may be called inside the kA-Lite timer.
+            // We need this check because this may be called inside the KA-Lite timer.
             NSLog(@"Fetching `kalite status`...");
-            [self showStatus:self.status];
             [self getKaliteStatus];
             return self.status;
         }
@@ -314,7 +311,6 @@ BOOL kaliteExists() {
     @try {
         // MUST: This will make sure the process to run has access to the environment variable
         // because the .app may be loaded the first time.
-        
         if (checkKaliteExecutable()) {
             [self runTask:command];
         }
@@ -419,12 +415,9 @@ NSString *getKaliteDataPath() {
 }
 
 
-BOOL *checkKaliteExecutable() {
+BOOL checkKaliteExecutable() {
     NSString *kalitePath = getKaliteExecutable();
-    if (pathExists(kalitePath)) {
-        return TRUE;
-    }
-    return FALSE;
+    return pathExists(kalitePath);
 }
 
 
@@ -515,22 +508,23 @@ NSString *getEnvVar(NSString *var) {
 
 
 - (void)startFunction {
-    showNotification(@"Starting...");
-    [self showStatus:statusStartingUp];
     if (self.processCounter != 0) {
         alert(@"KA Lite is still processing, please wait until it is finished.");
         return;
     }
+    showNotification(@"Starting...");
+    self.status = statusStartingUp;
+    [self showStatus:statusStartingUp];
     [self runKalite:@"start"];
 }
 
 
 - (void)stopFunction {
-    showNotification(@"Stopping...");
     if (self.processCounter != 0) {
         alert(@"KA Lite is still processing, please wait until it is finished.");
         return;
     }
+    showNotification(@"Stopping...");
     [self runKalite:@"stop"];
 }
 
@@ -859,9 +853,9 @@ BOOL setEnvVarsAndPlist() {
     // TODO(cpauya): Use initWithFireDate of NSTimer instance.
     // TODO(amodia): Check if kalite environment variables change.
     [NSTimer scheduledTimerWithTimeInterval:60.0
-                                    target:self
-                                    selector:@selector(getKaliteStatus)
-                                    userInfo:nil
+                                     target:self
+                                   selector:@selector(getKaliteStatus)
+                                   userInfo:nil
                                     repeats:YES];
 }
 

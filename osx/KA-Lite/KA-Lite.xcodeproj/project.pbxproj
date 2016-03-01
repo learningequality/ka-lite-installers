@@ -10,7 +10,6 @@
 		D035A9391B671F80009FA40A /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = D035A9381B671F7F009FA40A /* scripts */; };
 		F103615C1A81B7DF00998E6B /* images in Resources */ = {isa = PBXBuildFile; fileRef = F103615B1A81B7DF00998E6B /* images */; };
 		F1720BED1A79566700096453 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = F1720BEC1A79566700096453 /* README.md */; };
-		F1720BF11A7A343A00096453 /* local_settings.default in Resources */ = {isa = PBXBuildFile; fileRef = F1720BF01A7A343A00096453 /* local_settings.default */; };
 		F1DDD4131A6E5DC10022F1C9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DDD4121A6E5DC10022F1C9 /* AppDelegate.m */; };
 		F1DDD4151A6E5DC10022F1C9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DDD4141A6E5DC10022F1C9 /* main.m */; };
 		F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1DDD4161A6E5DC10022F1C9 /* Images.xcassets */; };
@@ -32,7 +31,6 @@
 		D035A9381B671F7F009FA40A /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
 		F103615B1A81B7DF00998E6B /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = Resources/images; sourceTree = "<group>"; };
 		F1720BEC1A79566700096453 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		F1720BF01A7A343A00096453 /* local_settings.default */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = local_settings.default; sourceTree = "<group>"; };
 		F1DDD40C1A6E5DC10022F1C9 /* KA-Lite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KA-Lite.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1DDD4101A6E5DC10022F1C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F1DDD4111A6E5DC10022F1C9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -98,7 +96,6 @@
 			children = (
 				D035A9381B671F7F009FA40A /* scripts */,
 				F103615B1A81B7DF00998E6B /* images */,
-				F1720BF01A7A343A00096453 /* local_settings.default */,
 				F1DDD4101A6E5DC10022F1C9 /* Info.plist */,
 				F1DDD4141A6E5DC10022F1C9 /* main.m */,
 				F1720BEC1A79566700096453 /* README.md */,
@@ -168,7 +165,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0610;
-				ORGANIZATIONNAME = "Foundation for Learning Equality";
+				ORGANIZATIONNAME = "Learning Equality";
 				TargetAttributes = {
 					F1DDD40B1A6E5DC10022F1C9 = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -207,7 +204,6 @@
 				F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */,
 				D035A9391B671F80009FA40A /* scripts in Resources */,
 				F1E5A30B1A8041FD003FA650 /* MainMenu.xib in Resources */,
-				F1720BF11A7A343A00096453 /* local_settings.default in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -13,7 +13,7 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
 1. Download the [KA Lite Mac OS X Installer for 0.16](http://pantry.learningequality.org/downloads/ka-lite/0.16/installers/mac/).
 1. Double-click the downloaded `KA-Lite.pkg` package and follow the setup wizard.  The installation requires admin privileges.
 1. The installer will create the `/Applications/KA-Lite/` folder that contains the KA-Lite application, uninstall tool, licence, readme, release notes, and the support folder.
-1. The install process is quite lengthy because the installer had to copy assessment items and run some management commands including the setup process.  Please be patient.
+1. The install process is quite lengthy because the installer had to copy content items and run some management commands including the setup process.  Please be patient.
 
 
 ## Using the KA Lite OS X Application
