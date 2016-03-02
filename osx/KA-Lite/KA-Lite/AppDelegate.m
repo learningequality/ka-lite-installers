@@ -37,7 +37,9 @@
 
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-     // Insert code here to initialize your application
+
+    [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:self];
+    
     if (!checkKaliteExecutable()) {
         NSLog(@"kalite executable is not found.");
         [self showStatus:statusFailedToStart];
@@ -72,7 +74,6 @@
         showNotification(@"KA Lite is now loaded.");
         [self runKalite:@"--version"];
         [self getKaliteStatus];
-        
     }
     @catch (NSException *ex) {
         NSLog(@"KA Lite had an Error: %@", ex);
@@ -85,14 +86,25 @@
 }
 
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification {
-    // Insert code here to tear down your application
-    // TODO(cpauya): Confirm quit action from user.
-    if (kaliteExists()) {
-        showNotification(@"Stopping and quitting the application...");
-        // Stop KA Lite
-        [self stopFunction];
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
+    // Confirm quit action from user.
+    NSString *msg = @"This will stop and quit KA Lite, are you sure?";
+    if (! confirm(msg)) {
+        return NSTerminateCancel;
     }
+    [self stopFunction:true];
+    return NSTerminateNow;
+}
+
+
+- (void)applicationWillTerminate:(NSNotification *)aNotification {
+    showNotification(@"KA Lite is now stopped and quit.  Thank you.");
+}
+
+
+// REF: http://stackoverflow.com/a/11815544/845481 - Send notification to Mountain lion notification center
+- (BOOL)userNotificationCenter:(NSUserNotificationCenter *)center shouldPresentNotification:(NSUserNotification *)notification{
+    return YES;
 }
 
 
@@ -346,12 +358,14 @@ BOOL confirm(NSString *message) {
 void showNotification(NSString *subtitle) {
     // REF: http://stackoverflow.com/questions/12267357/nsusernotification-with-custom-soundname?rq=1
     // TODO(cpauya): These must be ticked by user on preferences if they want notifications, sounds, or not.
-    NSUserNotification* notification = [[NSUserNotification alloc]init];
+    NSUserNotification* notification = [[NSUserNotification alloc] init];
     notification.title = @"KA Lite";
     notification.subtitle = subtitle;
     notification.soundName = @"Basso.aiff";
-    [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
-    // The notification may be optional (based on user preferences) but we must show it on the logs.
+
+    NSUserNotificationCenter *nc = [NSUserNotificationCenter defaultUserNotificationCenter];
+    [nc deliverNotification:notification];
+    // The notification may be optional (based on user's OS X preferences) but we must show it on the logs.
     NSLog(subtitle);
 }
 
@@ -519,12 +533,16 @@ NSString *getEnvVar(NSString *var) {
 }
 
 
-- (void)stopFunction {
+- (void)stopFunction:(BOOL)isQuit {
     if (self.processCounter != 0) {
         alert(@"KA Lite is still processing, please wait until it is finished.");
         return;
     }
-    showNotification(@"Stopping...");
+    NSString *msg = @"Stopping";
+    if (isQuit) {
+        msg = @"Stopping and quitting the application...";
+    }
+    showNotification(msg);
     [self runKalite:@"stop"];
 }
 
@@ -550,12 +568,12 @@ NSString *getEnvVar(NSString *var) {
 
 
 - (IBAction)stop:(id)sender {
-    [self stopFunction];
+    [self stopFunction:false];
 }
 
 
 - (IBAction)stopButton:(id)sender {
-    [self stopFunction];
+    [self stopFunction:false];
 }
 
 
@@ -688,7 +706,7 @@ NSString *getEnvVar(NSString *var) {
      */
     
     // Stop KA Lite
-    [self stopFunction];
+    [self stopFunction:false];
     
     // Save the preferences.
     // REF: http:iosdevelopertips.com/core-services/encode-decode-using-base64.html
