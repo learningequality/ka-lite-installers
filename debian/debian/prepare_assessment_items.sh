@@ -2,7 +2,7 @@
 
 if [ ! -f debian/assessment.zip ]
 then
-	wget https://learningequality.org/downloads/ka-lite/0.15/content/khan_assessment.zip -O debian/assessment.zip --no-clobber
+	wget https://learningequality.org/downloads/ka-lite/0.16/content/khan_assessment.zip -O debian/assessment.zip --no-clobber
 else
 	echo "Assessment.zip is already here"
 fi
