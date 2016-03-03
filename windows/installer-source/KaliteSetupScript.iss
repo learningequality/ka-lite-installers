@@ -4,7 +4,7 @@
 #define MyAppExeName "KA Lite.exe"
 
 #define getKALiteVersion() \
-    Local[1] = Exec(SourcePath+"\getversion.bat") == 0 ? StringChange(FileRead(FileOpen(SourcePath+"\version.temp")), " ", "") : "null"
+    Local[1] = GetEnv("KALITE_BUILD_VERSION")
 
 #define TargetVersion = getKALiteVersion();
 
@@ -37,8 +37,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\ka-lite\dist\ka-lite-static-*.zip"; DestDir: "{app}\ka-lite"
-Source: "..\khan_assessment.zip"; DestDir: "{app}"
+Source: "..\ka-lite-static-*.zip"; DestDir: "{app}\ka-lite"
+Source: "..\en.zip"; DestDir: "{app}"
 Source: "..\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
@@ -375,7 +375,7 @@ begin
     PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka-lite-static-'  + '{#TargetVersion}' + '.zip"';
 
     MsgBox('Setup will now install kalite source files to your Python site-packages.', mbInformation, MB_OK);
-    if not ShellExec('open', PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
+    if not Exec(PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
     begin
       MsgBox('Critical error.' #13#13 'Dependencies have failed to install. Error Number: ' + IntToStr(ErrorCode), mbInformation, MB_OK);
       forceCancel := True;
@@ -434,8 +434,8 @@ var
     retCode: integer;
 begin
     { Used to have more responsibility, but we delegated those to the app itself! }
-    { Unpacks the assessment items. }
-    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage unpack_assessment_zip khan_assessment.zip"', ExpandConstant('{app}'), SW_SHOW, ewWaitUntilTerminated, retCode);
+    { Unpacks the English content pack. }
+    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage retrievecontentpack local en en.zip"', ExpandConstant('{app}'), SW_SHOW, ewWaitUntilTerminated, retCode);
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
