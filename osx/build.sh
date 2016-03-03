@@ -5,8 +5,14 @@
 # **************************************************
 # Build script for KA-Lite using Packages and PyRun.
 #
+# Environment Variable/s:
+# . IS_KALITE_RELEASE == must be set to sign the .app and .pkg packages
+#
 # Arguments
-# . $1 == $KA_LITE_REPO_ZIP == URL of the Github .zip of the KA-Lite branch to use. 
+# . $1 == $KA_LITE_REPO_ZIP == URL of the Github .zip for the KA-Lite branch to use.
+#       Example: https://github.com/learningequality/ka-lite/archive/develop.zip
+# . $2 == $CONTENTPACKS_EN_URL == URL of the contentpacks/en.zip
+#       Example: http://pantry.learningequality.org/downloads/ka-lite/0.16/content/contentpacks/en.zip
 #
 # Steps
 # 1. Check if requirements are installed: packages, wget.
@@ -33,10 +39,10 @@
 # . http://stackoverflow.com/questions/2751227/how-to-download-source-in-zip-format-from-github/18222354#18222354
 #
 # 
-# MUST: test the signed .pkg on a target Mac with:
-# pkgutil --check-signature KA-Lite.pkg -- or;
-# pkgutil --check-signature KA-Lite.app -- or;
-# spctl --assess --type install KA-Lite.pkg
+# MUST: test the signed .pkg or .app on a target Mac with:
+# . pkgutil --check-signature KA-Lite.pkg -- or;
+# . pkgutil --check-signature KA-Lite.app -- or;
+# . spctl --assess --type install KA-Lite.pkg
 
 
 echo "KA-Lite OS X build script for version 0.16.x and above."
@@ -321,13 +327,10 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Checking if to codesign the application or not..."
 SIGNER_IDENTITY_APPLICATION="Developer ID Application: Foundation for Learning Equality, Inc. (H83B64B6AV)"
-if [ -z ${IS_BAMBOO+0} ]; then 
-    echo ".. Running on local machine, don't codesign the application!"
+if [ -z ${IS_KALITE_RELEASE+0} ]; then 
+    echo ".. Not a release, don't codesign the application!"
 else 
-    echo ".. Running on bamboo server, so MUST codesign the application..."
-    # sign the .app file
-    # unlock the keychain first so we can access the private key
-    # security unlock-keychain -p $KEYCHAIN_PASSWORD
+    echo ".. Release build so MUST codesign the application..."
     codesign -d -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_APP_PATH"
     if [ $? -ne 0 ]; then
         echo ".. Abort!  Error/s encountered codesigning '$KA_LITE_APP_PATH'."
@@ -356,18 +359,18 @@ fi
 echo ".. Checking if to productsign the package or not..."
 OUTPUT_PKG="$OUTPUT_PATH/$KALITE_PACKAGES_NAME"
 SIGNER_IDENTITY_INSTALLER="Developer ID Installer: Foundation for Learning Equality, Inc. (H83B64B6AV)"
-if [ -z ${IS_BAMBOO+0} ]; then 
-    echo ".. Running on local machine, don't productsign the package!"
+if [ -z ${IS_KALITE_RELEASE+0} ]; then 
+    echo ".. Not a release, don't productsign the package!"
     mv -v $PACKAGES_OUTPUT $OUTPUT_PATH
 else 
-    echo ".. Running on bamboo server, so MUST productsign the package..."
-    # sign the .pkg file
+    echo ".. Release build so MUST productsign the package..."
     productsign --sign "$SIGNER_IDENTITY_INSTALLER" "$PACKAGES_OUTPUT" "$OUTPUT_PKG"
     if [ $? -ne 0 ]; then
         echo ".. Abort!  Error/s encountered productsigning '$PACKAGES_OUTPUT'."
         exit 1
     fi
 fi
+
 
 echo "Congratulations! Your newly built installer is at '$OUTPUT_PKG'."
 cd "$WORKING_DIR/.."
