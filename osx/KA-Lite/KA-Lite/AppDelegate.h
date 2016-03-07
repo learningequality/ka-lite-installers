@@ -10,7 +10,7 @@
 
 // REF: http://stackoverflow.com/a/6064675/845481
 // How to open a new window in a Cocoa application on launch
-@interface AppDelegate : NSObject <NSApplicationDelegate> {
+@interface AppDelegate : NSObject <NSApplicationDelegate, NSUserNotificationCenterDelegate> {
     IBOutlet id splash;
     IBOutlet id window;
 }

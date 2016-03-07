@@ -4,7 +4,7 @@
 
 # Notes: 
 # 1. This script must be run as root.
-# 2. We use `/Users/Shared/ka-lite/` as the installation location which contains the `assessment.zip`, `pyrun`, and `scripts`.
+# 2. We use `/Applications/KA-Lite/support/` as the installation location which contains the `content/contentpacks/en.zip`, `pyrun`, and `scripts`.
 
 # Steps
 # 1. Symlink kalite executable to /usr/local/bin.
@@ -13,12 +13,11 @@
 # 4. Run shebangcheck script that checks the python/pyrun interpreter to use.
 # 5. Remove the old asset folder to be replaced by newer assets later.
 # 6. Run kalite manage syncdb --noinput.
-# 7. Run kalite manage init_content_items --overwrite.
-# 8. Run kalite manage unpack_assessment_zip <assessment_path>.
-# 9. Run kalite manage setup --noinput..
-# 10. Change the owner of the ~/.kalite/ folder and .plist file to current user.
-# 11. Set the KALITE_PYTHON env var for the user doing the install so we don't need to restart after installation.
-# 12. Create a copy of ka-lite-remover.sh and name it as KA-Lite_Uninstall.tool.
+# 8. Run kalite manage setup --noinput.
+# 7. Run kalite manage retrievecontentpack local en path-to-en.zip.
+# 9. Change the owner of the ~/.kalite/ folder and .plist file to current user.
+# 10. Set the KALITE_PYTHON env var for the user doing the install so we don't need to restart after installation.
+# 11. Create a copy of ka-lite-remover.sh and name it as KA-Lite_Uninstall.tool.
 
 
 #----------------------------------------------------------------------
@@ -26,10 +25,10 @@
 #----------------------------------------------------------------------
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 
-STEP=1
-STEPS=12
+STEP=0
+STEPS=11
 
-KALITE_SHARED="/Users/Shared/ka-lite"
+KALITE_SHARED="/Applications/KA-Lite/support"
 KALITE_DIR="$HOME/.kalite"
 KALITE_UNINSTALL_SCRIPT="KA-Lite_Uninstall.tool"
 PYRUN_NAME="pyrun-2.7"
@@ -37,7 +36,6 @@ PYRUN_DIR="$KALITE_SHARED/$PYRUN_NAME"
 PYRUN="$PYRUN_DIR/bin/pyrun"
 PYRUN_PIP="$PYRUN_DIR/bin/pip"
 BIN_PATH="$PYRUN_DIR/bin"
-ASSESSMENT_SRC="$KALITE_SHARED/assessment/assessment.zip"
 SCRIPT_PATH="$KALITE_SHARED/scripts/"
 APPLICATION_PATH="/Applications/KA-Lite"
 PRE_INSTALL_SCRIPT="$SCRIPT_PATH/ka-lite-remover.sh"
@@ -125,6 +123,7 @@ ENV=$(env)
 msg ".. Packages post-installation env:'\n'$ENV" 
 
 
+((STEP++))
 msg "$STEP/$STEPS. Symlink kalite executable to $SYMLINK_TO..."
 if [ ! -d "$SYMLINK_TO" ]; then
     msg ".. Now creating '$SYMLINK_TO'..."
@@ -169,16 +168,22 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# REF: https://github.com/learningequality/installers/issues/337#issuecomment-171127297
-# TODO(arceduardvincent): Remove this step when the issue is solved.
 ((STEP++))
+# TODO(arceduardvincent): Remove this step when the issue is solved.
+# Remove the old asset folder to be replaced by newer assets later.
+# REF: https://github.com/learningequality/installers/issues/337#issuecomment-171127297
 
 # Use the KALITE_HOME env var if it exists or use the default value.
-if [ -z ${KALITE_HOME+0} ]; then 
-  KALITE_HOME="$HOME/.kalite/"
+KALITE_HOME_DEFAULT="$HOME/.kalite/"
+if [ -z ${KALITE_HOME+0} ]; then
+    KALITE_HOME=$KALITE_HOME_DEFAULT
+else
+    # If path of $KALITE_HOME does not exist, use the default location
+    if [ ! -d "$KALITE_HOME" ]; then
+        KALITE_HOME=$KALITE_HOME_DEFAULT
+    fi
 fi
 
-# Remove the old asset folder to be replaced by newer assets later.
 KALITE_ASSET_FOLDER="$KALITE_HOME/httpsrv/"
 if [ -d "$KALITE_ASSET_FOLDER" ]; then
     msg "$STEP/$STEPS. Removing the old asset folder at $KALITE_ASSET_FOLDER..."
@@ -195,22 +200,16 @@ msg "$STEP/$STEPS. Running kalite manage syncdb --noinput..."
 $BIN_PATH/kalite manage syncdb --noinput
 
 
-# REF: https://github.com/learningequality/ka-lite/issues/4682#issuecomment-159113225
-# TODO(djallado): Remove command `kalite manage init_content_items --overwrite` after the issue in pressing `Learn` tab 
-# that results an empty sidebar and `Unexpected error: argument 2 to map() must support iteration` error will be solved.
-((STEP++))
-msg "$STEP/$STEPS. Running kalite manage init_content_items --overwrite..."
-$BIN_PATH/kalite manage init_content_items --overwrite
-
-
-((STEP++))
-msg "$STEP/$STEPS. Running kalite manage unpack_assessment_zip '$ASSESSMENT_SRC'..."
-$BIN_PATH/kalite manage unpack_assessment_zip $ASSESSMENT_SRC    
-
-
 ((STEP++))
 msg "$STEP/$STEPS. Running kalite manage setup --noinput..."
 $BIN_PATH/kalite manage setup --noinput
+
+
+# Use `kalite manage retrievecontentpack local en path-to-en.zip`.
+((STEP++))
+msg "$STEP/$STEPS. Running $BIN_PATH/kalite manage retrievecontentpack local en $CONTENTPACK_ZIP..."
+CONTENTPACK_ZIP="$KALITE_SHARED/content/contentpacks/en.zip"
+$BIN_PATH/kalite manage retrievecontentpack local en $CONTENTPACK_ZIP
 
 
 ((STEP++))

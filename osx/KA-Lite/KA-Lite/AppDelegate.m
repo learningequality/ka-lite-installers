@@ -37,7 +37,9 @@
 
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-     // Insert code here to initialize your application
+
+    [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:self];
+    
     if (!checkKaliteExecutable()) {
         NSLog(@"kalite executable is not found.");
         [self showStatus:statusFailedToStart];
@@ -72,7 +74,6 @@
         showNotification(@"KA Lite is now loaded.");
         [self runKalite:@"--version"];
         [self getKaliteStatus];
-        
     }
     @catch (NSException *ex) {
         NSLog(@"KA Lite had an Error: %@", ex);
@@ -85,14 +86,25 @@
 }
 
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification {
-    // Insert code here to tear down your application
-    // TODO(cpauya): Confirm quit action from user.
-    if (kaliteExists()) {
-        showNotification(@"Stopping and quitting the application...");
-        // Stop KA Lite
-        [self stopFunction];
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
+    // Confirm quit action from user.
+    NSString *msg = @"This will stop and quit KA Lite, are you sure?";
+    if (! confirm(msg)) {
+        return NSTerminateCancel;
     }
+    [self stopFunction:true];
+    return NSTerminateNow;
+}
+
+
+- (void)applicationWillTerminate:(NSNotification *)aNotification {
+    showNotification(@"KA Lite is now stopped and quit.  Thank you.");
+}
+
+
+// REF: http://stackoverflow.com/a/11815544/845481 - Send notification to Mountain lion notification center
+- (BOOL)userNotificationCenter:(NSUserNotificationCenter *)center shouldPresentNotification:(NSUserNotification *)notification{
+    return YES;
 }
 
 
@@ -105,9 +117,8 @@ BOOL checkEnvVars() {
     // MUST: Check the KALITE_PYTHON environment variable
     // and default it to the .app Resources folder if not yet set.
     NSString *kalitePython = getEnvVar(@"KALITE_PYTHON");
-
     if (!pathExists(kalitePython)) {
-        NSString *msg = @"The KALITE_PYTHON environment variable is not set";
+        NSString *msg = [NSString stringWithFormat:@"The KALITE_PYTHON environment variable points to '%@' is not valid.", kalitePython];
         showNotification(msg);
         return FALSE;
     }
@@ -263,7 +274,6 @@ BOOL kaliteExists() {
 - (enum kaliteStatus)checkRunTask:(NSNotification *)aNotification{
     NSArray *taskArguments;
     NSArray *statusArguments;
-    NSString *kalitePath = getKaliteExecutable();
     enum kaliteStatus oldStatus = self.status;
     
     int status = [[aNotification object] terminationStatus];
@@ -295,9 +305,8 @@ BOOL kaliteExists() {
             return self.status;
         } else {
             // If command is not "status", run `kalite status` to get status of ka-lite.
-            // We need this check because this may be called inside the kA-Lite timer.
+            // We need this check because this may be called inside the KA-Lite timer.
             NSLog(@"Fetching `kalite status`...");
-            [self showStatus:self.status];
             [self getKaliteStatus];
             return self.status;
         }
@@ -314,7 +323,6 @@ BOOL kaliteExists() {
     @try {
         // MUST: This will make sure the process to run has access to the environment variable
         // because the .app may be loaded the first time.
-        
         if (checkKaliteExecutable()) {
             [self runTask:command];
         }
@@ -350,12 +358,14 @@ BOOL confirm(NSString *message) {
 void showNotification(NSString *subtitle) {
     // REF: http://stackoverflow.com/questions/12267357/nsusernotification-with-custom-soundname?rq=1
     // TODO(cpauya): These must be ticked by user on preferences if they want notifications, sounds, or not.
-    NSUserNotification* notification = [[NSUserNotification alloc]init];
+    NSUserNotification* notification = [[NSUserNotification alloc] init];
     notification.title = @"KA Lite";
     notification.subtitle = subtitle;
     notification.soundName = @"Basso.aiff";
-    [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
-    // The notification may be optional (based on user preferences) but we must show it on the logs.
+
+    NSUserNotificationCenter *nc = [NSUserNotificationCenter defaultUserNotificationCenter];
+    [nc deliverNotification:notification];
+    // The notification may be optional (based on user's OS X preferences) but we must show it on the logs.
     NSLog(subtitle);
 }
 
@@ -419,12 +429,9 @@ NSString *getKaliteDataPath() {
 }
 
 
-BOOL *checkKaliteExecutable() {
+BOOL checkKaliteExecutable() {
     NSString *kalitePath = getKaliteExecutable();
-    if (pathExists(kalitePath)) {
-        return TRUE;
-    }
-    return FALSE;
+    return pathExists(kalitePath);
 }
 
 
@@ -515,22 +522,27 @@ NSString *getEnvVar(NSString *var) {
 
 
 - (void)startFunction {
-    showNotification(@"Starting...");
-    [self showStatus:statusStartingUp];
     if (self.processCounter != 0) {
         alert(@"KA Lite is still processing, please wait until it is finished.");
         return;
     }
+    showNotification(@"Starting...");
+    self.status = statusStartingUp;
+    [self showStatus:statusStartingUp];
     [self runKalite:@"start"];
 }
 
 
-- (void)stopFunction {
-    showNotification(@"Stopping...");
+- (void)stopFunction:(BOOL)isQuit {
     if (self.processCounter != 0) {
         alert(@"KA Lite is still processing, please wait until it is finished.");
         return;
     }
+    NSString *msg = @"Stopping";
+    if (isQuit) {
+        msg = @"Stopping and quitting the application...";
+    }
+    showNotification(msg);
     [self runKalite:@"stop"];
 }
 
@@ -556,12 +568,12 @@ NSString *getEnvVar(NSString *var) {
 
 
 - (IBAction)stop:(id)sender {
-    [self stopFunction];
+    [self stopFunction:false];
 }
 
 
 - (IBAction)stopButton:(id)sender {
-    [self stopFunction];
+    [self stopFunction:false];
 }
 
 
@@ -694,7 +706,7 @@ NSString *getEnvVar(NSString *var) {
      */
     
     // Stop KA Lite
-    [self stopFunction];
+    [self stopFunction:false];
     
     // Save the preferences.
     // REF: http:iosdevelopertips.com/core-services/encode-decode-using-base64.html
@@ -859,9 +871,9 @@ BOOL setEnvVarsAndPlist() {
     // TODO(cpauya): Use initWithFireDate of NSTimer instance.
     // TODO(amodia): Check if kalite environment variables change.
     [NSTimer scheduledTimerWithTimeInterval:60.0
-                                    target:self
-                                    selector:@selector(getKaliteStatus)
-                                    userInfo:nil
+                                     target:self
+                                   selector:@selector(getKaliteStatus)
+                                   userInfo:nil
                                     repeats:YES];
 }
 

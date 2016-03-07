@@ -7,7 +7,7 @@
 {\list\listtemplateid4\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid301\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid4}
 {\list\listtemplateid5\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid401\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid5}}
 {\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}{\listoverride\listid3\listoverridecount0\ls3}{\listoverride\listid4\listoverridecount0\ls4}{\listoverride\listid5\listoverridecount0\ls5}}
-\paperw12240\paperh15840\margl1440\margr1440\vieww14040\viewh12740\viewkind0
+\paperw12240\paperh15840\margl1440\margr1440\vieww14040\viewh12300\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
 
 \f0\b\fs24 \cf0 \ul \ulc0 Release Notes for 0.16.0
@@ -28,7 +28,8 @@ Other known issues:\
 \pard\tx220\tx720\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\pardirnatural
 \ls2\ilvl0\cf0 {\listtext	\'95	}NEW - We now support Mac OS X 10.11 El Capitan.\
 {\listtext	\'95	}NEW - We now use a .pkg installer which uses a setup wizard GUI.\
-{\listtext	\'95	}NEW - We now bundle the `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md`, and `KA-Lite_Uninstall.tool` script inside the `/Applications/KA-Lite/` folder.\
+{\listtext	\'95	}NEW - We now bundle the `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md`, `KA-Lite_Uninstall.tool` script, and the `support` folder inside the `/Applications/KA-Lite/` folder.\
+\ls2\ilvl0{\listtext	\'95	}NEW - You can now use the `Console` utility application to view the KA-Lite installer and application logs.\
 {\listtext	\'95	}NEW - We now have a pre-installation script that checks for a previous installation if it exists and does the following:\
 \pard\tx940\tx1440\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li1440\fi-1440\pardirnatural
 \ls2\ilvl1\cf0 {\listtext	\uc0\u8259 	}Remove `/Applications/KA-Lite/KA-Lite.app`.\
@@ -36,7 +37,7 @@ Other known issues:\
 {\listtext	\uc0\u8259 	}Remove `/Library/LaunchAgents/org.learningequality.kalite.plist`.\
 {\listtext	\uc0\u8259 	}Remove `/usr/bin/kalite` executable.\
 {\listtext	\uc0\u8259 	}Remove `/usr/local/bin/kalite` executable. \
-{\listtext	\uc0\u8259 	}Remove `/Users/Shared/ka-lite/` directory.\
+{\listtext	\uc0\u8259 	}Remove `/Applications/KA-Lite/support/` directory.\
 {\listtext	\uc0\u8259 	}Unset `KALITE_PYTHON` environment variable.\
 {\listtext	\uc0\u8259 	}Unset `KALITE_HOME` environment variable.\
 \pard\tx220\tx720\tx1120\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\pardirnatural
@@ -44,9 +45,9 @@ Other known issues:\
 \pard\tx940\tx1440\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li1440\fi-1440\pardirnatural
 \ls2\ilvl1\cf0 {\listtext	\uc0\u8259 	}Set `KALITE_PYTHON` environment variable.\
 {\listtext	\uc0\u8259 	}Symlink `kalite` executable to `/usr/local/bin/`.\
-{\listtext	\uc0\u8259 	}Bundle `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md`, and `KA-Lite_Uninstall.tool` in the `/Applications/KA-Lite/` directory.\
-{\listtext	\uc0\u8259 	}We now use the `/Users/Shared/ka-lite/` folder which contains the `assessment.zip`, `pyrun`, and `scripts`. This is used as the KA Lite installer resources.  \
-{\listtext	\uc0\u8259 	}Run `kalite manage` commands like `syncdb --noinput`, `initcontent_items --overwrite`, `unpack_assessment_zip`, and `setup --noinput`.\
+{\listtext	\uc0\u8259 	}Bundle `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md`, `KA-Lite_Uninstall.tool` script, and the `support` folder in the `/Applications/KA-Lite/` directory.\
+{\listtext	\uc0\u8259 	}We now use the `/Applications/KA-Lite/support/` folder which contains the `content/contentpacks/en.zip`, `pyrun`, and `scripts`. This is used as the KA Lite installer resources.   \
+{\listtext	\uc0\u8259 	}Run `kalite manage` commands like `syncdb --noinput`, `retrievecontentpack`, and `setup --noinput`.\
 \pard\tx220\tx720\tx1120\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\li720\fi-720\pardirnatural
 \ls2\ilvl0\cf0 {\listtext	\'95	}REMOVED - We don't produce and use the `.dmg` disk image anymore.\
 {\listtext	\'95	}REMOVED - We removed the word `Monitor` in the installer name.\

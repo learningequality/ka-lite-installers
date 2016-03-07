@@ -22,4 +22,4 @@ Mac OS X Yosemite or El Capitan
 ## Notes:
 
 * The application will not load if the `/usr/local/bin/kalite` executable cannot be found.
-* Refer to the `/osx/release-docs/README.md` document for more details.
+* Refer to the `osx/release-docs/README.md` document for more details.

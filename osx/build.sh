@@ -5,23 +5,29 @@
 # **************************************************
 # Build script for KA-Lite using Packages and PyRun.
 #
+# Environment Variable/s:
+# . IS_KALITE_RELEASE == must be set to sign the .app and .pkg packages
+#
 # Arguments
-# . $1 == $KA_LITE_REPO_ZIP == URL of the Github .zip of the KA-Lite branch to use. 
+# . $1 == $KA_LITE_REPO_ZIP == URL of the Github .zip for the KA-Lite branch to use.
+#       Example: https://github.com/learningequality/ka-lite/archive/develop.zip
+# . $2 == $CONTENTPACKS_EN_URL == URL of the contentpacks/en.zip
+#       Example: http://pantry.learningequality.org/downloads/ka-lite/0.16/content/contentpacks/en.zip
 #
 # Steps
-# . Check if requirements are installed: packages, wget.
-# . Check for valid arguments in terminal.
-# . Create temporary directory `temp`.
-# . Download the assessment.zip.
-# . Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
-# . Get Pyrun, then insert path to the Pyrun binaries in $PATH so Pyrun's python runs first instead of the system python.
-# . Upgrade Pyrun's Pip
-# . Run `pip install -r requirements_dev.txt` to install the Makefile executables.
-# . Run `make dist` for assets and docs.
-# . Run `pyrun setup.py install --static` inside the `temp/ka-lite/` directory.
-# . Build the Xcode project.
-# . Codesign the built .app if running on build server.
-# . Run Packages script to build the .pkg.
+# 1. Check if requirements are installed: packages, wget.
+# 2. Check for valid arguments in terminal.
+# 3. Create temporary directory `temp`.
+# 4. Download the contentpacks/en.zip.
+# 5. Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
+# 6. Get Pyrun, then insert path to the Pyrun binaries in $PATH so Pyrun's python runs first instead of the system python.
+# 7. Upgrade Pyrun's Pip
+# 8. Run `pip install -r requirements_dev.txt` to install the Makefile executables.
+# 9. Run `make dist` for assets and docs.
+# 10. Run `pyrun setup.py install --static` inside the `temp/ka-lite/` directory.
+# 11. Build the Xcode project.
+# 12. Codesign the built .app if running on build server.
+# 13. Run Packages script to build the .pkg.
 #
 # REF: Bash References
 # . http://www.peterbe.com/plog/set-ex
@@ -33,16 +39,21 @@
 # . http://stackoverflow.com/questions/2751227/how-to-download-source-in-zip-format-from-github/18222354#18222354
 #
 # 
-# MUST: test the signed .pkg on a target Mac with:
-# pkgutil --check-signature KA-Lite.pkg -- or;
-# pkgutil --check-signature KA-Lite.app -- or;
-# spctl --assess --type install KA-Lite.pkg
+# MUST: test the signed .pkg or .app on a target Mac with:
+# . pkgutil --check-signature KA-Lite.pkg -- or;
+# . pkgutil --check-signature KA-Lite.app -- or;
+# . spctl --assess --type install KA-Lite.pkg
 
 
 echo "KA-Lite OS X build script for version 0.16.x and above."
 
 STEP=0
 STEPS=13
+
+# TODO(cpauya): get version from `ka-lite/kalite/version.py`
+VERSION="0.16"
+
+PANTRY_CONTENT_URL="http://pantry.learningequality.org/downloads/ka-lite/$VERSION/content"
 
 
 ((STEP++))
@@ -71,6 +82,8 @@ fi
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 TEMP_DIR_NAME="temp"
 WORKING_DIR="$SCRIPTPATH/$TEMP_DIR_NAME"
+CONTENT_DIR="$WORKING_DIR/content"
+CONTENTPACKS_DIR="$CONTENT_DIR/contentpacks"
 
 
 # Check the arguments
@@ -82,7 +95,10 @@ echo "$STEP/$STEPS. Checking the arguments..."
 #    ka-lite-develop
 #    ka-lite-0.14.x.zip
 # this will make it easier to "rename" the archive.
-KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/develop.zip"
+# Example: KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/develop.zip"
+# KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/develop.zip"
+KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/$VERSION.x.zip"
+
 
 # Check if an argument was passed as URL for the script and use that instead.
 if [ "$1" != "" ]; then
@@ -97,18 +113,19 @@ if [ "$1" != "" ]; then
     fi
 fi
 
-# TODO(cpauya): Use a "develop" link for assessment items like the one for the Github repo below.
-ASSESSMENT_URL="http://pantry.learningequality.org/downloads/ka-lite/0.16/content/khan_assessment.zip"
-# Check if an argument was passed as URL for the assessment.zip and use that instead.
+
+# Check if an argument was passed as URL for the en.zip and use that instead.
+CONTENTPACKS_EN_ZIP="en.zip"
+CONTENTPACKS_EN_URL="$PANTRY_CONTENT_URL/contentpacks/$CONTENTPACKS_EN_ZIP"
 if [ "$2" != "" ]; then
-    echo ".. Checking validity of assessment.zip argument -- $2..."
+    echo ".. Checking validity of en.zip argument -- $2..."
     # MUST: Check if valid url!
     if curl --output /dev/null --silent --head --fail "$2"
     then
-        # Use the argument as the assessment.zip url.
-        ASSESSMENT_URL=$2
+        # Use the argument as the en.zip url.
+        CONTENTPACKS_EN_URL=$2
     else
-        echo ".. Abort!  The '$2' argument is not a valid URL for the assessment.zip!"
+        echo ".. Abort!  The '$2' argument is not a valid URL for the en.zip!"
         exit 1
     fi
 fi
@@ -124,18 +141,20 @@ if ! [ -d "$WORKING_DIR" ]; then
 fi
 
 
-# Download the assessment.zip.
+# Download the contentpacks/en.zip.
 ((STEP++))
-ASSESSMENT_ZIP="assessment.zip"
-ASSESSMENT_PATH="$WORKING_DIR/$ASSESSMENT_ZIP"
-echo "$STEP/$STEPS. Checking for assessment.zip"
-if [ -f "$ASSESSMENT_PATH" ]; then
-    echo ".. Found '$ASSESSMENT_PATH' so will not re-download.  Delete it to re-download."
+CONTENTPACKS_DIR="$WORKING_DIR/content/contentpacks"
+test ! -d "$CONTENTPACKS_DIR" && mkdir -p "$CONTENTPACKS_DIR"
+
+CONTENTPACKS_EN_PATH="$CONTENTPACKS_DIR/$CONTENTPACKS_EN_ZIP"
+echo "$STEP/$STEPS. Checking for en.zip"
+if [ -f "$CONTENTPACKS_EN_PATH" ]; then
+    echo ".. Found '$CONTENTPACKS_EN_PATH' so will not re-download.  Delete it to re-download."
 else
-    echo ".. Downloading from '$ASSESSMENT_URL' to '$ASSESSMENT_PATH'..."
-    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $ASSESSMENT_PATH $ASSESSMENT_URL
+    echo ".. Downloading from '$CONTENTPACKS_EN_URL' to '$CONTENTPACKS_EN_PATH'..."
+    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CONTENTPACKS_EN_PATH $CONTENTPACKS_EN_URL
     if [ $? -ne 0 ]; then
-        echo ".. Abort!  Can't download '$ASSESSMENT_URL'."
+        echo ".. Abort!  Can't download '$CONTENTPACKS_EN_URL'."
         exit 1
     fi
 fi
@@ -242,7 +261,7 @@ fi
 echo "$STEP/$STEPS. Installing Pip requirements for use of Makefile..."
 
 PIP_CMD="$PYRUN_PIP install -r requirements_dev.txt"
-# TODO(cpauya): Streamline this to install only the needed modules/executables for `make dist` below.
+# TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
 cd "$KA_LITE_DIR"
 echo ".. Running $PIP_CMD..."
 $PIP_CMD
@@ -308,13 +327,10 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Checking if to codesign the application or not..."
 SIGNER_IDENTITY_APPLICATION="Developer ID Application: Foundation for Learning Equality, Inc. (H83B64B6AV)"
-if [ -z ${IS_BAMBOO+0} ]; then 
-    echo ".. Running on local machine, don't codesign the application!"
+if [ -z ${IS_KALITE_RELEASE+0} ]; then 
+    echo ".. Not a release, don't codesign the application!"
 else 
-    echo ".. Running on bamboo server, so MUST codesign the application..."
-    # sign the .app file
-    # unlock the keychain first so we can access the private key
-    # security unlock-keychain -p $KEYCHAIN_PASSWORD
+    echo ".. Release build so MUST codesign the application..."
     codesign -d -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_APP_PATH"
     if [ $? -ne 0 ]; then
         echo ".. Abort!  Error/s encountered codesigning '$KA_LITE_APP_PATH'."
@@ -343,12 +359,11 @@ fi
 echo ".. Checking if to productsign the package or not..."
 OUTPUT_PKG="$OUTPUT_PATH/$KALITE_PACKAGES_NAME"
 SIGNER_IDENTITY_INSTALLER="Developer ID Installer: Foundation for Learning Equality, Inc. (H83B64B6AV)"
-if [ -z ${IS_BAMBOO+0} ]; then 
-    echo ".. Running on local machine, don't productsign the package!"
+if [ -z ${IS_KALITE_RELEASE+0} ]; then 
+    echo ".. Not a release, don't productsign the package!"
     mv -v $PACKAGES_OUTPUT $OUTPUT_PATH
 else 
-    echo ".. Running on bamboo server, so MUST productsign the package..."
-    # sign the .pkg file
+    echo ".. Release build so MUST productsign the package..."
     productsign --sign "$SIGNER_IDENTITY_INSTALLER" "$PACKAGES_OUTPUT" "$OUTPUT_PKG"
     if [ $? -ne 0 ]; then
         echo ".. Abort!  Error/s encountered productsigning '$PACKAGES_OUTPUT'."
@@ -356,15 +371,7 @@ else
     fi
 fi
 
+
 echo "Congratulations! Your newly built installer is at '$OUTPUT_PKG'."
-
-# TODO(cpauya): Check https://github.com/learningequality/ka-lite/pull/4630#issuecomment-155567771 for running kalite twice to start.
-
-# TODO(cpauya): To run KA-Lite on the terminal for testing, run the following:
-# ./temp/pyrun-2.7/bin/kalite manage syncdb --noinput;
-# ./temp/pyrun-2.7/bin/kalite manage setup --noinput;
-# ./temp/pyrun-2.7/bin/kalite start;
-
-
 cd "$WORKING_DIR/.."
 echo "Done!"
