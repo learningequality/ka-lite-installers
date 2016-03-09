@@ -435,7 +435,7 @@ var
 begin
     { Used to have more responsibility, but we delegated those to the app itself! }
     { Unpacks the English content pack. }
-    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage retrievecontentpack local en en.zip"', ExpandConstant('{app}'), SW_SHOW, ewWaitUntilTerminated, retCode);
+    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage retrievecontentpack local en en.zip --foreground"', ExpandConstant('{app}'), SW_SHOW, ewWaitUntilTerminated, retCode);
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
