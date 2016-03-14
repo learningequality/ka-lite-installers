@@ -17,12 +17,12 @@
 
 @implementation AppDelegate
 
-@synthesize startKalite, stopKalite, openInBrowserMenu, kaliteVersion, customKaliteData, startOnLogin, kaliteDataHelp, popover, popoverMsg;
+@synthesize startKalite, stopKalite, openInBrowserMenu, kaliteVersion, customKaliteData, loadOnLogin, kaliteDataHelp, popover, popoverMsg;
 
 
 // REF: http://objcolumnist.com/2009/08/09/reopening-an-applications-main-window-by-clicking-the-dock-icon/
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag {
-    if(flag==NO) {
+    if(flag == NO) {
         [self showPreferences];
     }
     return YES;	
@@ -38,7 +38,11 @@
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
+    // Set the delegate to self to make sure notifications work properly.
     [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:self];
+    
+    // Make sure to register default values for the user preferences.
+    [self registerDefaultPreferences];
     
     if (!checkKaliteExecutable()) {
         NSLog(@"kalite executable is not found.");
@@ -88,6 +92,7 @@
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
     // Confirm quit action from user.
+    // TODO(cpauya): Don't ask if OS asked to quit the app.
     NSString *msg = @"This will stop and quit KA Lite, are you sure?";
     if (! confirm(msg)) {
         return NSTerminateCancel;
@@ -582,7 +587,7 @@ NSString *getEnvVar(NSString *var) {
 }
 
 
-- (IBAction)startOnLogin:(id)sender {
+- (IBAction)loadOnLogin:(id)sender {
     self.savePrefs.enabled = TRUE;
 }
 
@@ -685,7 +690,42 @@ NSString *getEnvVar(NSString *var) {
 }
 
 
+// Checks for default preferences, sets them accordingly, and saves the .plist.
+// Returns YES if defaults preferences were set, otherwise NO.
+- (BOOL)registerDefaultPreferences {
+    NSDictionary *dict = @{
+                           @"version": @"0.16",
+                           @"autoLoadOnLogin": @YES,
+                           @"autoStartOnLoad": @YES,
+                           @"customKaliteData": getKaliteDataPath()
+                           };
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
+    // MUST: Check a key in the default preferences and override with the default values if non-extant.
+    NSNumber *version = [defaults objectForKey:@"version"];
+    if (version == nil) {
+        [defaults registerDefaults:dict];
+        [defaults setValuesForKeysWithDictionary:dict];
+        BOOL result = [defaults synchronize];
+        
+        // TODO(cpauya): Let's perform the actions based on the values of the preferences.
+        // 1. autoLoadOnLogin
+        // 2. autoStartOnLoad
+        setEnvVarsAndPlist();
+        return YES;
+    }
+    return NO;
+}
+
+
 - (void)loadPreferences {
+    
+    // MUST: Check for default preferences first before actually loading the stored preferences.
+    // It's possible that the .plist was deleted while the .app is loaded, so this makes sure
+    // we still load the default preferences just in case.
+    [self registerDefaultPreferences];
+    
     NSString *kaliteDataPath = getKaliteDataPath();
     if (!kaliteDataPath) {
         showNotification(@"KA Lite data folder is not found. Click the `Start KA Lite` button to auto-create the KA Lite data folder.");
@@ -693,8 +733,12 @@ NSString *getEnvVar(NSString *var) {
     NSString *standardizedPath = [kaliteDataPath stringByStandardizingPath];
     self.customKaliteData.stringValue = standardizedPath;
     
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"autoStartOnLogin"]){
-        self.startOnLogin.state = YES;
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSNumber *state = [defaults objectForKey:@"autoLoadOnLogin"];
+    if (state == nil || [state boolValue]){
+        self.loadOnLogin.state = YES;
+    } else {
+        self.loadOnLogin.state = NO;
     }
 }
 
@@ -712,10 +756,12 @@ NSString *getEnvVar(NSString *var) {
     // REF: http:iosdevelopertips.com/core-services/encode-decode-using-base64.html
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     
-    //Set autoStartOnLogin value.
-    [prefs setBool:FALSE forKey:@"autoStartOnLogin"];
-    if ([self.startOnLogin state] == NSOnState) {
-        [prefs setBool:TRUE forKey:@"autoStartOnLogin"];
+    // Set autoLoadOnLogin value, defaults to YES.
+    NSInteger state = [self.loadOnLogin state];
+    if (state == NSOffState) {
+        [prefs setObject:[NSNumber numberWithBool:NO] forKey:@"autoLoadOnLogin"];
+    } else {
+        [prefs setObject:[NSNumber numberWithBool:YES] forKey:@"autoLoadOnLogin"];
     }
     
     NSString *customKaliteData = [[self.customKaliteData URL] path];
@@ -724,7 +770,11 @@ NSString *getEnvVar(NSString *var) {
     }
     
     // REF: https:github.com/iwasrobbed/Objective-C-CheatSheet#storing-values
-    [prefs synchronize];
+    // Handle the NO Boolean return if unsuccessful.
+    BOOL result = [prefs synchronize];
+    if (! result) {
+        showNotification(@"Sorry but your preferences cannot be saved, please check the Console logs.");
+    }
     
     setEnvVarsAndPlist();
     
@@ -733,7 +783,7 @@ NSString *getEnvVar(NSString *var) {
     if (!pathExists(databasePath)) {
         if (checkKaliteExecutable()) {
             alert(@"Will now run KA Lite setup, it will take a few minutes.  Please wait until prompted that setup is done.");
-            enum kaliteStatus status = [self setupKalite];
+            [self setupKalite];
             showNotification(@"Setup is finished!  You can now start KA Lite.");
             [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
             // TODO(cpauya): Get the result of running `bin/kalite manage setup` not the
@@ -749,7 +799,7 @@ NSString *getEnvVar(NSString *var) {
     [window orderOut:[window identifier]];
     
     // Terminate application.
-//    [[NSApplication sharedApplication] terminate:nil];
+    // [[NSApplication sharedApplication] terminate:nil];
 }
 
 
@@ -821,14 +871,17 @@ BOOL setEnvVarsAndPlist() {
     NSMutableDictionary *plistDict = [[NSMutableDictionary alloc] init];
     [plistDict setObject:plist forKey:@"Label"];
 
-    // If autoStartOnLogin value is TRUE, append the command to "open the Kalite.app" to the plist.
+    // If autoLoadOnLogin value is TRUE, append the command to "open the Kalite.app" to the plist.
     NSString *kaliteHomeStr = [NSString stringWithFormat:@"%@",
                                [NSString stringWithFormat:@"launchctl setenv KALITE_HOME \"%@\"", kaliteDataPath]
                                ];    
     NSString *launchStr = [NSString stringWithFormat:@"%@", kaliteHomeStr];
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"autoStartOnLogin"]){
+    // Check for a not-NO here because the preference also be nil if not yet set, to which we treat it as YES since
+    // we want it to default to YES.
+    NSNumber *state = [[NSUserDefaults standardUserDefaults] objectForKey:@"autoLoadOnLogin"];
+    if ([state boolValue] != NO){
         NSString *kaliteAppPath = [NSString stringWithFormat:@"open %@", [[NSBundle mainBundle] bundlePath]];
-         launchStr = [NSString stringWithFormat:@"%@ ; %@", kaliteHomeStr, kaliteAppPath];
+        launchStr = [NSString stringWithFormat:@"%@ ; %@", kaliteHomeStr, kaliteAppPath];
     }
 
     // More contents for the .plist command.
