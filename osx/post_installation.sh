@@ -242,3 +242,10 @@ if [ $? -ne 0 ]; then
 fi
 
 msg "Done with post installation!"
+
+KALITE_APP="$APPLICATION_PATH/KA-Lite.app"
+if [ -f "$KALITE_APP" ]; then
+    msg "Will open '$KALITE_APP' now."
+    open "$KALITE_APP"
+    msg "$KALITE_APP opened successfully."
+fi

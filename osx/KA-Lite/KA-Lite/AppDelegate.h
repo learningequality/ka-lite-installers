@@ -22,6 +22,7 @@
 @property (weak) IBOutlet NSTextField *kaliteVersion;
 @property (weak) IBOutlet NSPathControl *customKaliteData;
 @property (weak) IBOutlet NSButton *loadOnLogin;
+@property (weak) IBOutlet NSButton *startOnLoad;
 
 @property (strong, nonatomic) IBOutlet NSMenu *statusMenu;
 @property (strong, nonatomic) NSStatusItem *statusItem;
@@ -30,6 +31,9 @@
 @property (strong, nonatomic) NSStatusItem *openItem;
 @property (unsafe_unretained) IBOutlet NSTextView *taskLogs;
 @property signed int processCounter;
+@property BOOL isLoaded;
+@property BOOL autoStartOnLoad;
+@property NSString *version;
 
 @property (weak) IBOutlet NSMenuItem *startKalite;
 @property (weak) IBOutlet NSMenuItem *stopKalite;
