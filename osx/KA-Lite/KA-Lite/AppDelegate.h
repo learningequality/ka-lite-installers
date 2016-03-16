@@ -64,8 +64,16 @@ enum kaliteStatus {
     statusInvalidPidFile = 100,
     statusCouldNotDetermineStatus = 101
 };
-
 @property enum kaliteStatus status;
+
+enum kaliteQuitReason {
+    quitByUnknown = 0,
+    quitByUser = 1,
+    quitByOS = 2,
+    quitByApp = 3,
+    quitByUninstall = 4
+};
+@property enum kaliteQuitReason quitReason;
 
 
 - (void)closeSplash;

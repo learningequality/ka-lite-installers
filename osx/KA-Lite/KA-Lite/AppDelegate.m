@@ -41,6 +41,7 @@
     self.isLoaded = NO;
     self.autoStartOnLoad = YES;
     self.status = statusCouldNotDetermineStatus;
+    self.quitReason = quitByUnknown;
 }
 
 
@@ -103,8 +104,14 @@
     // TODO(cpauya): Don't ask if OS asked to quit the app.
     if ([self checkSetup:NO] == YES) {
         NSString *msg = @"This will stop and quit KA Lite, are you sure?";
-        if (! confirm(msg)) {
-            return NSTerminateCancel;
+        switch ([self quitReason]) {
+            case quitByUser:
+                break;
+            default:
+                if (! confirm(msg)) {
+                    return NSTerminateCancel;
+                }
+                break;
         }
         [self stopFunction:true];
     }
@@ -113,9 +120,16 @@
 
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-    NSString *msg = @"KA Lite is now stopped and quit.  Thank you.";
+    NSString *msg = @"KA Lite is now stopped and quit.";
     if ([self checkSetup:NO] == NO) {
-        msg = @"KA Lite was quit due to an install issue.  Thank you.";
+        switch ([self quitReason]) {
+            case quitByUninstall:
+                msg = @"KA Lite was quit to complete the uninstall process.";
+                break;
+            default:
+                msg = @"KA Lite was quit because the required setup is incomplete.";
+                break;
+        }
     }
     showNotification(msg, @"");
 }
@@ -678,6 +692,7 @@ NSString *getEnvVar(NSString *var) {
             const char *runCommand = [[NSString stringWithFormat: @"%@ %@", kaliteUninstallPath, kaliteUninstallArg] UTF8String];
             int runCommandStatus = system(runCommand);
             if (runCommandStatus == 0) {
+                self.quitReason = quitByUninstall;
                 // Terminate application.
                 [[NSApplication sharedApplication] terminate:nil];
             } else {
