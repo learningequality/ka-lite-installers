@@ -65,6 +65,7 @@ enum kaliteStatus {
     statusCouldNotDetermineStatus = 101
 };
 @property enum kaliteStatus status;
+@property enum kaliteStatus lastStatus;
 
 enum kaliteQuitReason {
     quitByUnknown = 0,

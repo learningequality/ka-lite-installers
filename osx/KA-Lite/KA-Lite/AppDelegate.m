@@ -41,6 +41,7 @@
     self.isLoaded = NO;
     self.autoStartOnLoad = YES;
     self.status = statusCouldNotDetermineStatus;
+    self.lastStatus = statusCouldNotDetermineStatus;
     self.quitReason = quitByUnknown;
 }
 
@@ -235,9 +236,11 @@ BOOL checkEnvVars() {
     
     [[task.standardOutput fileHandleForReading] setReadabilityHandler:^(NSFileHandle *file) {
         NSData *data = [file availableData]; // this will read to EOF, so call only once
-        NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
         NSString *outStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        [self displayLogs:outStr];
+        if (self.status != self.lastStatus) {
+            NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+            [self displayLogs:outStr];
+        }
         
         // Set the current kalite version
         if (command == versionStr){
@@ -332,7 +335,7 @@ BOOL kaliteExists() {
             if (status >= 255) {
                 status = status >> 8;
             }
-            self.status = status;
+            [self setNewStatus:status];
             if (oldStatus != status) {
                 [self showStatus:self.status];
             }
@@ -345,7 +348,7 @@ BOOL kaliteExists() {
             return self.status;
         }
     } else {
-        self.status = statusCouldNotDetermineStatus;
+        [self setNewStatus:statusCouldNotDetermineStatus];
         [self showStatus:self.status];
         showNotification(@"The `kalite` executable does not exist!", @"");
     }
@@ -362,7 +365,7 @@ BOOL kaliteExists() {
         }
     }
     @catch (NSException *ex) {
-        self.status = statusCouldNotDetermineStatus;
+        [self setNewStatus:statusCouldNotDetermineStatus];
         NSLog(@"Error running `kalite` %@", ex);
     }
     return self.status;
@@ -489,6 +492,17 @@ NSString *getEnvVar(NSString *var) {
  ********************/
 
 
+/*
+ This will keep track of the last status so that we don't fill the Logs when we check for status every interval.
+ So instead of showing "running" status logs every minute, we just show the log when a status change is detected
+ based on the timer interval.
+ */
+- (void)setNewStatus:(enum kaliteStatus)newStatus {
+    self.lastStatus = self.status;
+    self.status = newStatus;
+}
+
+
 - (void)showStatus:(enum kaliteStatus)status {
     // Enable/disable menu items based on status.
     BOOL canStart = pathExists(getKaliteExecutable()) > 0 ? YES : NO;
@@ -526,7 +540,7 @@ NSString *getEnvVar(NSString *var) {
             self.openBrowserButton.enabled = YES;
             [self.statusItem setImage:[NSImage imageNamed:@"stop"]];
             [self.statusItem setToolTip:@"KA Lite is running."];
-            showNotification(@"You can now click on 'Open in Browser' menu.", @"");
+            showNotification(@"Running, you can now click on 'Open in Browser' menu.", @"");
             // Disable custom kalite data path when kalite is still running.
             [self toggleKaliteDataPath:NO];
             break;
@@ -556,13 +570,11 @@ NSString *getEnvVar(NSString *var) {
             self.startButton.enabled = canStart;
             self.stopButton.enabled = NO;
             self.openBrowserButton.enabled = NO;
-            if (kaliteExists()){
+            if (kaliteExists()) {
                 [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
-            }else{
+            } else {
                 [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
             }
-//            [self.statusItem setToolTip:@"KA-Lite has encountered an error, pls check the Console."];
-//            showNotification(@"Has encountered an error, pls check the Console.");
             break;
     }
     self.isLoaded = YES;
@@ -575,8 +587,7 @@ NSString *getEnvVar(NSString *var) {
         return;
     }
     showNotification(@"Starting...", @"");
-    self.status = statusStartingUp;
-    [self showStatus:statusStartingUp];
+    [self setNewStatus:statusStartingUp];
     [self runKalite:@"start"];
 }
 
@@ -868,24 +879,7 @@ NSString *getEnvVar(NSString *var) {
     
     setEnvVarsAndPlist();
     
-    // TODO(cpauya): We don't need these now, clean this up after debugging!
-//    // Automatically run `kalite manage setup` if no database was found.
-//    NSString *databasePath = getDatabasePath();
-//    if (!pathExists(databasePath)) {
-//        if (checkKaliteExecutable()) {
-//            alert(@"Will now run KA Lite setup, it will take a few minutes.  Please wait until prompted that setup is done.");
-//            [self setupKalite];
-//            showNotification(@"Setup is finished!  You can now start KA Lite.", @"");
-//            [self.statusItem setImage:[NSImage imageNamed:@"exclaim"]];
-//            // TODO(cpauya): Get the result of running `bin/kalite manage setup` not the
-//            // default result of `bin/kalite status` so we can alert the user that setup failed.
-//            //        if (status != statusStopped) {
-//            //            alert(@"Running 'manage setup' failed, please see Console.");
-//            //            return;
-//            //        }
-//        }
-//    }
-    
+
     // Close the preferences dialog after a successful save.
     [window orderOut:[window identifier]];
 }
@@ -993,16 +987,6 @@ BOOL setEnvVarsAndPlist() {
 }
 
 
--(enum kaliteStatus)setupKalite {
-    NSString *cmd = [NSString stringWithFormat:@"manage setup --noinput"];
-    NSString *msg = [NSString stringWithFormat:@"Running `kalite manage setup`"];
-    showNotification(msg, @"");
-    enum kaliteStatus status = [self runKalite:cmd];
-    [self getKaliteStatus];
-    return status;
-}
-
-
 - (void)discardPreferences {
     // TODO(cpauya): Discard changes and load the saved preferences.
     [window orderOut:[window identifier]];
@@ -1012,7 +996,7 @@ BOOL setEnvVarsAndPlist() {
 - (void)startKaliteTimer {
     // TODO(cpauya): Use initWithFireDate of NSTimer instance.
     // TODO(amodia): Check if kalite environment variables change.
-    [NSTimer scheduledTimerWithTimeInterval:60.0
+    [NSTimer scheduledTimerWithTimeInterval:5.0
                                      target:self
                                    selector:@selector(getKaliteStatus)
                                    userInfo:nil
