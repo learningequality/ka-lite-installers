@@ -14,6 +14,8 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
 1. Double-click the downloaded `KA-Lite.pkg` package and follow the setup wizard.  The installation requires admin privileges.
 1. The installer will create the `/Applications/KA-Lite/` folder that contains the KA-Lite application, uninstall tool, licence, readme, release notes, and the support folder.
 1. The install process is quite lengthy because the installer had to copy content items and run some management commands including the setup process.  Please be patient.
+1. After a successful installation, the KA Lite application will be auto-loaded and it will also auto-start the KA Lite web server.
+1. You should see the notification "Running, you can now click on 'Open in Browser' menu.".
 
 
 ## Using the KA Lite OS X Application
@@ -23,7 +25,7 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
 
 1. Launch `KA-Lite` from the `/Applications/KA-Lite/` folder.
 1. Click the `KA-Lite` icon in the menu bar and select the `Start KA Lite` menu option.
-1. When notified that KA Lite has been started, click on the icon again and select the `Open in Browser` menu option - this should launch KA Lite in your preferred web browser.
+1. When notified that KA Lite is running, click on the icon again and select the `Open in Browser` menu option - this should launch KA Lite in your preferred web browser.
 
 
 ### Menu Options
@@ -55,6 +57,7 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
 * Double-click the `/Applications/KA-Lite/KA-Lite_Uninstall.tool`, this is a bash script that will do the following:
   - uninstall `KA-Lite.app` and remove its dependencies, then unset the environment variables.
   - optionally remove the KA Lite data folder.
+* Alternatively, you can also use the Uninstall KA Lite button at the Preferences dialog of the KA Lite application.
 
 
 ## Help and Logs
@@ -75,4 +78,5 @@ Please note that we have tested this application on the following Mac OS X versi
 ## ToDos
 
 1. Check for updates automatically.
-1. Confirm the Quit action with a dialog to prevent accidental closing of the application.
+1. Set an action when the notifications are clicked by the user.
+1. Use a consistent icon set (for status stopped, running, busy, etc) based on the "leaf" or "official" icon.

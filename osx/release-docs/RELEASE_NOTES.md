@@ -9,6 +9,7 @@ Release Notes for KA Lite Mac OS X Application
 * NEW - We now support Mac OS X 10.11 El Capitan.
 * NEW - We now use a .pkg installer which uses a setup wizard GUI.
 * NEW - We now bundle the `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md`, `KA-Lite_Uninstall.tool` script, and the `support` folder inside the `/Applications/KA-Lite/` folder.
+* NEW - We now auto-load the application after installation.
 * NEW - You can now use the `Console` utility application to view the KA-Lite installer and application logs.
 * NEW - We now have a pre-installation script that checks for a previous installation if it exists and does the following:
   - Remove `/Applications/KA-Lite/KA-Lite.app`.
@@ -31,6 +32,8 @@ Release Notes for KA Lite Mac OS X Application
 **Mac Application**
 
 * NEW - User can now auto-load the application on login.
+* NEW - We now auto-start the KA Lite web server when the application is loaded.
+* NEW - We have streamlined the preferences dialog and show only the relevant options.
 * NEW - User can now set a custom KA Lite data path, instead of the default `~/.kalite/`.
 * FIXED - The startup time of the KA Lite server has been greatly reduced to just a few seconds.
 * FIXED - We only load the `KA-Lite.app` if the `kalite` executable is available.

@@ -47,6 +47,7 @@
                 <outlet property="kaliteDataHelp" destination="IFr-HI-gEe" id="Vyj-fM-fsS"/>
                 <outlet property="kaliteUninstallHelp" destination="79E-YB-w3D" id="DDS-66-jTo"/>
                 <outlet property="kaliteVersion" destination="89o-4x-JIp" id="72c-bS-dBh"/>
+                <outlet property="loadOnLogin" destination="ZJu-Y8-v7Y" id="9e8-5z-ab5"/>
                 <outlet property="openBrowserButton" destination="wxg-iv-YDa" id="0er-aA-Ymn"/>
                 <outlet property="openInBrowserMenu" destination="z2m-ls-Z0I" id="mGN-C0-zz5"/>
                 <outlet property="popover" destination="AAs-fZ-3f7" id="Dbq-r8-eq8"/>
@@ -55,7 +56,6 @@
                 <outlet property="splash" destination="izD-1r-MWo" id="ax5-nI-Mu0"/>
                 <outlet property="startButton" destination="Eur-YG-XhD" id="I4H-kx-9AL"/>
                 <outlet property="startKalite" destination="cmv-NE-Gmn" id="fGw-83-kM1"/>
-                <outlet property="startOnLogin" destination="ZJu-Y8-v7Y" id="9e8-5z-ab5"/>
                 <outlet property="statusMenu" destination="3js-7p-b5M" id="TSS-gO-zwP"/>
                 <outlet property="stopButton" destination="ixV-cY-gLJ" id="SE2-g6-EAb"/>
                 <outlet property="stopKalite" destination="mSX-Xb-gZb" id="0Jb-Lw-LGy"/>
@@ -103,7 +103,7 @@
         <window title="Starting KA Lite..." allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="izD-1r-MWo">
             <windowStyleMask key="styleMask" titled="YES"/>
             <rect key="contentRect" x="565" y="404" width="216" height="135"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1057"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3840" height="2137"/>
             <view key="contentView" id="X7G-oL-gsN">
                 <rect key="frame" x="0.0" y="0.0" width="216" height="135"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -130,7 +130,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" unifiedTitleAndToolbar="YES"/>
             <windowCollectionBehavior key="collectionBehavior" canJoinAllSpaces="YES" managed="YES" participatesInCycle="YES"/>
             <rect key="contentRect" x="131" y="158" width="493" height="417"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1057"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3840" height="2137"/>
             <view key="contentView" id="TP3-Cd-o99">
                 <rect key="frame" x="0.0" y="0.0" width="493" height="417"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -289,12 +289,12 @@ Gw
                                                 <subviews>
                                                     <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZJu-Y8-v7Y">
                                                         <rect key="frame" x="16" y="46" width="287" height="18"/>
-                                                        <buttonCell key="cell" type="check" title="Auto load the application on login." bezelStyle="regularSquare" imagePosition="left" inset="2" id="hdP-ma-fi7">
+                                                        <buttonCell key="cell" type="check" title="Auto load the application on login." bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="hdP-ma-fi7">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
                                                         <connections>
-                                                            <action selector="startOnLogin:" target="Voe-Tx-rLC" id="xmF-x8-8P2"/>
+                                                            <action selector="loadOnLogin:" target="Voe-Tx-rLC" id="xmF-x8-8P2"/>
                                                         </connections>
                                                     </button>
                                                     <button hidden="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LGO-kK-gKp">

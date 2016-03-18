@@ -133,6 +133,18 @@ function msg() {
 # ENV=$(env)
 # syslog -s -l alert "Packages pre-installation initialize with env:'\n'$ENV" 
 
+# MUST: Check if KA Lite app is running before continuing to install.
+if [ $IS_PREINSTALL == true ]; then
+    # REF: http://stackoverflow.com/a/1821897/845481 
+    # Check if Mac process is running using Bash by process name
+    PROCESS="/Applications/KA-Lite*"
+    number=$(ps aux | grep "$PROCESS" | wc -l)
+    if [ $number -gt 0 ]; then
+        msg "Installation cannot continue because KA Lite is running.  Please quit it first before installing."
+        exit 1
+    fi
+fi
+
 pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd`
 popd > /dev/null

@@ -21,7 +21,8 @@
 @property (weak) IBOutlet NSButton *openBrowserButton;
 @property (weak) IBOutlet NSTextField *kaliteVersion;
 @property (weak) IBOutlet NSPathControl *customKaliteData;
-@property (weak) IBOutlet NSButton *startOnLogin;
+@property (weak) IBOutlet NSButton *loadOnLogin;
+@property (weak) IBOutlet NSButton *startOnLoad;
 
 @property (strong, nonatomic) IBOutlet NSMenu *statusMenu;
 @property (strong, nonatomic) NSStatusItem *statusItem;
@@ -30,6 +31,9 @@
 @property (strong, nonatomic) NSStatusItem *openItem;
 @property (unsafe_unretained) IBOutlet NSTextView *taskLogs;
 @property signed int processCounter;
+@property BOOL isLoaded;
+@property BOOL autoStartOnLoad;
+@property NSString *version;
 
 @property (weak) IBOutlet NSMenuItem *startKalite;
 @property (weak) IBOutlet NSMenuItem *stopKalite;
@@ -60,8 +64,17 @@ enum kaliteStatus {
     statusInvalidPidFile = 100,
     statusCouldNotDetermineStatus = 101
 };
-
 @property enum kaliteStatus status;
+@property enum kaliteStatus lastStatus;
+
+enum kaliteQuitReason {
+    quitByUnknown = 0,
+    quitByUser = 1,
+    quitByOS = 2,
+    quitByApp = 3,
+    quitByUninstall = 4
+};
+@property enum kaliteQuitReason quitReason;
 
 
 - (void)closeSplash;
