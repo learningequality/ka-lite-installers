@@ -812,7 +812,7 @@ NSString *getEnvVar(NSString *var) {
         // TODO(cpauya): Let's perform the actions based on the values of the preferences.
         // 1. autoLoadOnLogin
         // 2. autoStartOnLoad
-        setEnvVarsAndPlist();
+        [self setEnvVarsAndPlist];
         return YES;
     }
     self.kaliteVersion.stringValue = version;
@@ -877,7 +877,7 @@ NSString *getEnvVar(NSString *var) {
         showNotification(@"Sorry but your preferences cannot be saved, please check the Console logs.", @"");
     }
     
-    setEnvVarsAndPlist();
+    [self setEnvVarsAndPlist];
     
 
     // Close the preferences dialog after a successful save.
@@ -905,7 +905,7 @@ NSString *getEnvVar(NSString *var) {
 }
 
 
-BOOL setEnvVarsAndPlist() {
+- (BOOL)setEnvVarsAndPlist {
     /*
     This function sets the KALITE_HOME environment variable based on the custom KA Lite data path and
     then it sets the .plist file contents so the env var is used when computer is rebooted.
@@ -971,6 +971,7 @@ BOOL setEnvVarsAndPlist() {
     NSArray *arr = @[@"sh", @"-c", launchStr];
     [plistDict setObject:arr forKey:@"ProgramArguments"];
     [plistDict setObject:[NSNumber numberWithBool:TRUE] forKey:@"RunAtLoad"];
+    [plistDict setObject:self.version forKey:@"version"];
 
     // Write the formed content to set the KALITE_HOME env var to the .plist.
     NSLog([NSString stringWithFormat:@"Writing the .plist for the KALITE_HOME environment variable... %@", plistDict]);
