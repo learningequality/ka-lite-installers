@@ -168,6 +168,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+
 ((STEP++))
 # TODO(arceduardvincent): Remove this step when the issue is solved.
 # Remove the old asset folder to be replaced by newer assets later.
@@ -185,8 +186,8 @@ else
 fi
 
 KALITE_ASSET_FOLDER="$KALITE_HOME/httpsrv/"
+msg "$STEP/$STEPS. Removing the old asset folder at '$KALITE_ASSET_FOLDER' to be replaced later..."
 if [ -d "$KALITE_ASSET_FOLDER" ]; then
-    msg "$STEP/$STEPS. Removing the old asset folder at $KALITE_ASSET_FOLDER..."
     rm -Rf "$KALITE_ASSET_FOLDER"
     if [ $? -ne 0 ]; then
         msg ".. Abort!  Error removing the $KALITE_ASSET_FOLDER."
