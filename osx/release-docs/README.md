@@ -23,9 +23,8 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
 
 ### To start the KA Lite server
 
-1. Launch `KA-Lite` from the `/Applications/KA-Lite/` folder.
-1. Click the `KA-Lite` icon in the menu bar and select the `Start KA Lite` menu option.
-1. When notified that KA Lite is running, click on the icon again and select the `Open in Browser` menu option - this should launch KA Lite in your preferred web browser.
+1. Launch `KA-Lite` from the `/Applications/KA-Lite/` folder.  It should auto-start the KA Lite server and notify you of it's status.
+1. When notified that KA Lite is running, click on the menu bar icon and select the `Open in Browser` menu option - this should launch KA Lite in your preferred web browser.
 
 
 ### Menu Options
@@ -57,14 +56,14 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
 * Double-click the `/Applications/KA-Lite/KA-Lite_Uninstall.tool`, this is a bash script that will do the following:
   - uninstall `KA-Lite.app` and remove its dependencies, then unset the environment variables.
   - optionally remove the KA Lite data folder.
-* Alternatively, you can also use the Uninstall KA Lite button at the Preferences dialog of the KA Lite application.
+* Alternatively, you can also click the Uninstall KA Lite button at the Preferences dialog of the KA Lite application.  Check the "Delete KA Lite data folder" if you want to also remove your KA Lite data.
 
 
 ## Help and Logs
 
 To view the KA Lite installer and application logs, launch the `Console` application and filter by "ka-lite".  You can also view the KA Lite application logs in the `Preferences` dialog by clicking on the `Logs` tab.
 
-To view the KA Lite web server logs, open `~/.kalite/server.log` to view access and debug logs.
+To view the KA Lite web server logs, open `~/.kalite/server.log` to view access and debug logs.  If you have set a custom KA Lite data folder in the Preferences dialog, use this format: `$KALITE_HOME/server.log`.
 
 If you encounter issues, please file them at the [KA Lite repository](https://github.com/learningequality/ka-lite/issues/) or at the [KA Lite Installers repository](https://github.com/learningequality/installers).
 

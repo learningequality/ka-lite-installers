@@ -49,7 +49,7 @@ This will require your admin password.
 
 Open the built package from the Getting Started section at `temp/output/KA-Lite.pkg` and follow the prompts.  For the curious, you can see installation logs in the `Console` application, just filter the entries with "KA-Lite".
 
-KA Lite will be installed in the `/Applications/KA-Lite/` folder along with the license, readme, release notes, and the support folder.  The `support` folder contains the content pack archive, the PyRun environment, and the scripts.
+KA Lite will be installed in the `/Applications/KA-Lite/` folder along with the uninstall.tool, license, readme, release notes, and the support folder.  The `support` folder contains the content pack archive, the PyRun environment, and the scripts.
 
 When testing locally built packages, we recommend using VirtualBox for a clean environment.  Making an OS X Virtual Machine for VirtualBox is beyond the scope of this document but you can easily find references on the net.
 
@@ -61,7 +61,7 @@ This will require your admin password.
 There are two ways to uninstall the KA Lite package:
 
 1. Load the KA Lite application then click its menu bar icon and select the Preferences menu item.  In the Preferences dialog, click on the "Uninstall KA Lite" button.
-1. Run the `ka-lite-remover.sh` in your Terminal to remove KA Lite.  It will confirm if you want to keep or delete your KA Lite data folder.
+1. Run the `/Applications/KA-Lite/KA-Lite_Uninstall.tool` in your Terminal to remove KA Lite.  It will confirm if you want to keep or delete your KA Lite data folder.
 
 
 ## Use Packages to build the KA Lite installer
