@@ -10,6 +10,7 @@ Release Notes for KA Lite Mac OS X Application
 * NEW - We now use a .pkg installer which uses a setup wizard GUI.
 * NEW - We now bundle the `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md`, `KA-Lite_Uninstall.tool` script, and the `support` folder inside the `/Applications/KA-Lite/` folder.
 * NEW - We now auto-load the application after installation.
+* NEW - We now check if KA Lite is loaded and will not continue with the installation if it is.
 * NEW - You can now use the `Console` utility application to view the KA-Lite installer and application logs.
 * NEW - We now have a pre-installation script that checks for a previous installation if it exists and does the following:
   - Remove `/Applications/KA-Lite/KA-Lite.app`.
@@ -17,15 +18,16 @@ Release Notes for KA Lite Mac OS X Application
   - Remove `/Library/LaunchAgents/org.learningequality.kalite.plist`.
   - Remove `/usr/bin/kalite` executable.
   - Remove `/usr/local/bin/kalite` executable. 
-  - Remove `/Applications/KA-Lite/support/` directory.
+  - Remove `/Applications/KA-Lite/` directory and its contents.
   - Unset `KALITE_PYTHON` environment variable.
   - Unset `KALITE_HOME` environment variable.
 * NEW - We now have a post-installation script that does the following:
   - Set `KALITE_PYTHON` environment variable.
   - Symlink `kalite` executable to `/usr/local/bin/`.
   - Bundle `KA-Lite.app`, `README.md`, `LICENSE`, `RELEASE_NOTES.md`, `KA-Lite_Uninstall.tool` script, and the `support` folder in the `/Applications/KA-Lite/` directory.
-  - We now use the `/Applications/KA-Lite/support/` folder which contains the `content/contentpacks/en.zip`, `pyrun`, and `scripts`. This is used as the KA Lite installer resources.  
+  - Put the `content/contentpacks/en.zip`, `pyrun`, and `scripts` inside the `/Applications/KA-Lite/support/` folder to be used as KA Lite installer resources.
   - Run `kalite manage` commands like `syncdb --noinput`, `retrievecontentpack`, and `setup --noinput`.
+  - Auto-load the KA Lite application after a successful installation.
 * REMOVED - We don't produce and use the `.dmg` disk image anymore.
 * REMOVED - We removed the word `Monitor` in the installer name.
 
@@ -37,12 +39,12 @@ Release Notes for KA Lite Mac OS X Application
 * NEW - User can now set a custom KA Lite data path, instead of the default `~/.kalite/`.
 * FIXED - The startup time of the KA Lite server has been greatly reduced to just a few seconds.
 * FIXED - We only load the `KA-Lite.app` if the `kalite` executable is available.
+* FIXED - We now use the same version as the KA Lite web application for consistency.
 * CHANGED - We changed `KA-Lite-Monitor.app` to `KA-Lite.app`.
 * REMOVED - We removed the "Monitor" text from the application.
 * REMOVED - We removed the `Advanced` tab and its contents.
 * REMOVED - We removed the automatic creation of admin account during setup.
  
-
 **Mac Uninstaller**
 
 * NEW - User can uninstall `KA-Lite.app` and it's dependencies using the `KA-Lite_Uninstall.tool` script.
