@@ -17,8 +17,8 @@ msg "Checking for a loaded '$PROCESS'..."
 
 # REF: http://stackoverflow.com/a/1821897/845481 
 # Check if Mac process is running using Bash by process name
-number=$(ps aux | grep "$PROCESS" | wc -l)
-if [ $number -gt 1 ]; then
+number=$(ps aux | grep "$PROCESS" | grep -v "grep" | wc -l)
+if [ $number -gt 0 ]; then
     msg ".. Found a loaded '$PROCESS', please quit it before running the installer."
     exit 1
 fi

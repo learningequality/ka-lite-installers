@@ -139,8 +139,8 @@ if [ $IS_PREINSTALL == true ]; then
     # REF: http://stackoverflow.com/a/1821897/845481 
     # Check if Mac process is running using Bash by process name
     PROCESS="$KALITE_DIR*"
-    number=$(ps aux | grep "$PROCESS" | wc -l)
-    if [ $number -gt 1 ]; then
+    number=$(ps aux | grep "$PROCESS" | grep -v "grep" | wc -l)
+    if [ $number -gt 0 ]; then
         msg "Installation cannot continue because KA Lite is running.  Please quit it first before installing."
         exit 1
     fi
