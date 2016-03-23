@@ -42,16 +42,14 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
 
 ### How to set a custom KA Lite data folder:
 
- 1. Stop the KA Lite server from running.
- 2. Set your custom KA Lite data folder in the `Preferences` dialog.
- 3. Click `Apply`.  This will update the `KALITE_HOME` environment variable.
- 4. Launch a new Terminal session to use the updated `KALITE_HOME` environment variable.
- 5. Run `kalite manage syncdb --noinput`.
- 7. Run `kalite manage setup --noinput`.
- 8. Run `kalite manage retrievecontentpack local en /Applications/KA-Lite/support/content/contentpacks/en.zip`.
- 9. Start the server again by clicking on `Start KA Lite` in the menu option.
+**Note:** To prevent loss of data, backup your existing KA Lite data folder first then manually create the new data folder.
 
-**Note:** You can specify another content pack archive that you've downloaded from http://pantry.learningequality.org/downloads/ka-lite at the `retrievecontentpack` step above.  Make sure you download the content pack archive for the installed version of KA Lite.
+1. Stop the KA Lite server if running.
+2. Select your custom KA Lite data folder in the `Preferences` dialog.
+3. Click `Apply`.  This will update the `KALITE_HOME` environment variable.
+4. Start the server again by clicking on `Start KA Lite` in the menu option.  This will take a few minutes to complete and you will be notified when KA Lite is already running.
+
+**Note:** Under Mac OS X El Capitan, you have to press `Cmd+Shift+N` to create a folder in the path control panel because it does not display a `New Folder` button.  We suggest you create the destination data folder before doing this.
 
 
 ## Uninstall KA Lite
