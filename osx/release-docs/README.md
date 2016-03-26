@@ -11,11 +11,15 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
 ## Install KA Lite
 
 1. Download the [KA Lite Mac OS X Installer for 0.16](http://pantry.learningequality.org/downloads/ka-lite/0.16/installers/mac/).
-1. Double-click the downloaded `KA-Lite.pkg` package and follow the setup wizard.  The installation requires admin privileges.
+1. Double-click the downloaded `KA-Lite.pkg` package and click "Continue" when prompted about the "This package will run a program to determine if the software can be installed." message.
+1. Follow the setup wizard.  The installation requires admin privileges.
+1. This package will run a program to determine if the software can be installed.
 1. The installer will create the `/Applications/KA-Lite/` folder that contains the KA-Lite application, uninstall tool, licence, readme, release notes, and the support folder.
 1. The install process is quite lengthy because the installer had to copy content items and run some management commands including the setup process.  Please be patient.
 1. After a successful installation, the KA Lite application will be auto-loaded and it will also auto-start the KA Lite web server.
 1. You should see the notification "Running, you can now click on 'Open in Browser' menu.".
+
+**Note:** Make sure that the KA Lite application is not loaded during installation.
 
 
 ## Using the KA Lite OS X Application
@@ -38,16 +42,14 @@ It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA 
 
 ### How to set a custom KA Lite data folder:
 
- 1. Stop the KA Lite server from running.
- 2. Set your custom KA Lite data folder in the `Preferences` dialog.
- 3. Click `Apply`.  This will update the `KALITE_HOME` environment variable.
- 4. Launch a new Terminal session to use the updated `KALITE_HOME` environment variable.
- 5. Run `kalite manage syncdb --noinput`.
- 7. Run `kalite manage setup --noinput`.
- 8. Run `kalite manage retrievecontentpack local en /Applications/KA-Lite/support/content/contentpacks/en.zip`.
- 9. Start the server again by clicking on `Start KA Lite` in the menu option.
+**Note:** To prevent loss of data, backup your existing KA Lite data folder first then manually create the new data folder.
 
-**Note:** You can specify another content pack archive that you've downloaded from http://pantry.learningequality.org/downloads/ka-lite at the `retrievecontentpack` step above.  Make sure you download the content pack archive for the installed version of KA Lite.
+1. Stop the KA Lite server if running.
+2. Select your custom KA Lite data folder in the `Preferences` dialog.
+3. Click `Apply`.  This will update the `KALITE_HOME` environment variable.
+4. Start the server again by clicking on `Start KA Lite` in the menu option.  This will take a few minutes to complete and you will be notified when KA Lite is already running.
+
+**Note:** Under Mac OS X El Capitan, you have to press `Cmd+Shift+N` to create a folder in the path control panel because it does not display a `New Folder` button.  We suggest you create the destination data folder before doing this.
 
 
 ## Uninstall KA Lite

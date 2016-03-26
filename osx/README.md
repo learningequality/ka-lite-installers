@@ -49,9 +49,13 @@ This will require your admin password.
 
 Open the built package from the Getting Started section at `temp/output/KA-Lite.pkg` and follow the prompts.  For the curious, you can see installation logs in the `Console` application, just filter the entries with "KA-Lite".
 
-KA Lite will be installed in the `/Applications/KA-Lite/` folder along with the uninstall.tool, license, readme, release notes, and the support folder.  The `support` folder contains the content pack archive, the PyRun environment, and the scripts.
+Click "Continue" when prompted about the "This package will run a program to determine if the software can be installed." message.
 
-When testing locally built packages, we recommend using VirtualBox for a clean environment.  Making an OS X Virtual Machine for VirtualBox is beyond the scope of this document but you can easily find references on the net.
+KA Lite will be installed in the `/Applications/KA-Lite/` folder along with the uninstall.tool, license, readme, release notes, and the support folder.  The `support` folder contains the English content pack archive, the PyRun environment, and the scripts.
+
+When testing locally-built packages, we recommend using VirtualBox for a clean environment.  Making an OS X Virtual Machine for VirtualBox is beyond the scope of this document but you can easily find references on the net.
+
+**Note:** Make sure that the KA Lite application is not loaded during installation.
 
 
 ## Uninstallation of the installed KA Lite package.

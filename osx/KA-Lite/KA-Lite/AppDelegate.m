@@ -913,6 +913,9 @@ NSString *getEnvVar(NSString *var) {
 
     // REF: http://stackoverflow.com/questions/99395/how-to-check-if-a-folder-exists-in-cocoa-objective-c
 
+    // This is needed to display the proper menu bar icon when applying the preferences.
+    [self setNewStatus:statusCouldNotDetermineStatus];
+    
     // MUST: Check if ~/Library/LaunchAgents/ path exists and create it if it doesn't.
     // We do this because some fresh install of Mac OS X does not have this folder.
     NSString *libraryLaunchAgentsPath = [NSString stringWithFormat:@"%@%@", NSHomeDirectory(), @"/Library/LaunchAgents/"];

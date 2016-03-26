@@ -39,7 +39,8 @@ KALITE_PLIST="$ORG_LE_KALITE.plist"
 HOME_LAUNCH_AGENTS="$HOME/Library/LaunchAgents"
 ROOT_LAUNCH_AGENTS="/Library/LaunchAgents"
 KALITE_EXECUTABLE_PATH="$(which $KALITE)"
-KALITE_RESOURCES="/Applications/KA-Lite/support"
+KALITE_DIR="/Applications/KA-Lite"
+KALITE_RESOURCES="$KALITE_DIR/support"
 KALITE_USR_BIN_PATH="/usr/bin"
 KALITE_USR_LOCAL_BIN_PATH="/usr/local/bin"
 KALITE_UNINSTALL_SCRIPT="KA-Lite_Uninstall.tool"
@@ -137,9 +138,9 @@ function msg() {
 if [ $IS_PREINSTALL == true ]; then
     # REF: http://stackoverflow.com/a/1821897/845481 
     # Check if Mac process is running using Bash by process name
-    PROCESS="/Applications/KA-Lite*"
-    number=$(ps aux | grep "$PROCESS" | wc -l)
-    if [ $number -gt 1 ]; then
+    PROCESS="$KALITE_DIR*"
+    number=$(ps aux | grep "$PROCESS" | grep -v "grep" | wc -l)
+    if [ $number -gt 0 ]; then
         msg "Installation cannot continue because KA Lite is running.  Please quit it first before installing."
         exit 1
     fi
@@ -150,7 +151,7 @@ SCRIPTPATH=`pwd`
 popd > /dev/null
 
 # Collect the directories and files to remove
-test -d /Applications/KA-Lite                   && REMOVE_FILES_ARRAY+=("/Applications/KA-Lite")
+test -d $KALITE_DIR                             && REMOVE_FILES_ARRAY+=("$KALITE_DIR")
 test -f $SCRIPTPATH/$KALITE_UNINSTALL_SCRIPT    && REMOVE_FILES_ARRAY+=("$SCRIPTPATH/$KALITE_UNINSTALL_SCRIPT")
 test -d $KALITE_RESOURCES                       && REMOVE_FILES_ARRAY+=("$KALITE_RESOURCES")
 test -f $KALITE_USR_LOCAL_BIN_PATH/$KALITE      && REMOVE_FILES_ARRAY+=("$KALITE_USR_LOCAL_BIN_PATH/$KALITE")
@@ -169,7 +170,7 @@ if [ $IS_PREINSTALL == false ]; then
     echo "                                                          "
     echo "https://learningequality.org/ka-lite/                     "
     echo "                                                          "
-    echo "     version $VERSION.x                                       "
+    echo "     version $VERSION.x                                   "
     echo "                                                          "
 fi
 
