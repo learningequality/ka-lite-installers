@@ -270,6 +270,16 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+PIP_CMD="$PYRUN_PIP install -r requirements_sphinx.txt"
+# TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
+cd "$KA_LITE_DIR"
+echo ".. Running $PIP_CMD..."
+$PIP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$PIP_CMD'."
+    exit 1
+fi
+
 
 ((STEP++))
 echo "$STEP/$STEPS. Running 'make dist'..."
