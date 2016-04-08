@@ -268,11 +268,12 @@ kalite_configure()
     fi
     
     # Assessment items
-    mkdir -p $ASSESSMENT_DIR
     
     # If user has chosen assessment items...
     if $DOWNLOAD_ASSESSMENT_ITEMS
     then
+
+        mkdir -p $ASSESSMENT_DIR
 
         # Ensure that the assessment items directory is empty in case there are
         # foreign items there such as something that was downloaded with another .deb
@@ -327,6 +328,9 @@ kalite_configure()
 
     # TODO: This is a stupid hack, if the user running KA Lite has to own this
     # file, then it should not be in this location.
+    # This hack is only relevant for KA Lite <0.16 because an English assessment
+    # item db is located in database template dirs and copied into user location
+    # at runtime
     if [ -f $ASSESSMENT_DIR/assessmentitems.sqlite ]
     then
         chown $KALITE_USER $ASSESSMENT_DIR
@@ -345,10 +349,6 @@ kalite_configure()
             old_version=""
         fi
         
-        if ! [ -d $ASSESSMENT_DIR ]
-        then
-            mkdir -p $ASSESSMENT_DIR
-        fi
     fi
 
     # Install init script using `ucf` no matter what, users might activate it later
