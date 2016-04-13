@@ -1,28 +1,14 @@
-ka-lite-source (0.16~b1-0ubuntu1) trusty; urgency=medium
+ka-lite-source (0.16.1-0ubuntu1) trusty; urgency=medium
 
   * New upstream release
 
- -- Benjamin Bach <benjamin@learningequality.org>  Wed, 02 Mar 2016 17:10:43 +0100
+ -- Aron Fyodor Asor <aron@learningequality.org>  Thu, 07 Apr 2016 21:10:51 +0000
 
-ka-lite-source (0.16~a4-0ubuntu1) trusty; urgency=medium
-
-  * New upstream release
-
- -- Benjamin Bach <benjamin@learningequality.org>  Thu, 25 Feb 2016 12:14:54 +0100
-
-ka-lite-source (0.16~a3-0ubuntu1) trusty; urgency=medium
+ka-lite-source (0.16.0-0ubuntu1) trusty; urgency=medium
 
   * New upstream release
-  * Fixes location of assessment items
 
- -- Benjamin Bach <benjamin@learningequality.org>  Mon, 22 Feb 2016 19:53:25 +0100
-
-ka-lite-source (0.16~a2-0ubuntu1) trusty; urgency=medium
-
-  * Drop precise support
-  * New upstream release
-
- -- Benjamin Bach <benjamin@learningequality.org>  Mon, 22 Feb 2016 03:06:06 +0100
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 31 Mar 2016 00:14:54 +0200
 
 ka-lite-source (0.15.1-0ubuntu2) precise; urgency=medium
 
