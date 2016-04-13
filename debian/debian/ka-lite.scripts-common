@@ -251,7 +251,7 @@ kalite_configure()
     echo $KALITE_USER > /etc/ka-lite/username
     if ! getent passwd $KALITE_USER >/dev/null
     then
-        adduser --system --home /var/$KALITE_USER $KALITE_USER
+        adduser --system --shell /bin/bash --home /var/$KALITE_USER $KALITE_USER
     fi
     
     # Do we have string defined for setup.py?
