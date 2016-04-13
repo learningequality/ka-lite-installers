@@ -60,3 +60,24 @@ After adding both binaries to your path, you're ready to run `npm install` in th
 #### To clone ka-lite and this repository, run the following lines:
 * git clone https://github.com/learningequality/ka-lite.git
 * git clone https://github.com/learningequality/installers.git
+
+---
+### Build server instructions
+Our bamboo build server basically follows the above instructions. The primary difference is that instead of getting
+a KA Lite sdist from PyPI, we build it ourselves in .zip format instead of .tar.gz format, using the following
+make directive in the ka-lite base directory:
+
+```
+> make dist format=zip
+```
+
+Additionally, you *must* update the value of the `KALITE_BUILD_VERSION` environment variable that the build server
+uses, as described above.
+This can be configured from bamboo, which allows you to set env variable values on a per-task basis.
+
+---
+### Signing the installer
+In this directory you'll find a simple script called `sign_script.bat`.
+That script is a template -- it is not functional!
+Once you obtain our certificates and the necessary passwords, you can substitute them into that script in order to 
+sign the installer for release.
