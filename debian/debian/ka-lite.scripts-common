@@ -90,9 +90,8 @@ kalite_get_config()
     db_get ka-lite/download-assessment-items-tmp
     export DOWNLOAD_ASSESSMENT_TMP="${RET}"
 
-    # Where to download from
-    db_get ka-lite/assessment-items-dir
-    export ASSESSMENT_DIR="${RET}"
+    # Where to download from - this is no longer a setting as per 0.16.3
+    export ASSESSMENT_DIR="/usr/share/kalite/assessment/khan"
 
     # Custom setup.py for the user
     db_get ka-lite/kalite-setup
@@ -167,20 +166,14 @@ kalite_debconf_ask()
         # If we should download assessment items, ask further questions...
         else
             
-            # Where to unpack assessment items
-            ASSESSMENT_DIR=""
-            
             # Where to fetch assessment items from
             ASSESSMENT_URL=""
             
             # Keep asking for input intil something has been received
-            while [ "$ASSESSMENT_DIR" = "" ] || [ "$ASSESSMENT_URL" = "" ]
+            while [ "$ASSESSMENT_URL" = "" ]
             do
                 db_input high ka-lite/download-assessment-items-url || true
-                db_input low ka-lite/assessment-items-dir || true
                 db_go || true
-                db_get ka-lite/assessment-items-dir
-                ASSESSMENT_DIR=$RET
                 db_get ka-lite/download-assessment-items-url
                 ASSESSMENT_URL=$RET
 
