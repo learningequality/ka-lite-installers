@@ -6,6 +6,13 @@
 
 set -e
 
+# Goto location of this script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $DIR
+
+# Traceback utility for Bash
+. "$DIR/traceback.sh"
+
 test_version=1.2.3
 echo "Starting tests"
 
@@ -56,10 +63,6 @@ get_conf_value()
   echo `debconf-show $pkg | grep $2 | sed 's/.*:\s//'`
 }
 
-# Goto location of this script
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $DIR
-
 ./test_build.sh $test_version 1
 
 cd test
@@ -81,6 +84,11 @@ echo ""
 
 if $target_kalite
 then
+
+    # Remove all previous values from debconf
+    echo "Purging any prior values in debconf"
+    echo PURGE | debconf-communicate ka-lite
+
     # Run a test that uses a local archive
     echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb" "tail"
@@ -128,6 +136,10 @@ echo ""
 if $target_bundle
 then
 
+    # Remove all previous values from debconf
+    echo "Purging any prior values in debconf"
+    echo PURGE | debconf-communicate ka-lite-bundle
+
     # Test ka-lite-bundle
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-bundle_${test_version}_all.deb" "tail"
     kalite status
@@ -144,6 +156,8 @@ echo ""
 
 if $target_rpi
 then
+
+    echo PURGE | debconf-communicate ka-lite-raspberry-pi
 
     # Test ka-lite-raspberry-pi
     echo "ka-lite-raspberry-pi ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
