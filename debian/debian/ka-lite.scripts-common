@@ -53,7 +53,7 @@ has_state() {
 
 add_state() {
     debug "Adding state $1"
-    echo $1 >> $STATE_FILE
+    echo $1 >> "$STATE_FILE"
 }
 
 rm_states() {
@@ -159,7 +159,7 @@ kalite_debconf_ask()
         db_get ka-lite/download-assessment-items
         [ "$RET" = "true" ] && DOWNLOAD_ASSESSMENT_ITEMS=true || DOWNLOAD_ASSESSMENT_ITEMS=false
         # If not downloading anything, then display a note...
-        if ! $DOWNLOAD_ASSESSMENT_ITEMS
+        if ! "$DOWNLOAD_ASSESSMENT_ITEMS"
         then
             db_input critical ka-lite/download-assessment-items-manual || true
             db_go || true
@@ -175,7 +175,7 @@ kalite_debconf_ask()
                 db_input high ka-lite/download-assessment-items-url || true
                 db_go || true
                 db_get ka-lite/download-assessment-items-url
-                ASSESSMENT_URL=$RET
+                ASSESSMENT_URL="$RET"
 
                 # If local file, check that it exists, otherwise reset value of
                 # ASSESSMENT_URL and start over
@@ -198,14 +198,14 @@ kalite_debconf_ask()
                     db_input low ka-lite/download-assessment-items-tmp
                     db_go || true
                     db_get ka-lite/download-assessment-items-tmp
-                    ASSESSMENT_TMP=$RET
+                    ASSESSMENT_TMP="$RET"
                 done
             fi
             
             # If the directory already exists from a previous installation
-            if [ -d $ASSESSMENT_DIR ]
+            if [ -d "$ASSESSMENT_DIR" ]
             then
-                version_file=$ASSESSMENT_DIR/assessmentitems.version
+                version_file="$ASSESSMENT_DIR/assessmentitems.version"
                 upgrading_assessment_items=false
                 if [ -f $version_file ]; then
                     old_version="`cat $version_file`"
@@ -216,7 +216,7 @@ kalite_debconf_ask()
                 then
                     db_input low ka-lite/download-assessment-items-upgrade || true
                 else
-                    if [ -d $ASSESSMENT_DIR ]
+                    if [ -d "$ASSESSMENT_DIR" ]
                     then
                         db_input low ka-lite/download-assessment-items-upgrade || true
                     fi
@@ -241,10 +241,10 @@ kalite_configure()
     vers=`major_version`
     
     # User setup
-    echo $KALITE_USER > /etc/ka-lite/username
-    if ! getent passwd $KALITE_USER >/dev/null
+    echo "$KALITE_USER" > /etc/ka-lite/username
+    if ! getent passwd "$KALITE_USER" >/dev/null
     then
-        adduser --system --shell /bin/bash --home /var/$KALITE_USER $KALITE_USER
+        adduser --system --shell /bin/bash --home "/var/$KALITE_USER" "$KALITE_USER"
     fi
     
     # Do we have string defined for setup.py?
@@ -255,9 +255,9 @@ kalite_configure()
         USER_CONFIG="$USER_CONFIG_DIR/settings.py"
         touch "$USER_CONFIG"
         echo "Changing user config to use package pre-defined settings: $USER_CONFIG"
-        echo "$SETUP_PY" > $USER_CONFIG
-        KALITE_USER_GROUP=`id -g -n $KALITE_USER`
-        chown -R $KALITE_USER:$KALITE_USER_GROUP "$USER_CONFIG_DIR"
+        echo "$SETUP_PY" > "$USER_CONFIG"
+        KALITE_USER_GROUP=`id -g -n "$KALITE_USER"`
+        chown -R "$KALITE_USER:$KALITE_USER_GROUP" "$USER_CONFIG_DIR"
     fi
     
     # Assessment items
@@ -266,7 +266,7 @@ kalite_configure()
     if $DOWNLOAD_ASSESSMENT_ITEMS
     then
 
-        mkdir -p $ASSESSMENT_DIR
+        mkdir -p "$ASSESSMENT_DIR"
 
         # Ensure that the assessment items directory is empty in case there are
         # foreign items there such as something that was downloaded with another .deb
@@ -327,17 +327,17 @@ kalite_configure()
     # This hack is only relevant for KA Lite <0.16 because an English assessment
     # item db is located in database template dirs and copied into user location
     # at runtime
-    if [ -f $ASSESSMENT_DIR/assessmentitems.sqlite ]
+    if [ -f "$ASSESSMENT_DIR/assessmentitems.sqlite" ]
     then
-        chown $KALITE_USER $ASSESSMENT_DIR
-        chown $KALITE_USER $ASSESSMENT_DIR/assessmentitems.sqlite
+        chown $KALITE_USER "$ASSESSMENT_DIR"
+        chown $KALITE_USER "$ASSESSMENT_DIR/assessmentitems.sqlite"
     fi
 
     if [ "${RET}" != "false" ]
     then
         # TODO: Are we going to care about the version of existing assessment
         # items here? Use major_version
-        version_file=$ASSESSMENT_DIR/assessmentitems.version
+        version_file="$ASSESSMENT_DIR/assessmentitems.version"
         if [ -f $version_file ]
         then
             old_version="`cat $version_file`"
