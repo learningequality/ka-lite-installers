@@ -87,7 +87,7 @@ then
 
     # Remove all previous values from debconf
     echo "Purging any prior values in debconf"
-    echo PURGE | debconf-communicate ka-lite
+    echo PURGE | sudo debconf-communicate ka-lite
 
     # Run a test that uses a local archive
     echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
@@ -138,7 +138,7 @@ then
 
     # Remove all previous values from debconf
     echo "Purging any prior values in debconf"
-    echo PURGE | debconf-communicate ka-lite-bundle
+    echo PURGE | sudo debconf-communicate ka-lite-bundle
 
     # Test ka-lite-bundle
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-bundle_${test_version}_all.deb" "tail"
@@ -157,7 +157,7 @@ echo ""
 if $target_rpi
 then
 
-    echo PURGE | debconf-communicate ka-lite-raspberry-pi
+    echo PURGE | sudo debconf-communicate ka-lite-raspberry-pi
 
     # Test ka-lite-raspberry-pi
     echo "ka-lite-raspberry-pi ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
