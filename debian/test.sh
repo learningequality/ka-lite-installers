@@ -157,6 +157,8 @@ echo ""
 if $target_rpi
 then
 
+    # Remove all previous values from debconf
+    echo "Purging any prior values in debconf"
     echo PURGE | sudo debconf-communicate ka-lite-raspberry-pi
 
     # Test ka-lite-raspberry-pi

@@ -9,11 +9,6 @@ set -e
 # source debconf library
 . /usr/share/debconf/confmodule
 
-# if ! [ "$KALITE_DEB_DEBUG" = "" ]
-# then
-#     set -x
-# fi
-
 debug()
 {
     if ! [ "$KALITE_DEB_DEBUG" = "" ]
@@ -92,6 +87,23 @@ kalite_get_config()
 
     # Where to download from - this is no longer a setting as per 0.16.3
     export ASSESSMENT_DIR="/usr/share/kalite/assessment/khan"
+
+    # Are we upgrading?
+    # If the directory already exists from a previous installation
+    export ASSESSMENT_UPGRADE=false
+    if $DOWNLOAD_ASSESSMENT_ITEMS && [ -d "$ASSESSMENT_DIR" ]
+    then
+        export ASSESSMENT_UPGRADE=true
+        # version_file="$ASSESSMENT_DIR/assessmentitems.version"
+        # upgrading_assessment_items=false
+        # if [ -f $version_file ]; then
+        #     old_version="`cat $version_file`"
+        #     if [ "$old_version" != "`major_version`" ] 
+        #     then
+        #         export ASSESSMENT_UPGRADE=true
+        #     fi
+        # fi
+    fi
 
     # Custom setup.py for the user
     db_get ka-lite/kalite-setup
@@ -179,7 +191,7 @@ kalite_debconf_ask()
 
                 # If local file, check that it exists, otherwise reset value of
                 # ASSESSMENT_URL and start over
-                if [ `echo "$ASSESSMENT_URL" | grep "^file://"` ]
+                if echo "$ASSESSMENT_URL" | grep -q "^file://"
                 then
                     local_path=`echo "$DOWNLOAD_ASSESSMENT_URL" | sed 's/file:\/\///'`
                     if ! [ -f "$local_path" ]
@@ -190,7 +202,7 @@ kalite_debconf_ask()
             done
             
             # If URL is not a local file, ask where to temporarily store it
-            if ! [ `echo "$ASSESSMENT_URL" | grep "^file://"` ]
+            if ! echo "$ASSESSMENT_URL" | grep -q "^file://"
             then
                 ASSESSMENT_TMP=""
                 while [ "ASSESSMENT_TMP" = "" ]
@@ -201,27 +213,13 @@ kalite_debconf_ask()
                     ASSESSMENT_TMP="$RET"
                 done
             fi
-            
-            # If the directory already exists from a previous installation
-            if [ -d "$ASSESSMENT_DIR" ]
+
+            # Inform user about the upgrade stuff
+            if $ASSESSMENT_UPGRADE
             then
-                version_file="$ASSESSMENT_DIR/assessmentitems.version"
-                upgrading_assessment_items=false
-                if [ -f $version_file ]; then
-                    old_version="`cat $version_file`"
-                    [ "$old_version" != "`major_version`" ] && upgrading_assessment_items=true || upgrading_assessment_items=false
-                fi
-                
-                if $upgrading_assessment_items
-                then
-                    db_input low ka-lite/download-assessment-items-upgrade || true
-                else
-                    if [ -d "$ASSESSMENT_DIR" ]
-                    then
-                        db_input low ka-lite/download-assessment-items-upgrade || true
-                    fi
-                fi
+                db_input low ka-lite/download-assessment-items-upgrade || true
             fi
+
         fi
     fi
 
@@ -231,7 +229,7 @@ kalite_debconf_ask()
 
 
 # Configures the package during the postinst script
-# DOES NOT ASK ANY QUESTIONS - This is done through the config scripts and teh
+# DOES NOT ASK ANY QUESTIONS - This is done through the config scripts and the
 # kalite_ask_questions command
 kalite_configure()
 {
@@ -266,6 +264,19 @@ kalite_configure()
     if $DOWNLOAD_ASSESSMENT_ITEMS
     then
 
+        if $ASSESSMENT_UPGRADE
+        then
+            if echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "learningequality.org" && ! echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "$vers"
+            then
+                echo "Automatically changing value of previous configured download URL because it does not seem to match new version"
+                # This is where we automatically change the value of the
+                # download url!
+                db_reset ka-lite/download-assessment-items-url
+                db_get ka-lite/download-assessment-items-url
+                export DOWNLOAD_ASSESSMENT_URL="${RET}"
+            fi
+        fi
+
         mkdir -p "$ASSESSMENT_DIR"
 
         # Ensure that the assessment items directory is empty in case there are
@@ -279,7 +290,7 @@ kalite_configure()
         download_tmp="$DOWNLOAD_ASSESSMENT_TMP/assessment_items.zip"
 
         # Check if file system resource or downloadable
-        if [ `echo "$DOWNLOAD_ASSESSMENT_URL" | grep "^file://"` ]
+        if echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "^file://"
         then
             # It is a filesystem location
             local_path=`echo "$DOWNLOAD_ASSESSMENT_URL" | sed 's/file:\/\///'`
