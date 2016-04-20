@@ -46,10 +46,17 @@ Description: Downloading assessment not possible:
 
 Template: ka-lite/download-assessment-items-upgrade
 Type: note
-Description: Assessment items (exercise data) from a previous installation
+Description: Assessment items from previous installation
+ Downloaded assessment items (exercise data) from a previous installation
  were located in /usr/share/kalite, and they will automatically be removed. You
  will be asked to download new assessment items, and will also have the option
  to download them at a later time.
+
+Template: ka-lite/download-assessment-items-bundle
+Type: boolean
+Default: false
+Description: Assessment items are bundled
+ Never download anything
 
 Template: ka-lite/download-assessment-items-clear
 Type: boolean

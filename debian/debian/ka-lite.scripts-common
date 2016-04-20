@@ -69,10 +69,6 @@ kalite_get_config()
     db_get ka-lite/user
     export KALITE_USER="$RET"
     
-    # Clear existing assessment items if chosen
-    db_get ka-lite/download-assessment-items-clear
-    [ "$RET" = "true" ] && export CLEAR_ASSESSMENT_ITEMS=true || export CLEAR_ASSESSMENT_ITEMS=false
-    
     # Download assessment items if chosen
     db_get ka-lite/download-assessment-items
     [ "$RET" = "true" ] && export DOWNLOAD_ASSESSMENT_ITEMS=true || export DOWNLOAD_ASSESSMENT_ITEMS=false
@@ -89,20 +85,19 @@ kalite_get_config()
     export ASSESSMENT_DIR="/usr/share/kalite/assessment/khan"
 
     # Are we upgrading?
-    # If the directory already exists from a previous installation
+    # If the directory already exists from a previous installation, we might
+    # be upgrading...
     export ASSESSMENT_UPGRADE=false
     if $DOWNLOAD_ASSESSMENT_ITEMS && [ -d "$ASSESSMENT_DIR" ]
     then
-        export ASSESSMENT_UPGRADE=true
-        # version_file="$ASSESSMENT_DIR/assessmentitems.version"
-        # upgrading_assessment_items=false
-        # if [ -f $version_file ]; then
-        #     old_version="`cat $version_file`"
-        #     if [ "$old_version" != "`major_version`" ] 
-        #     then
-        #         export ASSESSMENT_UPGRADE=true
-        #     fi
-        # fi
+        version_file="$ASSESSMENT_DIR/assessmentitems.version"
+        if [ -f "$version_file" ]; then
+             old_version="`cat $version_file`"
+             if [ "$old_version" != "`major_version`" ] 
+             then
+                 export ASSESSMENT_UPGRADE=true
+             fi
+        fi
     fi
 
     # Custom setup.py for the user
@@ -166,6 +161,26 @@ kalite_debconf_ask()
         db_input high ka-lite/download-assessment-items-storage-error-msg || true
         db_input high ka-lite/download-assessment-items-manual || true
     else
+
+        # Firstly, if it's an upgrade, warn the user that new assessment items
+        # should be fetched.
+        if $ASSESSMENT_UPGRADE
+        then
+
+            # Inform user about the upgrade stuff
+            db_fset ka-lite/download-assessment-items-upgrade seen false
+            db_input high ka-lite/download-assessment-items-upgrade || true
+
+            if echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "learningequality.org" && ! echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "$vers"
+            then
+                echo "Automatically changing value of previous configured download URL because it does not seem to match new version"
+                # This is where we automatically change the value of the
+                # download url!
+                db_reset ka-lite/download-assessment-items-url
+            fi
+            db_fset ka-lite/download-assessment-items-url seen false
+        fi
+            
         db_input high ka-lite/download-assessment-items || true
         db_go || true
         db_get ka-lite/download-assessment-items
@@ -177,10 +192,14 @@ kalite_debconf_ask()
             db_go || true
         # If we should download assessment items, ask further questions...
         else
-            
+
+            # Before asking questions about upgrading assessment items, do
+            # a reset of the URL in case it's been set in a previous
+            # installation
+
             # Where to fetch assessment items from
             ASSESSMENT_URL=""
-            
+
             # Keep asking for input intil something has been received
             while [ "$ASSESSMENT_URL" = "" ]
             do
@@ -212,12 +231,6 @@ kalite_debconf_ask()
                     db_get ka-lite/download-assessment-items-tmp
                     ASSESSMENT_TMP="$RET"
                 done
-            fi
-
-            # Inform user about the upgrade stuff
-            if $ASSESSMENT_UPGRADE
-            then
-                db_input low ka-lite/download-assessment-items-upgrade || true
             fi
 
         fi
@@ -263,19 +276,6 @@ kalite_configure()
     # If user has chosen assessment items...
     if $DOWNLOAD_ASSESSMENT_ITEMS
     then
-
-        if $ASSESSMENT_UPGRADE
-        then
-            if echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "learningequality.org" && ! echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "$vers"
-            then
-                echo "Automatically changing value of previous configured download URL because it does not seem to match new version"
-                # This is where we automatically change the value of the
-                # download url!
-                db_reset ka-lite/download-assessment-items-url
-                db_get ka-lite/download-assessment-items-url
-                export DOWNLOAD_ASSESSMENT_URL="${RET}"
-            fi
-        fi
 
         mkdir -p "$ASSESSMENT_DIR"
 
