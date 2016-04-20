@@ -9,11 +9,6 @@ set -e
 # source debconf library
 . /usr/share/debconf/confmodule
 
-# if ! [ "$KALITE_DEB_DEBUG" = "" ]
-# then
-#     set -x
-# fi
-
 debug()
 {
     if ! [ "$KALITE_DEB_DEBUG" = "" ]
@@ -31,7 +26,7 @@ args=("$@")
 # http://www.fifi.org/doc/debconf-doc/tutorial.html
 
 major_version() {
-    echo -n "0.15"
+    echo -n "0.16"
     # This doesn't work for all maintainer scripts
     # echo "${args[1]}" | sed 's/\([0-9]*\.[0-9]*\).*/\1/'
 }
@@ -53,7 +48,7 @@ has_state() {
 
 add_state() {
     debug "Adding state $1"
-    echo $1 >> $STATE_FILE
+    echo $1 >> "$STATE_FILE"
 }
 
 rm_states() {
@@ -74,10 +69,6 @@ kalite_get_config()
     db_get ka-lite/user
     export KALITE_USER="$RET"
     
-    # Clear existing assessment items if chosen
-    db_get ka-lite/download-assessment-items-clear
-    [ "$RET" = "true" ] && export CLEAR_ASSESSMENT_ITEMS=true || export CLEAR_ASSESSMENT_ITEMS=false
-    
     # Download assessment items if chosen
     db_get ka-lite/download-assessment-items
     [ "$RET" = "true" ] && export DOWNLOAD_ASSESSMENT_ITEMS=true || export DOWNLOAD_ASSESSMENT_ITEMS=false
@@ -90,9 +81,24 @@ kalite_get_config()
     db_get ka-lite/download-assessment-items-tmp
     export DOWNLOAD_ASSESSMENT_TMP="${RET}"
 
-    # Where to download from
-    db_get ka-lite/assessment-items-dir
-    export ASSESSMENT_DIR="${RET}"
+    # Where to download from - this is no longer a setting as per 0.16.3
+    export ASSESSMENT_DIR="/usr/share/kalite/assessment/khan"
+
+    # Are we upgrading?
+    # If the directory already exists from a previous installation, we might
+    # be upgrading...
+    export ASSESSMENT_UPGRADE=false
+    if $DOWNLOAD_ASSESSMENT_ITEMS && [ -d "$ASSESSMENT_DIR" ]
+    then
+        version_file="$ASSESSMENT_DIR/assessmentitems.version"
+        if [ -f "$version_file" ]; then
+             old_version="`cat $version_file`"
+             if [ "$old_version" != "`major_version`" ] 
+             then
+                 export ASSESSMENT_UPGRADE=true
+             fi
+        fi
+    fi
 
     # Custom setup.py for the user
     db_get ka-lite/kalite-setup
@@ -155,38 +161,56 @@ kalite_debconf_ask()
         db_input high ka-lite/download-assessment-items-storage-error-msg || true
         db_input high ka-lite/download-assessment-items-manual || true
     else
+
+        # Firstly, if it's an upgrade, warn the user that new assessment items
+        # should be fetched.
+        if $ASSESSMENT_UPGRADE
+        then
+
+            # Inform user about the upgrade stuff
+            db_fset ka-lite/download-assessment-items-upgrade seen false
+            db_input high ka-lite/download-assessment-items-upgrade || true
+
+            if echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "learningequality.org" && ! echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "$vers"
+            then
+                echo "Automatically changing value of previous configured download URL because it does not seem to match new version"
+                # This is where we automatically change the value of the
+                # download url!
+                db_reset ka-lite/download-assessment-items-url
+            fi
+            db_fset ka-lite/download-assessment-items-url seen false
+        fi
+        
         db_input high ka-lite/download-assessment-items || true
         db_go || true
         db_get ka-lite/download-assessment-items
         [ "$RET" = "true" ] && DOWNLOAD_ASSESSMENT_ITEMS=true || DOWNLOAD_ASSESSMENT_ITEMS=false
         # If not downloading anything, then display a note...
-        if ! $DOWNLOAD_ASSESSMENT_ITEMS
+        if ! "$DOWNLOAD_ASSESSMENT_ITEMS"
         then
             db_input critical ka-lite/download-assessment-items-manual || true
             db_go || true
         # If we should download assessment items, ask further questions...
         else
-            
-            # Where to unpack assessment items
-            ASSESSMENT_DIR=""
-            
+
+            # Before asking questions about upgrading assessment items, do
+            # a reset of the URL in case it's been set in a previous
+            # installation
+
             # Where to fetch assessment items from
             ASSESSMENT_URL=""
-            
+
             # Keep asking for input intil something has been received
-            while [ "$ASSESSMENT_DIR" = "" ] || [ "$ASSESSMENT_URL" = "" ]
+            while [ "$ASSESSMENT_URL" = "" ]
             do
                 db_input high ka-lite/download-assessment-items-url || true
-                db_input low ka-lite/assessment-items-dir || true
                 db_go || true
-                db_get ka-lite/assessment-items-dir
-                ASSESSMENT_DIR=$RET
                 db_get ka-lite/download-assessment-items-url
-                ASSESSMENT_URL=$RET
+                ASSESSMENT_URL="$RET"
 
                 # If local file, check that it exists, otherwise reset value of
                 # ASSESSMENT_URL and start over
-                if [ `echo "$ASSESSMENT_URL" | grep "^file://"` ]
+                if echo "$ASSESSMENT_URL" | grep -q "^file://"
                 then
                     local_path=`echo "$DOWNLOAD_ASSESSMENT_URL" | sed 's/file:\/\///'`
                     if ! [ -f "$local_path" ]
@@ -197,7 +221,7 @@ kalite_debconf_ask()
             done
             
             # If URL is not a local file, ask where to temporarily store it
-            if ! [ `echo "$ASSESSMENT_URL" | grep "^file://"` ]
+            if ! echo "$ASSESSMENT_URL" | grep -q "^file://"
             then
                 ASSESSMENT_TMP=""
                 while [ "ASSESSMENT_TMP" = "" ]
@@ -205,30 +229,10 @@ kalite_debconf_ask()
                     db_input low ka-lite/download-assessment-items-tmp
                     db_go || true
                     db_get ka-lite/download-assessment-items-tmp
-                    ASSESSMENT_TMP=$RET
+                    ASSESSMENT_TMP="$RET"
                 done
             fi
-            
-            # If the directory already exists from a previous installation
-            if [ -d $ASSESSMENT_DIR ]
-            then
-                version_file=$ASSESSMENT_DIR/assessmentitems.version
-                upgrading_assessment_items=false
-                if [ -f $version_file ]; then
-                    old_version="`cat $version_file`"
-                    [ "$old_version" != "0.15" ] && upgrading_assessment_items=true || upgrading_assessment_items=false
-                fi
-                
-                if $upgrading_assessment_items
-                then
-                    db_input low ka-lite/download-assessment-items-upgrade || true
-                else
-                    if [ -d $ASSESSMENT_DIR ]
-                    then
-                        db_input low ka-lite/download-assessment-items-upgrade || true
-                    fi
-                fi
-            fi
+
         fi
     fi
 
@@ -238,7 +242,7 @@ kalite_debconf_ask()
 
 
 # Configures the package during the postinst script
-# DOES NOT ASK ANY QUESTIONS - This is done through the config scripts and teh
+# DOES NOT ASK ANY QUESTIONS - This is done through the config scripts and the
 # kalite_ask_questions command
 kalite_configure()
 {
@@ -248,10 +252,10 @@ kalite_configure()
     vers=`major_version`
     
     # User setup
-    echo $KALITE_USER > /etc/ka-lite/username
-    if ! getent passwd $KALITE_USER >/dev/null
+    echo "$KALITE_USER" > /etc/ka-lite/username
+    if ! getent passwd "$KALITE_USER" >/dev/null
     then
-        adduser --system --home /var/$KALITE_USER $KALITE_USER
+        adduser --system --shell /bin/bash --home "/var/$KALITE_USER" "$KALITE_USER"
     fi
     
     # Do we have string defined for setup.py?
@@ -262,27 +266,31 @@ kalite_configure()
         USER_CONFIG="$USER_CONFIG_DIR/settings.py"
         touch "$USER_CONFIG"
         echo "Changing user config to use package pre-defined settings: $USER_CONFIG"
-        echo "$SETUP_PY" > $USER_CONFIG
-        KALITE_USER_GROUP=`id -g -n $KALITE_USER`
-        chown -R $KALITE_USER:$KALITE_USER_GROUP "$USER_CONFIG_DIR"
+        echo "$SETUP_PY" > "$USER_CONFIG"
+        KALITE_USER_GROUP=`id -g -n "$KALITE_USER"`
+        chown -R "$KALITE_USER:$KALITE_USER_GROUP" "$USER_CONFIG_DIR"
     fi
     
     # Assessment items
-    mkdir -p $ASSESSMENT_DIR
     
     # If user has chosen assessment items...
     if $DOWNLOAD_ASSESSMENT_ITEMS
     then
 
+        mkdir -p "$ASSESSMENT_DIR"
+
         # Ensure that the assessment items directory is empty in case there are
         # foreign items there such as something that was downloaded with another .deb
         rm -rf /usr/share/kalite/assessment/khan
-        
+
+        # Ensure tmp dir exists
+        mkdir -p "$DOWNLOAD_ASSESSMENT_TMP"
+                
         # Where to write temporary during download
         download_tmp="$DOWNLOAD_ASSESSMENT_TMP/assessment_items.zip"
 
         # Check if file system resource or downloadable
-        if [ `echo "$DOWNLOAD_ASSESSMENT_URL" | grep "^file://"` ]
+        if echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "^file://"
         then
             # It is a filesystem location
             local_path=`echo "$DOWNLOAD_ASSESSMENT_URL" | sed 's/file:\/\///'`
@@ -327,17 +335,20 @@ kalite_configure()
 
     # TODO: This is a stupid hack, if the user running KA Lite has to own this
     # file, then it should not be in this location.
-    if [ -f $ASSESSMENT_DIR/assessmentitems.sqlite ]
+    # This hack is only relevant for KA Lite <0.16 because an English assessment
+    # item db is located in database template dirs and copied into user location
+    # at runtime
+    if [ -f "$ASSESSMENT_DIR/assessmentitems.sqlite" ]
     then
-        chown $KALITE_USER $ASSESSMENT_DIR
-        chown $KALITE_USER $ASSESSMENT_DIR/assessmentitems.sqlite
+        chown $KALITE_USER "$ASSESSMENT_DIR"
+        chown $KALITE_USER "$ASSESSMENT_DIR/assessmentitems.sqlite"
     fi
 
     if [ "${RET}" != "false" ]
     then
         # TODO: Are we going to care about the version of existing assessment
         # items here? Use major_version
-        version_file=$ASSESSMENT_DIR/assessmentitems.version
+        version_file="$ASSESSMENT_DIR/assessmentitems.version"
         if [ -f $version_file ]
         then
             old_version="`cat $version_file`"
@@ -345,10 +356,6 @@ kalite_configure()
             old_version=""
         fi
         
-        if ! [ -d $ASSESSMENT_DIR ]
-        then
-            mkdir -p $ASSESSMENT_DIR
-        fi
     fi
 
     # Install init script using `ucf` no matter what, users might activate it later
@@ -406,7 +413,11 @@ kalite_debconf_set_defaults()
     then
         
         # Ask for user name, default is ka-lite
-        if ! [ "$SUDO_USER" = "" ]
+        # First, test if the username is already seen. Otherwise, change it and
+        # mark it as unseen (changing a db value automatically marks it as seen)
+        db_fget ka-lite/user seen
+        USER_SEEN="$RET"
+        if [ "$USER_SEEN" == "false" ] && ! [ "$SUDO_USER" = "" ]
         then
             default_user="$SUDO_USER"
         else
@@ -452,7 +463,7 @@ kalite_preinst()
         # Remove pyc files from previous installations
         # Why not with pyclean? BECAUSE PYTHON IS NOT IN PRE-DEPENDS, SO WE CANNOT
         # ASSUME THAT IT EXISTS!!
-        # TODO: This can be removed once we stop support for 0.15 upgrades, because
+        # TODO: This can be removed once we stop support for 0.16 upgrades, because
         # these directories will not contain non-managed pyc files from 0.16+
         if [ -d usr/share/kalite/python-packages ]
         then
@@ -521,15 +532,15 @@ kalite_prerm()
     # Load debconf library
     . /usr/share/debconf/confmodule
 
+    # Stop the service before upgrade or removal
+    set +e
+    invoke-rc.d ka-lite stop || echo "Failed to stop ka-lite"
+    set -e
+
     # Check if the user decided the enable the service using `db_get`
     db_get ka-lite/init
     if [ "${RET}" != "false" ];
     then
-        # Stop the service before upgrade or removal
-        set +e
-        invoke-rc.d ka-lite stop || echo "Failed to stop ka-lite"
-        set -e
-
         if [ "$1" = "remove" ] || [ "$1" = "deconfigure" ];
         then
             # Unregister service prior to removal
@@ -539,7 +550,7 @@ kalite_prerm()
 
     # Nevermind testing, pyclean is part of python-minimal, we let it be a dependency
     # and don't mind cases where someone even removes python-minimal
-    # TODO: This can be removed once we stop support for 0.15 upgrades, because
+    # TODO: This can be removed once we stop support for 0.16 upgrades, because
     # these directories will not contain non-managed pyc files from 0.16+
     
     pyclean -p $DPKG_MAINTSCRIPT_PACKAGE
@@ -581,7 +592,12 @@ kalite_nginx_divert_add()
         dpkg-divert --package "$pkg" --add --rename --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
         
         # Copy the distributed file to the location of nginx.conf
-        ln -s "/etc/nginx/nginx.conf.kalite" "/etc/nginx/nginx.conf"
+        # Only do this in case it doesn't exist, if it's an upgrade then the diversion doesn't happen and
+        # we shouldn't add the link because it's already there.
+        if ! [ -h /etc/nginx/nginx.conf ]
+        then
+            ln -s "/etc/nginx/nginx.conf.kalite" "/etc/nginx/nginx.conf"
+        fi
     fi
 
 }

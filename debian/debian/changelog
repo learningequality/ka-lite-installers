@@ -1,3 +1,27 @@
+ka-lite-source (0.16.2-0ubuntu2) trusty; urgency=medium
+
+  * Fix upgrade: Auto update assessment item URL if it was set to a learningequality.org domain
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 20 Apr 2016 15:24:44 +0200
+
+ka-lite-source (0.16.2-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 15 Apr 2016 14:15:30 +0200
+
+ka-lite-source (0.16.1-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Aron Fyodor Asor <aron@learningequality.org>  Thu, 07 Apr 2016 21:10:51 +0000
+
+ka-lite-source (0.16.0-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 31 Mar 2016 00:14:54 +0200
+
 ka-lite-source (0.15.1-0ubuntu2) precise; urgency=medium
 
   * Add missing nginx configuration file for custom kalite user account
