@@ -1,3 +1,15 @@
+ka-lite-source (0.16.2-0ubuntu2) trusty; urgency=medium
+
+  * Fix upgrade: Auto update assessment item URL if it was set to a learningequality.org domain
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Wed, 20 Apr 2016 15:24:44 +0200
+
+ka-lite-source (0.16.2-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 15 Apr 2016 14:15:30 +0200
+
 ka-lite-source (0.16.1-0ubuntu1) trusty; urgency=medium
 
   * New upstream release
