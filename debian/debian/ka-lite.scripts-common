@@ -180,7 +180,7 @@ kalite_debconf_ask()
             fi
             db_fset ka-lite/download-assessment-items-url seen false
         fi
-            
+        
         db_input high ka-lite/download-assessment-items || true
         db_go || true
         db_get ka-lite/download-assessment-items
@@ -412,7 +412,11 @@ kalite_debconf_set_defaults()
     then
         
         # Ask for user name, default is ka-lite
-        if ! [ "$SUDO_USER" = "" ]
+        # First, test if the username is already seen. Otherwise, change it and
+        # mark it as unseen (changing a db value automatically marks it as seen)
+        db_fget ka-lite/user seen
+        USER_SEEN="$RET"
+        if [ "$USER_SEEN" == "false" ] && ! [ "$SUDO_USER" = "" ]
         then
             # Set default to the user running the installation
             db_set ka-lite/user "$SUDO_USER"
