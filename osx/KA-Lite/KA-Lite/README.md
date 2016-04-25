@@ -1,41 +1,25 @@
-KA-Lite OS X App
-========================
+KA Lite Mac OS X Application
+============================
 
-This is the KA-Lite status menu app with the source and PyRun in one package.
+This is the Xcode project for the KA Lite application.
 
-To install:
 
-* Drag the "KA-Lite" app into the "Applications" folder.
+## Requirements
+
+Xcode 6.x or 7.x
+Mac OS X Yosemite or El Capitan
 
 
 ## Features
 
-1. Show status icon at system status menu.
-1. Preferences dialog to customize admin account and run the setup process.
-1. Makes the `kalite` executable runnable from anywhere on the terminal.
-1. Logs terminal messages so they are accessible at the Console app.
+1. Show status icon at the menu bar.
+1. It uses the `/usr/local/bin/kalite` executable to interface with the KA Lite server.
+1. Provide menu to Start KA Lite, Stop KA Lite, and open KA Lite in browser.
+1. Preferences dialog for admin tasks like setting a custom KA Lite data path.
+1. Logs messages so they are accessible at the Logs tab of the Preferences dialog and the Console app.
 
 
-## Use of the app
+## Notes:
 
-When the app is run, it will automatically show the preferences dialog if the following do not exist:
-
-1. `/usr/bin/kalite` symlink
-2. database at `~/.kalite/database/data.sqlite` - the `~/.kalite/` location can be overridden by setting a `KALITE_HOME` environment variable
-
-The app shows an icon at the system status menu and it uses User Preferences saved at `~/Library/Preferences/FLE.KA-Lite.plist` to save the following:
-
-1. admin username
-2. admin password (encoded)
-3. (TODO) KALITE_PYTHON environment variable - defaults to the `<Resources directory>/pyrun-2.7/bin/pyrun`.
-
-Note that the "Start KA Lite" menu is disabled if the `/usr/bin/kalite` cannot be found.
-
-
-### Use of the preferences dialog
-
-When the `Apply` button is clicked, the app will ask for an admin password so it can symlink the `<pyrun-directory>/bin/kalite` executable to `/usr/bin/kalite` to make it runnable from anywhere on the Mac.
-
-Click on the `Setup` button at the `Advanced` tab to repeat the setup process.  This will call `kalite manage setup --username=%@ --password=%@ --noinput` with the username and password values coming from the textboxes.
-
-The `Reset App` button at the `Advanced` tab will reset all files/settings as if the app was never installed.
+* The application will not load if the `/usr/local/bin/kalite` executable cannot be found.
+* Refer to the `osx/release-docs/README.md` document for more details.

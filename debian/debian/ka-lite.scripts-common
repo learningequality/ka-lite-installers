@@ -1,0 +1,676 @@
+# -*- sh -*-
+# This file can be included with #SCRIPTSCOMMON#
+# Thanks to the openldap debian package for this
+# method!
+
+# We're okay about failing hard
+set -e
+
+# source debconf library
+. /usr/share/debconf/confmodule
+
+debug()
+{
+    if ! [ "$KALITE_DEB_DEBUG" = "" ]
+    then
+        echo "$1"
+    fi
+}
+
+args=("$@")
+
+# References:
+# More info on debconf: "man debconf-devel"
+#   install debconf-doc and debian-policy first!
+# Debconf tutorial:
+# http://www.fifi.org/doc/debconf-doc/tutorial.html
+
+major_version() {
+    echo -n "0.16"
+    # This doesn't work for all maintainer scripts
+    # echo "${args[1]}" | sed 's/\([0-9]*\.[0-9]*\).*/\1/'
+}
+
+export STATE_FILE=/tmp/kaliteinstall.state
+
+has_state() {
+    debug "Checking for state $1"
+    if [ -f "$STATE_FILE" ]
+    then
+        grep -q "$1" "$STATE_FILE"
+        has_state=$?
+        debug "Result: $has_state"
+        return $has_state
+    fi
+    debug "No state file"
+    return 2
+}
+
+add_state() {
+    debug "Adding state $1"
+    echo $1 >> "$STATE_FILE"
+}
+
+rm_states() {
+    debug "Removing states"
+    rm -f "$STATE_FILE"
+}
+
+##################################################
+# INSTALLATION: 1) Configuration
+##################################################
+
+# Fetches known configuration and sets variables
+kalite_get_config()
+{
+    # This function exports variables of the configuration
+
+    # Create user for ka-lite if it doesn't exist
+    db_get ka-lite/user
+    export KALITE_USER="$RET"
+    
+    # Download assessment items if chosen
+    db_get ka-lite/download-assessment-items
+    [ "$RET" = "true" ] && export DOWNLOAD_ASSESSMENT_ITEMS=true || export DOWNLOAD_ASSESSMENT_ITEMS=false
+    
+    # Where to download from
+    db_get ka-lite/download-assessment-items-url
+    export DOWNLOAD_ASSESSMENT_URL="${RET}"
+
+    # Where to store tmp data while downloading
+    db_get ka-lite/download-assessment-items-tmp
+    export DOWNLOAD_ASSESSMENT_TMP="${RET}"
+
+    # Where to download from - this is no longer a setting as per 0.16.3
+    export ASSESSMENT_DIR="/usr/share/kalite/assessment/khan"
+
+    # Are we upgrading?
+    # If the directory already exists from a previous installation, we might
+    # be upgrading...
+    export ASSESSMENT_UPGRADE=false
+    if $DOWNLOAD_ASSESSMENT_ITEMS && [ -d "$ASSESSMENT_DIR" ]
+    then
+        version_file="$ASSESSMENT_DIR/assessmentitems.version"
+        if [ -f "$version_file" ]; then
+             old_version="`cat $version_file`"
+             if [ "$old_version" != "`major_version`" ] 
+             then
+                 export ASSESSMENT_UPGRADE=true
+             fi
+        fi
+    fi
+
+    # Custom setup.py for the user
+    db_get ka-lite/kalite-setup
+    export SETUP_PY="${RET}"
+
+    # Enable init.d script
+    db_get ka-lite/init
+    [ "$RET" = "true" ] && export ENABLE_INIT_D=true || export ENABLE_INIT_D=false
+
+}
+
+# Ask the users questions
+# Used in .config
+kalite_debconf_ask()
+{
+    
+    if ! has_state "after_preinst"
+    then
+        return
+    fi
+
+    # Get the current configuration -- or rather: These are the defaults
+    # or presets before asking.
+    kalite_get_config
+    
+    db_settitle ka-lite/window-title
+    db_go || true
+
+    # Run as system script?
+    db_input high ka-lite/init || true
+    
+    # Which user should run the script?
+    KALITE_USER=""
+    while [ "$KALITE_USER" = "" ]; do
+      db_input critical ka-lite/user || true
+      db_go || true
+      db_get ka-lite/user
+      KALITE_USER="$RET"
+    done
+
+    # Give init.d instructions
+    db_go || true
+    db_get ka-lite/init
+    if [ "$RET" = "true" ]
+    then
+        db_input high ka-lite/init-instructions || true
+    else
+        db_input high ka-lite/manual-instructions || true
+    fi
+
+    # Check if there are storage problems and show an error in that case.
+    db_go || true
+    db_get ka-lite/download-assessment-items-storage-error
+    [ "$RET" = "true" ] && ASSESSMENT_ITEMS_STORAGE_ERROR=true || ASSESSMENT_ITEMS_STORAGE_ERROR=false
+
+    # There's a storage error, and we cannot download assessment items, instruct
+    # user about how to download them later.
+    if $ASSESSMENT_ITEMS_STORAGE_ERROR
+    then
+        db_input high ka-lite/download-assessment-items-storage-error-msg || true
+        db_input high ka-lite/download-assessment-items-manual || true
+    else
+
+        # Firstly, if it's an upgrade, warn the user that new assessment items
+        # should be fetched.
+        if $ASSESSMENT_UPGRADE
+        then
+
+            # Inform user about the upgrade stuff
+            db_fset ka-lite/download-assessment-items-upgrade seen false
+            db_input high ka-lite/download-assessment-items-upgrade || true
+
+            if echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "learningequality.org" && ! echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "$vers"
+            then
+                echo "Automatically changing value of previous configured download URL because it does not seem to match new version"
+                # This is where we automatically change the value of the
+                # download url!
+                db_reset ka-lite/download-assessment-items-url
+            fi
+            db_fset ka-lite/download-assessment-items-url seen false
+        fi
+        
+        db_input high ka-lite/download-assessment-items || true
+        db_go || true
+        db_get ka-lite/download-assessment-items
+        [ "$RET" = "true" ] && DOWNLOAD_ASSESSMENT_ITEMS=true || DOWNLOAD_ASSESSMENT_ITEMS=false
+        # If not downloading anything, then display a note...
+        if ! "$DOWNLOAD_ASSESSMENT_ITEMS"
+        then
+            db_input critical ka-lite/download-assessment-items-manual || true
+            db_go || true
+        # If we should download assessment items, ask further questions...
+        else
+
+            # Before asking questions about upgrading assessment items, do
+            # a reset of the URL in case it's been set in a previous
+            # installation
+
+            # Where to fetch assessment items from
+            ASSESSMENT_URL=""
+
+            # Keep asking for input intil something has been received
+            while [ "$ASSESSMENT_URL" = "" ]
+            do
+                db_input high ka-lite/download-assessment-items-url || true
+                db_go || true
+                db_get ka-lite/download-assessment-items-url
+                ASSESSMENT_URL="$RET"
+
+                # If local file, check that it exists, otherwise reset value of
+                # ASSESSMENT_URL and start over
+                if echo "$ASSESSMENT_URL" | grep -q "^file://"
+                then
+                    local_path=`echo "$DOWNLOAD_ASSESSMENT_URL" | sed 's/file:\/\///'`
+                    if ! [ -f "$local_path" ]
+                    then
+                        ASSESSMENT_URL=""
+                    fi
+                fi
+            done
+            
+            # If URL is not a local file, ask where to temporarily store it
+            if ! echo "$ASSESSMENT_URL" | grep -q "^file://"
+            then
+                ASSESSMENT_TMP=""
+                while [ "ASSESSMENT_TMP" = "" ]
+                do
+                    db_input low ka-lite/download-assessment-items-tmp
+                    db_go || true
+                    db_get ka-lite/download-assessment-items-tmp
+                    ASSESSMENT_TMP="$RET"
+                done
+            fi
+
+        fi
+    fi
+
+    db_go || true
+
+}
+
+
+# Configures the package during the postinst script
+# DOES NOT ASK ANY QUESTIONS - This is done through the config scripts and the
+# kalite_ask_questions command
+kalite_configure()
+{
+    
+    kalite_get_config
+    
+    vers=`major_version`
+    
+    # User setup
+    echo "$KALITE_USER" > /etc/ka-lite/username
+    if ! getent passwd "$KALITE_USER" >/dev/null
+    then
+        adduser --system --shell /bin/bash --home "/var/$KALITE_USER" "$KALITE_USER"
+    fi
+    
+    # Do we have string defined for setup.py?
+    if ! [ "$SETUP_PY" = "" ]
+    then
+        USER_CONFIG_DIR=`su -s /bin/sh $KALITE_USER -c "echo \\$HOME"`/.kalite
+        mkdir -p "$USER_CONFIG_DIR"
+        USER_CONFIG="$USER_CONFIG_DIR/settings.py"
+        touch "$USER_CONFIG"
+        echo "Changing user config to use package pre-defined settings: $USER_CONFIG"
+        echo "$SETUP_PY" > "$USER_CONFIG"
+        KALITE_USER_GROUP=`id -g -n "$KALITE_USER"`
+        chown -R "$KALITE_USER:$KALITE_USER_GROUP" "$USER_CONFIG_DIR"
+    fi
+    
+    # Assessment items
+    
+    # If user has chosen assessment items...
+    if $DOWNLOAD_ASSESSMENT_ITEMS
+    then
+
+        mkdir -p "$ASSESSMENT_DIR"
+
+        # Ensure that the assessment items directory is empty in case there are
+        # foreign items there such as something that was downloaded with another .deb
+        rm -rf /usr/share/kalite/assessment/khan
+
+        # Ensure tmp dir exists
+        mkdir -p "$DOWNLOAD_ASSESSMENT_TMP"
+                
+        # Where to write temporary during download
+        download_tmp="$DOWNLOAD_ASSESSMENT_TMP/assessment_items.zip"
+
+        # Check if file system resource or downloadable
+        if echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "^file://"
+        then
+            # It is a filesystem location
+            local_path=`echo "$DOWNLOAD_ASSESSMENT_URL" | sed 's/file:\/\///'`
+            delete_after=false
+            
+            # Remove temporary zip archive in case something was stored during
+            # a previously abandoned download
+            rm -f "$download_tmp"
+        else
+            local_path="$download_tmp"
+            # If we have downloaded something previously, check that it's from
+            # the same source, otherwise we should not continue the download
+            dest_url_file="$DOWNLOAD_ASSESSMENT_TMP/assessment_items.url"
+            if [ -f "$dest_url_file" ]
+            then
+                if ! [ "`cat $dest_url_file`" = "$DOWNLOAD_ASSESSMENT_URL" ]
+                then
+                    echo "Found existing zip from different location"
+                    rm -f "$dest_url_file"
+                    rm -f "$local_path"
+                fi
+            else
+                rm -f "$local_path"
+            fi
+            echo "$DOWNLOAD_ASSESSMENT_URL" > "$dest_url_file"
+            wget "$DOWNLOAD_ASSESSMENT_URL" -O "$local_path" --retry-connrefused --read-timeout=20 --waitretry=1 -t 200 --continue
+            delete_after=true
+        fi
+        
+        # Unzip resource into configured location
+        unzip -q $local_path -d $ASSESSMENT_DIR
+        
+        # Delete downloaded resourece?
+        if $delete_after
+        then
+            rm -f $local_path
+        fi
+        
+        # Necessary because assessment.zip has wrong permissions
+        chmod -R uog+r $ASSESSMENT_DIR
+    fi
+
+    # TODO: This is a stupid hack, if the user running KA Lite has to own this
+    # file, then it should not be in this location.
+    # This hack is only relevant for KA Lite <0.16 because an English assessment
+    # item db is located in database template dirs and copied into user location
+    # at runtime
+    if [ -f "$ASSESSMENT_DIR/assessmentitems.sqlite" ]
+    then
+        chown $KALITE_USER "$ASSESSMENT_DIR"
+        chown $KALITE_USER "$ASSESSMENT_DIR/assessmentitems.sqlite"
+    fi
+
+    if [ "${RET}" != "false" ]
+    then
+        # TODO: Are we going to care about the version of existing assessment
+        # items here? Use major_version
+        version_file="$ASSESSMENT_DIR/assessmentitems.version"
+        if [ -f $version_file ]
+        then
+            old_version="`cat $version_file`"
+        else
+            old_version=""
+        fi
+        
+    fi
+
+    # Install init script using `ucf` no matter what, users might activate it later
+    ucf --debconf-ok /usr/share/kalite/init-service /etc/init.d/ka-lite
+
+    # Necesary in 15.04+ because it doesn't preserve permissions
+    chmod +x /etc/init.d/ka-lite
+
+    if $ENABLE_INIT_D
+    then
+        # Register init script as service
+        update-rc.d ka-lite defaults
+
+        # Start service -- nevermind if it fails
+        invoke-rc.d ka-lite start || true
+    fi
+
+    add_state "after_postinst"
+    
+}
+
+
+kalite_purge()
+{
+
+    # Remove assessment items since they might be overwritten by other packages
+    rm -rf /usr/share/kalite/assessment
+
+    # Remove service file using `ucf` (checking whether `ucf` is still available first)
+    if type ucf >/dev/null 2>&1;
+    then
+        ucf --purge "/etc/init.d/ka-lite"
+    fi
+
+    # Remove service file by hand (in case the above failed somehow)
+    rm -f "/etc/init.d/ka-lite"
+
+}
+
+
+# This is run at the beginning of kalite_debconf_ask
+# ka-lite.config is run twice: before ka-lite.preinst
+# and after ka-lite.postinst configure!
+kalite_debconf_set_defaults()
+{
+
+    if has_state "did_set_defaults"
+    then
+        return
+    fi
+
+    add_state "did_set_defaults"
+  
+    if [ "${args[0]}" = "configure" ]
+    then
+        
+        # Ask for user name, default is ka-lite
+        # First, test if the username is already seen. Otherwise, change it and
+        # mark it as unseen (changing a db value automatically marks it as seen)
+        db_fget ka-lite/user seen
+        USER_SEEN="$RET"
+        if [ "$USER_SEEN" == "false" ] && ! [ "$SUDO_USER" = "" ]
+        then
+            default_user="$SUDO_USER"
+        else
+            # Use first entry of users logged into host
+            default_user=`users | sed -r 's/^([^ ]*).*$/\1/g'`
+        fi
+        # Set default to the user running the installation
+        db_set ka-lite/user "$default_user"
+        db_fset ka-lite/user seen false
+        # The username value should always be asked
+        db_fset ka-lite/download-assessment-items seen false
+
+        # Because of some strange bug in debconf, we always purge the notes
+        # separately -- and this cannot be done in kalite_purge because then
+        # debconf will assume that the note should be displayed unconditionally
+        # without calling db_input
+        # Furthermore, the note contents may have changed
+        db_fset ka-lite/download-assessment-items-manual seen false
+        db_fset ka-lite/download-assessment-items-upgrade seen false
+        db_fset ka-lite/download-assessment-items-storage-error-msg seen false
+        db_fset ka-lite/manual-instructions seen false
+        db_fset ka-lite/init-instructions seen false
+    fi
+    
+}
+
+
+kalite_preinst()
+{
+    
+    # Only do this if install, abort-upgrade
+    if [ "${args[0]}" = "install" ] ||
+       [ "${args[0]}" = "upgrade" ]
+    then
+        
+        if [ -x /etc/init.d/ka-lite ]
+        then
+            # Stop service -- nevermind if it fails
+            invoke-rc.d ka-lite stop || true
+        fi
+
+    
+        # Remove pyc files from previous installations
+        # Why not with pyclean? BECAUSE PYTHON IS NOT IN PRE-DEPENDS, SO WE CANNOT
+        # ASSUME THAT IT EXISTS!!
+        # TODO: This can be removed once we stop support for 0.16 upgrades, because
+        # these directories will not contain non-managed pyc files from 0.16+
+        if [ -d usr/share/kalite/python-packages ]
+        then
+            find /usr/share/kalite/python-packages -name '*pyc' -exec rm {} \;
+        fi
+        if [ -d usr/share/kalite/dist-packages ]
+        then
+            find /usr/share/kalite/dist-packages -name '*pyc' -exec rm {} \;
+        fi
+
+    fi
+
+    add_state "after_preinst"
+
+}
+
+
+kalite_debconf_size_check()
+{
+    if has_state "did_check_size"
+    then
+        return
+    fi
+    
+    add_state "did_check_size"
+    
+    # Only do this if install, not upgrade or abort-upgrade
+    if [ "${args[0]}" = "configure" ]
+    then
+
+        # Ask about downloading assessment items...
+        # Real size of .zip, but we add some extra...
+        # DISKSPACE_REQUIRED=503508
+        DISKSPACE_REQUIRED=523508
+        DISKSPACE_AVAILABLE_TMP=`df /tmp | awk '/[0-9]%/{print $(NF-2)}'`
+        DISKSPACE_AVAILABLE_USR=`df /usr/share | awk '/[0-9]%/{print $(NF-2)}'`
+
+        ASK_ABOUT_ASSESSMENT_ITEMS=true
+
+        if [ $DISKSPACE_AVAILABLE_TMP -lt $DISKSPACE_REQUIRED ] || [ $DISKSPACE_AVAILABLE_USR -lt $DISKSPACE_REQUIRED ]
+        then
+            db_set ka-lite/download-assessment-items false
+            db_fset ka-lite/download-assessment-items seen true
+            db_set ka-lite/download-assessment-items-storage-error true
+            db_fset ka-lite/download-assessment-items-storage-error seen true
+        else
+            db_set ka-lite/download-assessment-items-storage-error false
+            db_fset ka-lite/download-assessment-items-storage-error seen true
+        fi
+    fi
+}
+
+
+# Run as the final script in .config
+kalite_debconf_finalize() {
+    # Nothing to do
+    return 0
+}
+
+
+kalite_prerm()
+{
+    # Ensure there's no state file for tracking states during installs    
+    rm_states
+    
+    # Load debconf library
+    . /usr/share/debconf/confmodule
+
+    # Stop the service before upgrade or removal
+    set +e
+    invoke-rc.d ka-lite stop || echo "Failed to stop ka-lite"
+    set -e
+
+    # Check if the user decided the enable the service using `db_get`
+    db_get ka-lite/init
+    if [ "${RET}" != "false" ];
+    then
+        if [ "$1" = "remove" ] || [ "$1" = "deconfigure" ];
+        then
+            # Unregister service prior to removal
+            update-rc.d -f ka-lite remove
+        fi
+    fi
+
+    # Nevermind testing, pyclean is part of python-minimal, we let it be a dependency
+    # and don't mind cases where someone even removes python-minimal
+    # TODO: This can be removed once we stop support for 0.16 upgrades, because
+    # these directories will not contain non-managed pyc files from 0.16+
+    
+    pyclean -p $DPKG_MAINTSCRIPT_PACKAGE
+
+    pyclean /usr/share/kalite/dist-packages
+    pyclean /usr/share/kalite/python-packages
+
+    db_stop
+
+
+}
+
+
+# We started diverting /etc/nginx/nginx.conf in 0.14
+diversion_added_version=0.14
+
+# Called from postinst
+kalite_nginx_divert_add()
+{
+    # Diversion for /etc/nginx/nginx.conf
+    # https://wiki.debian.org/Adding%20and%20removing%20diversions
+    # pkg=ka-lite-raspberry-pi
+    
+    this_version=`major_version`
+    
+    if
+        test "${args[0]}" = install ||
+        dpkg --compare-versions "${args[1]}" lt "$diversion_added_version" ||
+        dpkg --compare-versions "$this_version" lt "${args[1]}"
+    then
+        # dpkg-divert --package "$pkg" --add --rename --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
+        # dpkg-divert --package "$pkg" --add --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
+        # The below is recommended on Debian Wiki and on IRC, but I find it
+        # to NOT work because of issues when removing the diversion /benjaoming
+        # dpkg-divert --add --rename /etc/nginx/nginx.conf
+        
+        # Use fully blown manual method
+        pkg=$DPKG_MAINTSCRIPT_PACKAGE
+        dpkg-divert --package "$pkg" --add --rename --divert "/etc/nginx/nginx.conf-$pkg" /etc/nginx/nginx.conf
+        
+        # Copy the distributed file to the location of nginx.conf
+        # Only do this in case it doesn't exist, if it's an upgrade then the diversion doesn't happen and
+        # we shouldn't add the link because it's already there.
+        if ! [ -h /etc/nginx/nginx.conf ]
+        then
+            ln -s "/etc/nginx/nginx.conf.kalite" "/etc/nginx/nginx.conf"
+        fi
+    fi
+
+}
+
+
+# Called from postrm
+kalite_nginx_divert_remove()
+{
+    # Restore diversion for /etc/nginx/nginx.conf
+    # https://wiki.debian.org/Adding%20and%20removing%20diversions
+    this_version=`major_version`
+
+    losing_diversion=n
+
+    if test "${args[0]}" = failed-upgrade
+    then
+        dpkg --compare-versions "${args[1]}" le-nl "$this_version" ||
+        # An upgrade from a newer version failed.
+        # There is no way for us to know enough to take over from here,
+        # so abort the upgrade.
+        exit 1
+    elif dpkg --compare-versions "${args[1]}" lt-nl "$diversion_added_version"
+    then
+        diversion_list=`dpkg-divert --list /etc/nginx/nginx.conf`
+        if ! [ "$diversion_list" = "" ]
+        then
+            losing_diversion=y
+        fi
+    fi
+
+    case "${args[0]},$losing_diversion" in
+    remove,*|abort-install,*|disappear,*|*,y)
+
+        # benjaoming:
+        # Remove the file to avoid:
+        #    Removing 'diversion of /etc/nginx/nginx.conf to /etc/nginx/nginx.conf-ka-lite-raspberry-pi by ka-lite-raspberry-pi'
+        #    dpkg-divert: error: rename involves overwriting `/etc/nginx/nginx.conf' with
+        #    different file `/etc/nginx/nginx.conf-ka-lite-raspberry-pi', not allowed
+        # rm -f /etc/nginx/nginx.conf
+        # dpkg-divert --remove --rename /etc/nginx/nginx.conf
+        # Recommendation of #debian-mentor of removing --package directive
+        # seems to be a bad idea, the Debian Wiki is mis-guiding IMO
+        # dpkg-divert --package "$pkg" --remove /etc/nginx/nginx.conf
+        
+        # Remove the symlink
+        if [ -h /etc/nginx/nginx.conf ]
+        then
+            rm -f /etc/nginx/nginx.conf
+        fi
+        pkg=$DPKG_MAINTSCRIPT_PACKAGE
+        dpkg-divert --package "$pkg" --divert "/etc/nginx/nginx.conf-$pkg" --remove --rename /etc/nginx/nginx.conf
+        ;;
+    esac
+}
+
+
+# Helpful knowledge
+
+# env for prerm
+# SUDO_GID=1000 MAIL=/var/mail/root LANGUAGE=en_US:en USER=root HOME=/home/user LC_CTYPE=en_US.UTF-8 COLORTERM=gnome-terminal DPKG_MAINTSCRIPT_ARCH=amd64 SUDO_UID=1000 LOGNAME=root DPKG_RUNNING_VERSION=1.17.5 DPKG_MAINTSCRIPT_NAME=prerm TERM=xterm USERNAME=root PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin DISPLAY=:0 LANG=en_US.UTF-8 DPKG_MAINTSCRIPT_PACKAGE=test1 XAUTHORITY=/home/user/.Xauthority SUDO_COMMAND=/usr/bin/dpkg -i ../test1_1.0-1_amd64.deb SHELL=/bin/bash SUDO_USER=user DPKG_MAINTSCRIPT_PACKAGE_REFCOUNT=1 DPKG_ADMINDIR=/var/lib/dpkg PWD=/
+
+# args for prerm
+# upgrade 1.0-1
+
+# env for upgrade, preinst
+# SUDO_GID=1000 MAIL=/var/mail/root LANGUAGE=en_US:en USER=root HOME=/home/user LC_CTYPE=en_US.UTF-8 COLORTERM=gnome-terminal DPKG_MAINTSCRIPT_ARCH=amd64 SUDO_UID=1000 LOGNAME=root DPKG_RUNNING_VERSION=1.17.5 DPKG_MAINTSCRIPT_NAME=preinst TERM=xterm USERNAME=root PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin DISPLAY=:0 LANG=en_US.UTF-8 DPKG_MAINTSCRIPT_PACKAGE=test1 XAUTHORITY=/home/user/.Xauthority SUDO_COMMAND=/usr/bin/dpkg -i ../test1_1.0-1_amd64.deb SHELL=/bin/bash SUDO_USER=user DPKG_MAINTSCRIPT_PACKAGE_REFCOUNT=1 DPKG_ADMINDIR=/var/lib/dpkg PWD=/
+
+# args for preinst
+# upgrade 1.0-1
+
+# env for postinst
+# SUDO_GID=1000 MAIL=/var/mail/root LANGUAGE=en_US:en USER=root HOME=/home/user LC_CTYPE=en_US.UTF-8 COLORTERM=gnome-terminal DPKG_MAINTSCRIPT_ARCH=amd64 SUDO_UID=1000 LOGNAME=root DPKG_RUNNING_VERSION=1.17.5 DPKG_MAINTSCRIPT_NAME=postinst TERM=xterm USERNAME=root PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin DISPLAY=:0 LANG=en_US.UTF-8 DPKG_MAINTSCRIPT_PACKAGE=test1 XAUTHORITY=/home/user/.Xauthority SUDO_COMMAND=/usr/bin/dpkg -i ../test1_1.0-1_amd64.deb SHELL=/bin/bash SUDO_USER=user DPKG_MAINTSCRIPT_PACKAGE_REFCOUNT=1 DPKG_ADMINDIR=/var/lib/dpkg PWD=/
+
+# args for postinst
+# configure 1.0-1
+

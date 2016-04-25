@@ -1,0 +1,19 @@
+language: python
+sudo: required
+install: true
+script:
+ - debian/test.sh
+addons:
+  apt:
+    packages:
+    - build-essential
+    - realpath
+    - devscripts
+    - python-setuptools
+    - python-all
+    - unzip
+    - debconf
+    - bash
+    - wget
+    - dh-exec
+    - python-psutil

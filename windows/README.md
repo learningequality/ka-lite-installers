@@ -22,19 +22,15 @@ Note: If you *do* make changes to anything in `gui-source`, be sure to build and
 
 ---
 #### Instructions to build "KALiteSetup.exe":
-To build in Linux, first install `wine`.
+To build in Linux, first install `wine`. These directions assume you're building on Windows -- if not, you can 
+skip using msys and use bash instead.
+
 * Clone this repository;
-* Copy `ka-lite` folder from KA Lite's repository, to the root of this repository;
-* Ensure the assessment items have been unpacked in the `ka-lite` directory.
-* Follow the _Instructions to download pip dependency zip files_ above
-* Create an empty db for distribution as per the section _Creating an Empty DB_
-* Run `kalite manage collectstatic` to create the `ka-lite/static-libraries` directory; this is a work-around until the windows installer uses setuptools.
-* Run `npm install` in the `ka-lite` directory to get node dependencies. This will create a `node_modules` subdirectory. (See the section *Node on Windows*.)
-* Run `node build.js` to build js bundle modules -- this is distinct from the `collectstatic` step.
-* Then remove the `node_modules` subdirectory. It causes an error with Inno Setup.
-* Run the `compileymltojson` management command.
-* Include built documentation in the appropriate directory -- `docs\_build\html`, but this can be configured. See `STATICFILES_DIRS` setting.
-* Delete `secretkey.txt` from `kalite` directory.
+* Download ka-lite-static sdist zipfile from https://pypi.python.org/pypi/ka-lite-static/
+* Download the English content pack `en.zip` file to this directory. Look for it in [the pantry](http://pantry.learningequality.org/downloads/).
+* Set the environment variable KALITE_BUILD_VERSION to the desired version for the installer, e.g. `0.16.0`.
+  This should match the version in the sdist *exactly*, so `ka-lite-static-0.17.3` means that `KALITE_BUILD_VERSION`
+  should have the value `0.17.3`.
 * In Windows, run the following command from this directory:
 ```
 > make.vbs
@@ -44,6 +40,7 @@ To build in Linux, first install `wine`.
 > wine inno-compiler/ISCC.exe installer-source/KaliteSetupScript.iss
 ```
 * The output file named "KALiteSetup-X.X.X.exe" will appear within this project folder.
+* Party on, Garth.
 
 ---
 #### Node on Windows
@@ -60,32 +57,27 @@ Install it and add `c:\Program Files (x86)\Git\bin` (or wherever you installed i
 After adding both binaries to your path, you're ready to run `npm install` in the `ka-lite` directory.
 
 ---
-#### Instructions to download pip dependency zip files
-* Clone the `ka-lite` repository.
-* Clone this repository.
-* Install `python-2.7.10.msi` at `/installer/windows/python-setup` directory.
-* Make sure `python.exe` is in your path, or you will have to invoke it using an absolute path below.
-* On your command line navigate to `ka-lite` directory that contain `setup.py`.
-* Run this command `python.exe setup.py sdist --static` to download zip files .
-
-On Linux, ensure you have python 2.7 installed, then:
-* On your command line navigate to `ka-lite` directory that contain `setup.py`.
-* Run this command `python setup.py sdist --static` to download zip files .
-
----
-#### Creating an Empty DB
-After installing `ka-lite`:
-* Ensure the file `ka-lite/kalite/database/data.sqlite` doesn't already exist.
-* Run the command `kalite manage syncdb`. You will see this prompt:
-
-    You just installed Django's auth system, which means you don't have any superusers defined.
-    Would you like to create one now? (yes/no):
-
-* Choose "no".
-* Run the command `kalite manage migrate`.
-* This should create the file `ka-lite/kalite/database/data.sqlite`, which will be copied to the target system by the installer.
-
----
 #### To clone ka-lite and this repository, run the following lines:
 * git clone https://github.com/learningequality/ka-lite.git
 * git clone https://github.com/learningequality/installers.git
+
+---
+### Build server instructions
+Our bamboo build server basically follows the above instructions. The primary difference is that instead of getting
+a KA Lite sdist from PyPI, we build it ourselves in .zip format instead of .tar.gz format, using the following
+make directive in the ka-lite base directory:
+
+```
+> make dist format=zip
+```
+
+Additionally, you *must* update the value of the `KALITE_BUILD_VERSION` environment variable that the build server
+uses, as described above.
+This can be configured from bamboo, which allows you to set env variable values on a per-task basis.
+
+---
+### Signing the installer
+In this directory you'll find a simple script called `sign_script.bat`.
+That script is a template -- it is not functional!
+Once you obtain our certificates and the necessary passwords, you can substitute them into that script in order to 
+sign the installer for release.

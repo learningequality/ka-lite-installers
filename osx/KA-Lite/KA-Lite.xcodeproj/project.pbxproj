@@ -3,16 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 47;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		D035A9391B671F80009FA40A /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = D035A9381B671F7F009FA40A /* scripts */; };
-		D04051441B67753800D40805 /* assessment.zip in Resources */ = {isa = PBXBuildFile; fileRef = D01E36F71B672C340097C9E8 /* assessment.zip */; };
 		F103615C1A81B7DF00998E6B /* images in Resources */ = {isa = PBXBuildFile; fileRef = F103615B1A81B7DF00998E6B /* images */; };
 		F1720BED1A79566700096453 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = F1720BEC1A79566700096453 /* README.md */; };
-		F1720BF11A7A343A00096453 /* local_settings.default in Resources */ = {isa = PBXBuildFile; fileRef = F1720BF01A7A343A00096453 /* local_settings.default */; };
-		F1B308391ACBD09500008AF1 /* pyrun-2.7 in Resources */ = {isa = PBXBuildFile; fileRef = F1B308381ACBD09400008AF1 /* pyrun-2.7 */; };
 		F1DDD4131A6E5DC10022F1C9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DDD4121A6E5DC10022F1C9 /* AppDelegate.m */; };
 		F1DDD4151A6E5DC10022F1C9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F1DDD4141A6E5DC10022F1C9 /* main.m */; };
 		F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1DDD4161A6E5DC10022F1C9 /* Images.xcassets */; };
@@ -31,12 +28,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D01E36F71B672C340097C9E8 /* assessment.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = assessment.zip; path = Resources/assessment.zip; sourceTree = "<group>"; };
 		D035A9381B671F7F009FA40A /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
 		F103615B1A81B7DF00998E6B /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = Resources/images; sourceTree = "<group>"; };
 		F1720BEC1A79566700096453 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		F1720BF01A7A343A00096453 /* local_settings.default */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = local_settings.default; sourceTree = "<group>"; };
-		F1B308381ACBD09400008AF1 /* pyrun-2.7 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "pyrun-2.7"; path = "Resources/pyrun-2.7"; sourceTree = "<group>"; };
 		F1DDD40C1A6E5DC10022F1C9 /* KA-Lite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KA-Lite.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1DDD4101A6E5DC10022F1C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F1DDD4111A6E5DC10022F1C9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -100,11 +94,8 @@
 		F1DDD40F1A6E5DC10022F1C9 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				D01E36F71B672C340097C9E8 /* assessment.zip */,
 				D035A9381B671F7F009FA40A /* scripts */,
-				F1B308381ACBD09400008AF1 /* pyrun-2.7 */,
 				F103615B1A81B7DF00998E6B /* images */,
-				F1720BF01A7A343A00096453 /* local_settings.default */,
 				F1DDD4101A6E5DC10022F1C9 /* Info.plist */,
 				F1DDD4141A6E5DC10022F1C9 /* main.m */,
 				F1720BEC1A79566700096453 /* README.md */,
@@ -173,8 +164,8 @@
 		F1DDD4041A6E5DC10022F1C9 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
-				ORGANIZATIONNAME = "Foundation for Learning Equality";
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = "Learning Equality";
 				TargetAttributes = {
 					F1DDD40B1A6E5DC10022F1C9 = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -186,7 +177,7 @@
 				};
 			};
 			buildConfigurationList = F1DDD4071A6E5DC10022F1C9 /* Build configuration list for PBXProject "KA-Lite" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 6.3";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -209,13 +200,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D04051441B67753800D40805 /* assessment.zip in Resources */,
 				F103615C1A81B7DF00998E6B /* images in Resources */,
-				F1B308391ACBD09500008AF1 /* pyrun-2.7 in Resources */,
 				F1DDD4171A6E5DC10022F1C9 /* Images.xcassets in Resources */,
 				D035A9391B671F80009FA40A /* scripts in Resources */,
 				F1E5A30B1A8041FD003FA650 /* MainMenu.xib in Resources */,
-				F1720BF11A7A343A00096453 /* local_settings.default in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,6 +277,7 @@
 				CODE_SIGN_IDENTITY = "";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -364,6 +353,7 @@
 				INFOPLIST_FILE = "KA-Lite/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_BUNDLE_IDENTIFIER = org.learningequality.kalite;
 				PRODUCT_NAME = "KA-Lite";
 				SDKROOT = macosx;
 			};
@@ -389,6 +379,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.learningequality.kalite;
 				PRODUCT_NAME = "KA-Lite";
 				SDKROOT = macosx;
 			};
@@ -409,6 +400,7 @@
 				);
 				INFOPLIST_FILE = "KA-Lite-Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "FLE.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "KA-LiteTests";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KA-Lite.app/Contents/MacOS/KA-Lite";
 			};
@@ -425,6 +417,7 @@
 				);
 				INFOPLIST_FILE = "KA-Lite-Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "FLE.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "KA-LiteTests";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KA-Lite.app/Contents/MacOS/KA-Lite";
 			};

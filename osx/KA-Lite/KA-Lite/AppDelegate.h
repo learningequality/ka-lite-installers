@@ -10,12 +10,19 @@
 
 // REF: http://stackoverflow.com/a/6064675/845481
 // How to open a new window in a Cocoa application on launch
-@interface AppDelegate : NSObject <NSApplicationDelegate> {
+@interface AppDelegate : NSObject <NSApplicationDelegate, NSUserNotificationCenterDelegate> {
     IBOutlet id splash;
     IBOutlet id window;
 }
 
-- (void)closeSplash;
+
+@property (weak) IBOutlet NSButton *startButton;
+@property (weak) IBOutlet NSButton *stopButton;
+@property (weak) IBOutlet NSButton *openBrowserButton;
+@property (weak) IBOutlet NSTextField *kaliteVersion;
+@property (weak) IBOutlet NSPathControl *customKaliteData;
+@property (weak) IBOutlet NSButton *loadOnLogin;
+@property (weak) IBOutlet NSButton *startOnLoad;
 
 @property (strong, nonatomic) IBOutlet NSMenu *statusMenu;
 @property (strong, nonatomic) NSStatusItem *statusItem;
@@ -24,21 +31,25 @@
 @property (strong, nonatomic) NSStatusItem *openItem;
 @property (unsafe_unretained) IBOutlet NSTextView *taskLogs;
 @property signed int processCounter;
-
-@property (strong, nonatomic) IBOutlet NSString *username;
-@property (strong, nonatomic) IBOutlet NSString *password;
-@property (strong, nonatomic) IBOutlet NSString *confirmPassword;
-
-// get the string from the user preferences textbox.
-@property (weak) IBOutlet NSTextField *stringUsername;
-@property (weak) IBOutlet NSSecureTextField *stringPassword;
-@property (weak) IBOutlet NSSecureTextField *stringConfirmPassword;
+@property BOOL isLoaded;
+@property BOOL autoStartOnLoad;
+@property NSString *version;
 
 @property (weak) IBOutlet NSMenuItem *startKalite;
 @property (weak) IBOutlet NSMenuItem *stopKalite;
 @property (weak) IBOutlet NSMenuItem *openInBrowserMenu;
 
 @property (weak) IBOutlet NSButton *resetAppAction;
+
+@property (weak) IBOutlet NSButton *deleteKaliteData;
+@property (weak) IBOutlet NSButton *kaliteUninstallHelp;
+@property (weak) IBOutlet NSButton *kaliteDataHelp;
+@property (weak) IBOutlet NSButton *savePrefs;
+
+@property (weak) IBOutlet NSPopover *popover;
+@property (weak) IBOutlet NSTextField *popoverMsg;
+@property (weak) IBOutlet NSView *aView;
+
 
 enum kaliteStatus {
     statusOkRunning = 0,
@@ -53,8 +64,20 @@ enum kaliteStatus {
     statusInvalidPidFile = 100,
     statusCouldNotDetermineStatus = 101
 };
-
 @property enum kaliteStatus status;
+@property enum kaliteStatus lastStatus;
+
+enum kaliteQuitReason {
+    quitByUnknown = 0,
+    quitByUser = 1,
+    quitByOS = 2,
+    quitByApp = 3,
+    quitByUninstall = 4
+};
+@property enum kaliteQuitReason quitReason;
+
+
+- (void)closeSplash;
 
 
 @end
