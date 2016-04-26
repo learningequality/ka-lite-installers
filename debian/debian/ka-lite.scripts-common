@@ -210,9 +210,12 @@ kalite_debconf_ask()
                 # ASSESSMENT_URL and start over
                 if echo "$ASSESSMENT_URL" | grep -q "^file://"
                 then
-                    local_path=`echo "$DOWNLOAD_ASSESSMENT_URL" | sed 's/file:\/\///'`
+                    local_path=`echo "$ASSESSMENT_URL" | sed 's/file:\/\///'`
                     if ! [ -f "$local_path" ]
                     then
+                        db_fset ka-lite/download-assessment-items-url-notfound seen false || true
+                        db_input high ka-lite/download-assessment-items-url-notfound || true
+                        db_go || true
                         ASSESSMENT_URL=""
                     fi
                 # Check if link exists
