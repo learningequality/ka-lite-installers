@@ -92,11 +92,19 @@ kalite_get_config()
     then
         version_file="$ASSESSMENT_DIR/assessmentitems.version"
         if [ -f "$version_file" ]; then
-             old_version="`cat $version_file`"
-             if [ "$old_version" != "`major_version`" ] 
-             then
-                 export ASSESSMENT_UPGRADE=true
-             fi
+            old_version="`cat $version_file`"
+            if [ "$old_version" != "`major_version`" ] 
+            then
+                export ASSESSMENT_UPGRADE=true
+                if ! echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "$vers"
+                then
+                    echo "Automatically changing value of previous configured download URL because it does not seem to match new version"
+                    # This is where we automatically change the value of the
+                    # download url!
+                    db_reset ka-lite/download-assessment-items-url
+                fi
+                db_fset ka-lite/download-assessment-items-url seen false
+            fi
         fi
     fi
 
@@ -166,19 +174,9 @@ kalite_debconf_ask()
         # should be fetched.
         if $ASSESSMENT_UPGRADE
         then
-
             # Inform user about the upgrade stuff
             db_fset ka-lite/download-assessment-items-upgrade seen false
             db_input high ka-lite/download-assessment-items-upgrade || true
-
-            if echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "learningequality.org" && ! echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "$vers"
-            then
-                echo "Automatically changing value of previous configured download URL because it does not seem to match new version"
-                # This is where we automatically change the value of the
-                # download url!
-                db_reset ka-lite/download-assessment-items-url
-            fi
-            db_fset ka-lite/download-assessment-items-url seen false
         fi
         
         db_input high ka-lite/download-assessment-items || true
@@ -217,6 +215,13 @@ kalite_debconf_ask()
                     then
                         ASSESSMENT_URL=""
                     fi
+                # Check if link exists
+                elif ! [ "$ASSESSMENT_URL" = "" ] && ! wget --spider -q "$ASSESSMENT_URL"
+                then
+                    db_fset ka-lite/download-assessment-items-url-notfound seen false || true
+                    db_input high ka-lite/download-assessment-items-url-notfound || true
+                    db_go || true
+                    ASSESSMENT_URL=""
                 fi
             done
             
@@ -401,7 +406,6 @@ kalite_purge()
 # and after ka-lite.postinst configure!
 kalite_debconf_set_defaults()
 {
-
     if has_state "did_set_defaults"
     then
         return
@@ -419,14 +423,10 @@ kalite_debconf_set_defaults()
         USER_SEEN="$RET"
         if [ "$USER_SEEN" == "false" ] && ! [ "$SUDO_USER" = "" ]
         then
-            default_user="$SUDO_USER"
-        else
-            # Use first entry of users logged into host
-            default_user=`users | sed -r 's/^([^ ]*).*$/\1/g'`
+            # Set default to the user running the installation
+            db_set ka-lite/user "$SUDO_USER"
+            db_fset ka-lite/user seen false
         fi
-        # Set default to the user running the installation
-        db_set ka-lite/user "$default_user"
-        db_fset ka-lite/user seen false
         # The username value should always be asked
         db_fset ka-lite/download-assessment-items seen false
 
