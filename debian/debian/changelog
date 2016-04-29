@@ -1,3 +1,16 @@
+ka-lite-source (0.16.3-0ubuntu2) trusty; urgency=medium
+
+  * Nginx config served wrong path for some static items
+  * Upgrading did not correctly reset URL of assessment items
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 26 Apr 2016 17:40:53 +0200
+
+ka-lite-source (0.16.3-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 25 Apr 2016 17:35:55 +0200
+
 ka-lite-source (0.16.2-0ubuntu2) trusty; urgency=medium
 
   * Fix upgrade: Auto update assessment item URL if it was set to a learningequality.org domain
