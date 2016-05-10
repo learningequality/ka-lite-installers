@@ -31,7 +31,7 @@ fi
 
 ((STEP++))
 echo "$STEP/$STEPS. Now running docker-entrypoint.sh ..."
-docker run -v /app:/app -it debian_build bash /docker-entrypoint.sh
+docker run -v /app:/app -it debian_build /bin/bash /docker-entrypoint.sh
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered running docker-entrypoint.sh ."
     exit 1

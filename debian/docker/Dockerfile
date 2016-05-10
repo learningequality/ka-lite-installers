@@ -16,4 +16,3 @@ WORKDIR /ka-lite-source-${deb_ver}
 RUN debuild --no-lintian -us -uc
 
 COPY ./docker-entrypoint.sh /
-#ENTRYPOINT ["/docker-entrypoint.sh"]
