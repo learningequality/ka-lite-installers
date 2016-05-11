@@ -12,7 +12,10 @@
 APP_DIR="/app"
 
 STEP=0
-STEPS=3
+STEPS=4
+
+((STEP++))
+echo "$STEP/$STEPS. Checking if requirements are installed..."
 
 DOCKER_EXEC="docker"
 if ! command -v $DOCKER_EXEC >/dev/null 2>&1; then
