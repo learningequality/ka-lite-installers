@@ -4,10 +4,10 @@
 
 # What does this script do?
 #   1. Check if docker is installed.
-#   1. Build the docker image.
-#   2. Create a docker build tag.
-#   3. Run docker-entrypoint.sh script in the docker image.
-#   4. Display the newly built installer in the $APP_DIR.
+#   2. Build the docker image.
+#   3. Create a docker build tag.
+#   4. Run docker-entrypoint.sh script in the docker image.
+#   5. Display the newly built installer in the $APP_DIR.
 
 APP_DIR="/app"
 
