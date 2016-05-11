@@ -3,6 +3,7 @@
 # Debian build script for docker
 
 # What does this script do?
+#   1. Check if docker is installed.
 #   1. Build the docker image.
 #   2. Create a docker build tag.
 #   3. Run docker-entrypoint.sh script in the docker image.
@@ -12,6 +13,12 @@ APP_DIR="/app"
 
 STEP=0
 STEPS=3
+
+DOCKER_EXEC="docker"
+if ! command -v $DOCKER_EXEC >/dev/null 2>&1; then
+    echo ".. Abort! '$DOCKER_EXEC' is not installed."
+    exit 1
+fi
 
 ((STEP++))
 echo "$STEP/$STEPS. Now building the docker image..."
