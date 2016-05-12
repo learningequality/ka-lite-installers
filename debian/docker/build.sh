@@ -9,7 +9,9 @@
 #   4. Run docker-entrypoint.sh script in the docker image.
 #   5. Display the newly built installer in the $APP_DIR.
 
-APP_DIR="/app"
+APP_DIR="/installers"
+SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
+WORKING_DIR="$SCRIPTPATH/temp"
 
 STEP=0
 STEPS=4
@@ -23,16 +25,13 @@ if ! command -v $DOCKER_EXEC >/dev/null 2>&1; then
     exit 1
 fi
 
-((STEP++))
-echo "$STEP/$STEPS. Now building the docker image..."
-docker build .
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error/s encountered running docker build."
-    exit 1
+if ! [ -d "$SCRIPTPATH/temp" ]; then
+    echo ".. Creating temporary directory named '$WORKING_DIR'..."
+    mkdir "$WORKING_DIR"
 fi
 
 ((STEP++))
-echo "$STEP/$STEPS. Now executing docker build --tag ..."
+echo "$STEP/$STEPS. Now executing docker image and docker build --tag ..."
 docker build --tag debian_build .
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered creating build tag ."
@@ -41,12 +40,12 @@ fi
 
 ((STEP++))
 echo "$STEP/$STEPS. Now running docker-entrypoint.sh ..."
-docker run -v /app:/app -it debian_build /bin/bash /docker-entrypoint.sh
+docker run -v $SCRIPTPATH/temp/installers:/installers -it debian_build /bin/bash /docker-entrypoint.sh
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered running docker-entrypoint.sh ."
     exit 1
 fi
 
 echo "Congratulations! Your newly built installer is at '$APP_DIR'."
-docker run -v /app:/app -it debian_build ls $APP_DIR
+docker run -v $SCRIPTPATH/temp/installers:/installers -it debian_build ls $APP_DIR
 echo "Done!"

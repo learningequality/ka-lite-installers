@@ -3,7 +3,7 @@
 # Additional script that run internally in the docker image.
 #
 
-APP_DIR="/app"
+APP_DIR="/installers"
 
 STEP=0
 STEPS=1
