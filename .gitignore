@@ -60,3 +60,6 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Ignore *.deb files in docker build
+debian/docker/temp
