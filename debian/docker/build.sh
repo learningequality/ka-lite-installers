@@ -46,6 +46,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "Congratulations! Your newly built installer is at '$APP_DIR'."
+echo "Congratulations! Your newly built installer is at '$WORKING_DIR/temp/$APP_DIR'."
 docker run -v $SCRIPTPATH/temp/installers:/installers -it debian_build ls $APP_DIR
 echo "Done!"
