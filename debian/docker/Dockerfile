@@ -1,7 +1,6 @@
 FROM ubuntu
 
 COPY ./docker-entrypoint.sh /
-COPY ./control /
 RUN apt-get update && apt-get install -y \
     devscripts \
     python \
