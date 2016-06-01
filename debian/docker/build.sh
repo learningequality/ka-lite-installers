@@ -9,12 +9,18 @@
 #   4. Run docker-entrypoint.sh script in the docker image.
 #   5. Display the newly built installer in the $APP_DIR.
 
-APP_DIR="/installers"
+APP_DIR="/ka-lite-source-0.16.6"
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 WORKING_DIR="$SCRIPTPATH/temp"
 
 STEP=0
 STEPS=4
+
+if [ "$1" == "build_ppa" ]; then
+    BUILD_OPTION="$1"
+else
+    BUILD_OPTION="build_local"
+fi
 
 ((STEP++))
 echo "$STEP/$STEPS. Checking if requirements are installed..."
@@ -32,7 +38,14 @@ fi
 
 ((STEP++))
 echo "$STEP/$STEPS. Now executing docker image and docker build --tag ..."
-docker build --tag debian_build .
+if [ "$1" == "build_ppa" ]; then
+    echo "Now building package source from ppa"
+    DOCKER_CMD="docker build --tag debian_build ./$BUILD_OPTION/"
+else
+    DOCKER_CMD="docker build --tag debian_build ./$BUILD_OPTION/"
+fi
+
+$DOCKER_CMD
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered creating build tag ."
     exit 1
@@ -40,12 +53,14 @@ fi
 
 ((STEP++))
 echo "$STEP/$STEPS. Now running docker-entrypoint.sh ..."
-docker run -v $SCRIPTPATH/temp/installers:/installers -it debian_build /bin/bash /docker-entrypoint.sh
+docker run -v $SCRIPTPATH/temp/ka-lite-source-0.16.6:/ka-lite-source-0.16.6 -it debian_build /bin/bash /docker-entrypoint.sh
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered running docker-entrypoint.sh ."
     exit 1
 fi
 
+
 echo "Congratulations! Your newly built installer is at '$WORKING_DIR$APP_DIR'."
-docker run -v $SCRIPTPATH/temp/installers:/installers -it debian_build ls $APP_DIR
+docker run -v $SCRIPTPATH/temp/ka-lite-source-0.16.6:/ka-lite-source-0.16.6 -it debian_build ls $APP_DIR
 echo "Done!"
+
