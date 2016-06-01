@@ -14,14 +14,21 @@ echo "Now running the Additional script..."
 echo "$STEP/$STEPS. Checking Github source..."
 # REF: http://stackoverflow.com/questions/4774054/reliable-way-for-a-bash-script-to-get-the-full-path-to-itself/4774063#comment15185627_4774063
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
-TEMP_DIR_NAME="installers"
-WORKING_DIR="$SCRIPTPATH$TEMP_DIR_NAME"
+TEMP_DIR_NAME="ka-lite-source-0.16.6"
+WORKING_DIR="/$TEMP_DIR_NAME/temp"
 
 KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 VERSION="0.16"
 KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/$VERSION.x.zip"
+
+
+# rm -fr $WORKING_DIR/$KA_LITE
+if ! [ -d "$WORKING_DIR" ]; then
+    echo ".. Creating temporary directory named '$WORKING_DIR'..."
+    mkdir "$WORKING_DIR"
+fi
 
 # Don't download the KA-Lite repo if there's already a `ka-lite` directory.
 if [ -d "$KA_LITE_DIR" ]; then
@@ -43,7 +50,7 @@ else
 
     # Extract KA-Lite
     echo ".. Extracting '$KA_LITE_ZIP'..."
-    unzip $KA_LITE_ZIP -d $WORKING_DIR
+    unzip -o $KA_LITE_ZIP -d $WORKING_DIR
     if [ $? -ne 0 ]; then
         echo ".. Abort!  Can't extract '$KA_LITE_ZIP'."
         exit 1
@@ -62,8 +69,8 @@ fi
 echo "$STEP/$STEPS. Running 'setup.py install --static'..."
 
 cd "$KA_LITE_DIR"
-SETUP_CMD="python setup.py install"
-SETUP_STATIC_CMD="$SETUP_CMD --static"
+SETUP_CMD="python setup.py"
+SETUP_STATIC_CMD="$SETUP_CMD sdist --static"
 echo ".. Running $SETUP_STATIC_CMD..."
 $SETUP_STATIC_CMD
 if [ $? -ne 0 ]; then
@@ -71,10 +78,19 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-#((STEP++))
-#echo "$STEP/$STEPS. Now copying the *.deb files in  '$APP_DIR'..."
-#cp /*.deb $APP_DIR
-#if [ $? -ne 0 ]; then
-#    echo ".. Abort!  Error/s encountered copying the  *.deb files."
-#    exit 1
-#fi
+cd "$KA_LITE_DIR"
+MK_BUILD_DEPS="mk-build-deps --remove --install"
+$MK_BUILD_DEPS debian/control
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$MK_BUILD_DEPS'."
+    exit 1
+fi
+
+cd "$KA_LITE_DIR"
+DEBUILD="debuild -b -us -uc"
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$DEBUILD'."
+    exit 1
+fi
+
+
