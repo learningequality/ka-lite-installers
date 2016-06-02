@@ -3,10 +3,8 @@
 # Additional script that run internally in the docker image.
 #
 
-APP_DIR="/installers"
-
 STEP=0
-STEPS=1
+STEPS=6
 
 echo "Now running the Additional script..."
 
@@ -15,7 +13,9 @@ echo "$STEP/$STEPS. Checking Github source..."
 # REF: http://stackoverflow.com/questions/4774054/reliable-way-for-a-bash-script-to-get-the-full-path-to-itself/4774063#comment15185627_4774063
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 TEMP_DIR_NAME="ka-lite-source-0.16.6"
-WORKING_DIR="/$TEMP_DIR_NAME/temp"
+WORKING_DIR="/$TEMP_DIR_NAME"
+DEB_INSTALLER_DIR="installers"
+
 
 KA_LITE="ka-lite"
 KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
@@ -23,12 +23,21 @@ KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 VERSION="0.16"
 KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/$VERSION.x.zip"
 
+MK_BUILD_DEPS="mk-build-deps --remove --install"
+DEBUILD_CMD="debuild --no-lintian -us -uc"
 
-# rm -fr $WORKING_DIR/$KA_LITE
+
+DEBIAN_CONTROL_FOLDER_CP="cp -R $WORKING_DIR/debian $KA_LITE_DIR/debian"
+COLLECT_DEB_MV="mv $WORKING_DIR/*.deb $WORKING_DIR/$DEB_INSTALLER_DIR"
+
+
 if ! [ -d "$WORKING_DIR" ]; then
     echo ".. Creating temporary directory named '$WORKING_DIR'..."
     mkdir "$WORKING_DIR"
 fi
+
+((STEP++))
+echo "$STEP/$STEPS. Checking if '$KA_LITE_REPO_ZIP' is available or re-download..."
 
 # Don't download the KA-Lite repo if there's already a `ka-lite` directory.
 if [ -d "$KA_LITE_DIR" ]; then
@@ -65,6 +74,15 @@ else
     fi
 fi
 
+
+echo "$STEP/$STEPS. Checking if requirements are installed..."
+$DEBIAN_CONTROL_FOLDER_CP
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered '$DEBIAN_CONTROL_FOLDER_CP'..."
+    exit 1
+fi
+
+
 ((STEP++))
 echo "$STEP/$STEPS. Running 'setup.py install --static'..."
 
@@ -78,19 +96,39 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+((STEP++))
+echo "$STEP/$STEPS. Running '$MK_BUILD_DEPS'..."
+
 cd "$KA_LITE_DIR"
-MK_BUILD_DEPS="mk-build-deps --remove --install"
 $MK_BUILD_DEPS debian/control
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered running '$MK_BUILD_DEPS'."
     exit 1
 fi
 
+((STEP++))
+echo "$STEP/$STEPS. Now copying the *.deb files in  '$DEBUILD_CMD'..."
+
 cd "$KA_LITE_DIR"
-DEBUILD="debuild -b -us -uc"
+$DEBUILD_CMD
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error/s encountered running '$DEBUILD'."
+    echo ".. Abort!  Error/s encountered running '$DEBUILD_CMD'."
     exit 1
 fi
 
+((STEP++))
+echo "$STEP/$STEPS. Now copying the *.deb files in  '$COLLECT_DEB_CMD'..."
+
+
+cd "$WORKING_DIR"
+if ! [ -d "$WORKING_DIR/$DEB_INSTALLER_DIR" ]; then
+    echo ".. Creating temporary directory named '$WORKING_DIR/$DEB_INSTALLER_DIR'..."
+    mkdir "$DEB_INSTALLER_DIR"
+fi
+
+$COLLECT_DEB_MV
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$WORKING_DIR/$DEB_INSTALLER_DIR'."
+    exit 1
+fi
 

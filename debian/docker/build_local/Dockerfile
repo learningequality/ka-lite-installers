@@ -6,12 +6,14 @@ RUN apt-get update && apt-get install -y \
 	python-pip \
 	software-properties-common \
 	git \
-	wget \
-	equivs \
+	wget
+
+
+RUN apt-get update && apt-get install -y \
+    equivs \
 	gdebi
 
+ENV deb_ver=0.16.6
 WORKDIR /ka-lite-source-${deb_ver}
 
 COPY ./docker-entrypoint.sh /
-
-#RUN debuild --no-lintian -us -uc
