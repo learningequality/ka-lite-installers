@@ -12,9 +12,11 @@
 APP_DIR="/ka-lite-source-0.16.6"
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 WORKING_DIR="$SCRIPTPATH/temp"
+CP_DEBIAN_FOLDER="cp -R ../debian $WORKING_DIR/$APP_DIR/debian"
+
 
 STEP=0
-STEPS=4
+STEPS=3
 
 if [ "$1" == "build_ppa" ]; then
     BUILD_OPTION="$1"
@@ -33,7 +35,15 @@ fi
 
 if ! [ -d "$SCRIPTPATH/temp" ]; then
     echo ".. Creating temporary directory named '$WORKING_DIR'..."
-    mkdir "$WORKING_DIR"
+    mkdir -p "$WORKING_DIR$APP_DIR"
+    
+fi
+
+echo "$STEP/$STEPS. Checking if requirements are installed..."
+$CP_DEBIAN_FOLDER
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered '$CP_DEBIAN_FOLDER'..."
+    exit 1
 fi
 
 ((STEP++))
@@ -58,7 +68,6 @@ if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered running docker-entrypoint.sh ."
     exit 1
 fi
-
 
 echo "Congratulations! Your newly built installer is at '$WORKING_DIR$APP_DIR'."
 docker run -v $SCRIPTPATH/temp/ka-lite-source-0.16.6:/ka-lite-source-0.16.6 -it debian_build ls $APP_DIR
