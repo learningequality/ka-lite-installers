@@ -2,14 +2,17 @@
 # **************************************************
 # Additional script that run internally in the docker image.
 #
+# Steps
+#   1. Check if kalite.zip is available or redownload and extraxt it to the working directory.
+#   2. Run `python setup.py sdist --static` inside the `temp/ka-lite/` directory.
+#   3. Run mk-build-deps -i -r -t 'apt-get -y' inside the `debian/control` directory
+#   4. Run `debuild -b -us -uc` in the `ka-lite-source-0.16.6/kalite` directory for packaging.
+#   5. Collect the *.deb in the `temp/installers` directory
 
 STEP=0
 STEPS=6
 
 echo "Now running the Additional script..."
-
-((STEP++))
-echo "$STEP/$STEPS. Checking Github source..."
 # REF: http://stackoverflow.com/questions/4774054/reliable-way-for-a-bash-script-to-get-the-full-path-to-itself/4774063#comment15185627_4774063
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 TEMP_DIR_NAME="ka-lite-source-0.16.6"
@@ -23,8 +26,7 @@ KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 VERSION="0.16"
 KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/$VERSION.x.zip"
 
-MK_BUILD_DEPS="mk-build-deps --remove --install"
-DEBUILD_CMD="debuild --no-lintian -us -uc"
+DEBUILD_CMD="debuild -b -us -uc"
 
 
 DEBIAN_CONTROL_FOLDER_CP="cp -R $WORKING_DIR/debian $KA_LITE_DIR/debian"
@@ -97,17 +99,17 @@ if [ $? -ne 0 ]; then
 fi
 
 ((STEP++))
-echo "$STEP/$STEPS. Running '$MK_BUILD_DEPS'..."
+echo "$STEP/$STEPS. Running mk-build-deps..."
 
 cd "$KA_LITE_DIR"
-$MK_BUILD_DEPS debian/control
+mk-build-deps -i -r -t 'apt-get -y' debian/control
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error/s encountered running '$MK_BUILD_DEPS'."
+    echo ".. Abort!  Error/s encountered running 'mk-build-deps'."
     exit 1
 fi
 
 ((STEP++))
-echo "$STEP/$STEPS. Now copying the *.deb files in  '$DEBUILD_CMD'..."
+echo "$STEP/$STEPS. Now Running  '$DEBUILD_CMD'..."
 
 cd "$KA_LITE_DIR"
 $DEBUILD_CMD
