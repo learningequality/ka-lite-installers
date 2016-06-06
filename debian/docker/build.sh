@@ -2,7 +2,7 @@
 # **************************************************
 # Debian build script for docker
 
-# What does this script do?
+# Steps
 #   1. Check if docker is installed.
 #   2. Build the docker image.
 #   3. Create a docker build tag.
