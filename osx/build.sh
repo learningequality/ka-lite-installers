@@ -206,7 +206,8 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Checking Pyrun..."
 
-INSTALL_PYRUN_URL="https://downloads.egenix.com/python/install-pyrun"
+# TODO(arceduardvincent): Update the pyrun url if the "Failed to install setuptools" issue is fix.
+INSTALL_PYRUN_URL="https://downloads.egenix.com/python/index/ucs2/egenix-pyrun/2.2.0/install-pyrun?filename=install-pyrun"
 INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
 PYRUN_NAME="pyrun-2.7"
 PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
