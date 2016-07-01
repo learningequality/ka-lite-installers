@@ -6,8 +6,9 @@ RUN apt-get update && apt-get install -y \
 	python-pip \
 	software-properties-common \
 	git \
-	wget
-
+	wget \
+	nodejs \
+	npm
 
 RUN apt-get update && apt-get install -y \
     equivs \

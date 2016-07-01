@@ -25,6 +25,7 @@ KA_LITE_ZIP="$WORKING_DIR/$KA_LITE.zip"
 KA_LITE_DIR="$WORKING_DIR/$KA_LITE"
 VERSION="0.16"
 KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/$VERSION.x.zip"
+PANTRY_CONTENT_URL="http://pantry.learningequality.org/downloads/ka-lite/$VERSION/content"
 
 DEBUILD_CMD="debuild -b -us -uc"
 
@@ -32,6 +33,25 @@ DEBUILD_CMD="debuild -b -us -uc"
 DEBIAN_CONTROL_FOLDER_CP="cp -R $WORKING_DIR/debian $KA_LITE_DIR/debian"
 COLLECT_DEB_MV="mv $WORKING_DIR/*.deb $WORKING_DIR/$DEB_INSTALLER_DIR"
 
+
+CONTENT_DIR="$WORKING_DIR/content"
+CONTENTPACKS_DIR="$CONTENT_DIR/contentpacks"
+
+# Check if an argument was passed as URL for the en.zip and use that instead.
+CONTENTPACKS_EN_ZIP="en.zip"
+CONTENTPACKS_EN_URL="$PANTRY_CONTENT_URL/contentpacks/$CONTENTPACKS_EN_ZIP"
+if [ "$2" != "" ]; then
+    echo ".. Checking validity of en.zip argument -- $2..."
+    # MUST: Check if valid url!
+    if curl --output /dev/null --silent --head --fail "$2"
+    then
+        # Use the argument as the en.zip url.
+        CONTENTPACKS_EN_URL=$2
+    else
+        echo ".. Abort!  The '$2' argument is not a valid URL for the en.zip!"
+        exit 1
+    fi
+fi
 
 if ! [ -d "$WORKING_DIR" ]; then
     echo ".. Creating temporary directory named '$WORKING_DIR'..."
@@ -84,13 +104,60 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+((STEP++))
+echo "$STEP/$STEPS. Upgrading Pyrun's Pip..."
+
+# MUST: Upgrade Pyrun's pip from v1.5.6 to prevent issues.
+UPGRADE_PIP_CMD="pip install --upgrade pip"
+$UPGRADE_PIP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$UPGRADE_PIP_CMD'."
+    exit 1
+fi
+
+
+((STEP++))
+echo "$STEP/$STEPS. Installing Pip requirements for use of Makefile..."
+
+PIP_CMD="pip install -r requirements_dev.txt"
+# TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
+cd "$KA_LITE_DIR"
+echo ".. Running $PIP_CMD..."
+$PIP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$PIP_CMD'."
+    exit 1
+fi
+
+PIP_CMD="pip install -r requirements_sphinx.txt"
+# TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
+cd "$KA_LITE_DIR"
+echo ".. Running $PIP_CMD..."
+$PIP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$PIP_CMD'."
+    exit 1
+fi
+
+
+((STEP++))
+echo "$STEP/$STEPS. Running 'make dist'..."
+
+cd "$KA_LITE_DIR"
+MAKE_CMD="make dist"
+echo ".. Running $MAKE_CMD..."
+$MAKE_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$MAKE_CMD'."
+    exit 1
+fi
 
 ((STEP++))
 echo "$STEP/$STEPS. Running 'setup.py install --static'..."
 
 cd "$KA_LITE_DIR"
 SETUP_CMD="python setup.py"
-SETUP_STATIC_CMD="$SETUP_CMD sdist --static"
+SETUP_STATIC_CMD="$SETUP_CMD --static"
 echo ".. Running $SETUP_STATIC_CMD..."
 $SETUP_STATIC_CMD
 if [ $? -ne 0 ]; then
