@@ -72,6 +72,11 @@ Default: http://learningequality.org/downloads/ka-lite/0.16/content/khan_assessm
 Description: From where do you wish to download the assessment items?
  To use a local file, type "file:///path/to/items.zip".
 
+Template: ka-lite/download-assessment-items-url-notfound
+Type: note
+Description: URL broken
+ The URL provided did not work, please correct it.
+
 Template: ka-lite/download-assessment-items-tmp
 Type: string
 Default: /tmp

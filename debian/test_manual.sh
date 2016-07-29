@@ -32,7 +32,9 @@ echo "$test_version" > assessmentitems.version
 zip test.zip assessmentitems.version
 
 # Run a test that uses a local archive
+
 echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
+echo "ka-lite ka-lite/download-assessment-items-url seen false" | sudo debconf-set-selections
 sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb
 purge
 
