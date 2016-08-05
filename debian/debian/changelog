@@ -1,3 +1,9 @@
+ka-lite-source (0.16.8-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 05 Aug 2016 18:53:40 +0200
+
 ka-lite-source (0.16.7-0ubuntu1) trusty; urgency=medium
 
   * New upstream release
