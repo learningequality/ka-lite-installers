@@ -6,7 +6,7 @@ Release Notes for KA Lite Mac OS X Application
 
 **Mac Application**
 
-* FIXED - Fix Unclean shutdown in OS X installer.
+* FIXED - Unclean shutdown in OS X installer is fixed by the [learningequality/ka-lite #5211](https://github.com/learningequality/ka-lite/issues/5211).
 
 0.16.7
 ------
@@ -20,9 +20,9 @@ Release Notes for KA Lite Mac OS X Application
 
 **Mac Installer**
 
-* NEW - We now upgrade the KA Lite Monitor app.
-* NEW -  We now have notification for KA Lite.
+* NEW - Use of retrievecontentpack on post install script of OS X installer. 
 * FIXED - OS X build script fails on missing sphinx module.
+* FIXED - Notification for KA Lite.
 * ENHANCEMENT - OSX installer tweaks.
 
 0.16.0
