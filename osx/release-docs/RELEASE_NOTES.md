@@ -1,6 +1,30 @@
 Release Notes for KA Lite Mac OS X Application
 ==============================================
 
+0.16.8
+------
+
+**Mac Application**
+
+* FIXED - Fix Unclean shutdown in OS X installer.
+
+0.16.7
+------
+
+**Mac Installer**
+
+* FIXED - Pyrun failed to install setuptools.
+
+0.16.1
+------
+
+**Mac Installer**
+
+* NEW - We now upgrade the KA Lite Monitor app.
+* NEW -  We now have notification for KA Lite.
+* FIXED - OS X build script fails on missing sphinx module.
+* ENHANCEMENT - OSX installer tweaks.
+
 0.16.0
 ------
 
