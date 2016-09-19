@@ -468,13 +468,9 @@ kalite_preinst()
         # ASSUME THAT IT EXISTS!!
         # TODO: This can be removed once we stop support for 0.16 upgrades, because
         # these directories will not contain non-managed pyc files from 0.16+
-        if [ -d usr/share/kalite/python-packages ]
+        if [ -d /usr/share/kalite/ ]
         then
-            find /usr/share/kalite/python-packages -name '*pyc' -exec rm {} \;
-        fi
-        if [ -d usr/share/kalite/dist-packages ]
-        then
-            find /usr/share/kalite/dist-packages -name '*pyc' -exec rm {} \;
+            find /usr/share/kalite/ -name '*pyc' -exec rm {} \;
         fi
 
     fi
@@ -558,8 +554,7 @@ kalite_prerm()
     
     pyclean -p $DPKG_MAINTSCRIPT_PACKAGE
 
-    pyclean /usr/share/kalite/dist-packages
-    pyclean /usr/share/kalite/python-packages
+    pyclean /usr/share/kalite/
 
     db_stop
 
