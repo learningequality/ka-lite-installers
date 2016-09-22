@@ -1,4 +1,5 @@
 language: python
+dist: trusty
 sudo: required
 install: true
 script:
@@ -18,3 +19,4 @@ addons:
     - dh-exec
     - dh-systemd
     - python-psutil
+    - python-m2crypto
