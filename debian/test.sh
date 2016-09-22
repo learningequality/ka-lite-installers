@@ -122,6 +122,12 @@ then
     kalite status
     sudo -E apt-get purge -y ka-lite
 
+    # Test that there are no *pyc files
+    if [ -d /usr/share/kalite ]
+    then
+        [[ `find /usr/share/kalite -name '*pyc' | wc -l` == "0" ]] || test_fail "Lingering *pyc files after removal"
+    fi
+
     echo "Done with normal ka-lite tests"
 
 fi
@@ -191,15 +197,20 @@ then
     echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb" "tail"
 
+    sudo sh -c 'echo "1" > /usr/share/kalite/somefilethatshouldbecleaned.pyc'
+
     # Then install a version with .1 appended
     cd $DIR
     ./test_build.sh ${test_version}.1 1
     cd test
 
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}.1_all.deb" "tail"
+
+    # Test that there are no *pyc files
+    [ -f /usr/share/kalite/somefilethatshouldbecleaned.pyc ] && test_fail "Upgrade left a *pyc file!"
+
     sudo -E apt-get purge -y ka-lite
 
-    
     # ka-lite-raspberry-pi
     # ...the one with diversions!
     # Install previous test
@@ -210,7 +221,7 @@ then
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}_all.deb" "tail"
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}.1_all.deb" "tail"
     sudo -E apt-get purge -y ka-lite-raspberry-pi
-  
+
     sudo -E apt-get purge -y nginx-common
 
     echo "Done with upgrade tests"
