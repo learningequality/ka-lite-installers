@@ -149,6 +149,8 @@ then
     # Test ka-lite-bundle
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-bundle_${test_version}_all.deb" "tail"
     kalite status
+    # Test that the script restarts
+    sudo service ka-lite restart
     sudo -E apt-get purge -y ka-lite-bundle
 
     echo "Done with ka-lite-bundle tests"
@@ -172,6 +174,8 @@ then
     sudo -E apt-get install -y -q nginx-light
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}_all.deb" "tail"
     kalite status
+    # Test that the script restarts
+    sudo service ka-lite restart
     # Ensure there's a file created with the .kalite dir
     [ -f /etc/ka-lite/nginx.d/username.conf ] || test_fail "/etc/ka-lite/nginx.d/username.conf was not created"
     sudo -E apt-get purge -y ka-lite-raspberry-pi
