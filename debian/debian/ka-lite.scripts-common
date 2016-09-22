@@ -367,19 +367,21 @@ kalite_configure()
     fi
 
     # Install init script using `ucf` no matter what, users might activate it later
-    ucf --debconf-ok /usr/share/kalite/init-service /etc/init.d/ka-lite
+    # Update: This is removed, now handled by dh_systemd
+    # ucf --debconf-ok /usr/share/kalite/init-service /etc/init.d/ka-lite
 
     # Necesary in 15.04+ because it doesn't preserve permissions
-    chmod +x /etc/init.d/ka-lite
+    # chmod +x /etc/init.d/ka-lite
 
-    if $ENABLE_INIT_D
-    then
+    # TODO: What are the defaults here??
+    # if $ENABLE_INIT_D
+    # then
         # Register init script as service
-        update-rc.d ka-lite defaults
+        # update-rc.d ka-lite defaults
 
         # Start service -- nevermind if it fails
-        invoke-rc.d ka-lite start || true
-    fi
+        # invoke-rc.d ka-lite start || true
+    # fi
 
     add_state "after_postinst"
     
@@ -392,14 +394,15 @@ kalite_purge()
     # Remove assessment items since they might be overwritten by other packages
     rm -rf /usr/share/kalite/assessment
 
+    # The below is disabled because dh_systemd takes care of it
     # Remove service file using `ucf` (checking whether `ucf` is still available first)
-    if type ucf >/dev/null 2>&1;
-    then
-        ucf --purge "/etc/init.d/ka-lite"
-    fi
+    # if type ucf >/dev/null 2>&1;
+    # then
+    #     ucf --purge "/etc/init.d/ka-lite"
+    # fi
 
     # Remove service file by hand (in case the above failed somehow)
-    rm -f "/etc/init.d/ka-lite"
+    # rm -f "/etc/init.d/ka-lite"
 
 }
 
