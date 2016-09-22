@@ -16,4 +16,5 @@ addons:
     - bash
     - wget
     - dh-exec
+    - dh-systemd
     - python-psutil
