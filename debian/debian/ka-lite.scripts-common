@@ -374,14 +374,14 @@ kalite_configure()
     # chmod +x /etc/init.d/ka-lite
 
     # TODO: What are the defaults here??
-    # if $ENABLE_INIT_D
-    # then
+    if $ENABLE_INIT_D
+    then
         # Register init script as service
-        # update-rc.d ka-lite defaults
+        update-rc.d ka-lite defaults
 
         # Start service -- nevermind if it fails
-        # invoke-rc.d ka-lite start || true
-    # fi
+        invoke-rc.d ka-lite start || true
+    fi
 
     add_state "after_postinst"
     
