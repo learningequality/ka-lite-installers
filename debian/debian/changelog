@@ -1,3 +1,15 @@
+ka-lite-source (0.16.9-0ubuntu3) trusty; urgency=medium
+
+  * Add system.d ka-lite.service script
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 26 Sep 2016 13:48:29 +0200
+
+ka-lite-source (0.16.9-0ubuntu2) trusty; urgency=medium
+
+  * Remove *pyc files during upgrade process
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 19 Sep 2016 19:17:40 +0200
+
 ka-lite-source (0.16.9-0ubuntu1) trusty; urgency=medium
 
   * New upstream release
