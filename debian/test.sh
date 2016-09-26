@@ -22,15 +22,18 @@ then
     target_rpi=true
     target_bundle=true
     target_upgrade=true
+    target_bundle_manual_init=true
 else
     target_kalite=false
     target_rpi=false
     target_bundle=false
     target_upgrade=false
+    target_bundle_manual_init=false
     [ "$1" = "rpi" ] && target_rpi=true
     [ "$1" = "kalite" ] && target_kalite=true
     [ "$1" = "bundle" ] && target_bundle=true
     [ "$1" = "upgrade" ] && target_upgrade=true
+    [ "$1" = "manual_init" ] && target_bundle_manual_init=true
 fi
 
 
@@ -149,10 +152,41 @@ then
     # Test ka-lite-bundle
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-bundle_${test_version}_all.deb" "tail"
     kalite status
+    # Test that the script restarts
+    sudo service ka-lite restart
     sudo -E apt-get purge -y ka-lite-bundle
 
     echo "Done with ka-lite-bundle tests"
 fi
+
+
+echo ""
+echo "======================================="
+echo " Testing ka-lite-bundle w/o update.rcd"
+echo "======================================="
+echo ""
+
+
+if $target_bundle_manual_init
+then
+
+    # Remove all previous values from debconf
+    echo "Purging any prior values in debconf"
+    echo PURGE | sudo debconf-communicate ka-lite-bundle
+
+    echo "ka-lite-bundle ka-lite/init select false" | sudo debconf-set-selections
+
+    # Test ka-lite-bundle
+    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-bundle_${test_version}_all.deb" "tail"
+    kalite status
+    # Test that the script restarts
+    sudo service ka-lite start
+    sudo service ka-lite stop
+    sudo -E apt-get purge -y ka-lite-bundle
+
+    echo "Done with ka-lite-bundle tests"
+fi
+
 
 echo ""
 echo "=============================="
@@ -172,6 +206,8 @@ then
     sudo -E apt-get install -y -q nginx-light
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}_all.deb" "tail"
     kalite status
+    # Test that the script restarts
+    sudo service ka-lite restart
     # Ensure there's a file created with the .kalite dir
     [ -f /etc/ka-lite/nginx.d/username.conf ] || test_fail "/etc/ka-lite/nginx.d/username.conf was not created"
     sudo -E apt-get purge -y ka-lite-raspberry-pi
