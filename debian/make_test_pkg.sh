@@ -56,6 +56,7 @@ fi
 cd $root
 if ! [ -d sampleproject ]
 then
+	echo "Cloning sampleproject"
 	git clone https://github.com/benjaoming/sampleproject.git
 fi
 
@@ -82,8 +83,8 @@ find ./debian -mindepth 1 -not -name '*.zip' -exec cp -rp --parents \{\} $dest_d
 # Create more bogus stuff?
 cd $dest_dir
 touch lala
-zip assessment.zip lala
-mv assessment.zip debian/
+zip en.zip lala
+mv en.zip debian/
 rm lala
 
 # In case this exists, it's an artifact
