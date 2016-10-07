@@ -1,0 +1,19 @@
+# The below was copied from an auto-generated file made
+# by systemd-sysv-generator
+
+[Unit]
+SourcePath=/etc/init.d/ka-lite
+Description=LSB: ka-lite daemon, a local Khan Academy content server
+After=local-fs.target remote-fs.target network-online.target systemd-journald-dev-log.socket nss-lookup.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+Restart=no
+TimeoutSec=5min
+IgnoreSIGPIPE=no
+KillMode=process
+GuessMainPID=no
+RemainAfterExit=yes
+ExecStart=/etc/init.d/ka-lite start
+ExecStop=/etc/init.d/ka-lite stop

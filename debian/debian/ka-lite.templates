@@ -9,73 +9,18 @@ Description: Do you wish to run KA Lite on start-up?
  This will automatically call the startup script /etc/init.d/ka-lite
  when your computer boots.
 
-Template: ka-lite/download-assessment-items
-Type: boolean
-Default: true
-Description: Download English content and exercise data (~733 MB)?
- Content and exercise data is required if you want to provide exercises for students.
- If you are online you can download it directly, and the data can be preserved
- across minor upgrades of current version of KA Lite. When major version
- changes occurred, you may be prompted to fetch new exercise data.
- .
- If you have a zip-file on your local drive or your local network,
- select Yes and specify the location in the next step.
- .
- Selecting No will skip this process and you will have to install assessment
- items using the 'kalite' command line utility.
-
 Template: ka-lite/download-assessment-items-manual
 Type: note
 Description: Download content and exercise data manually manually:
  After installing, go to the 'Manage' tab of KA Lite and install content data
  for your language.
 
-Template: ka-lite/download-assessment-items-storage-error
-Type: boolean
-Default: false
-Description: Automatically set by preinst script if there's storage issues that
- should be addressed by the config script.
-
-Template: ka-lite/download-assessment-items-storage-error-msg
-Type: note
-Description: Downloading content and exercise data not possible:
- In order to download assessment items (exercises), we need 733 MB of free
- disk space in /tmp. After downloading, an additional 733 MB is needed in
- the KA Lite user's home directory to unpack it.
-
-Template: ka-lite/download-assessment-items-upgrade
-Type: note
-Description: Content and exercise data from previous installation
- This is no longer relevant?
-
-Template: ka-lite/download-assessment-items-bundle
-Type: boolean
-Default: false
-Description: Content and exercise data is bundled
- Don't ask user to download anything
-
-Template: ka-lite/download-assessment-items-clear
-Type: boolean
-Default: false
-Description: Content data from a previous installation
- This should no longer be applicaple
-
-Template: ka-lite/download-assessment-items-url
+Template: ka-lite/preseed-dir
 Type: string
-Default: http://learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip
+Default: /usr/share/kalite/preseed
 Description: From where do you wish to download content and exercise data pack?
  URL for a content pack zip file with <lang-code>.zip as name. You can use
  file:///path/to/en.zip if you have it stored locally.
-
-Template: ka-lite/download-assessment-items-url-notfound
-Type: note
-Description: URL broken
- The URL provided did not work, please correct it.
-
-Template: ka-lite/download-assessment-items-tmp
-Type: string
-Default: /tmp
-Description: Where to temporarily store downloaded file
 
 Template: ka-lite/user
 Type: string
@@ -88,9 +33,9 @@ Description: Which user account should own the KA Lite server?
  desktop user, to have easier access to KA Lite data without having
  to change privileges.
 
-Template: ka-lite/kalite-setup
+Template: ka-lite/kalite-settings
 Type: string
-Description: Contents of ~/.kalite/setup.py
+Description: Contents of ~/.kalite/settings.py
 
 Template: ka-lite/manual-instructions
 Type: note

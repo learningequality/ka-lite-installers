@@ -26,7 +26,7 @@ args=("$@")
 # http://www.fifi.org/doc/debconf-doc/tutorial.html
 
 major_version() {
-    echo -n "0.16"
+    echo -n "0.17"
     # This doesn't work for all maintainer scripts
     # echo "${args[1]}" | sed 's/\([0-9]*\.[0-9]*\).*/\1/'
 }
@@ -68,49 +68,14 @@ kalite_get_config()
     # Create user for ka-lite if it doesn't exist
     db_get ka-lite/user
     export KALITE_USER="$RET"
-    
-    # Download assessment items if chosen
-    db_get ka-lite/download-assessment-items
-    [ "$RET" = "true" ] && export DOWNLOAD_ASSESSMENT_ITEMS=true || export DOWNLOAD_ASSESSMENT_ITEMS=false
-    
-    # Where to download from
-    db_get ka-lite/download-assessment-items-url
-    export DOWNLOAD_ASSESSMENT_URL="${RET}"
 
     # Where to store tmp data while downloading
-    db_get ka-lite/download-assessment-items-tmp
-    export DOWNLOAD_ASSESSMENT_TMP="${RET}"
-
-    # Where to download from - this is no longer a setting as per 0.16.3
-    export ASSESSMENT_DIR="/usr/share/kalite/assessment/khan"
-
-    # Are we upgrading?
-    # If the directory already exists from a previous installation, we might
-    # be upgrading...
-    export ASSESSMENT_UPGRADE=false
-    if $DOWNLOAD_ASSESSMENT_ITEMS && [ -d "$ASSESSMENT_DIR" ]
-    then
-        version_file="$ASSESSMENT_DIR/assessmentitems.version"
-        if [ -f "$version_file" ]; then
-            old_version="`cat $version_file`"
-            if [ "$old_version" != "`major_version`" ] 
-            then
-                export ASSESSMENT_UPGRADE=true
-                if ! echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "$vers"
-                then
-                    echo "Automatically changing value of previous configured download URL because it does not seem to match new version"
-                    # This is where we automatically change the value of the
-                    # download url!
-                    db_reset ka-lite/download-assessment-items-url
-                fi
-                db_fset ka-lite/download-assessment-items-url seen false
-            fi
-        fi
-    fi
+    db_get ka-lite/preseed-dir
+    export PRESEED_DIR="${RET}"
 
     # Custom setup.py for the user
-    db_get ka-lite/kalite-setup
-    export SETUP_PY="${RET}"
+    db_get ka-lite/kalite-settings
+    export SETTINGS_PY="${RET}"
 
     # Enable init.d script
     db_get ka-lite/init
@@ -266,114 +231,19 @@ kalite_configure()
         adduser --system --shell /bin/bash --home "/var/$KALITE_USER" "$KALITE_USER"
     fi
     
-    # Do we have string defined for setup.py?
-    if ! [ "$SETUP_PY" = "" ]
+    # Do we have string defined for settings.py?
+    if ! [ "$SETTINGS_PY" = "" ]
     then
         USER_CONFIG_DIR=`su -s /bin/sh $KALITE_USER -c "echo \\$HOME"`/.kalite
         mkdir -p "$USER_CONFIG_DIR"
         USER_CONFIG="$USER_CONFIG_DIR/settings.py"
         touch "$USER_CONFIG"
         echo "Changing user config to use package pre-defined settings: $USER_CONFIG"
-        echo "$SETUP_PY" > "$USER_CONFIG"
+        echo "$SETTINGS_PY" > "$USER_CONFIG"
         KALITE_USER_GROUP=`id -g -n "$KALITE_USER"`
         chown -R "$KALITE_USER:$KALITE_USER_GROUP" "$USER_CONFIG_DIR"
     fi
-    
-    # Assessment items
-    
-    # If user has chosen assessment items...
-    if $DOWNLOAD_ASSESSMENT_ITEMS
-    then
 
-        mkdir -p "$ASSESSMENT_DIR"
-
-        # Ensure that the assessment items directory is empty in case there are
-        # foreign items there such as something that was downloaded with another .deb
-        rm -rf /usr/share/kalite/assessment/khan
-
-        # Ensure tmp dir exists
-        mkdir -p "$DOWNLOAD_ASSESSMENT_TMP"
-                
-        # Where to write temporary during download
-        download_tmp="$DOWNLOAD_ASSESSMENT_TMP/assessment_items.zip"
-
-        # Check if file system resource or downloadable
-        if echo -n "$DOWNLOAD_ASSESSMENT_URL" | grep -q "^file://"
-        then
-            # It is a filesystem location
-            local_path=`echo "$DOWNLOAD_ASSESSMENT_URL" | sed 's/file:\/\///'`
-            delete_after=false
-            
-            # Remove temporary zip archive in case something was stored during
-            # a previously abandoned download
-            rm -f "$download_tmp"
-        else
-            local_path="$download_tmp"
-            # If we have downloaded something previously, check that it's from
-            # the same source, otherwise we should not continue the download
-            dest_url_file="$DOWNLOAD_ASSESSMENT_TMP/assessment_items.url"
-            if [ -f "$dest_url_file" ]
-            then
-                if ! [ "`cat $dest_url_file`" = "$DOWNLOAD_ASSESSMENT_URL" ]
-                then
-                    echo "Found existing zip from different location"
-                    rm -f "$dest_url_file"
-                    rm -f "$local_path"
-                fi
-            else
-                rm -f "$local_path"
-            fi
-            echo "$DOWNLOAD_ASSESSMENT_URL" > "$dest_url_file"
-            wget "$DOWNLOAD_ASSESSMENT_URL" -O "$local_path" --retry-connrefused --read-timeout=20 --waitretry=1 -t 200 --continue
-            delete_after=true
-        fi
-        
-        # Unzip resource into configured location
-        unzip -q $local_path -d $ASSESSMENT_DIR
-        
-        # Delete downloaded resourece?
-        if $delete_after
-        then
-            rm -f $local_path
-        fi
-        
-        # Necessary because assessment.zip has wrong permissions
-        chmod -R uog+r $ASSESSMENT_DIR
-    fi
-
-    # TODO: This is a stupid hack, if the user running KA Lite has to own this
-    # file, then it should not be in this location.
-    # This hack is only relevant for KA Lite <0.16 because an English assessment
-    # item db is located in database template dirs and copied into user location
-    # at runtime
-    if [ -f "$ASSESSMENT_DIR/assessmentitems.sqlite" ]
-    then
-        chown $KALITE_USER "$ASSESSMENT_DIR"
-        chown $KALITE_USER "$ASSESSMENT_DIR/assessmentitems.sqlite"
-    fi
-
-    if [ "${RET}" != "false" ]
-    then
-        # TODO: Are we going to care about the version of existing assessment
-        # items here? Use major_version
-        version_file="$ASSESSMENT_DIR/assessmentitems.version"
-        if [ -f $version_file ]
-        then
-            old_version="`cat $version_file`"
-        else
-            old_version=""
-        fi
-        
-    fi
-
-    # Install init script using `ucf` no matter what, users might activate it later
-    # Update: This is removed, now handled by dh_systemd
-    # ucf --debconf-ok /usr/share/kalite/init-service /etc/init.d/ka-lite
-
-    # Necesary in 15.04+ because it doesn't preserve permissions
-    # chmod +x /etc/init.d/ka-lite
-
-    # TODO: What are the defaults here??
     if $ENABLE_INIT_D
     then
         # Register init script as service
@@ -383,6 +253,10 @@ kalite_configure()
         invoke-rc.d ka-lite start || true
     fi
 
+    # We don't download stuff during installation anymore.
+    # This old location can be safely purged to save space.
+    rm -rf /usr/share/kalite/assessment
+
     add_state "after_postinst"
     
 }
@@ -391,7 +265,8 @@ kalite_configure()
 kalite_purge()
 {
 
-    # Remove assessment items since they might be overwritten by other packages
+    # We don't download stuff during installation anymore.
+    # This old location can be safely purged.
     rm -rf /usr/share/kalite/assessment
 
     # The below is disabled because dh_systemd takes care of it
@@ -433,17 +308,12 @@ kalite_debconf_set_defaults()
             db_set ka-lite/user "$SUDO_USER"
             db_fset ka-lite/user seen false
         fi
-        # The username value should always be asked
-        db_fset ka-lite/download-assessment-items seen false
 
         # Because of some strange bug in debconf, we always purge the notes
         # separately -- and this cannot be done in kalite_purge because then
         # debconf will assume that the note should be displayed unconditionally
         # without calling db_input
         # Furthermore, the note contents may have changed
-        db_fset ka-lite/download-assessment-items-manual seen false
-        db_fset ka-lite/download-assessment-items-upgrade seen false
-        db_fset ka-lite/download-assessment-items-storage-error-msg seen false
         db_fset ka-lite/manual-instructions seen false
         db_fset ka-lite/init-instructions seen false
     fi
