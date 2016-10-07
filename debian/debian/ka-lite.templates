@@ -9,9 +9,9 @@ Description: Do you wish to run KA Lite on start-up?
  This will automatically call the startup script /etc/init.d/ka-lite
  when your computer boots.
 
-Template: ka-lite/download-assessment-items-manual
+Template: ka-lite/contentpack-manual
 Type: note
-Description: Download content and exercise data manually manually:
+Description: Download/update content and exercise data manually manually:
  After installing, go to the 'Manage' tab of KA Lite and install content data
  for your language.
 

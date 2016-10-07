@@ -6,9 +6,5 @@
 
 kalite_preinst
 
-# Ensure that the assessment items directory is empty in case there are
-# foreign items there such as something that was downloaded with another .deb
-rm -rf /usr/share/kalite/assessment
-
 db_stop
 

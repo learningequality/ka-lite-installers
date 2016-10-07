@@ -122,91 +122,22 @@ kalite_debconf_ask()
         db_input high ka-lite/manual-instructions || true
     fi
 
-    # Check if there are storage problems and show an error in that case.
-    db_go || true
-    db_get ka-lite/download-assessment-items-storage-error
-    [ "$RET" = "true" ] && ASSESSMENT_ITEMS_STORAGE_ERROR=true || ASSESSMENT_ITEMS_STORAGE_ERROR=false
-
-    # There's a storage error, and we cannot download assessment items, instruct
-    # user about how to download them later.
-    if $ASSESSMENT_ITEMS_STORAGE_ERROR
+    # Check to see if there's anything downloaded already
+    export EXISTING_CONTENT=""
+    if getent passwd "$KALITE_USER" >/dev/null
     then
-        db_input high ka-lite/download-assessment-items-storage-error-msg || true
-        db_input high ka-lite/download-assessment-items-manual || true
-    else
-
-        # Firstly, if it's an upgrade, warn the user that new assessment items
-        # should be fetched.
-        if $ASSESSMENT_UPGRADE
+        USER_CONFIG_DIR=`su -s /bin/sh $KALITE_USER -c "echo \\$HOME"`/.kalite
+        if [ -d "$USER_CONFIG_DIR" ]
         then
-            # Inform user about the upgrade stuff
-            db_fset ka-lite/download-assessment-items-upgrade seen false
-            db_input high ka-lite/download-assessment-items-upgrade || true
+            EXISTING_CONTENT="$USER_CONFIG_DIR/content/assessment"
         fi
-        
-        db_input high ka-lite/download-assessment-items || true
-        db_go || true
-        db_get ka-lite/download-assessment-items
-        [ "$RET" = "true" ] && DOWNLOAD_ASSESSMENT_ITEMS=true || DOWNLOAD_ASSESSMENT_ITEMS=false
-        # If not downloading anything, then display a note...
-        if ! "$DOWNLOAD_ASSESSMENT_ITEMS"
-        then
-            db_input critical ka-lite/download-assessment-items-manual || true
-            db_go || true
-        # If we should download assessment items, ask further questions...
-        else
-
-            # Before asking questions about upgrading assessment items, do
-            # a reset of the URL in case it's been set in a previous
-            # installation
-
-            # Where to fetch assessment items from
-            ASSESSMENT_URL=""
-
-            # Keep asking for input intil something has been received
-            while [ "$ASSESSMENT_URL" = "" ]
-            do
-                db_input high ka-lite/download-assessment-items-url || true
-                db_go || true
-                db_get ka-lite/download-assessment-items-url
-                ASSESSMENT_URL="$RET"
-
-                # If local file, check that it exists, otherwise reset value of
-                # ASSESSMENT_URL and start over
-                if echo "$ASSESSMENT_URL" | grep -q "^file://"
-                then
-                    local_path=`echo "$ASSESSMENT_URL" | sed 's/file:\/\///'`
-                    if ! [ -f "$local_path" ]
-                    then
-                        db_fset ka-lite/download-assessment-items-url-notfound seen false || true
-                        db_input high ka-lite/download-assessment-items-url-notfound || true
-                        db_go || true
-                        ASSESSMENT_URL=""
-                    fi
-                # Check if link exists
-                elif ! [ "$ASSESSMENT_URL" = "" ] && ! wget --spider -q "$ASSESSMENT_URL"
-                then
-                    db_fset ka-lite/download-assessment-items-url-notfound seen false || true
-                    db_input high ka-lite/download-assessment-items-url-notfound || true
-                    db_go || true
-                    ASSESSMENT_URL=""
-                fi
-            done
-            
-            # If URL is not a local file, ask where to temporarily store it
-            if ! echo "$ASSESSMENT_URL" | grep -q "^file://"
-            then
-                ASSESSMENT_TMP=""
-                while [ "ASSESSMENT_TMP" = "" ]
-                do
-                    db_input low ka-lite/download-assessment-items-tmp
-                    db_go || true
-                    db_get ka-lite/download-assessment-items-tmp
-                    ASSESSMENT_TMP="$RET"
-                done
-            fi
-
-        fi
+    fi
+    
+    # If there are no existing contents, display a text box telling the user to
+    # fetch content packs after the installation
+    if [ "EXISTING_CONTENT" = "" ]
+    then
+      db_input high ka-lite/contentpack-manual || true    
     fi
 
     db_go || true
@@ -353,6 +284,10 @@ kalite_preinst()
 }
 
 
+
+# Not currently being called - we don't know which content pack, the user will
+# choose to download, and we assume most people have enough free disk space at
+# this point...
 kalite_debconf_size_check()
 {
     if has_state "did_check_size"
