@@ -16,6 +16,10 @@ cd $DIR
 test_version=1.2.3
 echo "Starting tests"
 
+
+# A user account which is used for some tests and deleted after.
+TEST_USER="kalite_test"
+
 if [ "$1" = "" ]
 then
     target_kalite=true
@@ -87,6 +91,9 @@ then
     # Remove all previous values from debconf
     echo "Purging any prior values in debconf"
     echo PURGE | sudo debconf-communicate ka-lite
+
+    # Use the test user
+    echo "ka-lite ka-lite/user select $TEST_USER" | sudo debconf-set-selections
 
     # Simple install of ka-lite with no prior debconf set...
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb" "tail"
@@ -219,3 +226,11 @@ then
 
 
 fi
+
+echo ""
+echo "=============================="
+echo " Cleaning up"
+echo "=============================="
+echo ""
+
+sudo deluser --remove-home "$TEST_USER" || echo "$TEST_USER already deleted or not created"

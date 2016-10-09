@@ -162,7 +162,8 @@ kalite_configure()
 
     # This way of writing if statements with failing sub commands will work
     # while using errexit
-    getent passwd "$KALITE_USER" >/dev/null || {
+    ( ! getent passwd "$KALITE_USER" ) && {
+        echo "Creating new user $KALITE_USER"
         adduser --system --shell /bin/bash --home "/var/$KALITE_USER" "$KALITE_USER"
     }    
 
@@ -183,7 +184,6 @@ kalite_configure()
     then
         # Register init script as service
         update-rc.d ka-lite defaults
-
         # Start service -- nevermind if it fails
         invoke-rc.d ka-lite start || true
     fi

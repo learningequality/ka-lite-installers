@@ -51,7 +51,7 @@ endif
 
 
 override_dh_installinit:
-	dh_installinit --init-script=ka-lite --name=ka-lite
+	# dh_installinit --init-script=ka-lite --name=ka-lite --noscripts
 
 
 override_dh_systemd_enable:
