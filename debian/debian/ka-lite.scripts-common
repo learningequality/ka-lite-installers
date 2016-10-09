@@ -124,14 +124,16 @@ kalite_debconf_ask()
 
     # Check to see if there's anything downloaded already
     export EXISTING_CONTENT=""
-    if getent passwd "$KALITE_USER" >/dev/null
-    then
+    
+    # This way of writing if statements with failing sub commands will work
+    # while using errexit
+    getent passwd "$KALITE_USER" > /dev/null && {
         USER_CONFIG_DIR=`su -s /bin/sh $KALITE_USER -c "echo \\$HOME"`/.kalite
         if [ -d "$USER_CONFIG_DIR" ]
         then
             EXISTING_CONTENT="$USER_CONFIG_DIR/content/assessment"
         fi
-    fi
+    }
     
     # If there are no existing contents, display a text box telling the user to
     # fetch content packs after the installation
@@ -157,11 +159,13 @@ kalite_configure()
     
     # User setup
     echo "$KALITE_USER" > /etc/ka-lite/username
-    if ! getent passwd "$KALITE_USER" >/dev/null
-    then
+
+    # This way of writing if statements with failing sub commands will work
+    # while using errexit
+    getent passwd "$KALITE_USER" >/dev/null || {
         adduser --system --shell /bin/bash --home "/var/$KALITE_USER" "$KALITE_USER"
-    fi
-    
+    }    
+
     # Do we have string defined for settings.py?
     if ! [ "$SETTINGS_PY" = "" ]
     then
