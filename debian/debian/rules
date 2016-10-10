@@ -38,6 +38,7 @@ override_dh_auto_install:
 	install -D -m0644 debian/startup/ka-lite.default $(CURDIR)/debian/ka-lite-raspberry-pi/etc/default/ka-lite
 	install -D -m0644 debian/startup/ka-lite.service $(CURDIR)/debian/ka-lite-raspberry-pi/lib/systemd/system/ka-lite.service
 
+
 # using dh-exec
 override_dh_install:
 	dh_install --fail-missing
