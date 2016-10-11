@@ -3,6 +3,14 @@
 # KA Lite sources are really big, this script takes an original KA Lite
 # debian source and creates one without all the fuzz.
 
+
+# dpkg -i does not reflect apt-get install exactly enough.
+
+# Since test_build.sh now creates a custom repo with dpkg-scanpackages, we should be able to add it using before_install
+
+# https://docs.travis-ci.com/user/installing-dependencies/#Installing-Packages-from-a-custom-APT-repository
+
+
 set -e
 
 if [ "$1" = "" ]
