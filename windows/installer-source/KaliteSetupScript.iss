@@ -37,7 +37,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\ka-lite-static-*.zip"; DestDir: "{app}\ka-lite"
+Source: "..\ka_lite_static-*.whl"; DestDir: "{app}\ka-lite"
 Source: "..\en.zip"; DestDir: "{app}"
 Source: "..\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -333,6 +333,7 @@ end;
 { Used in GetPipPath below }
 const
     DEFAULT_PATH = '\Python27\Scripts\pip.exe';
+    DEFAULT_PYTHON_PATH = '\Python27\python.exe';
 
 { Returns the path of pip.exe on the system. }
 { Tries several different locations before prompting user. }
@@ -354,6 +355,12 @@ begin
     if GetOpenFileName('Please select pip.exe', path, '', 'All files (*.*)|*.*', 'exe') then
     begin
         Result := path;
+        RegWriteStringValue(
+            HKLM,
+            'System\CurrentControlSet\Control\Session Manager\Environment',
+            'KALITE_PYTHON',
+            ExtractFileDir(path)
+        );
     end
     else begin
         MsgBox('Fatal error'#13#13'Please install pip and try again.', mbError, MB_OK);
@@ -364,15 +371,21 @@ end;
 
 procedure HandlePipSetup;
 var
+    kalitePythonEnv: string;
     PipCommand: string;
     PipPath: string;
+    pythonPath: string;
+    checkEnc: string;
     ErrorCode: integer;
 
 begin
     PipPath := GetPipPath;
+
+    if GetEnv('KALITE_PYTHON') then
+        PipPath := ExtractFileDir(kalitePythonEnv) + '\Scripts\pip.exe';
     if PipPath = '' then
         exit;
-    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka-lite-static-'  + '{#TargetVersion}' + '.zip"';
+    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka_lite_static-' + '{#TargetVersion}' + '.dev0-py2-none-any' + '.whl"';
 
     MsgBox('Setup will now install kalite source files to your Python site-packages.', mbInformation, MB_OK);
     if not Exec(PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
@@ -380,7 +393,7 @@ begin
       MsgBox('Critical error.' #13#13 'Dependencies have failed to install. Error Number: ' + IntToStr(ErrorCode), mbInformation, MB_OK);
       forceCancel := True;
       WizardForm.Close;
-    end;
+    end
 
     { Must set this environment variable so the systray executable knows where to find the installed kalite.bat script}
     { Should by in the same directory as pip.exe, e.g. 'C:\Python27\Scripts' }
@@ -389,6 +402,14 @@ begin
         'System\CurrentControlSet\Control\Session Manager\Environment',
         'KALITE_SCRIPT_DIR',
         ExtractFileDir(PipPath)
+    );
+    FileCopy('C:\Users\Richard\Downloads\aa\kalite-dev\kalite.bat', 'C:\Python27\Scripts\kalite.bat', False);
+    pythonPath := ExtractFileDir(ExtractFileDir(PipPath)) + '\python.exe';
+    RegWriteStringValue(
+        HKLM,
+        'System\CurrentControlSet\Control\Session Manager\Environment',
+        'KALITE_PYTHON',
+        pythonPath
     );
 end;
 
