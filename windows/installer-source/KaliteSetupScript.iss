@@ -8,6 +8,8 @@
 
 #define TargetVersion = getKALiteVersion();
 
+#define kalitePythonEnv = GetEnv("KALITE_PYTHON");
+
 #expr DeleteFile(SourcePath+"\version.temp")
 
 [Setup]
@@ -318,13 +320,15 @@ procedure HandlePythonSetup;
 var
     installPythonErrorCode : Integer;
 begin
-    if(MsgBox('Python 2.7.9+ is required to install KA Lite on Windows; do you wish to first install Python 2.7.10, before continuing with the installation of KA Lite?', mbConfirmation, MB_YESNO) = idYes) then
+    if(MsgBox('Python 2.7.11+ is required to install KA Lite on Windows; do you wish to first install Python 2.7.11, before continuing with the installation of KA Lite?', mbConfirmation, MB_YESNO) = idYes) then
     begin
-        ExtractTemporaryFile('python-2.7.10.msi');
-        ShellExec('open', ExpandConstant('{tmp}')+'\python-2.7.10.msi', '', '', SW_SHOWNORMAL, ewWaitUntilTerminated, installPythonErrorCode);
+        ExtractTemporaryFile('python-2.7.11.msi');
+        ExtractTemporaryFile('python-2.7.11.amd64.msi');
+        ExtractTemporaryFile('python-exe.bat');
+        ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_SHOWNORMAL, ewWaitUntilTerminated, installPythonErrorCode);
     end
     else begin
-        MsgBox('Error' #13#13 'You must have Python 2.7.9+ installed to proceed! Installation will now exit.', mbError, MB_OK);
+        MsgBox('Error' #13#13 'You must have Python 2.7.11+ installed to proceed! Installation will now exit.', mbError, MB_OK);
         forceCancel := True;
         WizardForm.Close;
     end;
@@ -371,7 +375,6 @@ end;
 
 procedure HandlePipSetup;
 var
-    kalitePythonEnv: string;
     PipCommand: string;
     PipPath: string;
     pythonPath: string;
@@ -380,12 +383,11 @@ var
 
 begin
     PipPath := GetPipPath;
-
-    if GetEnv('KALITE_PYTHON') then
-        PipPath := ExtractFileDir(kalitePythonEnv) + '\Scripts\pip.exe';
+    if FileExists('{#kalitePythonEnv}') then 
+        PipPath := ExtractFileDir('{#kalitePythonEnv}') + '\Scripts\pip.exe';
     if PipPath = '' then
         exit;
-    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka_lite_static-' + '{#TargetVersion}' + '.dev0-py2-none-any' + '.whl"';
+    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka_lite_static-' + '{#TargetVersion}' + '-py2-none-any' + '.whl"';
 
     MsgBox('Setup will now install kalite source files to your Python site-packages.', mbInformation, MB_OK);
     if not Exec(PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
@@ -403,7 +405,7 @@ begin
         'KALITE_SCRIPT_DIR',
         ExtractFileDir(PipPath)
     );
-    FileCopy('C:\Users\Richard\Downloads\aa\kalite-dev\kalite.bat', 'C:\Python27\Scripts\kalite.bat', False);
+    FileCopy(ExpandConstant('{app}') + '\ka-lite\scripts\kalite.bat', 'C:\Python27\Scripts\kalite.bat', False);
     pythonPath := ExtractFileDir(ExtractFileDir(PipPath)) + '\python.exe';
     RegWriteStringValue(
         HKLM,
@@ -427,7 +429,7 @@ begin
 
     RegDeleteValue(HKCU, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Run', ExpandConstant('{#MyAppName}'));
    
-    if ShellExec('open', 'python.exe','-c "import sys; (sys.version_info >= (2, 7, 9,) and sys.version_info < (3,) and sys.exit(0)) or sys.exit(1)"', '', SW_HIDE, ewWaitUntilTerminated, PythonVersionCodeCheck) then
+    if ShellExec('open', 'python.exe','-c "import sys; (sys.version_info >= (2, 7, 11,) and sys.version_info < (3,) and sys.exit(0)) or sys.exit(1)"', '', SW_HIDE, ewWaitUntilTerminated, PythonVersionCodeCheck) then
     begin
         if PythonVersionCodeCheck = 1 then
         begin
