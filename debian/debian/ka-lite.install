@@ -1,4 +1,2 @@
 #!/usr/bin/dh-exec
-debian/init-service => /usr/share/kalite/init-service
-debian/etc-default => /etc/default/ka-lite
 

@@ -1,18 +1,12 @@
 ## Summary
 
-*Briefly describe what the issue is about.*
+> Briefly describe what the issue is about
 
 
-## Branch or installer
-
-*Did issue occur on the current `develop` branch or on installation source (please specify OS and version)?*
+## Version
 
  - Installer: Windows/OSX/Debian (?)
  - Version: 0.xx.x (?)
-
-or:
-
- - Branch: develop (?)
 
 
 ## Traceback or server.log snippet
@@ -23,7 +17,7 @@ INSERT TRACEBACK, LOG MESSAGES ETC. HERE
 
 ## Screenshots
 
-*If applicable*
+> Please share screenshots if applicaple
 
 
 ## How to reproduce
@@ -32,8 +26,3 @@ INSERT TRACEBACK, LOG MESSAGES ETC. HERE
 1. To
 1. Reproduce
 
-
-## Real-life consequences
-*Anything community should be aware of, for instance how the issue affects your deployment.*
-
-*If applicable*

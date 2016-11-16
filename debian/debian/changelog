@@ -1,3 +1,66 @@
+ka-lite-source (0.16.9-0ubuntu3) trusty; urgency=medium
+
+  * Add system.d ka-lite.service script
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 26 Sep 2016 13:48:29 +0200
+
+ka-lite-source (0.16.9-0ubuntu2) trusty; urgency=medium
+
+  * Remove *pyc files during upgrade process
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 19 Sep 2016 19:17:40 +0200
+
+ka-lite-source (0.16.9-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 09 Sep 2016 18:11:46 +0200
+
+ka-lite-source (0.16.8-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 05 Aug 2016 18:53:40 +0200
+
+ka-lite-source (0.16.7-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Changelist: http://ka-lite.readthedocs.io/en/latest/installguide/release_notes.html
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 02 Aug 2016 14:52:33 +0200
+
+ka-lite-source (0.16.6~post1-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * New content packs for all languages
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 17 Jun 2016 23:02:34 +0200
+
+ka-lite-source (0.16.5-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 02 May 2016 23:21:18 +0200
+
+ka-lite-source (0.16.4-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 29 Apr 2016 22:07:32 +0200
+
+ka-lite-source (0.16.3-0ubuntu2) trusty; urgency=medium
+
+  * Nginx config served wrong path for some static items
+  * Upgrading did not correctly reset URL of assessment items
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 26 Apr 2016 17:40:53 +0200
+
+ka-lite-source (0.16.3-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 25 Apr 2016 17:35:55 +0200
+
 ka-lite-source (0.16.2-0ubuntu2) trusty; urgency=medium
 
   * Fix upgrade: Auto update assessment item URL if it was set to a learningequality.org domain
