@@ -8,8 +8,6 @@
 
 #define TargetVersion = getKALiteVersion();
 
-#define kalitePythonEnv = GetEnv("KALITE_PYTHON");
-
 #expr DeleteFile(SourcePath+"\version.temp")
 
 [Setup]
@@ -92,7 +90,7 @@ begin
         ShellExec('open', 'tskill.exe', '"KA Lite"', '', SW_HIDE, ewWaitUntilTerminated, stopServerCode);
         Exec(ExpandConstant('{cmd}'),'/C ka-lite\bin\windows\kalite.bat stop', WizardForm.PrevAppDir, SW_HIDE, ewWaitUntilTerminated, stopServerCode);
         Exec(ExpandConstant('{cmd}'),'/C del winshortcut.vbs', WizardForm.PrevAppDir, SW_HIDE, ewWaitUntilTerminated, removeOldGuiTool);
-    end;
+    end;                            
     
     // Server data
     ServerInformationPage := CreateInputQueryPage(wpSelectDir,
@@ -325,7 +323,7 @@ begin
         ExtractTemporaryFile('python-2.7.11.msi');
         ExtractTemporaryFile('python-2.7.11.amd64.msi');
         ExtractTemporaryFile('python-exe.bat');
-        ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_SHOWNORMAL, ewWaitUntilTerminated, installPythonErrorCode);
+        ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
     end
     else begin
         MsgBox('Error' #13#13 'You must have Python 2.7.11+ installed to proceed! Installation will now exit.', mbError, MB_OK);
@@ -336,35 +334,39 @@ end;
 
 { Used in GetPipPath below }
 const
-    DEFAULT_PATH = '\Python27\Scripts\pip.exe';
+    DEFAULT_PIP_PATH = '\Python27\Scripts\pip.exe';
     DEFAULT_PYTHON_PATH = '\Python27\python.exe';
 
 { Returns the path of pip.exe on the system. }
 { Tries several different locations before prompting user. }
 function GetPipPath: string;
 var
+    kalitePythonEnv: string;
     path : string;
     i : integer;
 begin
-    for i := Ord('C') to Ord('H') do
-    begin
-        path := Chr(i) + ':' + DEFAULT_PATH;
+    kalitePythonEnv := GetEnv('KALITE_PYTHON');
+    Log(kalitePythonEnv)
+    if kalitePythonEnv = '' then 
+      begin
+        path := DEFAULT_PIP_PATH;
         if FileExists(path) then
         begin
             Result := path;
             exit;
-        end;
-    end;
+        end
+      end
+    else
+      begin
+        if FileExists(kalitePythonEnv) then 
+            Result := ExtractFileDir(kalitePythonEnv) + '\Scripts\pip.exe';
+            exit;
+      end
+
     MsgBox('Could not find pip.exe. Please select the location of pip.exe to continue installation.', mbInformation, MB_OK);
     if GetOpenFileName('Please select pip.exe', path, '', 'All files (*.*)|*.*', 'exe') then
     begin
         Result := path;
-        RegWriteStringValue(
-            HKLM,
-            'System\CurrentControlSet\Control\Session Manager\Environment',
-            'KALITE_PYTHON',
-            ExtractFileDir(path)
-        );
     end
     else begin
         MsgBox('Fatal error'#13#13'Please install pip and try again.', mbError, MB_OK);
@@ -383,8 +385,6 @@ var
 
 begin
     PipPath := GetPipPath;
-    if FileExists('{#kalitePythonEnv}') then 
-        PipPath := ExtractFileDir('{#kalitePythonEnv}') + '\Scripts\pip.exe';
     if PipPath = '' then
         exit;
     PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka_lite_static-' + '{#TargetVersion}' + '-py2-none-any' + '.whl"';
@@ -405,8 +405,8 @@ begin
         'KALITE_SCRIPT_DIR',
         ExtractFileDir(PipPath)
     );
-    FileCopy(ExpandConstant('{app}') + '\ka-lite\scripts\kalite.bat', 'C:\Python27\Scripts\kalite.bat', False);
     pythonPath := ExtractFileDir(ExtractFileDir(PipPath)) + '\python.exe';
+    FileCopy(ExpandConstant('{app}') + '\ka-lite\scripts\kalite.bat', ExtractFileDir(PipPath) + '\kalite.bat', False);
     RegWriteStringValue(
         HKLM,
         'System\CurrentControlSet\Control\Session Manager\Environment',
@@ -442,6 +442,7 @@ begin
     end;  
 end;
 
+
 function InitializeUninstall(): Boolean;
 var
 ErrorCode: Integer;
@@ -458,7 +459,7 @@ var
 begin
     { Used to have more responsibility, but we delegated those to the app itself! }
     { Unpacks the English content pack. }
-    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage retrievecontentpack local en en.zip --foreground"', ExpandConstant('{app}'), SW_SHOW, ewWaitUntilTerminated, retCode);
+    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage retrievecontentpack local en en.zip --foreground"', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, retCode);
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -519,8 +520,6 @@ begin
         if installFlag then
         begin
             HandlePipSetup();
-
-            if Not forceCancel then
             begin
                 DoSetup;
             end;
