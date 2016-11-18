@@ -318,10 +318,10 @@ procedure HandlePythonSetup;
 var
     installPythonErrorCode : Integer;
 begin
-    if(MsgBox('Python 2.7.11+ is required to install KA Lite on Windows; do you wish to first install Python 2.7.11, before continuing with the installation of KA Lite?', mbConfirmation, MB_YESNO) = idYes) then
+    if(MsgBox('Python 2.7.11+ is required to install KA Lite on Windows; do you wish to first install Python 2.7.12, before continuing with the installation of KA Lite?', mbConfirmation, MB_YESNO) = idYes) then
     begin
-        ExtractTemporaryFile('python-2.7.11.msi');
-        ExtractTemporaryFile('python-2.7.11.amd64.msi');
+        ExtractTemporaryFile('python-2.7.12.msi');
+        ExtractTemporaryFile('python-2.7.12.amd64.msi');
         ExtractTemporaryFile('python-exe.bat');
         ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
     end
