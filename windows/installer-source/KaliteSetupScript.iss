@@ -318,18 +318,16 @@ procedure HandlePythonSetup;
 var
     installPythonErrorCode : Integer;
 begin
-    if(MsgBox('Python 2.7.11+ is required to install KA Lite on Windows; do you wish to first install Python 2.7.12, before continuing with the installation of KA Lite?', mbConfirmation, MB_YESNO) = idYes) then
-    begin
-        ExtractTemporaryFile('python-2.7.12.msi');
-        ExtractTemporaryFile('python-2.7.12.amd64.msi');
-        ExtractTemporaryFile('python-exe.bat');
-        ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
-    end
-    else begin
-        MsgBox('Error' #13#13 'You must have Python 2.7.11+ installed to proceed! Installation will now exit.', mbError, MB_OK);
-        forceCancel := True;
-        WizardForm.Close;
-    end;
+    if(MsgBox('KA Lite requires Python to be installed on your system.' + #13#10 + 'This wizard will proceed to install Python 2.7.12, and then continue with  KA Lite installation.' + #13#10 + #13#10 + 'Click OK to continue.', mbConfirmation, MB_OKCANCEL) = idCancel) then
+        if(MsgBox('Are you sure you want to cancel the installation of Python 2.7.12?' + #13#10 + 'If you select Yes, this installer will close and KA Lite will not be installed on your system.', mbConfirmation, MB_YESNO) = idYes) then
+          begin
+            forceCancel := True;
+            WizardForm.Close;
+          end;
+    ExtractTemporaryFile('python-2.7.12.msi');
+    ExtractTemporaryFile('python-2.7.12.amd64.msi');
+    ExtractTemporaryFile('python-exe.bat');
+    ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
 end;
 
 { Used in GetPipPath below }
