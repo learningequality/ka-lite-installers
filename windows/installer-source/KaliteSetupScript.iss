@@ -79,6 +79,7 @@ var
   restoreDatabaseTemp : integer;
   forceCancel : boolean;
 
+
 procedure InitializeWizard;
 begin
     isUpgrade := False;
@@ -314,6 +315,10 @@ begin
     end;
 end;
 
+{REF: http://stackoverflow.com/questions/4438506/exit-from-inno-setup-instalation-from-code}
+procedure ExitProcess(uExitCode: Integer);
+  external 'ExitProcess@kernel32.dll stdcall';
+
 procedure HandlePythonSetup;
 var
     installPythonErrorCode : Integer;
@@ -322,12 +327,17 @@ begin
         if(MsgBox('Are you sure you want to cancel the installation of Python 2.7.12?' + #13#10 + 'If you select Yes, this installer will close and KA Lite will not be installed on your system.', mbConfirmation, MB_YESNO) = idYes) then
           begin
             forceCancel := True;
-            WizardForm.Close;
-          end;
-    ExtractTemporaryFile('python-2.7.12.msi');
-    ExtractTemporaryFile('python-2.7.12.amd64.msi');
-    ExtractTemporaryFile('python-exe.bat');
-    ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
+            ExitProcess(1);
+          end
+        else begin
+             HandlePythonSetup();
+             exit;
+        end
+    else
+        ExtractTemporaryFile('python-2.7.12.msi');
+        ExtractTemporaryFile('python-2.7.12.amd64.msi');
+        ExtractTemporaryFile('python-exe.bat');
+        ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
 end;
 
 { Used in GetPipPath below }
