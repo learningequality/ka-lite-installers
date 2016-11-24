@@ -212,7 +212,7 @@ BOOL checkEnvVars() {
     
     //REF: http://stackoverflow.com/questions/386783/nstask-not-picking-up-path-from-the-users-environment
     NSTask* task = [[NSTask alloc] init];
-    NSString *kaliteCommand = [NSString stringWithFormat:@"kalite %@",command];
+    NSString *kaliteCommand = [NSString stringWithFormat:@"%@ %@", getKaliteExecutable(), command];
     NSArray *array = [NSArray arrayWithObjects:@"-l",
                       @"-c",
                       kaliteCommand,
@@ -311,12 +311,14 @@ BOOL kaliteExists() {
 - (enum kaliteStatus)checkRunTask:(NSNotification *)aNotification{
     NSArray *taskArguments;
     NSArray *statusArguments;
+    NSString *kaliteStatusCommand;
     enum kaliteStatus oldStatus = self.status;
     
     int status = [[aNotification object] terminationStatus];
 
     taskArguments = [[aNotification object] arguments];
-    statusArguments = [[NSArray alloc]initWithObjects:@"-l", @"-c", @"kalite status", nil];
+    kaliteStatusCommand = [NSString stringWithFormat:@"%@ status", getKaliteExecutable()];
+    statusArguments = [[NSArray alloc]initWithObjects:@"-l", @"-c", kaliteStatusCommand, nil];
     NSSet *taskArgsSet = [NSSet setWithArray:taskArguments];
     NSSet *statusArgsSet = [NSSet setWithArray:statusArguments];
     
@@ -440,7 +442,7 @@ void showNotification(NSString *subtitle, NSString *info) {
 
 
 NSString *getKaliteExecutable() {
-    return @"/usr/local/bin/kalite";
+    return @"/Users/user/ka-lite/dist/ka-lite-0.17.0.dev0.pex";
 }
 
 
@@ -763,23 +765,23 @@ NSString *getEnvVar(NSString *var) {
         isOk = NO;
     }
 
-    // Check the environment variables.
-    if (! checkEnvVars()) {
-        msg = [NSString stringWithFormat:@"%@\n* One of the KALITE_PYTHON or KALITE_HOME environment variables is invalid.", msg];
-        isOk = NO;
-    }
-
-    // Check the custom KA Lite data path.
-    NSString *dataPath = getKaliteDataPath();
-    if (dataPath == nil) {
-        msg = [NSString stringWithFormat:@"%@\n* The custom KA Lite data path is invalid, please check the KALITE_HOME environment variable value.", msg];
-        isOk = NO;
-    }
-
-    if (showIt == YES && isOk == NO) {
-        msg = [NSString stringWithFormat:@"%@  Please try to re-install KA Lite to attempt to fix the issue/s.%@", title, msg];
-        showNotification(title, msg);
-    }
+//    // Check the environment variables.
+//    if (! checkEnvVars()) {
+//        msg = [NSString stringWithFormat:@"%@\n* One of the KALITE_PYTHON or KALITE_HOME environment variables is invalid.", msg];
+//        isOk = NO;
+//    }
+//
+//    // Check the custom KA Lite data path.
+//    NSString *dataPath = getKaliteDataPath();
+//    if (dataPath == nil) {
+//        msg = [NSString stringWithFormat:@"%@\n* The custom KA Lite data path is invalid, please check the KALITE_HOME environment variable value.", msg];
+//        isOk = NO;
+//    }
+//
+//    if (showIt == YES && isOk == NO) {
+//        msg = [NSString stringWithFormat:@"%@  Please try to re-install KA Lite to attempt to fix the issue/s.%@", title, msg];
+//        showNotification(title, msg);
+//    }
     return isOk;
 }
 

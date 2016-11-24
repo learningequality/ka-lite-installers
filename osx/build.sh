@@ -45,15 +45,15 @@
 # . spctl --assess --type install KA-Lite.pkg
 
 
-echo "KA-Lite OS X build script for version 0.16.x and above."
+echo "KA-Lite OS X build script for version 0.17.x and above."
 
 STEP=0
 STEPS=13
 
 # TODO(cpauya): get version from `ka-lite/kalite/version.py`
-VERSION="0.16"
-
-PANTRY_CONTENT_URL="http://pantry.learningequality.org/downloads/ka-lite/$VERSION/content"
+VERSION="develop"
+CONTENT_VERSION="0.17"
+PANTRY_CONTENT_URL="http://pantry.learningequality.org/downloads/ka-lite/$CONTENT_VERSION/content"
 
 
 ((STEP++))
@@ -204,42 +204,42 @@ fi
 
 
 ((STEP++))
-echo "$STEP/$STEPS. Checking Pyrun..."
+echo "$STEP/$STEPS. Checking Python..."
 
-# TODO(arceduardvincent): Update the pyrun url if the "Failed to install setuptools" issue is fix.
-INSTALL_PYRUN_URL="https://downloads.egenix.com/python/index/ucs2/egenix-pyrun/2.2.0/install-pyrun?filename=install-pyrun"
-INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
-PYRUN_NAME="pyrun-2.7"
-PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
-PYRUN_BIN="$PYRUN_DIR/bin"
-PYRUN="$PYRUN_BIN/pyrun"
-PYRUN_PIP="$PYRUN_BIN/pip"
+# # TODO(arceduardvincent): Update the pyrun url if the "Failed to install setuptools" issue is fix.
+# INSTALL_PYRUN_URL="https://downloads.egenix.com/python/index/ucs2/egenix-pyrun/2.2.0/install-pyrun?filename=install-pyrun"
+# INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
+# PYRUN_NAME="pyrun-2.7"
+# PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
+# PYRUN_BIN="$PYRUN_DIR/bin"
+# PYRUN="$PYRUN_BIN/pyrun"
+# PYRUN_PIP="$PYRUN_BIN/pip"
 
-# Don't download Pyrun if there's already a `pyrun-2.7` directory.
-if [ -d "$PYRUN_DIR" ]; then
-    echo ".. Found PyRun directory at '$PYRUN_DIR' so will not re-download.  Delete this folder to re-download."
-else
-    # Download install-pyrun
-    if [ -e "$INSTALL_PYRUN" ]; then
-        echo ".. Found '$INSTALL_PYRUN' so will not re-download.  Delete this file to re-download."
-    else
-        echo ".. Downloading 'install-pyrun' script..."
-        wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $INSTALL_PYRUN $INSTALL_PYRUN_URL
-        if [ $? -ne 0 ]; then
-          echo ".. Abort!  Can't download 'install-pyrun' script."
-          exit 1
-        fi
-        chmod +x $INSTALL_PYRUN
-    fi
+# # Don't download Pyrun if there's already a `pyrun-2.7` directory.
+# if [ -d "$PYRUN_DIR" ]; then
+#     echo ".. Found PyRun directory at '$PYRUN_DIR' so will not re-download.  Delete this folder to re-download."
+# else
+#     # Download install-pyrun
+#     if [ -e "$INSTALL_PYRUN" ]; then
+#         echo ".. Found '$INSTALL_PYRUN' so will not re-download.  Delete this file to re-download."
+#     else
+#         echo ".. Downloading 'install-pyrun' script..."
+#         wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $INSTALL_PYRUN $INSTALL_PYRUN_URL
+#         if [ $? -ne 0 ]; then
+#           echo ".. Abort!  Can't download 'install-pyrun' script."
+#           exit 1
+#         fi
+#         chmod +x $INSTALL_PYRUN
+#     fi
 
-    # Download PyRun.
-    echo ".. Downloading PyRun with Python 2.7..."
-    $INSTALL_PYRUN --python=2.7 $PYRUN_DIR
-    if [ $? -ne 0 ]; then
-        echo ".. Abort!  Can't install minimal PyRun."
-        exit 1
-    fi
-fi
+#     # Download PyRun.
+#     echo ".. Downloading PyRun with Python 2.7..."
+#     $INSTALL_PYRUN --python=2.7 $PYRUN_DIR
+#     if [ $? -ne 0 ]; then
+#         echo ".. Abort!  Can't install minimal PyRun."
+#         exit 1
+#     fi
+# fi
 
 # MUST: Override the PATH to add the path to the Pyrun binaries first so it's python executes instead of
 # the system python.  When the script exits the old PATH values will be restored.
@@ -277,7 +277,7 @@ cd "$KA_LITE_DIR"
 echo ".. Running $PIP_CMD..."
 $PIP_CMD
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error/s encountered running '$PIP_CMD'."
+    echo ".. Abort! Error/s encountered running '$PIP_CMD'."
     exit 1
 fi
 
