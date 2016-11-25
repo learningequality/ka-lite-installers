@@ -442,7 +442,11 @@ void showNotification(NSString *subtitle, NSString *info) {
 
 
 NSString *getKaliteExecutable() {
-    return @"/Users/user/ka-lite/dist/ka-lite-0.17.0.dev0.pex";
+    NSString* envKalitePexPath = getEnvVar(@"KALITE_PEX");
+    if (pathExists(envKalitePexPath)) {
+        return envKalitePexPath;
+    }
+    return @"/Applications/KA-Lite/support/ka-lite/kalite.pex";
 }
 
 

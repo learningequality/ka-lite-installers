@@ -97,7 +97,7 @@ echo "$STEP/$STEPS. Checking the arguments..."
 # this will make it easier to "rename" the archive.
 # Example: KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/develop.zip"
 # KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/develop.zip"
-KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/$VERSION.x.zip"
+KA_LITE_REPO_ZIP="https://github.com/learningequality/ka-lite/archive/$VERSION.zip"
 
 
 # Check if an argument was passed as URL for the script and use that instead.
@@ -206,51 +206,22 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Checking Python..."
 
-# # TODO(arceduardvincent): Update the pyrun url if the "Failed to install setuptools" issue is fix.
-# INSTALL_PYRUN_URL="https://downloads.egenix.com/python/index/ucs2/egenix-pyrun/2.2.0/install-pyrun?filename=install-pyrun"
-# INSTALL_PYRUN="$WORKING_DIR/install-pyrun.sh"
-# PYRUN_NAME="pyrun-2.7"
-# PYRUN_DIR="$WORKING_DIR/$PYRUN_NAME"
-# PYRUN_BIN="$PYRUN_DIR/bin"
-# PYRUN="$PYRUN_BIN/pyrun"
-# PYRUN_PIP="$PYRUN_BIN/pip"
-
-# # Don't download Pyrun if there's already a `pyrun-2.7` directory.
-# if [ -d "$PYRUN_DIR" ]; then
-#     echo ".. Found PyRun directory at '$PYRUN_DIR' so will not re-download.  Delete this folder to re-download."
-# else
-#     # Download install-pyrun
-#     if [ -e "$INSTALL_PYRUN" ]; then
-#         echo ".. Found '$INSTALL_PYRUN' so will not re-download.  Delete this file to re-download."
-#     else
-#         echo ".. Downloading 'install-pyrun' script..."
-#         wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $INSTALL_PYRUN $INSTALL_PYRUN_URL
-#         if [ $? -ne 0 ]; then
-#           echo ".. Abort!  Can't download 'install-pyrun' script."
-#           exit 1
-#         fi
-#         chmod +x $INSTALL_PYRUN
-#     fi
-
-#     # Download PyRun.
-#     echo ".. Downloading PyRun with Python 2.7..."
-#     $INSTALL_PYRUN --python=2.7 $PYRUN_DIR
-#     if [ $? -ne 0 ]; then
-#         echo ".. Abort!  Can't install minimal PyRun."
-#         exit 1
-#     fi
-# fi
-
 # MUST: Override the PATH to add the path to the Pyrun binaries first so it's python executes instead of
 # the system python.  When the script exits the old PATH values will be restored.
-export PATH="$PYRUN_BIN:$PATH"
+export WORKON_HOME=~/Envs
+mkdir -p $WORKON_HOME
+source /usr/local/bin/virtualenvwrapper.sh
 
+ENV_NAME=kalite-build-$CONTENT_VERSION
+# echo $ENV_NAME
+mkvirtualenv $ENV_NAME
+workon $ENV_NAME
 
 ((STEP++))
 echo "$STEP/$STEPS. Upgrading Pyrun's Pip..."
 
-# MUST: Upgrade Pyrun's pip from v1.5.6 to prevent issues.
-UPGRADE_PIP_CMD="$PYRUN_PIP install --upgrade pip"
+# MUST: Upgrade Python's pip from v1.5.6 to prevent issues.
+UPGRADE_PIP_CMD="pip install --upgrade pip"
 $UPGRADE_PIP_CMD
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered running '$UPGRADE_PIP_CMD'."
@@ -261,7 +232,7 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Installing Pip requirements for use of Makefile..."
 
-PIP_CMD="$PYRUN_PIP install -r requirements_dev.txt"
+PIP_CMD="pip install -r requirements_dev.txt"
 # TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
 cd "$KA_LITE_DIR"
 echo ".. Running $PIP_CMD..."
@@ -271,7 +242,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-PIP_CMD="$PYRUN_PIP install -r requirements_sphinx.txt"
+PIP_CMD="pip install -r requirements_sphinx.txt"
 # TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
 cd "$KA_LITE_DIR"
 echo ".. Running $PIP_CMD..."
@@ -281,13 +252,30 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+NPM_CMD="npm install"
+cd "$KA_LITE_DIR"
+echo ".. Running $NPM_CMD..."
+$NPM_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Error/s encountered running '$NPM_CMD'."
+    exit 1
+fi
+
+PIP_CMD="pip install ."
+cd "$KA_LITE_DIR"
+echo ".. Running $PIP_CMD..."
+$PIP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Error/s encountered running '$PIP_CMD'."
+    exit 1
+fi
 
 ((STEP++))
 echo "$STEP/$STEPS. Running 'make dist'..."
 
 # MUST: Make sure we have a KALITE_PYTHON env var that points to Pyrun
 # because `bin/kalite manage ...` will be called when we do `make assets`.
-export KALITE_PYTHON="$PYRUN"
+export KALITE_PYTHON="python"
 
 cd "$KA_LITE_DIR"
 MAKE_CMD="make dist"
@@ -298,17 +286,23 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-
-((STEP++))
-echo "$STEP/$STEPS. Running 'setup.py install --static'..."
+PIP_CMD="pip install pex"
+echo ".. Running $PIP_CMD..."
+$PIP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Error/s encountered running '$PIP_CMD'."
+    exit 1
+fi
 
 cd "$KA_LITE_DIR"
-SETUP_CMD="$PYRUN setup.py install"
-SETUP_STATIC_CMD="$SETUP_CMD --static"
-echo ".. Running $SETUP_STATIC_CMD..."
-$SETUP_STATIC_CMD
+pex -o dist/kalite.pex -m kalite 'dist/ka_lite_static-0.17.0.dev0-py2-none-any.whl'
+
+ENV_CMD="rmvirtualenv $ENV_NAME"
+deactivate
+echo ".. Removing $ENV_CMD..."
+$ENV_CMD
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error/s encountered running '$SETUP_STATIC_CMD'."
+    echo ".. Abort!  Error/s encountered running '$ENV_CMD'."
     exit 1
 fi
 
@@ -326,6 +320,7 @@ if [ -d "$KA_LITE_PROJECT_DIR" ]; then
         exit 1
     fi
 fi
+
 # check if build of Xcode project succeeded
 KA_LITE_APP_PATH="$KA_LITE_PROJECT_DIR/build/Release/KA-Lite.app"
 if ! [ -d "$KA_LITE_APP_PATH" ]; then
