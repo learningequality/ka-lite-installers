@@ -3,7 +3,7 @@
 # The above is very useful during debugging.
 # 
 # **************************************************
-# Build script for KA-Lite using Packages and PyRun.
+# Build script for KA-Lite using Packages and virtualenvwrapper.
 #
 # Environment Variable/s:
 # . IS_KALITE_RELEASE == must be set to sign the .app and .pkg packages
@@ -20,14 +20,13 @@
 # 3. Create temporary directory `temp`.
 # 4. Download the contentpacks/en.zip.
 # 5. Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
-# 6. Get Pyrun, then insert path to the Pyrun binaries in $PATH so Pyrun's python runs first instead of the system python.
-# 7. Upgrade Pyrun's Pip
+# 6. Install and create virtualenv.
+# 7. Upgrade Python Pip
 # 8. Run `pip install -r requirements_dev.txt` to install the Makefile executables.
 # 9. Run `make dist` for assets and docs.
-# 10. Run `pyrun setup.py install --static` inside the `temp/ka-lite/` directory.
-# 11. Build the Xcode project.
-# 12. Codesign the built .app if running on build server.
-# 13. Run Packages script to build the .pkg.
+# 10. Build the Xcode project.
+# 11. Codesign the built .app if running on build server.
+# 12. Run Packages script to build the .pkg.
 #
 # REF: Bash References
 # . http://www.peterbe.com/plog/set-ex
@@ -37,7 +36,8 @@
 # . http://stackoverflow.com/questions/592620/check-if-a-program-exists-from-a-bash-script
 # . http://stackoverflow.com/questions/2924422/how-do-i-determine-if-a-web-page-exists-with-shell-scripting/20988182#20988182
 # . http://stackoverflow.com/questions/2751227/how-to-download-source-in-zip-format-from-github/18222354#18222354
-#
+# . http://stackoverflow.com/questions/592620/check-if-a-program-exists-from-a-bash-script
+# 
 # 
 # MUST: test the signed .pkg or .app on a target Mac with:
 # . pkgutil --check-signature KA-Lite.pkg -- or;
@@ -48,7 +48,7 @@
 echo "KA-Lite OS X build script for version 0.17.x and above."
 
 STEP=0
-STEPS=13
+STEPS=12
 
 # TODO(cpauya): get version from `ka-lite/kalite/version.py`
 VERSION="develop"
@@ -202,25 +202,32 @@ else
     fi
 fi
 
-
 ((STEP++))
-echo "$STEP/$STEPS. Checking Python..."
+echo "$STEP/$STEPS. Install and create virtualenv..."
 
 # MUST: Override the PATH to add the path to the Pyrun binaries first so it's python executes instead of
 # the system python.  When the script exits the old PATH values will be restored.
+
+PIP_CMD="pip install virtualenvwrapper"
+$PIP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$PIP_CMD'."
+    exit 1
+fi
+
 export WORKON_HOME=~/Envs
 mkdir -p $WORKON_HOME
 source /usr/local/bin/virtualenvwrapper.sh
 
 ENV_NAME=kalite-build-$CONTENT_VERSION
-# echo $ENV_NAME
 mkvirtualenv $ENV_NAME
 workon $ENV_NAME
 
-((STEP++))
-echo "$STEP/$STEPS. Upgrading Pyrun's Pip..."
 
-# MUST: Upgrade Python's pip from v1.5.6 to prevent issues.
+((STEP++))
+echo "$STEP/$STEPS. Upgrading Python Pip..."
+
+# MUST: Upgrade Python's pip.
 UPGRADE_PIP_CMD="pip install --upgrade pip"
 $UPGRADE_PIP_CMD
 if [ $? -ne 0 ]; then
@@ -273,7 +280,7 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Running 'make dist'..."
 
-# MUST: Make sure we have a KALITE_PYTHON env var that points to Pyrun
+# MUST: Make sure we have a KALITE_PYTHON env var that points to python
 # because `bin/kalite manage ...` will be called when we do `make assets`.
 export KALITE_PYTHON="python"
 
@@ -295,7 +302,8 @@ if [ $? -ne 0 ]; then
 fi
 
 cd "$KA_LITE_DIR"
-pex -o dist/kalite.pex -m kalite 'dist/ka_lite_static-0.17.0.dev0-py2-none-any.whl'
+WHL_FILE="$(find dist/ -name 'ka_lite_static-*.whl')"
+pex -o dist/kalite.pex -m kalite $WHL_FILE
 
 ENV_CMD="rmvirtualenv $ENV_NAME"
 deactivate
