@@ -357,8 +357,10 @@ fi
 ((STEP++))
 cd "$WORKING_DIR/.."
 OUTPUT_PATH="$WORKING_DIR/output"
-echo "$STEP/$STEPS. Building the .pkg file at '$OUTPUT_PATH'..."
+TEMP_OUTPUT_PATH="$WORKING_DIR/temp-output"
+echo "$STEP/$STEPS. Building the .pkg file at '$TEMP_OUTPUT_PATH'..."
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
+test ! -d "$TEMP_OUTPUT_PATH" && mkdir "$TEMP_OUTPUT_PATH"
 
 KALITE_PACKAGES_NAME="KA-Lite.pkg"
 PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Lite.pkgproj"
@@ -371,14 +373,14 @@ if [ $? -ne 0 ]; then
 fi
 
 echo ".. Checking if to productsign the package or not..."
-OUTPUT_PKG="$OUTPUT_PATH/$KALITE_PACKAGES_NAME"
+OUTPUT_PKG="$TEMP_OUTPUT_PATH/$KALITE_PACKAGES_NAME"
 SIGNER_IDENTITY_INSTALLER="Developer ID Installer: Foundation for Learning Equality, Inc. (H83B64B6AV)"
 if [ -z ${IS_KALITE_RELEASE+0} ]; then 
     echo ".. Not a release, don't productsign the package!"
-    mv -v $PACKAGES_OUTPUT $OUTPUT_PATH
+    mv -v $PACKAGES_OUTPUT $TEMP_OUTPUT_PATH
 else 
     echo ".. Release build so MUST productsign the package..."
-    productsign --sign "$SIGNER_IDENTITY_INSTALLER" "$PACKAGES_OUTPUT" "$OUTPUT_PKG"
+    productsign --sign "$SIGNER_IDENTITY_INSTALLER" "$PACKAGES_OUTPUT" "$TEMP_OUTPUT_PATH"
     if [ $? -ne 0 ]; then
         echo ".. Abort!  Error/s encountered productsigning '$PACKAGES_OUTPUT'."
         exit 1
@@ -386,6 +388,59 @@ else
 fi
 
 
-echo "Congratulations! Your newly built installer is at '$OUTPUT_PKG'."
+# Download python installer.
+((STEP++))
+PYTHON_DOWNLOAD_URL="https://www.python.org/ftp/python/2.7.12/python-2.7.12-macosx10.6.pkg"
+cd $TEMP_OUTPUT_PATH
+wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue $PYTHON_DOWNLOAD_URL
+
+
+
+# Build the .dmg file.
+((STEP++))
+DMG_PATH="$OUTPUT_PATH/KA-Lite-Installer.dmg"
+DMG_BUILDER_PATH="$WORKING_DIR/create-dmg"
+CREATE_DMG="$DMG_BUILDER_PATH/create-dmg"
+KA_LITE_ICNS_PATH="$KA_LITE_PROJECT_DIR/KA-Lite/Resources/images/ka-lite.icns"
+
+echo "$STEP/$STEPS. Building the .dmg file at '$OUTPUT_PATH'..."
+test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
+
+CREATE_DMG_ZIP="$WORKING_DIR/create-dmg.zip"
+# clone the .dmg builder if non-existent
+if ! [ -d $DMG_BUILDER_PATH ]; then
+    cd $WORKING_DIR
+    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CREATE_DMG_ZIP https://github.com/mrpau/create-dmg/archive/master.zip
+        # Extract KA-Lite
+    echo ".. Extracting '$CREATE_DMG_ZIP'..."
+    tar -xf $CREATE_DMG_ZIP -C $WORKING_DIR
+    mv $WORKING_DIR/create-dmg-* create-dmg
+fi
+
+# Remove the .dmg if it exists.
+test -e "$DMG_PATH" && rm "$DMG_PATH"
+
+# Add the README.md to the package.
+# Copy the KA Lite logo to the package.
+cp "$SCRIPTPATH/dmg-resources/README.md" "$TEMP_OUTPUT_PATH"
+cp "$SCRIPTPATH/dmg-resources/ka-lite-logo.png" "$TEMP_OUTPUT_PATH"
+
+# Clean-up the package.
+test -x "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM"
+
+# Let's create the .dmg.
+$CREATE_DMG \
+    --volname "KA Lite Installer" \
+    --volicon "$KA_LITE_ICNS_PATH" \
+    --background "$TEMP_OUTPUT_PATH/ka-lite-logo.png" \
+    --icon "KA-Lite.pkg" 100 170 \
+    --icon "README.md" 300 170 \
+    --icon "python-2.7.12-macosx10.6.pkg" 500 170 \
+    --window-size 600 400 \
+    "$DMG_PATH" \
+    "$TEMP_OUTPUT_PATH"
+
+echo "Congratulations! Your newly built installer is at '$DMG_PATH'."
 cd "$WORKING_DIR/.."
 echo "Done!"
+
