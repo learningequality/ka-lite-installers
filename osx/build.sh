@@ -211,7 +211,7 @@ echo "$STEP/$STEPS. Install and create virtualenv..."
 PIP_CMD="pip install virtualenvwrapper"
 $PIP_CMD
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error/s encountered running '$PIP_CMD'."
+    echo ".. Abort!  Error/s encountered running $PIP_CMD"
     exit 1
 fi
 

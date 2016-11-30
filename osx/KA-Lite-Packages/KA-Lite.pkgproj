@@ -995,9 +995,9 @@
 							<key>LANGUAGE</key>
 							<string>English</string>
 							<key>SECONDARY_VALUE</key>
-							<string>Upgrade Python fist to continue  install the KA Lite.</string>
+							<string>Upgrade Python first before installing the KA Lite.</string>
 							<key>VALUE</key>
-							<string>Python 2.7.11+ is required to install KA Lite. </string>
+							<string>Python version 2.7.11+ is required to install the KA Lite. </string>
 						</dict>
 					</array>
 					<key>NAME</key>
