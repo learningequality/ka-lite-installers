@@ -37,7 +37,7 @@
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
     // TODO(cpauya): Get version from the project's .plist file or from `kalite --version`.
-    self.version = @"0.16";
+    self.version = @"0.17";
     self.isLoaded = NO;
     self.autoStartOnLoad = YES;
     self.status = statusCouldNotDetermineStatus;
@@ -821,7 +821,7 @@ NSString *getEnvVar(NSString *var) {
         [self setEnvVarsAndPlist];
         return YES;
     }
-    self.kaliteVersion.stringValue = version;
+    self.kaliteVersion.stringValue = @"0.17.x";
     return NO;
 }
 

@@ -27,7 +27,10 @@
 # 10. Build the Xcode project.
 # 11. Codesign the built .app if running on build server.
 # 12. Run Packages script to build the .pkg.
-#
+# 13. Download python installer.
+# 14. Build the dmg file.
+
+
 # REF: Bash References
 # . http://www.peterbe.com/plog/set-ex
 # . http://stackoverflow.com/questions/3601515/how-to-check-if-a-variable-is-set-in-bash
@@ -359,6 +362,8 @@ cd "$WORKING_DIR/.."
 OUTPUT_PATH="$WORKING_DIR/output"
 TEMP_OUTPUT_PATH="$WORKING_DIR/temp-output"
 echo "$STEP/$STEPS. Building the .pkg file at '$TEMP_OUTPUT_PATH'..."
+
+test -e "$DMG_PATH" && rm "$TEMP_OUTPUT_PATH"
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 test ! -d "$TEMP_OUTPUT_PATH" && mkdir "$TEMP_OUTPUT_PATH"
 
@@ -393,7 +398,10 @@ fi
 PYTHON_DOWNLOAD_URL="https://www.python.org/ftp/python/2.7.12/python-2.7.12-macosx10.6.pkg"
 cd $TEMP_OUTPUT_PATH
 wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue $PYTHON_DOWNLOAD_URL
-
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Can't download '$PYTHON_DOWNLOAD_URL'"
+    exit 1
+fi
 
 
 # Build the .dmg file.

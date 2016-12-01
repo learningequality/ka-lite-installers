@@ -4,13 +4,13 @@
 
 # Notes: 
 # 1. This script must be run as root.
-# 2. We use `/Applications/KA-Lite/support/` as the installation location which contains the `content/contentpacks/en.zip`, `pyrun`, and `scripts`.
+# 2. We use `/Applications/KA-Lite/support/` as the installation location which contains the `content/contentpacks/en.zip`, `Python`, and `scripts`.
 
 # Steps
 # 1. Symlink kalite executable to /usr/local/bin.
-# 2. Set KALITE_PYTHON environment variable to the Pyrun executable.
+# 2. Set KALITE_PYTHON environment variable to the Python executable.
 # 3. Create plist in /Library/LaunchAgents/ folder.
-# 4. Run shebangcheck script that checks the python/pyrun interpreter to use.
+# 4. Run shebangcheck script that checks the python/Python interpreter to use.
 # 5. Remove the old asset folder to be replaced by newer assets later.
 # 6. Run kalite manage syncdb --noinput.
 # 7. Run kalite manage setup --noinput.
@@ -33,18 +33,19 @@ KALITE_SHARED="/Applications/KA-Lite/support"
 KALITE_DIR="$HOME/.kalite"
 KALITE_UNINSTALL_SCRIPT="KA-Lite_Uninstall.tool"
 KALITE_PEX_PATH="$KALITE_SHARED/ka-lite/kalite.pex"
-PYRUN_NAME="pyrun-2.7"
-PYRUN_DIR="$KALITE_SHARED/$PYRUN_NAME"
-PYTHON="$(which python)"
-PYTHON_PIP="$(which pip)"
-BIN_PATH="$PYRUN_DIR/bin"
+
+PYTHON="/usr/local/bin/python"
+if ! $PYTHON --version >/dev/null 2>&1; then
+    PYTHON="$(which python)"
+fi
+
 SCRIPT_PATH="$KALITE_SHARED/scripts/"
 APPLICATION_PATH="/Applications/KA-Lite"
 PRE_INSTALL_SCRIPT="$SCRIPT_PATH/ka-lite-remover.sh"
 
-SYMLINK_FILE="$KALITE_SHARED/pyrun-2.7/bin/kalite"
-SYMLINK_TO="/usr/local/bin"
-COMMAND_SYMLINK="ln -sf $SYMLINK_FILE $SYMLINK_TO"
+SYMLINK_FILE="$KALITE_PEX_PATH"
+SYMLINK_TO="/usr/local/bin/kalite"
+COMMAND_SYMLINK="ln -s $SYMLINK_FILE $SYMLINK_TO"
 
 ORG="org.learningequality.kalite"
 LAUNCH_AGENTS="/Library/LaunchAgents/"
@@ -57,7 +58,7 @@ PLIST_SRC="$LAUNCH_AGENTS$ORG.plist"
 #----------------------------------------------------------------------
 function update_env {
     # MUST: Make sure we have a KALITE_PYTHON env var that points to PYTHON
-    msg "Setting KALITE_PYTHON environment variable to $PYRUN..."
+    msg "Setting KALITE_PYTHON environment variable to $PYTHON..."
     launchctl unsetenv KALITE_PYTHON
     launchctl setenv KALITE_PYTHON "$PYTHON"
     export KALITE_PYTHON="$PYTHON"
@@ -157,15 +158,6 @@ create_plist
 
 ((STEP++))
 msg "$STEP/$STEPS. Symlink kalite executable to $SYMLINK_TO..."
-if [ ! -d "$SYMLINK_TO" ]; then
-    msg ".. Now creating '$SYMLINK_TO'..."
-    sudo mkdir -p $SYMLINK_TO
-    if [ $? -ne 0 ]; then
-        msg ".. Abort!  Error encountered creating '$SYMLINK_TO' directory."
-        exit 1
-    fi
-fi
-
 $COMMAND_SYMLINK
 if [ $? -ne 0 ]; then
     msg ".. Abort!  Error encountered running '$COMMAND_SYMLINK'."
