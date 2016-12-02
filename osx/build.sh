@@ -25,7 +25,7 @@
 # 8. Run `pip install -r requirements_dev.txt` to install the Makefile executables.
 # 9. Run `make dist` for assets and docs.
 # 10. Build the Xcode project.
-# 11. Codesign the built .app if running on build server.
+# 11. Code-sign the built .app if running on build server.
 # 12. Run Packages script to build the .pkg.
 # 13. Download python installer.
 # 14. Build the dmg file.
@@ -340,14 +340,14 @@ if ! [ -d "$KA_LITE_APP_PATH" ]; then
 fi
 
 
-# Check if to codesign or not
+# Check if to code-sign or not
 ((STEP++))
-echo "$STEP/$STEPS. Checking if to codesign the application or not..."
+echo "$STEP/$STEPS. Checking if to code-sign the application or not..."
 SIGNER_IDENTITY_APPLICATION="Developer ID Application: Foundation for Learning Equality, Inc. (H83B64B6AV)"
 if [ -z ${IS_KALITE_RELEASE+0} ]; then 
-    echo ".. Not a release, don't codesign the application!"
+    echo ".. Not a release, don't code-sign the application!"
 else 
-    echo ".. Release build so MUST codesign the application..."
+    echo ".. Release build so MUST code-sign the application..."
     codesign -d -s "$SIGNER_IDENTITY_APPLICATION" --force "$KA_LITE_APP_PATH"
     if [ $? -ne 0 ]; then
         echo ".. Abort!  Error/s encountered codesigning '$KA_LITE_APP_PATH'."
