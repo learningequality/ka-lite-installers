@@ -980,7 +980,7 @@
 							<key>PATH</key>
 							<string>../ka-lite-python-version-check.sh</string>
 							<key>PATH_TYPE</key>
-							<integer>0</integer>
+							<integer>1</integer>
 						</dict>
 						<key>IC_REQUIREMENT_SCRIPT_VALUE</key>
 						<integer>0</integer>
