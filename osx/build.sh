@@ -210,8 +210,13 @@ echo "$STEP/$STEPS. Install and create virtualenv..."
 
 # MUST: Override the PATH to add the path to the Pyrun binaries first so it's python executes instead of
 # the system python.  When the script exits the old PATH values will be restored.
+PIP_CMD="pip install virtualenv"
+cd "$KA_LITE_DIR"
+echo ".. Running $PIP_CMD..."
+$PIP_CMD
 
-ENV_CMD="/usr/local/bin/virtualenv venv"
+VENV_PATH="$(which virtualenv)"
+ENV_CMD="$VENV_PATH venv"
 $ENV_CMD
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered running $ENV_CMD"
@@ -266,6 +271,14 @@ fi
 
 PIP_CMD="pip install ."
 cd "$KA_LITE_DIR"
+echo ".. Running $PIP_CMD..."
+$PIP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Error/s encountered running '$PIP_CMD'."
+    exit 1
+fi
+
+PIP_CMD="pip install wheel"
 echo ".. Running $PIP_CMD..."
 $PIP_CMD
 if [ $? -ne 0 ]; then
