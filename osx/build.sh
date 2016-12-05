@@ -211,21 +211,14 @@ echo "$STEP/$STEPS. Install and create virtualenv..."
 # MUST: Override the PATH to add the path to the Pyrun binaries first so it's python executes instead of
 # the system python.  When the script exits the old PATH values will be restored.
 
-PIP_CMD="pip install virtualenvwrapper"
-$PIP_CMD
+ENV_CMD="/usr/local/bin/virtualenv venv"
+$ENV_CMD
 if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error/s encountered running $PIP_CMD"
+    echo ".. Abort!  Error/s encountered running $ENV_CMD"
     exit 1
 fi
-
-export WORKON_HOME=~/Envs
-mkdir -p $WORKON_HOME
-source /usr/local/bin/virtualenvwrapper.sh
-
-ENV_NAME=kalite-build-$CONTENT_VERSION
-mkvirtualenv $ENV_NAME
-workon $ENV_NAME
-
+source venv/bin/activate
+ENV_PATH="$(pwd venv)"
 
 ((STEP++))
 echo "$STEP/$STEPS. Upgrading Python Pip..."
@@ -308,7 +301,7 @@ cd "$KA_LITE_DIR"
 WHL_FILE="$(find dist/ -name 'ka_lite_static-*.whl')"
 pex -o dist/kalite.pex -m kalite $WHL_FILE
 
-ENV_CMD="rmvirtualenv $ENV_NAME"
+ENV_CMD="rm -r $ENV_PATH/venv"
 deactivate
 echo ".. Removing $ENV_CMD..."
 $ENV_CMD
