@@ -978,7 +978,7 @@
 						<key>IC_REQUIREMENT_SCRIPT_PATH</key>
 						<dict>
 							<key>PATH</key>
-							<string>/Users/user/installers/osx/ka-lite-python-version-check.sh</string>
+							<string>../ka-lite-python-version-check.sh</string>
 							<key>PATH_TYPE</key>
 							<integer>0</integer>
 						</dict>
