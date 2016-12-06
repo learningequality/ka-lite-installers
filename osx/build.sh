@@ -51,7 +51,7 @@
 echo "KA-Lite OS X build script for version 0.17.x and above."
 
 STEP=0
-STEPS=12
+STEPS=14
 
 # TODO(cpauya): get version from `ka-lite/kalite/version.py`
 VERSION="develop"
@@ -345,6 +345,13 @@ if ! [ -d "$KA_LITE_APP_PATH" ]; then
     exit 1
 fi
 
+# Create output directory path.
+OUTPUT_PATH="$WORKING_DIR/output"
+TEMP_OUTPUT_PATH="$WORKING_DIR/temp-output"
+test -e "$DMG_PATH" && rm "$TEMP_OUTPUT_PATH"
+test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
+test ! -d "$TEMP_OUTPUT_PATH" && mkdir "$TEMP_OUTPUT_PATH"
+
 
 # Check if to code-sign or not
 ((STEP++))
@@ -365,13 +372,7 @@ fi
 # Build the KA-Lite  installer using `Packages` to generate the .pkg file.
 ((STEP++))
 cd "$WORKING_DIR/.."
-OUTPUT_PATH="$WORKING_DIR/output"
-TEMP_OUTPUT_PATH="$WORKING_DIR/temp-output"
 echo "$STEP/$STEPS. Building the .pkg file at '$TEMP_OUTPUT_PATH'..."
-
-test -e "$DMG_PATH" && rm "$TEMP_OUTPUT_PATH"
-test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
-test ! -d "$TEMP_OUTPUT_PATH" && mkdir "$TEMP_OUTPUT_PATH"
 
 KALITE_PACKAGES_NAME="KA-Lite.pkg"
 PACKAGES_PROJECT="$SCRIPTPATH/KA-Lite-Packages/KA-Lite.pkgproj"
