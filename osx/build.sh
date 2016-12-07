@@ -392,7 +392,7 @@ if [ -z ${IS_KALITE_RELEASE+0} ]; then
     mv -v $PACKAGES_OUTPUT $TEMP_OUTPUT_PATH
 else 
     echo ".. Release build so MUST productsign the package..."
-    productsign --sign "$SIGNER_IDENTITY_INSTALLER" "$PACKAGES_OUTPUT" "$TEMP_OUTPUT_PATH"
+    productsign --sign "$SIGNER_IDENTITY_INSTALLER" "$PACKAGES_OUTPUT" "$OUTPUT_PKG"
     if [ $? -ne 0 ]; then
         echo ".. Abort!  Error/s encountered productsigning '$PACKAGES_OUTPUT'."
         exit 1
@@ -440,9 +440,6 @@ test -e "$DMG_PATH" && rm "$DMG_PATH"
 cp "$SCRIPTPATH/dmg-resources/README.md" "$TEMP_OUTPUT_PATH"
 cp "$SCRIPTPATH/dmg-resources/ka-lite-logo.png" "$TEMP_OUTPUT_PATH"
 
-# Clean-up the package.
-test -x "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM" && rm -rf "$RELEASE_PATH/KA-Lite-Monitor.app.dSYM"
-
 # Let's create the .dmg.
 $CREATE_DMG \
     --volname "KA Lite Installer" \
@@ -455,7 +452,14 @@ $CREATE_DMG \
     "$DMG_PATH" \
     "$TEMP_OUTPUT_PATH"
 
-echo "Congratulations! Your newly built installer is at '$DMG_PATH'."
-cd "$WORKING_DIR/.."
 echo "Done!"
-
+if [ -e "$DMG_PATH" ]; then
+    # codesign the built DMG file
+    # unlock the keychain first so we can access the private key
+    # security unlock-keychain -p $KEYCHAIN_PASSWORD
+    codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$DMG_PATH"
+    echo "Congratulations! Your newly built installer is at '$DMG_PATH'."
+else
+    echo "Sorry, something went wrong trying to build the installer at '$DMG_PATH'."
+    exit 1
+fi
