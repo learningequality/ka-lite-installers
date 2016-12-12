@@ -37,7 +37,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\ka-lite-static-*.zip"; DestDir: "{app}\ka-lite"
+Source: "..\ka_lite_static-*.whl"; DestDir: "{app}\ka-lite"
 Source: "..\en.zip"; DestDir: "{app}"
 Source: "..\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -79,6 +79,7 @@ var
   restoreDatabaseTemp : integer;
   forceCancel : boolean;
 
+
 procedure InitializeWizard;
 begin
     isUpgrade := False;
@@ -90,7 +91,7 @@ begin
         ShellExec('open', 'tskill.exe', '"KA Lite"', '', SW_HIDE, ewWaitUntilTerminated, stopServerCode);
         Exec(ExpandConstant('{cmd}'),'/C ka-lite\bin\windows\kalite.bat stop', WizardForm.PrevAppDir, SW_HIDE, ewWaitUntilTerminated, stopServerCode);
         Exec(ExpandConstant('{cmd}'),'/C del winshortcut.vbs', WizardForm.PrevAppDir, SW_HIDE, ewWaitUntilTerminated, removeOldGuiTool);
-    end;
+    end;                            
     
     // Server data
     ServerInformationPage := CreateInputQueryPage(wpSelectDir,
@@ -314,42 +315,62 @@ begin
     end;
 end;
 
+{REF: http://stackoverflow.com/questions/4438506/exit-from-inno-setup-instalation-from-code}
+procedure ExitProcess(uExitCode: Integer);
+  external 'ExitProcess@kernel32.dll stdcall';
+
 procedure HandlePythonSetup;
 var
     installPythonErrorCode : Integer;
 begin
-    if(MsgBox('Python 2.7.9+ is required to install KA Lite on Windows; do you wish to first install Python 2.7.10, before continuing with the installation of KA Lite?', mbConfirmation, MB_YESNO) = idYes) then
-    begin
-        ExtractTemporaryFile('python-2.7.10.msi');
-        ShellExec('open', ExpandConstant('{tmp}')+'\python-2.7.10.msi', '', '', SW_SHOWNORMAL, ewWaitUntilTerminated, installPythonErrorCode);
-    end
-    else begin
-        MsgBox('Error' #13#13 'You must have Python 2.7.9+ installed to proceed! Installation will now exit.', mbError, MB_OK);
-        forceCancel := True;
-        WizardForm.Close;
-    end;
+    if(MsgBox('KA Lite requires Python to be installed on your system.' + #13#10 + 'This wizard will proceed to install Python 2.7.12, and then continue with  KA Lite installation.' + #13#10 + #13#10 + 'Click OK to continue.', mbConfirmation, MB_OKCANCEL) = idCancel) then
+        if(MsgBox('Are you sure you want to cancel the installation of Python 2.7.12?' + #13#10 + 'If you select Yes, this installer will close and KA Lite will not be installed on your system.', mbConfirmation, MB_YESNO) = idYes) then
+          begin
+            forceCancel := True;
+            ExitProcess(1);
+          end
+        else begin
+             HandlePythonSetup();
+             exit;
+        end
+    else
+        ExtractTemporaryFile('python-2.7.12.msi');
+        ExtractTemporaryFile('python-2.7.12.amd64.msi');
+        ExtractTemporaryFile('python-exe.bat');
+        ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
 end;
 
 { Used in GetPipPath below }
 const
-    DEFAULT_PATH = '\Python27\Scripts\pip.exe';
+    DEFAULT_PIP_PATH = '\Python27\Scripts\pip.exe';
+    DEFAULT_PYTHON_PATH = '\Python27\python.exe';
 
 { Returns the path of pip.exe on the system. }
 { Tries several different locations before prompting user. }
 function GetPipPath: string;
 var
+    kalitePythonEnv: string;
     path : string;
     i : integer;
 begin
-    for i := Ord('C') to Ord('H') do
-    begin
-        path := Chr(i) + ':' + DEFAULT_PATH;
+    kalitePythonEnv := GetEnv('KALITE_PYTHON');
+    Log(kalitePythonEnv)
+    if kalitePythonEnv = '' then 
+      begin
+        path := DEFAULT_PIP_PATH;
         if FileExists(path) then
         begin
             Result := path;
             exit;
-        end;
-    end;
+        end
+      end
+    else
+      begin
+        if FileExists(kalitePythonEnv) then 
+            Result := ExtractFileDir(kalitePythonEnv) + '\Scripts\pip.exe';
+            exit;
+      end
+
     MsgBox('Could not find pip.exe. Please select the location of pip.exe to continue installation.', mbInformation, MB_OK);
     if GetOpenFileName('Please select pip.exe', path, '', 'All files (*.*)|*.*', 'exe') then
     begin
@@ -366,13 +387,15 @@ procedure HandlePipSetup;
 var
     PipCommand: string;
     PipPath: string;
+    pythonPath: string;
+    checkEnc: string;
     ErrorCode: integer;
 
 begin
     PipPath := GetPipPath;
     if PipPath = '' then
         exit;
-    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka-lite-static-'  + '{#TargetVersion}' + '.zip"';
+    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka_lite_static-' + '{#TargetVersion}' + '-py2-none-any' + '.whl"';
 
     MsgBox('Setup will now install kalite source files to your Python site-packages.', mbInformation, MB_OK);
     if not Exec(PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
@@ -380,7 +403,7 @@ begin
       MsgBox('Critical error.' #13#13 'Dependencies have failed to install. Error Number: ' + IntToStr(ErrorCode), mbInformation, MB_OK);
       forceCancel := True;
       WizardForm.Close;
-    end;
+    end
 
     { Must set this environment variable so the systray executable knows where to find the installed kalite.bat script}
     { Should by in the same directory as pip.exe, e.g. 'C:\Python27\Scripts' }
@@ -389,6 +412,14 @@ begin
         'System\CurrentControlSet\Control\Session Manager\Environment',
         'KALITE_SCRIPT_DIR',
         ExtractFileDir(PipPath)
+    );
+    pythonPath := ExtractFileDir(ExtractFileDir(PipPath)) + '\python.exe';
+    FileCopy(ExpandConstant('{app}') + '\ka-lite\scripts\kalite.bat', ExtractFileDir(PipPath) + '\kalite.bat', False);
+    RegWriteStringValue(
+        HKLM,
+        'System\CurrentControlSet\Control\Session Manager\Environment',
+        'KALITE_PYTHON',
+        pythonPath
     );
 end;
 
@@ -406,7 +437,7 @@ begin
 
     RegDeleteValue(HKCU, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Run', ExpandConstant('{#MyAppName}'));
    
-    if ShellExec('open', 'python.exe','-c "import sys; (sys.version_info >= (2, 7, 9,) and sys.version_info < (3,) and sys.exit(0)) or sys.exit(1)"', '', SW_HIDE, ewWaitUntilTerminated, PythonVersionCodeCheck) then
+    if ShellExec('open', 'python.exe','-c "import sys; (sys.version_info >= (2, 7, 11,) and sys.version_info < (3,) and sys.exit(0)) or sys.exit(1)"', '', SW_HIDE, ewWaitUntilTerminated, PythonVersionCodeCheck) then
     begin
         if PythonVersionCodeCheck = 1 then
         begin
@@ -418,6 +449,7 @@ begin
         HandlePythonSetup();
     end;  
 end;
+
 
 function InitializeUninstall(): Boolean;
 var
@@ -435,7 +467,7 @@ var
 begin
     { Used to have more responsibility, but we delegated those to the app itself! }
     { Unpacks the English content pack. }
-    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage retrievecontentpack local en en.zip --foreground"', ExpandConstant('{app}'), SW_SHOW, ewWaitUntilTerminated, retCode);
+    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage retrievecontentpack local en en.zip --foreground"', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, retCode);
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -496,8 +528,6 @@ begin
         if installFlag then
         begin
             HandlePipSetup();
-
-            if Not forceCancel then
             begin
                 DoSetup;
             end;
