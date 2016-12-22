@@ -101,21 +101,6 @@
 
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
-    // Confirm quit action from user.
-    // TODO(cpauya): Don't ask if OS asked to quit the app.
-    if ([self checkSetup:NO] == YES) {
-        NSString *msg = @"This will stop and quit KA Lite, are you sure?";
-        switch ([self quitReason]) {
-            case quitByUser:
-                break;
-            default:
-                if (! confirm(msg)) {
-                    return NSTerminateCancel;
-                }
-                break;
-        }
-        [self stopFunction:true];
-    }
     return NSTerminateNow;
 }
 
@@ -618,6 +603,23 @@ NSString *getEnvVar(NSString *var) {
     if( ![[NSWorkspace sharedWorkspace] openURL:url] ) {
         NSString *msg = [NSString stringWithFormat:@" Failed to open url: %@",[url description]];
         showNotification(msg, @"");
+    }
+}
+
+
+- (IBAction)quitApplcation:(id)sender {
+    if ([self checkSetup:NO] == YES) {
+        NSString *msg = @"This will stop and quit KA Lite, are you sure?";
+        switch ([self quitReason]) {
+            case quitByUser:
+                break;
+            default:
+                if (confirm(msg)) {
+                    [self stopFunction:true];
+                    [[NSApplication sharedApplication] terminate:nil];
+                }
+                break;
+        }
     }
 }
 

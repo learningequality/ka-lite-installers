@@ -94,7 +94,7 @@
                 <menuItem title="Quit" id="G8m-4B-Yw1">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
-                        <action selector="terminate:" target="-1" id="rHc-0I-jyb"/>
+                        <action selector="quitApplcation:" target="Voe-Tx-rLC" id="pUF-Nc-HH6"/>
                     </connections>
                 </menuItem>
             </items>
