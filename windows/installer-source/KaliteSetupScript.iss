@@ -62,6 +62,9 @@ Type: filesandordirs; Name: "{app}\ka-lite*"
 Type: files; Name: "{userstartup}\KA Lite.lnk"
 Type: files; Name: "{app}\CONFIG.dat"
 
+[UninstallRun]
+Filename: {app}\ka-lite\scripts\uninstall-ka-lite-static.bat; Parameters: "";
+
 [Code]
 function GetPreviousVersion : String; Forward;
 
