@@ -201,6 +201,17 @@ void checkServerThread()
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+	// REF: http://stackoverflow.com/questions/8799646/preventing-multiple-instances-of-my-application
+	// Prevent the KA Lite application to execute multiple instances.
+	HANDLE hMutex = CreateMutexA(NULL, FALSE, "KA Lite");
+	DWORD dwMutexWaitResult = WaitForSingleObject(hMutex, 0);
+	if (dwMutexWaitResult != WAIT_OBJECT_0)
+	{
+		MessageBox(HWND_DESKTOP, TEXT("KA Lite application is already running. \nRight click the KA Lite icon in the task-tray to start the server."), TEXT("KA Lite information"), MB_OK | MB_ICONINFORMATION);
+		CloseHandle(hMutex);
+		return false;
+	}
+
 	startThread(NULL, TRUE, 3000, &checkServerThread);
 
 	window = new fle_TrayWindow(&hInstance);
