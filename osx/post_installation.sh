@@ -4,13 +4,13 @@
 
 # Notes: 
 # 1. This script must be run as root.
-# 2. We use `/Applications/KA-Lite/support/` as the installation location which contains the `content/contentpacks/en.zip`, `pyrun`, and `scripts`.
+# 2. We use `/Applications/KA-Lite/support/` as the installation location which contains the `content/contentpacks/en.zip`, `Python`, and `scripts`.
 
 # Steps
 # 1. Symlink kalite executable to /usr/local/bin.
-# 2. Set KALITE_PYTHON environment variable to the Pyrun executable.
+# 2. Set KALITE_PYTHON environment variable to the Python executable.
 # 3. Create plist in /Library/LaunchAgents/ folder.
-# 4. Run shebangcheck script that checks the python/pyrun interpreter to use.
+# 4. Run shebangcheck script that checks the python/Python interpreter to use.
 # 5. Remove the old asset folder to be replaced by newer assets later.
 # 6. Run kalite manage syncdb --noinput.
 # 7. Run kalite manage setup --noinput.
@@ -27,23 +27,25 @@
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 
 STEP=0
-STEPS=12
+STEPS=9
 
 KALITE_SHARED="/Applications/KA-Lite/support"
 KALITE_DIR="$HOME/.kalite"
 KALITE_UNINSTALL_SCRIPT="KA-Lite_Uninstall.tool"
-PYRUN_NAME="pyrun-2.7"
-PYRUN_DIR="$KALITE_SHARED/$PYRUN_NAME"
-PYRUN="$PYRUN_DIR/bin/pyrun"
-PYRUN_PIP="$PYRUN_DIR/bin/pip"
-BIN_PATH="$PYRUN_DIR/bin"
+KALITE_PEX_PATH="$KALITE_SHARED/ka-lite/kalite.pex"
+
+PYTHON="/usr/local/bin/python"
+if ! $PYTHON --version >/dev/null 2>&1; then
+    PYTHON="$(which python)"
+fi
+
 SCRIPT_PATH="$KALITE_SHARED/scripts/"
 APPLICATION_PATH="/Applications/KA-Lite"
 PRE_INSTALL_SCRIPT="$SCRIPT_PATH/ka-lite-remover.sh"
 
-SYMLINK_FILE="$KALITE_SHARED/pyrun-2.7/bin/kalite"
-SYMLINK_TO="/usr/local/bin"
-COMMAND_SYMLINK="ln -sf $SYMLINK_FILE $SYMLINK_TO"
+SYMLINK_FILE="$KALITE_PEX_PATH"
+SYMLINK_TO="/usr/local/bin/kalite"
+COMMAND_SYMLINK="ln -s $SYMLINK_FILE $SYMLINK_TO"
 
 ORG="org.learningequality.kalite"
 LAUNCH_AGENTS="/Library/LaunchAgents/"
@@ -55,17 +57,25 @@ PLIST_SRC="$LAUNCH_AGENTS$ORG.plist"
 # Functions
 #----------------------------------------------------------------------
 function update_env {
-    # MUST: Make sure we have a KALITE_PYTHON env var that points to Pyrun
-    msg "Setting KALITE_PYTHON environment variable to $PYRUN..."
+    # MUST: Make sure we have a KALITE_PYTHON env var that points to PYTHON
+    msg "Setting KALITE_PYTHON environment variable to $PYTHON..."
     launchctl unsetenv KALITE_PYTHON
-    launchctl setenv KALITE_PYTHON "$PYRUN"
-    export KALITE_PYTHON="$PYRUN"
+    launchctl setenv KALITE_PYTHON "$PYTHON"
+    export KALITE_PYTHON="$PYTHON"
     if [ $? -ne 0 ]; then
-        msg ".. Abort!  Error/s encountered exporting KALITE_PYTHON '$PYRUN'."
+        msg ".. Abort!  Error/s encountered exporting KALITE_PYTHON '$PYTHON'."
         exit 1
     fi
 }
 
+function set_kalite_pex_path {
+    launchctl setenv KALITE_PEX "$KALITE_PEX_PATH"
+    export KALITE_PEX="$KALITE_PEX_PATH"
+    if [ $? -ne 0 ]; then
+        msg ".. Abort!  Error/s encountered exporting KALITE_PYTHON '$PYTHON'."
+        exit 1
+    fi
+}
 
 function create_plist {
 
@@ -90,7 +100,7 @@ function create_plist {
     echo -e "\t<array>" >> $PLIST_SRC
     echo -e "\t\t<string>sh</string>" >> $PLIST_SRC
     echo -e "\t\t<string>-c</string>" >> $PLIST_SRC
-    echo -e "\t\t<string>launchctl setenv KALITE_PYTHON \"$PYRUN\"</string>" >> $PLIST_SRC
+    echo -e "\t\t<string>launchctl setenv KALITE_PYTHON \"$PYTHON\"</string>" >> $PLIST_SRC
     echo -e "\t</array>" >> $PLIST_SRC
     echo -e "\t<key>RunAtLoad</key>" >> $PLIST_SRC
     echo -e "\t<true/>" >> $PLIST_SRC
@@ -125,26 +135,12 @@ msg ".. Packages post-installation env:'\n'$ENV"
 
 
 ((STEP++))
-msg "$STEP/$STEPS. Symlink kalite executable to $SYMLINK_TO..."
-if [ ! -d "$SYMLINK_TO" ]; then
-    msg ".. Now creating '$SYMLINK_TO'..."
-    sudo mkdir -p $SYMLINK_TO
-    if [ $? -ne 0 ]; then
-        msg ".. Abort!  Error encountered creating '$SYMLINK_TO' directory."
-        exit 1
-    fi
-fi
-
-$COMMAND_SYMLINK
-if [ $? -ne 0 ]; then
-    msg ".. Abort!  Error encountered running '$COMMAND_SYMLINK'."
-    exit 1
-fi
-
+msg "$STEP/$STEPS. Set KALITE_PYTHON environment variable to the python executable..."
+update_env
 
 ((STEP++))
-msg "$STEP/$STEPS. Set KALITE_PYTHON environment variable to the Pyrun executable..."
-update_env
+msg "$STEP/$STEPS. Set KALITE_PEX environment ..."
+set_kalite_pex_path
 
 
 ((STEP++))
@@ -160,15 +156,13 @@ if [ ! -d "$LAUNCH_AGENTS" ]; then
 fi
 create_plist
 
-
 ((STEP++))
-msg "$STEP/$STEPS. Run shebangcheck script that checks the python/pyrun interpreter to use..."
-$PYRUN $SCRIPT_PATH/shebangcheck.py
+msg "$STEP/$STEPS. Symlink kalite executable to $SYMLINK_TO..."
+$COMMAND_SYMLINK
 if [ $? -ne 0 ]; then
-    msg ".. Abort!  Error encountered running '$SCRIPT_PATH/shebangcheck.py'."
+    msg ".. Abort!  Error encountered running '$COMMAND_SYMLINK'."
     exit 1
 fi
-
 
 ((STEP++))
 # TODO(arceduardvincent): Remove this step when the issue is solved.
@@ -196,27 +190,25 @@ if [ -d "$KALITE_ASSET_FOLDER" ]; then
     fi
 fi
 
-
 ((STEP++))
 msg "$STEP/$STEPS. Running kalite manage syncdb --noinput..."
-$BIN_PATH/kalite manage syncdb --noinput
+$KALITE_PEX_PATH manage syncdb --noinput
 
 
 ((STEP++))
 msg "$STEP/$STEPS. Running kalite manage setup --noinput..."
-$BIN_PATH/kalite manage setup --noinput
+$KALITE_PEX_PATH manage setup --noinput
 
 
 ((STEP++))
 msg "$STEP/$STEPS. Running kalite manage collectstatic --noinput..."
-$BIN_PATH/kalite manage collectstatic --noinput
+$KALITE_PEX_PATH  manage collectstatic --noinput
 
 
 # Use `kalite manage retrievecontentpack local en path-to-en.zip`.
 ((STEP++))
-msg "$STEP/$STEPS. Running $BIN_PATH/kalite manage retrievecontentpack local en $CONTENTPACK_ZIP..."
 CONTENTPACK_ZIP="$KALITE_SHARED/content/contentpacks/en.zip"
-$BIN_PATH/kalite manage retrievecontentpack local en $CONTENTPACK_ZIP
+$KALITE_PEX_PATH manage retrievecontentpack local en $CONTENTPACK_ZIP
 
 
 ((STEP++))
@@ -231,13 +223,23 @@ chown -R $USER:$SUDO_GID $PLIST_SRC
 msg "$STEP/$STEPS. Set the KALITE_PYTHON env var for the user doing the install so we don't need to restart after installation..."
 # MUST: Do an unsetenv first because the env var may already be set.  This is useful during upgrade.
 su $USER -c "launchctl unsetenv KALITE_PYTHON"
-su $USER -c "launchctl setenv KALITE_PYTHON $PYRUN"
+su $USER -c "launchctl setenv KALITE_PYTHON $PYTHON"
 if [ $? -ne 0 ]; then
     msg ".. Abort!  Error setting the KALITE_PYTHON env var under the user account."
     exit 1
 fi
 msg "KALITE_PYTHON env var is now set to $KALITE_PYTHON"
 
+
+((STEP++))
+msg "$STEP/$STEPS. Set the KALITE_PEX env var for the user doing the install so we don't need to restart after installation..."
+su $USER -c "launchctl unsetenv KALITE_PEX"
+su $USER -c "launchctl setenv KALITE_PEX $KALITE_PEX_PATH"
+if [ $? -ne 0 ]; then
+    msg ".. Abort!  Error setting the KALITE_PEX env var under the user account."
+    exit 1
+fi
+msg "KALITE_PEX env var is now set to $KALITE_PYTHON"
 
 ((STEP++))
 # Create a copy of ka-lite-remover.sh and name it as KA-Lite_Uninstall.tool.
