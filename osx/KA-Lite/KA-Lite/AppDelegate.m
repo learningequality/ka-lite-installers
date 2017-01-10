@@ -48,63 +48,54 @@
 
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    
-    // Verify if KA Lite port is available.
-    // 57621
-    // 8008
-    [self runTask:@"lsof -i :57621"];
+
     void *sel = @selector(closeSplash);
     [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:sel userInfo:nil repeats:NO];
+    // Set the delegate to self to make sure notifications work properly.
+    [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:self];
     
-    double delayInSeconds = 08.0;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        // Set the delegate to self to make sure notifications work properly.
-        [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:self];
-        
-        // MUST: Let's check the setup if everything is good!
-        if ([self checkSetup:YES] == NO) {
-            // The application must terminate if setup is not good.
-            void *sel = @selector(closeSplash);
-            alert(@"The KA Lite installation is not complete, please re-install KA Lite. \n\nRefer to the Console app for details.");
-            [[NSApplication sharedApplication] terminate:nil];
-            return;
-        }
-        
-        // Setup is good, let's continue.
-        
-        // Make sure to register default values for the user preferences.
-        [self registerDefaultPreferences];
-        
-        self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
-        [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
-        [self.statusItem setMenu:self.statusMenu];
-        [self.statusItem setHighlightMode:YES];
-        [self.statusItem setToolTip:@"Click to show the KA Lite menu items."];
-        
-        [self.kaliteDataHelp setToolTip:@"This will set the KALITE_HOME environment variable to the selected KA Lite data location. \n \nClick the 'Apply' button to save your changes and click the 'Start KA Lite' button to use your new data location. \n \nNOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location."];
-        [self.kaliteUninstallHelp setToolTip:@"This will uninstall the KA Lite application. \n \nCheck the `Delete KA Lite data folder` option if you want to delete your KA Lite data. \n \nNOTE: This will require admin privileges."];
-        
-        //    @try {
-        //        [self runKalite:@"--version"];
-        //        [self getKaliteStatus];
-        //    }
-        //    @catch (NSException *ex) {
-        //        NSLog(@"KA Lite had an Error: %@", ex);
-        //    }
-        
-        [self startKaliteTimer];
-        
-        // TODO(cpauya): Auto-start KA Lite on application load.
-        if (self.autoStartOnLoad) {
-            [self startFunction];
-        } else {
-            // Get the status to determine the menu bar icon to display but don't show any notifications.
-            // The `isLoaded` property will be set to YES the initial status check.
-            showNotification(@"KA Lite is now loaded, click on the Start KA Lite menu to get started.", @"");
-            [self getKaliteStatus];
-        }
-    });
+    // MUST: Let's check the setup if everything is good!
+    if ([self checkSetup:YES] == NO) {
+        // The application must terminate if setup is not good.
+        void *sel = @selector(closeSplash);
+        alert(@"The KA Lite installation is not complete, please re-install KA Lite. \n\nRefer to the Console app for details.");
+        [[NSApplication sharedApplication] terminate:nil];
+        return;
+    }
+    
+    // Setup is good, let's continue.
+    
+    // Make sure to register default values for the user preferences.
+    [self registerDefaultPreferences];
+    
+    self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
+    [self.statusItem setImage:[NSImage imageNamed:@"favicon"]];
+    [self.statusItem setMenu:self.statusMenu];
+    [self.statusItem setHighlightMode:YES];
+    [self.statusItem setToolTip:@"Click to show the KA Lite menu items."];
+    
+    [self.kaliteDataHelp setToolTip:@"This will set the KALITE_HOME environment variable to the selected KA Lite data location. \n \nClick the 'Apply' button to save your changes and click the 'Start KA Lite' button to use your new data location. \n \nNOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location."];
+    [self.kaliteUninstallHelp setToolTip:@"This will uninstall the KA Lite application. \n \nCheck the `Delete KA Lite data folder` option if you want to delete your KA Lite data. \n \nNOTE: This will require admin privileges."];
+    
+    //    @try {
+    //        [self runKalite:@"--version"];
+    //        [self getKaliteStatus];
+    //    }
+    //    @catch (NSException *ex) {
+    //        NSLog(@"KA Lite had an Error: %@", ex);
+    //    }
+    
+    [self startKaliteTimer];
+    
+    // TODO(cpauya): Auto-start KA Lite on application load.
+    if (self.autoStartOnLoad) {
+        [self startFunction];
+    } else {
+        // Get the status to determine the menu bar icon to display but don't show any notifications.
+        // The `isLoaded` property will be set to YES the initial status check.
+        showNotification(@"KA Lite is now loaded, click on the Start KA Lite menu to get started.", @"");
+        [self getKaliteStatus];
+    }
 
 }
 
@@ -221,7 +212,6 @@ BOOL isKaliteCommad(NSString *command) {
     
     if (isKaliteCommad(command)) {
         self.kaliteProcessCounter += 1;
-        NSLog(@">>>> kalite command %@", command);
         kaliteCommand = [NSString stringWithFormat:@"%@ %@", getKaliteExecutable(), command];
         array = [NSArray arrayWithObjects:@"-l",
                  @"-c",
@@ -236,7 +226,6 @@ BOOL isKaliteCommad(NSString *command) {
         [task setLaunchPath: @"/bin/bash"];
         [task setArguments: array];
     } else {
-        NSLog(@">>>> not kalite command %@", command);
         array = [NSArray arrayWithObjects:@"-l",
                  @"-c",
                  command,
@@ -300,15 +289,17 @@ BOOL isKaliteCommad(NSString *command) {
     
     if (checkKaliteExecutable()) {
         if ([lastCommadArg isEqualToString: @"status"]) {
-            // MUST: The result is on the 9th bit of the returned value.  Not sure why this
-            // is but maybe because of the returned values from the `system()` call.  For now
-            // we shift 8 bits to the right until we figure this one out.  TODO(cpauya): fix later
-            if ((self.portAlertCounter == 1) && (status == 1)){
-                NSLog(@">>>> portAlertCounter out %d", status);
+
+            //Check if KA Lite port 8008 is open.
+            if ((self.portAlertCounter == 1) && (status != 0)){
                 self.portAlertCounter -= 1;
+                alert(@"Port :8008 is occupied. Please close the process that is using it to start the KA Lite.");
                 [self showStatus:statusStopped];
             }
             
+            // MUST: The result is on the 9th bit of the returned value.  Not sure why this
+            // is but maybe because of the returned values from the `system()` call.  For now
+            // we shift 8 bits to the right until we figure this one out.  TODO(cpauya): fix later
             if (status >= 255) {
                 status = status >> 8;
             }
@@ -618,13 +609,19 @@ NSString *getEnvVar(NSString *var) {
 
 
 - (void)startFunction {
-    if (self.kaliteProcessCounter != 0) {
-        alert(@"KA Lite is still processing, please wait until it is finished.");
-        return;
-    }
-    showNotification(@"Starting...", @"");
-    [self setNewStatus:statusStartingUp];
-    [self runKalite:@"start"];
+    NSInteger *kalitePort = 8008;
+    
+    [self runTask:[NSString stringWithFormat:@"lsof -i :%d", kalitePort]];
+    double delayInSeconds = 05.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        if (self.kaliteProcessCounter != 0) {
+            alert(@"KA Lite is still processing, please wait until it is finished.");
+            return;
+        }
+        [self setNewStatus:statusStartingUp];
+        [self runKalite:@"start"];
+    });
 }
 
 
