@@ -612,7 +612,7 @@ NSString *getEnvVar(NSString *var) {
     NSInteger *kalitePort = 8008;
     
     [self runTask:[NSString stringWithFormat:@"lsof -i :%d", kalitePort]];
-    double delayInSeconds = 05.0;
+    double delayInSeconds = 08.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         if (self.kaliteProcessCounter != 0) {
