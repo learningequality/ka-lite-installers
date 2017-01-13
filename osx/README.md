@@ -8,7 +8,7 @@ The application icon sits on the menu bar of OS X and uses PEX to isolate the KA
 ## System Requirements
 
 * Mac OS X 10.10 Yosemite or newer
-* Xcode 6.1.x or 7.2
+* Xcode 7.3
 * git
 * wget
 * Python 2.7.11+
