@@ -2,15 +2,17 @@ KA Lite OS X Installer
 ======================
 This contains the sources to build the OS X installer and application for KA Lite.
 
-The application icon sits on the menu bar of OS X and uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA Lite environment from your system's [Python](https://www.python.org/) application.  It has a preferences dialog for application settings and logs. 
+The application icon sits on the menu bar of OS X and uses PEX to isolate the KA Lite environment from your system's [Python](https://www.python.org/) application.  It has a preferences dialog for application settings and logs. 
 
 
 ## System Requirements
 
 * Mac OS X 10.10 Yosemite or newer
-* Xcode 6.1.x or 7.2
+* Xcode 7.3
 * git
 * wget
+* Python 2.7.11+
+* pex
 * [Packages](http://s.sudre.free.fr/Software/Packages/about.html) by Stéphane Sudre
 * [KA Lite](https://github.com/learningequality/ka-lite/wiki/Getting-started) - optional but recommended
 * [VirtualBox](https://www.virtualbox.org) - optional, for sandboxed installation testing.
@@ -32,11 +34,11 @@ We used the [Installer package with .pkg file extension](https://en.wikipedia.or
 
 Run the `build.sh` script in your Terminal to build the .pkg package.  It will download the KA Lite packages and other requirements for you:
 
-1. Create a `temp` directory and puts everything else inside it.  This is ignored in the `.gitignore` so any changes will not affect the repository.
-1. Download PyRun to the `temp/pyrun-2.7/` directory.  
+1. Create a `temp` directory and puts everything else inside it.  This is ignored in the `.gitignore` so any changes will not affect the repository. 
 1. Download the KA Lite source archive to the `temp/ka-lite/` directory.  
 1. Build the `KA-Lite.app` using `xcodebuild`.  
-1. Build the `KA-Lite.pkg` package using `packagesbuild`.  The output can be found at the `temp/output/KA-Lite.pkg`.
+1. Build the `KA-Lite.pkg` package using `packagesbuild`.  The output can be found at the `temp/temp-output/KA-Lite.pkg`.
+1. Build the 'KA-Lite-installer.dmg' file using 'create-dmg'. The output can be found at the 'temp/output/KA-Lite-installer.dmg'
 
 This will take a long time to finish because the content pack archive alone is 500MB+ in size.  There will be an output log for your monitoring.
 
@@ -51,7 +53,7 @@ Open the built package from the Getting Started section at `temp/output/KA-Lite.
 
 Click "Continue" when prompted about the "This package will run a program to determine if the software can be installed." message.
 
-KA Lite will be installed in the `/Applications/KA-Lite/` folder along with the uninstall.tool, license, readme, release notes, and the support folder.  The `support` folder contains the English content pack archive, the PyRun environment, and the scripts.
+KA Lite will be installed in the `/Applications/KA-Lite/` folder along with the uninstall.tool, license, readme, release notes, and the support folder.  The `support` folder contains the English content pack archive, the python environment, and the scripts.
 
 When testing locally-built packages, we recommend using VirtualBox for a clean environment.  Making an OS X Virtual Machine for VirtualBox is beyond the scope of this document but you can easily find references on the net.
 
@@ -101,18 +103,18 @@ Obviously, this process is very useful if you want to run and test the OS X appl
 1. Please note that this has been built and tested on Mac OS X 10.10 Yosemite and 10.11 El Capitan.  It may run on older versions down to 10.8 Mountain Lion but we haven't tested it.
 1. `build.sh` downloads the following
 
-    * KA Lite repo on `0.16.x` branch, or the specified repo
-    * PyRun version 2.7
-    * [English Content Packs archive](http://pantry.learningequality.org/downloads/ka-lite/0.16/content/contentpacks/en.zip) - this can take a very long time because it's 500MB+ in size.  We suggest you keep a copy somewhere and copy it in `temp/content/contentpacks/en.zip` to save in build time.
+    * KA Lite repo on `0.17.x` branch, or the specified repo
+    * Python 2.7.12
+    * [English Content Packs archive](http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip) - this can take a very long time because it's 500MB+ in size.  We suggest you keep a copy somewhere and copy it in `temp/content/contentpacks/en.zip` to save in build time.
 1. You can optionally pass two arguments for the `build.sh` script:
 
     > ./build.sh \<ka-lite-archive-repository-url> \<content-pack-zip-url>
 
     Example:
 
-    > ./build.sh "https://github.com/learningequality/ka-lite/archive/0.16.x.zip" "http://pantry.learningequality.org/downloads/ka-lite/0.16/content/contentpacks/en.zip"
+    > ./build.sh "https://github.com/learningequality/ka-lite/archive/0.17.x.zip" "http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip"
 
-    This is useful if you want to try a different fork or branch on your build.  The first argument defaults to the `0.16.x` branch of the KA Lite repository at "https://github.com/learningequality/ka-lite/archive/0.16.x.zip".
+    This is useful if you want to try a different fork or branch on your build.  The first argument defaults to the `0.17.x` branch of the KA Lite repository at "https://github.com/learningequality/ka-lite/archive/0.17x.zip".
 
 
 ## References
