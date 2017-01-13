@@ -336,7 +336,7 @@ begin
              HandlePythonSetup();
              exit;
         end
-    else
+    else 
         ExtractTemporaryFile('python-2.7.12.msi');
         ExtractTemporaryFile('python-2.7.12.amd64.msi');
         ExtractTemporaryFile('python-exe.bat');
@@ -366,7 +366,7 @@ begin
             Result := path;
             exit;
         end
-      end
+      end 
     else
       begin
         if FileExists(kalitePythonEnv) then 
@@ -395,7 +395,7 @@ var
     ErrorCode: integer;
 
 begin
-    PipPath := GetPipPath;
+    PipPath := GetPipPath; 
     if PipPath = '' then
         exit;
     PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka_lite_static-' + '{#TargetVersion}' + '-py2-none-any' + '.whl"';
