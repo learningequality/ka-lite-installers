@@ -100,11 +100,6 @@
 }
 
 
-- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
-    return NSTerminateNow;
-}
-
-
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     NSString *msg = @"KA Lite is now stopped and quit.";
     if ([self checkSetup:NO] == NO) {
@@ -168,10 +163,10 @@ BOOL checkEnvVars() {
     });
 }
 
-BOOL isKaliteCommad(NSString *command) {
-    NSArray *kaliteCommads;
-    kaliteCommads = @[@"start", @"stop", @"status"];
-    if ([kaliteCommads containsObject:command]) {
+BOOL isKaliteCommand(NSString *command) {
+    NSArray *kaliteCommands;
+    kaliteCommands = @[@"start", @"stop", @"status"];
+    if ([kaliteCommands containsObject:command]) {
         return YES;
     }
     return NO;
@@ -210,7 +205,7 @@ BOOL isKaliteCommad(NSString *command) {
     //REF: http://stackoverflow.com/questions/386783/nstask-not-picking-up-path-from-the-users-environment
     task = [[NSTask alloc] init];
     
-    if (isKaliteCommad(command)) {
+    if (isKaliteCommand(command)) {
         self.kaliteProcessCounter += 1;
         kaliteCommand = [NSString stringWithFormat:@"%@ %@", getKaliteExecutable(), command];
         array = [NSArray arrayWithObjects:@"-l",
@@ -263,17 +258,17 @@ BOOL isKaliteCommad(NSString *command) {
 
 - (enum kaliteStatus)checkRunTask:(NSNotification *)aNotification{
     NSString *taskArgument;
-    NSString *lastCommadArg;
+    NSString *lastCommandArg;
     
     enum kaliteStatus oldStatus = self.status;
     
     int status = [[aNotification object] terminationStatus];
     
     taskArgument = [[aNotification object] arguments].lastObject;
-    lastCommadArg = [taskArgument componentsSeparatedByString:@" "].lastObject;
+    lastCommandArg = [taskArgument componentsSeparatedByString:@" "].lastObject;
     
-    if (!isKaliteCommad(lastCommadArg)) {
-        if (status == 0) {
+    if (!isKaliteCommand(lastCommandArg)) {
+        if (status == statusOkRunning) {
             self.portAlertCounter += 1;
             [self getKaliteStatus];
         }
@@ -283,15 +278,15 @@ BOOL isKaliteCommad(NSString *command) {
     if (self.kaliteProcessCounter >= 1) {
         self.kaliteProcessCounter -= 1;
     }
-    if (self.kaliteProcessCounter != 0) {
+    if (self.kaliteProcessCounter <= 0) {
         return self.status;
     }
     
     if (checkKaliteExecutable()) {
-        if ([lastCommadArg isEqualToString: @"status"]) {
+        if ([lastCommandArg isEqualToString: @"status"]) {
 
             //Check if KA Lite port 8008 is open.
-            if ((self.portAlertCounter == 1) && (status != 0)){
+            if ((self.portAlertCounter == 1) && (status != statusOkRunning)){
                 self.portAlertCounter -= 1;
                 alert(@"Port :8008 is occupied. Please close the process that is using it to start the KA Lite.");
                 [self showStatus:statusStopped];
@@ -610,11 +605,14 @@ NSString *getEnvVar(NSString *var) {
 
 - (void)startFunction {
     NSInteger *kalitePort = 8008;
-    
+    // Check if port 8008 is running.
     [self runTask:[NSString stringWithFormat:@"lsof -i :%d", kalitePort]];
+    
+    // Delay the execution of kalite start at 0.8 seconds to prevent processing issue with nstask.
     double delayInSeconds = 08.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        // This will execute after 0.08 seconds.
         if (self.kaliteProcessCounter != 0) {
             alert(@"KA Lite is still processing, please wait until it is finished.");
             return;

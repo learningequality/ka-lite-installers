@@ -23,12 +23,13 @@
 # 6. Install and create virtualenv.
 # 7. Upgrade Python Pip
 # 8. Run `pip install -r requirements_dev.txt` to install the Makefile executables.
-# 9. Run `make dist` for assets and docs.
-# 10. Build the Xcode project.
-# 11. Code-sign the built .app if running on build server.
-# 12. Run Packages script to build the .pkg.
-# 13. Download python installer.
-# 14. Build the dmg file.
+# 9. Installing PEX to create kalite PEX file
+# 10. Run `make dist` for assets and docs.
+# 11. Build the Xcode project.
+# 12. Code-sign the built .app if running on build server.
+# 13. Run Packages script to build the .pkg.
+# 14. Download python installer.
+# 15. Build the dmg file.
 
 
 # REF: Bash References
@@ -302,6 +303,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+((STEP++))
+echo "Installing PEX to create kalite PEX file"
 PIP_CMD="pip install pex"
 echo ".. Running $PIP_CMD..."
 $PIP_CMD
@@ -313,6 +316,10 @@ fi
 cd "$KA_LITE_DIR"
 WHL_FILE="$(find dist/ -name 'ka_lite_static-*.whl')"
 pex -o dist/kalite.pex -m kalite $WHL_FILE
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Error/s encountered running '$PIP_CMD'."
+    exit 1
+fi
 
 ENV_CMD="rm -r $ENV_PATH/venv"
 deactivate

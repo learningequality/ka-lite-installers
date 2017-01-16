@@ -11,8 +11,8 @@ The application icon sits on the menu bar of OS X and uses PEX to isolate the KA
 * Xcode 6.1.x or 7.2
 * git
 * wget
-* Python 2.7.11+
-* pex
+* [Python 2.7.11+](https://www.python.org/)
+* [PEX](https://pex.readthedocs.io/en/stable/)
 * [Packages](http://s.sudre.free.fr/Software/Packages/about.html) by Stéphane Sudre
 * [KA Lite](https://github.com/learningequality/ka-lite/wiki/Getting-started) - optional but recommended
 * [VirtualBox](https://www.virtualbox.org) - optional, for sandboxed installation testing.
@@ -40,7 +40,7 @@ Run the `build.sh` script in your Terminal to build the .pkg package.  It will d
 1. Build the `KA-Lite.pkg` package using `packagesbuild`.  The output can be found at the `temp/temp-output/KA-Lite.pkg`.
 1. Build the 'KA-Lite-installer.dmg' file using 'create-dmg'. The output can be found at the 'temp/output/KA-Lite-installer.dmg'
 
-This will take a long time to finish because the content pack archive alone is 500MB+ in size.  There will be an output log for your monitoring.
+This will take a long time to finish because the content pack archive alone is 800MB+ in size.  There will be an output log for your monitoring.
 
 Refer to the `build.sh` source for details.
 
@@ -105,7 +105,7 @@ Obviously, this process is very useful if you want to run and test the OS X appl
 
     * KA Lite repo on `0.17.x` branch, or the specified repo
     * Python 2.7.12
-    * [English Content Packs archive](http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip) - this can take a very long time because it's 500MB+ in size.  We suggest you keep a copy somewhere and copy it in `temp/content/contentpacks/en.zip` to save in build time.
+    * [English Content Packs archive](http://pantry.learningequality.org/downloads/ka-lite/0.17/content/contentpacks/en.zip) - this can take a very long time because it's 800MB+ in size.  We suggest you keep a copy somewhere and copy it in `temp/content/contentpacks/en.zip` to save in build time.
 1. You can optionally pass two arguments for the `build.sh` script:
 
     > ./build.sh \<ka-lite-archive-repository-url> \<content-pack-zip-url>
