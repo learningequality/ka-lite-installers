@@ -43,6 +43,7 @@ SCRIPT_PATH="$KALITE_SHARED/scripts/"
 APPLICATION_PATH="/Applications/KA-Lite"
 PRE_INSTALL_SCRIPT="$SCRIPT_PATH/ka-lite-remover.sh"
 
+# Symlink the kalite PEX file to /usr/local/bin so that `kalite` command will be available in the terminal.
 SYMLINK_FILE="$KALITE_PEX_PATH"
 SYMLINK_TO="/usr/local/bin/kalite"
 COMMAND_SYMLINK="ln -s $SYMLINK_FILE $SYMLINK_TO"
@@ -69,6 +70,8 @@ function update_env {
 }
 
 function set_kalite_pex_path {
+    # This will set KALITE_PEX environment variable to KA Lite PEX file executable.
+    # KALITE_PEX is use in KA Lite OS X application to find KA Lite PEX executable.
     launchctl setenv KALITE_PEX "$KALITE_PEX_PATH"
     export KALITE_PEX="$KALITE_PEX_PATH"
     if [ $? -ne 0 ]; then
@@ -101,6 +104,7 @@ function create_plist {
     echo -e "\t\t<string>sh</string>" >> $PLIST_SRC
     echo -e "\t\t<string>-c</string>" >> $PLIST_SRC
     echo -e "\t\t<string>launchctl setenv KALITE_PYTHON \"$PYTHON\"</string>" >> $PLIST_SRC
+    echo -e "\t\t<string>launchctl setenv KALITE_PEX \"$KALITE_PEX_PATH\"</string>" >> $PLIST_SRC
     echo -e "\t</array>" >> $PLIST_SRC
     echo -e "\t<key>RunAtLoad</key>" >> $PLIST_SRC
     echo -e "\t<true/>" >> $PLIST_SRC

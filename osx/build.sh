@@ -52,7 +52,7 @@
 echo "KA-Lite OS X build script for version 0.17.x and above."
 
 STEP=0
-STEPS=14
+STEPS=15
 
 # TODO(cpauya): get version from `ka-lite/kalite/version.py`
 VERSION="develop"
@@ -216,13 +216,20 @@ cd "$KA_LITE_DIR"
 echo ".. Running $PIP_CMD..."
 $PIP_CMD
 
+bash $SCRIPTPATH/ka-lite-python-version-check.sh
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Python 2.7.11+ is required to build KA Lite"
+    exit 1
+fi
+
 VENV_PATH="$(which virtualenv)"
-ENV_CMD="$VENV_PATH venv"
+ENV_CMD="$VENV_PATH venv --python=python2.7"
 $ENV_CMD
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered running $ENV_CMD"
     exit 1
 fi
+
 source venv/bin/activate
 ENV_PATH="$(pwd venv)"
 
@@ -317,7 +324,7 @@ cd "$KA_LITE_DIR"
 WHL_FILE="$(find dist/ -name 'ka_lite_static-*.whl')"
 pex -o dist/kalite.pex -m kalite $WHL_FILE
 if [ $? -ne 0 ]; then
-    echo ".. Abort! Error/s encountered running '$PIP_CMD'."
+    echo ".. Abort! Fialed to build KA Lite pex file."
     exit 1
 fi
 
@@ -458,14 +465,25 @@ $CREATE_DMG \
     --window-size 600 400 \
     "$DMG_PATH" \
     "$TEMP_OUTPUT_PATH"
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Failed to build KA Lite dmg file."
+    exit 1
+fi
 
 echo "Done!"
 if [ -e "$DMG_PATH" ]; then
     # codesign the built DMG file
     # unlock the keychain first so we can access the private key
     # security unlock-keychain -p $KEYCHAIN_PASSWORD
-    codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$DMG_PATH"
-    echo "Congratulations! Your newly built installer is at '$DMG_PATH'."
+    if [ -z ${IS_KALITE_RELEASE+0} ]; then 
+        echo "Congratulations! Your newly built KA Lite installer is at '$DMG_PATH'."
+    else
+        codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$DMG_PATH"
+        if [ $? -ne 0 ]; then
+            echo "..Failed to codesign the newly built KA Lite installer at '$DMG_PATH'."
+        fi
+        echo "Congratulations! Your newly built KA Lite installer is at '$DMG_PATH'."
+    fi
 else
     echo "Sorry, something went wrong trying to build the installer at '$DMG_PATH'."
     exit 1
