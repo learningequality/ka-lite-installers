@@ -7,18 +7,19 @@
 # 2. We use `/Applications/KA-Lite/support/` as the installation location which contains the `content/contentpacks/en.zip`, `Python`, and `scripts`.
 
 # Steps
-# 1. Symlink kalite executable to /usr/local/bin.
-# 2. Set KALITE_PYTHON environment variable to the Python executable.
+# 1. Set KALITE_PYTHON environment variable to the Python executable.
+# 2. Set KALITE_PEX environment variable to the kalite PEX file executable.
 # 3. Create plist in /Library/LaunchAgents/ folder.
-# 4. Run shebangcheck script that checks the python/Python interpreter to use.
-# 5. Remove the old asset folder to be replaced by newer assets later.
+# 4. Symlink kalite executable to /usr/local/bin.
+# 5. Set KALITE_HOME environment variable to ~/.kalite/ folder.
 # 6. Run kalite manage syncdb --noinput.
 # 7. Run kalite manage setup --noinput.
 # 8. Run kalite manage collectstatic --noinput.
 # 9. Run kalite manage retrievecontentpack local en path-to-en.zip.
 # 10. Change the owner of the ~/.kalite/ folder and .plist file to current user.
 # 11. Set the KALITE_PYTHON env var for the user doing the install so we don't need to restart after installation.
-# 12. Create a copy of ka-lite-remover.sh and name it as KA-Lite_Uninstall.tool.
+# 12. Set KALITE_PEX under the user account
+# 13. Create a copy of ka-lite-remover.sh and name it as KA-Lite_Uninstall.tool.
 
 
 #----------------------------------------------------------------------
@@ -27,7 +28,7 @@
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 
 STEP=0
-STEPS=9
+STEPS=13
 
 KALITE_SHARED="/Applications/KA-Lite/support"
 KALITE_DIR="$HOME/.kalite"

@@ -481,6 +481,7 @@ if [ -e "$DMG_PATH" ]; then
         codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$DMG_PATH"
         if [ $? -ne 0 ]; then
             echo "..Failed to codesign the newly built KA Lite installer at '$DMG_PATH'."
+            exit 1
         fi
         echo "Congratulations! Your newly built KA Lite installer is at '$DMG_PATH'."
     fi
