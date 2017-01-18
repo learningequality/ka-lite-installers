@@ -23,5 +23,5 @@ if [ "${PYTHON_VERSION//.}" -lt "${KALITE_REQ_PYTHON//.}" ] || [ "${PYTHON_VERSI
     exit 1
 fi
 
-msg "installed Pyhton version $PYTHON_VERSION."
+msg "installed Python version $PYTHON_VERSION."
 exit 0

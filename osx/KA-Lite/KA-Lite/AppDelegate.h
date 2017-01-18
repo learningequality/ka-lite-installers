@@ -30,7 +30,8 @@
 @property (strong, nonatomic) NSStatusItem *stopItem;
 @property (strong, nonatomic) NSStatusItem *openItem;
 @property (unsafe_unretained) IBOutlet NSTextView *taskLogs;
-@property signed int processCounter;
+@property signed int kaliteProcessCounter;
+@property signed int portAlertCounter;
 @property BOOL isLoaded;
 @property BOOL autoStartOnLoad;
 @property NSString *version;
@@ -49,7 +50,6 @@
 @property (weak) IBOutlet NSPopover *popover;
 @property (weak) IBOutlet NSTextField *popoverMsg;
 @property (weak) IBOutlet NSView *aView;
-
 
 enum kaliteStatus {
     statusOkRunning = 0,

@@ -1,7 +1,7 @@
 KA Lite OS X installer
 ======================
 
-## KA Lite OS X installer required a minimum of Python version 2.7.11.
+## [KA Lite OS X installer](http://pantry.learningequality.org/downloads/ka-lite/0.17/installers/mac/KA-Lite-Installers.dmg) required a minimum of Python version 2.7.11.
 
 ## To check the Python version in your system.
 * Open a terminal from the utilities folder on your system.

@@ -23,12 +23,13 @@
 # 6. Install and create virtualenv.
 # 7. Upgrade Python Pip
 # 8. Run `pip install -r requirements_dev.txt` to install the Makefile executables.
-# 9. Run `make dist` for assets and docs.
-# 10. Build the Xcode project.
-# 11. Code-sign the built .app if running on build server.
-# 12. Run Packages script to build the .pkg.
-# 13. Download python installer.
-# 14. Build the dmg file.
+# 9. Installing PEX to create kalite PEX file
+# 10. Run `make dist` for assets and docs.
+# 11. Build the Xcode project.
+# 12. Code-sign the built .app if running on build server.
+# 13. Run Packages script to build the .pkg.
+# 14. Download python installer.
+# 15. Build the dmg file.
 
 
 # REF: Bash References
@@ -51,10 +52,11 @@
 echo "KA-Lite OS X build script for version 0.17.x and above."
 
 STEP=0
-STEPS=14
+STEPS=15
 
 # TODO(cpauya): get version from `ka-lite/kalite/version.py`
-VERSION="develop"
+# Set the default value to `develop` as suggested by [@benjaoming](https://github.com/learningequality/ka-lite-installers/pull/433#discussion_r96399812), so we can use the VERSION environment in bamboo settings. 
+VERSION=${VERSION:-"develop"}
 CONTENT_VERSION="0.17"
 PANTRY_CONTENT_URL="http://pantry.learningequality.org/downloads/ka-lite/$CONTENT_VERSION/content"
 
@@ -215,13 +217,20 @@ cd "$KA_LITE_DIR"
 echo ".. Running $PIP_CMD..."
 $PIP_CMD
 
+bash $SCRIPTPATH/ka-lite-python-version-check.sh
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Python 2.7.11+ is required to build KA Lite"
+    exit 1
+fi
+
 VENV_PATH="$(which virtualenv)"
-ENV_CMD="$VENV_PATH venv"
+ENV_CMD="$VENV_PATH venv --python=python2.7"
 $ENV_CMD
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered running $ENV_CMD"
     exit 1
 fi
+
 source venv/bin/activate
 ENV_PATH="$(pwd venv)"
 
@@ -302,6 +311,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+((STEP++))
+echo "Installing PEX to create kalite PEX file"
 PIP_CMD="pip install pex"
 echo ".. Running $PIP_CMD..."
 $PIP_CMD
@@ -313,6 +324,10 @@ fi
 cd "$KA_LITE_DIR"
 WHL_FILE="$(find dist/ -name 'ka_lite_static-*.whl')"
 pex -o dist/kalite.pex -m kalite $WHL_FILE
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Failed to build KA Lite pex file."
+    exit 1
+fi
 
 ENV_CMD="rm -r $ENV_PATH/venv"
 deactivate
@@ -451,14 +466,26 @@ $CREATE_DMG \
     --window-size 600 400 \
     "$DMG_PATH" \
     "$TEMP_OUTPUT_PATH"
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Failed to build KA Lite dmg file."
+    exit 1
+fi
 
 echo "Done!"
 if [ -e "$DMG_PATH" ]; then
     # codesign the built DMG file
     # unlock the keychain first so we can access the private key
     # security unlock-keychain -p $KEYCHAIN_PASSWORD
-    codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$DMG_PATH"
-    echo "Congratulations! Your newly built installer is at '$DMG_PATH'."
+    if [ -z ${IS_KALITE_RELEASE+0} ]; then 
+        echo "Congratulations! Your newly built KA Lite installer is at '$DMG_PATH'."
+    else
+        codesign -s "$SIGNER_IDENTITY_APPLICATION" --force "$DMG_PATH"
+        if [ $? -ne 0 ]; then
+            echo "..Failed to codesign the newly built KA Lite installer at '$DMG_PATH'."
+            exit 1
+        fi
+        echo "Congratulations! Your newly built KA Lite installer is at '$DMG_PATH'."
+    fi
 else
     echo "Sorry, something went wrong trying to build the installer at '$DMG_PATH'."
     exit 1
