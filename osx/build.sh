@@ -55,7 +55,8 @@ STEP=0
 STEPS=15
 
 # TODO(cpauya): get version from `ka-lite/kalite/version.py`
-VERSION="develop"
+# Set the default value to `develop` as suggested by [@benjaoming](https://github.com/learningequality/ka-lite-installers/pull/433#discussion_r96399812), so we can use the VERSION environment in bamboo settings. 
+VERSION=${VERSION:-"develop"}
 CONTENT_VERSION="0.17"
 PANTRY_CONTENT_URL="http://pantry.learningequality.org/downloads/ka-lite/$CONTENT_VERSION/content"
 
