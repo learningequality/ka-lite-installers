@@ -324,7 +324,7 @@ cd "$KA_LITE_DIR"
 WHL_FILE="$(find dist/ -name 'ka_lite_static-*.whl')"
 pex -o dist/kalite.pex -m kalite $WHL_FILE
 if [ $? -ne 0 ]; then
-    echo ".. Abort! Fialed to build KA Lite pex file."
+    echo ".. Abort! Failed to build KA Lite pex file."
     exit 1
 fi
 

@@ -114,7 +114,7 @@ Obviously, this process is very useful if you want to run and test the OS X appl
 
     > ./build.sh "https://codeload.github.com/learningequality/ka-lite/zip/0.16.x" "http://pantry.learningequality.org/downloads/ka-lite/0.16/content/contentpacks/en.zip"
 
-    This is useful if you want to try a different fork or branch on your build.  The first argument defaults to the `0.16.x` branch of the KA Lite repository at "https://codeload.github.com/learningequality/ka-lite/zip/0.16.xp".
+    This is useful if you want to try a different fork or branch on your build.  The first argument defaults to the `0.16.x` branch of the KA Lite repository at "https://codeload.github.com/learningequality/ka-lite/zip/0.16.x".
 
 
 ## References
