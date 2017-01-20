@@ -8,10 +8,10 @@ The application icon sits on the menu bar of OS X and uses PEX to isolate the KA
 ## System Requirements
 
 * Mac OS X 10.10 Yosemite or newer
-* Xcode 7.3
+* Xcode 7.2 or higher
 * git
 * wget
-* [Python 2.7.11+](https://www.python.org/)
+* [Python 2.7.12](https://www.python.org/)
 * [PEX](https://pex.readthedocs.io/en/stable/)
 * [Packages](http://s.sudre.free.fr/Software/Packages/about.html) by Stéphane Sudre
 * [KA Lite](https://github.com/learningequality/ka-lite/wiki/Getting-started) - optional but recommended

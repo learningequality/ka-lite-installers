@@ -6,7 +6,7 @@ This is the Xcode project for the KA Lite application.
 
 ## Requirements
 
-Xcode 7.2
+Xcode 7.2 or higher 
 Mac OS X Yosemite or El Capitan
 
 

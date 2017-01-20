@@ -6,11 +6,11 @@ Release Notes for KA Lite Mac OS X Application
 
 **Mac Installer**
 
-* NEW - We now support Mac OS Sierra.
-* NEW - We now required Python 2.7.11+ installed on your machine to install KA Lite.
-* NEW - Add Python 2.7.12 to KA-Lite-installer.dmg.
+* NEW - We now support macOS Sierra.
+* NEW - We now require Python 2.7.12 or higher versions to install KA Lite.
+* NEW - Add Python 2.7.12 installer to KA-Lite-installer.dmg.
 * NEW - Add README.md to KA-Lite-installer.dmg.
-* NEW - Move KA-Lite.pkg into KA-Lite-installer.dmg.
+* NEW - Move KA-Lite.pkg installer into KA-Lite-installer.dmg.
 * NEW - Add `kalite.pex` to KA-Lite.pkg.
 * REMOVED - We removed `Pyrun` from the KA Lite installer.
 
