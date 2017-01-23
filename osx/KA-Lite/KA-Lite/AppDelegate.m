@@ -206,7 +206,6 @@ BOOL isKaliteCommand(NSString *command) {
     task = [[NSTask alloc] init];
     
     if (isKaliteCommand(command)) {
-        self.kaliteProcessCounter += 1;
         kaliteCommand = [NSString stringWithFormat:@"%@ %@", getKaliteExecutable(), command];
         array = [NSArray arrayWithObjects:@"-l",
                  @"-c",
@@ -270,26 +269,34 @@ BOOL isKaliteCommand(NSString *command) {
     if (!isKaliteCommand(lastCommandArg)) {
         if (status == statusOkRunning) {
             self.portAlertCounter += 1;
-            [self getKaliteStatus];
         }
-        return self.status;
-    }
-    
-    if (self.kaliteProcessCounter >= 1) {
-        self.kaliteProcessCounter -= 1;
-    }
-    if (self.kaliteProcessCounter <= 0) {
+        [self getKaliteStatus];
         return self.status;
     }
     
     if (checkKaliteExecutable()) {
+        
         if ([lastCommandArg isEqualToString: @"status"]) {
-
+            
             //Check if KA Lite port 8008 is open.
             if ((self.portAlertCounter == 1) && (status != statusOkRunning)){
                 self.portAlertCounter -= 1;
                 alert(@"Port :8008 is occupied. Please close the process that is using it to start the KA Lite.");
+                [self setNewStatus:statusStopped];
                 [self showStatus:statusStopped];
+                return self.status;
+            } else {
+                if (self.portAlertCounter == 1) {
+                    self.portAlertCounter -= 1;
+                }
+                // This will run `kalite start` command after checking the port 8008.
+                if (self.kaliteStartCounter == 1) {
+                    self.kaliteStartCounter = statusOkRunning;
+                    [self setNewStatus:statusStartingUp];
+                    [self runKalite:@"start"];
+                    
+                    return self.status;
+                }
             }
             
             // MUST: The result is on the 9th bit of the returned value.  Not sure why this
@@ -607,27 +614,13 @@ NSString *getEnvVar(NSString *var) {
     NSInteger *kalitePort = 8008;
     // Check if port 8008 is running.
     [self runTask:[NSString stringWithFormat:@"lsof -i :%d", kalitePort]];
-    
-    // Delay the execution of kalite start at 0.8 seconds to prevent processing issue with nstask.
-    double delayInSeconds = 08.0;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        // This will execute after 0.08 seconds.
-        if (self.kaliteProcessCounter != 0) {
-            alert(@"KA Lite is still processing, please wait until it is finished.");
-            return;
-        }
-        [self setNewStatus:statusStartingUp];
-        [self runKalite:@"start"];
-    });
+    // `kalite start` command will execute if port 8008 is available.
+    self.kaliteStartCounter += 1;
+    [self.startKalite setEnabled:NO];
 }
 
 
 - (void)stopFunction:(BOOL)isQuit {
-    if (self.kaliteProcessCounter != 0) {
-        alert(@"KA Lite is still processing, please wait until it is finished.");
-        return;
-    }
     NSString *msg = @"Stopping";
     if (isQuit) {
         msg = @"Stopping and quitting the application...";
@@ -1048,7 +1041,7 @@ NSString *getEnvVar(NSString *var) {
 - (void)startKaliteTimer {
     // TODO(cpauya): Use initWithFireDate of NSTimer instance.
     // TODO(amodia): Check if kalite environment variables change.
-    [NSTimer scheduledTimerWithTimeInterval:5.0
+    [NSTimer scheduledTimerWithTimeInterval:08.0
                                      target:self
                                    selector:@selector(getKaliteStatus)
                                    userInfo:nil

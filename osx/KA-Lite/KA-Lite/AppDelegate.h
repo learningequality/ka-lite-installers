@@ -30,8 +30,12 @@
 @property (strong, nonatomic) NSStatusItem *stopItem;
 @property (strong, nonatomic) NSStatusItem *openItem;
 @property (unsafe_unretained) IBOutlet NSTextView *taskLogs;
-@property signed int kaliteProcessCounter;
+
+// It will increment if port 8008 is not available.
 @property signed int portAlertCounter;
+// It will increment when startFunction() will execute.
+@property signed int kaliteStartCounter;
+
 @property BOOL isLoaded;
 @property BOOL autoStartOnLoad;
 @property NSString *version;
