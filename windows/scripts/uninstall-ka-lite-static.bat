@@ -6,7 +6,7 @@ setlocal enabledelayedexpansion
 set scriptPath=%KALITE_SCRIPT_DIR%
 set defaultScriptPath=\Python27\Scripts
 
-if not defined scriptPath goto :NOPATH 
+IF not defined scriptPath goto :NOPATH
 
 IF %scriptPath%=="" (
     GOTO NOPATH
@@ -17,17 +17,17 @@ IF %scriptPath%=="" (
 :YESPATH
 set scriptPath=%scriptPath%
 IF NOT EXIST %scriptPath%\pip.exe (
-    goto :NOPATH 
+    goto :NOPATH
 )
 GOTO END
 
-:NOPATH 
+:NOPATH
 IF EXIST %defaultScriptPath%\pip.exe (
    set scriptPath=%defaultScriptPath%
 )
 GOTO END
 
-:END 
+:END
 
 IF EXIST %scriptPath%\pip.exe  (
   %scriptPath%\pip.exe uninstall --yes ka-lite-static
@@ -35,4 +35,5 @@ IF EXIST %scriptPath%\pip.exe  (
 ) ELSE (
    @ECHO KA Lite static not found.
 )
+
 
