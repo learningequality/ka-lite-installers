@@ -73,10 +73,10 @@ If you encounter issues, please file them at the [KA Lite repository](https://gi
 
 Please note that we have tested this application on the following Mac OS X versions:
 
+* macOS Sierra -version 10.12.2
 * OS X El Capitan - version 10.11.3
 * OS X Yosemite - version 10.10.5
 * OS X Mavericks - version 10.9.5
-* macOS Sierra -version 10.12.2
 
 
 ## ToDos
