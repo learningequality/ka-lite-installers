@@ -31,10 +31,10 @@
 @property (strong, nonatomic) NSStatusItem *openItem;
 @property (unsafe_unretained) IBOutlet NSTextView *taskLogs;
 
-// It will increment if port 8008 is not available.
-@property signed int portAlertCounter;
-// It will increment when startFunction() will execute.
-@property signed int kaliteStartCounter;
+// It will set as YES if port 8008 is not available.
+@property BOOL isPortAlert;
+// It will set as YES when startFunction() will execute.
+@property BOOL iskaliteStart;
 
 @property BOOL isLoaded;
 @property BOOL autoStartOnLoad;

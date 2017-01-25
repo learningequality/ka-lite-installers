@@ -268,7 +268,7 @@ BOOL isKaliteCommand(NSString *command) {
     
     if (!isKaliteCommand(lastCommandArg)) {
         if (status == statusOkRunning) {
-            self.portAlertCounter += 1;
+            self.isPortAlert = YES;
         }
         [self getKaliteStatus];
         return self.status;
@@ -279,19 +279,19 @@ BOOL isKaliteCommand(NSString *command) {
         if ([lastCommandArg isEqualToString: @"status"]) {
             
             //Check if KA Lite port 8008 is open.
-            if ((self.portAlertCounter == 1) && (status != statusOkRunning)){
-                self.portAlertCounter -= 1;
+            if ((self.isPortAlert) && (status != statusOkRunning)){
+                self.isPortAlert = NO;
                 alert(@"Port :8008 is occupied. Please close the process that is using it to start the KA Lite.");
                 [self setNewStatus:statusStopped];
                 [self showStatus:statusStopped];
                 return self.status;
             } else {
-                if (self.portAlertCounter == 1) {
-                    self.portAlertCounter -= 1;
+                if (self.isPortAlert) {
+                    self.isPortAlert = NO;
                 }
                 // This will run `kalite start` command after checking the port 8008.
-                if (self.kaliteStartCounter == 1) {
-                    self.kaliteStartCounter = statusOkRunning;
+                if (self.iskaliteStart) {
+                    self.iskaliteStart = NO;
                     [self setNewStatus:statusStartingUp];
                     [self runKalite:@"start"];
                     
@@ -615,7 +615,7 @@ NSString *getEnvVar(NSString *var) {
     // Check if port 8008 is running.
     [self runTask:[NSString stringWithFormat:@"lsof -i :%d", kalitePort]];
     // `kalite start` command will execute if port 8008 is available.
-    self.kaliteStartCounter += 1;
+    self.iskaliteStart = YES;
     [self.startKalite setEnabled:NO];
 }
 
