@@ -12,7 +12,7 @@ It uses [PEX](https://pex.readthedocs.io/en/stable/) to create `kalite.pex` exec
 
 1. Download the [KA Lite Mac OS X Installer for 0.17](http://pantry.learningequality.org/downloads/ka-lite/0.17/installers/mac/).
 1. Double-click the downloaded `KA-lite-Installer.dmg`.
-1. KA Lite Mac OS X Installer required Python 2.7.12 or higher versions. If you're not sure the version of python installed in your machine, double-click README.md for the instructions.
+1. KA Lite Mac OS X Installer required Python 2.7.12 or higher versions. If you're not sure which version of Python is installed in your machine, double-click README.md for the instructions.
 1. Double-click the `KA-Lite.pkg` package and click "Continue" when prompted about the "This package will run a program to determine if the software can be installed." message.
 1. Follow the setup wizard.  The installation requires admin privileges.
 1. This package will run a program to determine if the software can be installed.
@@ -73,7 +73,7 @@ If you encounter issues, please file them at the [KA Lite repository](https://gi
 
 Please note that we have tested this application on the following Mac OS X versions:
 
-* macOS Sierra -version 10.12.2
+* macOS Sierra - version 10.12.2
 * OS X El Capitan - version 10.11.3
 * OS X Yosemite - version 10.10.5
 * OS X Mavericks - version 10.9.5
