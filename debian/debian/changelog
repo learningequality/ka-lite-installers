@@ -1,3 +1,12 @@
+ka-lite-source (0.17.0-0ubuntu1) trusty; urgency=medium
+
+  * Use systemd helpers for init script, fixes issues on newer debian systems
+  * Content pack zips used instead of deprecated assessment item zips
+  * ka-lite-raspberry-pi does not serve deprecated assessment item path
+  * ka-lite-bundle upgrade English content pack
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sat, 28 Jan 2017 00:13:40 +0100
+
 ka-lite-source (0.16.9-0ubuntu3) trusty; urgency=medium
 
   * Add system.d ka-lite.service script
