@@ -5,13 +5,15 @@ This is the [KA Lite](https://github.com/learningequality/ka-lite/) application 
 
 It is used to control and monitor the [KA Lite](https://github.com/learningequality/ka-lite/) server by [Foundation for Learning Equality](https://learningequality.org/).
 
-It uses [PyRun](http://www.egenix.com/products/python/PyRun/) to isolate the KA Lite environment from your system's [Python](https://www.python.org/) application.
+It uses [PEX](https://pex.readthedocs.io/en/stable/) to create `kalite.pex` executable.
 
 
 ## Install KA Lite
 
-1. Download the [KA Lite Mac OS X Installer for 0.16](http://pantry.learningequality.org/downloads/ka-lite/0.16/installers/mac/).
-1. Double-click the downloaded `KA-Lite.pkg` package and click "Continue" when prompted about the "This package will run a program to determine if the software can be installed." message.
+1. Download the [KA Lite Mac OS X Installer for 0.17](http://pantry.learningequality.org/downloads/ka-lite/0.17/installers/mac/).
+1. Double-click the downloaded `KA-lite-Installer.dmg`.
+1. KA Lite Mac OS X Installer required Python 2.7.12 or higher versions. If you're not sure which version of Python is installed in your machine, double-click README.md for the instructions.
+1. Double-click the `KA-Lite.pkg` package and click "Continue" when prompted about the "This package will run a program to determine if the software can be installed." message.
 1. Follow the setup wizard.  The installation requires admin privileges.
 1. This package will run a program to determine if the software can be installed.
 1. The installer will create the `/Applications/KA-Lite/` folder that contains the KA-Lite application, uninstall tool, licence, readme, release notes, and the support folder.
@@ -67,10 +69,11 @@ To view the KA Lite installer and application logs, launch the `Console` applica
 
 To view the KA Lite web server logs, open `~/.kalite/server.log` to view access and debug logs.  If you have set a custom KA Lite data folder in the Preferences dialog, use this format: `$KALITE_HOME/server.log`.
 
-If you encounter issues, please file them at the [KA Lite repository](https://github.com/learningequality/ka-lite/issues/) or at the [KA Lite Installers repository](https://github.com/learningequality/installers).
+If you encounter issues, please file them at the [KA Lite repository](https://github.com/learningequality/ka-lite/issues/) or at the [KA Lite Installers repository](https://github.com/learningequality/ka-lite-installers/issues/).
 
 Please note that we have tested this application on the following Mac OS X versions:
 
+* macOS Sierra - version 10.12.2
 * OS X El Capitan - version 10.11.3
 * OS X Yosemite - version 10.10.5
 * OS X Mavericks - version 10.9.5
