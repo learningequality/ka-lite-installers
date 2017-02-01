@@ -22,4 +22,4 @@ Mac OS X Yosemite or El Capitan
 ## Notes:
 * The application will not load if the `kalite.pex` executable cannot be found.
 * Refer to the `osx/release-docs/README.md` document for more details.
-* The application uses `KALITE_PEX` environment variable to get the path of `kalite.pex` executable and if the environment will not exist, it will default to "/Applications/KA-Lite/support/ka-lite/kalite.pex".
+* The application uses `KALITE_PEX` environment variable to get the path of `kalite.pex` executable and if it does not exist it will default to "/Applications/KA-Lite/support/ka-lite/kalite.pex".
