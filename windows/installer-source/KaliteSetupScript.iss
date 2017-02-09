@@ -242,12 +242,98 @@ begin
     end;
 end;
 
+{ Used in GetPipPath below }
+const
+    DEFAULT_PIP_PATH = '\Python27\Scripts\pip.exe';
+    DEFAULT_PYTHON_PATH = '\Python27\python.exe';
+
+{ Returns the path of pip.exe on the system. }
+{ Tries several different locations before prompting user. }
+function GetPipPath: string;
+var
+    kalitePythonEnv: string;
+    path : string;
+    i : integer;
+begin
+    kalitePythonEnv := GetEnv('KALITE_PYTHON');
+    Log(kalitePythonEnv)
+    if kalitePythonEnv = '' then 
+      begin
+        path := DEFAULT_PIP_PATH;
+        if FileExists(path) then
+        begin
+            Result := path;
+            exit;
+        end
+      end
+    else
+      begin
+        if FileExists(kalitePythonEnv) then 
+            Result := ExtractFileDir(kalitePythonEnv) + '\Scripts\pip.exe';
+            exit;
+      end
+
+    MsgBox('Could not find pip.exe. Please select the location of pip.exe to continue installation.', mbInformation, MB_OK);
+    if GetOpenFileName('Please select pip.exe', path, '', 'All files (*.*)|*.*', 'exe') then
+    begin
+        Result := path;
+    end
+    else begin
+        MsgBox('Fatal error'#13#13'Please install pip and try again.', mbError, MB_OK);
+        forceCancel := True;
+        Result := '';
+    end;
+end;
+
+procedure HandlePipSetup;
+var
+    PipCommand: string;
+    PipPath: string;
+    pythonPath: string;
+    checkEnc: string;
+    ErrorCode: integer;
+
+begin
+    PipPath := GetPipPath;
+    if PipPath = '' then
+        exit;
+    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka_lite_static-' + '{#TargetVersion}' + '-py2-none-any' + '.whl"';
+
+    MsgBox('Setup will now install kalite source files to your Python site-packages.', mbInformation, MB_OK);
+    if not Exec(PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
+    begin
+      MsgBox('Critical error.' #13#13 'Dependencies have failed to install. Error Number: ' + IntToStr(ErrorCode), mbInformation, MB_OK);
+      forceCancel := True;
+      WizardForm.Close;
+    end
+
+    { Must set this environment variable so the systray executable knows where to find the installed kalite.bat script}
+    { Should by in the same directory as pip.exe, e.g. 'C:\Python27\Scripts' }
+    RegWriteStringValue(
+        HKLM,
+        'System\CurrentControlSet\Control\Session Manager\Environment',
+        'KALITE_SCRIPT_DIR',
+        ExtractFileDir(PipPath)
+    );
+    pythonPath := ExtractFileDir(ExtractFileDir(PipPath)) + '\python.exe';
+    FileCopy(ExpandConstant('{app}') + '\ka-lite\scripts\kalite.bat', ExtractFileDir(PipPath) + '\kalite.bat', False);
+    RegWriteStringValue(
+        HKLM,
+        'System\CurrentControlSet\Control\Session Manager\Environment',
+        'KALITE_PYTHON',
+        pythonPath
+    );
+end;
+
 procedure HandleUpgrade(targetPath : String);
 var
     prevVerStr : String;
     retCode: Integer;
+    pipPath: string;
 begin
     prevVerStr := GetPreviousVersion();
+    pipPath := GetPipPath;
+    Exec(ExpandConstant('{cmd}'),'/C ' + ExtractFileDir(pipPath) +'\kalite.bat stop', WizardForm.PrevAppDir, SW_HIDE, ewWaitUntilTerminated, stopServerCode);
     if (CompareStr('{#TargetVersion}', prevVerStr) >= 0) and not (prevVerStr = '') then
     begin
         ConfirmUpgradeDialog;
@@ -341,89 +427,6 @@ begin
         ExtractTemporaryFile('python-2.7.12.amd64.msi');
         ExtractTemporaryFile('python-exe.bat');
         ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
-end;
-
-{ Used in GetPipPath below }
-const
-    DEFAULT_PIP_PATH = '\Python27\Scripts\pip.exe';
-    DEFAULT_PYTHON_PATH = '\Python27\python.exe';
-
-{ Returns the path of pip.exe on the system. }
-{ Tries several different locations before prompting user. }
-function GetPipPath: string;
-var
-    kalitePythonEnv: string;
-    path : string;
-    i : integer;
-begin
-    kalitePythonEnv := GetEnv('KALITE_PYTHON');
-    Log(kalitePythonEnv)
-    if kalitePythonEnv = '' then 
-      begin
-        path := DEFAULT_PIP_PATH;
-        if FileExists(path) then
-        begin
-            Result := path;
-            exit;
-        end
-      end
-    else
-      begin
-        if FileExists(kalitePythonEnv) then 
-            Result := ExtractFileDir(kalitePythonEnv) + '\Scripts\pip.exe';
-            exit;
-      end
-
-    MsgBox('Could not find pip.exe. Please select the location of pip.exe to continue installation.', mbInformation, MB_OK);
-    if GetOpenFileName('Please select pip.exe', path, '', 'All files (*.*)|*.*', 'exe') then
-    begin
-        Result := path;
-    end
-    else begin
-        MsgBox('Fatal error'#13#13'Please install pip and try again.', mbError, MB_OK);
-        forceCancel := True;
-        Result := '';
-    end;
-end;
-
-procedure HandlePipSetup;
-var
-    PipCommand: string;
-    PipPath: string;
-    pythonPath: string;
-    checkEnc: string;
-    ErrorCode: integer;
-
-begin
-    PipPath := GetPipPath;
-    if PipPath = '' then
-        exit;
-    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka_lite_static-' + '{#TargetVersion}' + '-py2-none-any' + '.whl"';
-
-    MsgBox('Setup will now install kalite source files to your Python site-packages.', mbInformation, MB_OK);
-    if not Exec(PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
-    begin
-      MsgBox('Critical error.' #13#13 'Dependencies have failed to install. Error Number: ' + IntToStr(ErrorCode), mbInformation, MB_OK);
-      forceCancel := True;
-      WizardForm.Close;
-    end
-
-    { Must set this environment variable so the systray executable knows where to find the installed kalite.bat script}
-    { Should by in the same directory as pip.exe, e.g. 'C:\Python27\Scripts' }
-    RegWriteStringValue(
-        HKLM,
-        'System\CurrentControlSet\Control\Session Manager\Environment',
-        'KALITE_SCRIPT_DIR',
-        ExtractFileDir(PipPath)
-    );
-    pythonPath := ExtractFileDir(ExtractFileDir(PipPath)) + '\python.exe';
-    FileCopy(ExpandConstant('{app}') + '\ka-lite\scripts\kalite.bat', ExtractFileDir(PipPath) + '\kalite.bat', False);
-    RegWriteStringValue(
-        HKLM,
-        'System\CurrentControlSet\Control\Session Manager\Environment',
-        'KALITE_PYTHON',
-        pythonPath
-    );
 end;
 
 function InitializeSetup(): Boolean;
