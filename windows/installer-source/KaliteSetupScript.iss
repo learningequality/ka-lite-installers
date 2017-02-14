@@ -423,7 +423,7 @@ begin
              exit;
         end
     else
-      if(MsgBox('Warning! All python process will be close in order to upgrade your Python.' + #13#10 + #13#10 + 'Click OK to continue.', mbConfirmation, MB_OKCANCEL) = idCancel) then
+      if(MsgBox('Warning! All python process will be closed in order to upgrade your Python.' + #13#10 + #13#10 + 'Click OK to continue.', mbConfirmation, MB_OKCANCEL) = idCancel) then
           begin
           HandlePythonSetup();
           exit;
