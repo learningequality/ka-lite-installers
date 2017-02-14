@@ -423,19 +423,19 @@ begin
              exit;
         end
     else
-      if(MsgBox('Warning! All python process will be close in order to upgrade your Python.' + #13#10 + #13#10 + 'Click OK to continue.', mbConfirmation, MB_OKCANCEL) = idYes) then
-        begin  
+      if(MsgBox('Warning! All python process will be close in order to upgrade your Python.' + #13#10 + #13#10 + 'Click OK to continue.', mbConfirmation, MB_OKCANCEL) = idCancel) then
+          begin
+          HandlePythonSetup();
+          exit;
+          end
+      else begin
           Exec(ExpandConstant('taskkill.exe'), '/f /im ' + '"python.exe"', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
           ExtractTemporaryFile('python-2.7.12.msi');
           ExtractTemporaryFile('python-2.7.12.amd64.msi');
           ExtractTemporaryFile('python-exe.bat');
           ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
-        end
-      else
-         begin
-            HandlePythonSetup();
-            exit;
-         end
+
+      end
 end;
 
 function InitializeSetup(): Boolean;
