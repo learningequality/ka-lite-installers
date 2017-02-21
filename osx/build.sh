@@ -56,6 +56,7 @@ STEPS=15
 
 # TODO(cpauya): get version from `ka-lite/kalite/version.py`
 # Set the default value to `develop` as suggested by [@benjaoming](https://github.com/learningequality/ka-lite-installers/pull/433#discussion_r96399812), so we can use the VERSION environment in bamboo settings. 
+VERSION="0.17.x"
 VERSION=${VERSION:-"develop"}
 CONTENT_VERSION="0.17"
 PANTRY_CONTENT_URL="http://pantry.learningequality.org/downloads/ka-lite/$CONTENT_VERSION/content"
@@ -151,7 +152,7 @@ fi
 CONTENTPACKS_DIR="$WORKING_DIR/content/contentpacks"
 test ! -d "$CONTENTPACKS_DIR" && mkdir -p "$CONTENTPACKS_DIR"
 
-CONTENTPACKS_EN_PATH="$CONTENTPACKS_DIR/$CONTENTPACKS_EN_ZIP"
+CONTENTPACKS_EN_PATH="$CONTENTPACKS_DIR/contentpack-$CONTENT_VERSION.en.zip"
 echo "$STEP/$STEPS. Checking for en.zip"
 if [ -f "$CONTENTPACKS_EN_PATH" ]; then
     echo ".. Found '$CONTENTPACKS_EN_PATH' so will not re-download.  Delete it to re-download."
@@ -246,88 +247,88 @@ if [ $? -ne 0 ]; then
 fi
 
 
-((STEP++))
-echo "$STEP/$STEPS. Installing Pip requirements for use of Makefile..."
+# ((STEP++))
+# echo "$STEP/$STEPS. Installing Pip requirements for use of Makefile..."
 
-PIP_CMD="pip install -r requirements_dev.txt"
-# TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
-cd "$KA_LITE_DIR"
-echo ".. Running $PIP_CMD..."
-$PIP_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error/s encountered running '$PIP_CMD'."
-    exit 1
-fi
+# PIP_CMD="pip install -r requirements_dev.txt"
+# # TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
+# cd "$KA_LITE_DIR"
+# echo ".. Running $PIP_CMD..."
+# $PIP_CMD
+# if [ $? -ne 0 ]; then
+#     echo ".. Abort!  Error/s encountered running '$PIP_CMD'."
+#     exit 1
+# fi
 
-PIP_CMD="pip install -r requirements_sphinx.txt"
-# TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
-cd "$KA_LITE_DIR"
-echo ".. Running $PIP_CMD..."
-$PIP_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort! Error/s encountered running '$PIP_CMD'."
-    exit 1
-fi
+# PIP_CMD="pip install -r requirements_sphinx.txt"
+# # TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
+# cd "$KA_LITE_DIR"
+# echo ".. Running $PIP_CMD..."
+# $PIP_CMD
+# if [ $? -ne 0 ]; then
+#     echo ".. Abort! Error/s encountered running '$PIP_CMD'."
+#     exit 1
+# fi
 
-NPM_CMD="npm install"
-cd "$KA_LITE_DIR"
-echo ".. Running $NPM_CMD..."
-$NPM_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort! Error/s encountered running '$NPM_CMD'."
-    exit 1
-fi
+# NPM_CMD="npm install"
+# cd "$KA_LITE_DIR"
+# echo ".. Running $NPM_CMD..."
+# $NPM_CMD
+# if [ $? -ne 0 ]; then
+#     echo ".. Abort! Error/s encountered running '$NPM_CMD'."
+#     exit 1
+# fi
 
-PIP_CMD="pip install ."
-cd "$KA_LITE_DIR"
-echo ".. Running $PIP_CMD..."
-$PIP_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort! Error/s encountered running '$PIP_CMD'."
-    exit 1
-fi
+# PIP_CMD="pip install ."
+# cd "$KA_LITE_DIR"
+# echo ".. Running $PIP_CMD..."
+# $PIP_CMD
+# if [ $? -ne 0 ]; then
+#     echo ".. Abort! Error/s encountered running '$PIP_CMD'."
+#     exit 1
+# fi
 
-PIP_CMD="pip install wheel"
-echo ".. Running $PIP_CMD..."
-$PIP_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort! Error/s encountered running '$PIP_CMD'."
-    exit 1
-fi
+# PIP_CMD="pip install wheel"
+# echo ".. Running $PIP_CMD..."
+# $PIP_CMD
+# if [ $? -ne 0 ]; then
+#     echo ".. Abort! Error/s encountered running '$PIP_CMD'."
+#     exit 1
+# fi
 
-((STEP++))
-echo "$STEP/$STEPS. Running 'make dist'..."
+# ((STEP++))
+# echo "$STEP/$STEPS. Running 'make dist'..."
 
-# MUST: Make sure we have a KALITE_PYTHON env var that points to python
-# because `bin/kalite manage ...` will be called when we do `make assets`.
-export KALITE_PYTHON="python"
+# # MUST: Make sure we have a KALITE_PYTHON env var that points to python
+# # because `bin/kalite manage ...` will be called when we do `make assets`.
+# export KALITE_PYTHON="python"
 
-cd "$KA_LITE_DIR"
-MAKE_CMD="make dist"
-echo ".. Running $MAKE_CMD..."
-$MAKE_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Error/s encountered running '$MAKE_CMD'."
-    exit 1
-fi
+# cd "$KA_LITE_DIR"
+# MAKE_CMD="make dist"
+# echo ".. Running $MAKE_CMD..."
+# $MAKE_CMD
+# if [ $? -ne 0 ]; then
+#     echo ".. Abort!  Error/s encountered running '$MAKE_CMD'."
+#     exit 1
+# fi
 
-((STEP++))
-echo "Installing PEX to create kalite PEX file"
-PIP_CMD="pip install pex"
-echo ".. Running $PIP_CMD..."
-$PIP_CMD
-if [ $? -ne 0 ]; then
-    echo ".. Abort! Error/s encountered running '$PIP_CMD'."
-    exit 1
-fi
+# ((STEP++))
+# echo "Installing PEX to create kalite PEX file"
+# PIP_CMD="pip install pex"
+# echo ".. Running $PIP_CMD..."
+# $PIP_CMD
+# if [ $? -ne 0 ]; then
+#     echo ".. Abort! Error/s encountered running '$PIP_CMD'."
+#     exit 1
+# fi
 
-cd "$KA_LITE_DIR"
-WHL_FILE="$(find dist/ -name 'ka_lite_static-*.whl')"
-pex -o dist/kalite.pex -m kalite $WHL_FILE
-if [ $? -ne 0 ]; then
-    echo ".. Abort! Failed to build KA Lite pex file."
-    exit 1
-fi
+# cd "$KA_LITE_DIR"
+# WHL_FILE="$(find dist/ -name 'ka_lite_static-*.whl')"
+# pex -o dist/kalite.pex -m kalite $WHL_FILE
+# if [ $? -ne 0 ]; then
+#     echo ".. Abort! Failed to build KA Lite pex file."
+#     exit 1
+# fi
 
 ENV_CMD="rm -r $ENV_PATH/venv"
 deactivate

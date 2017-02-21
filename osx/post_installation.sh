@@ -81,6 +81,17 @@ function set_kalite_pex_path {
     fi
 }
 
+function set_kalite_dir_path {
+    # This will set KALITE_DIR environment variable.
+    CONTENT_PATH="$KALITE_SHARED/content/ka-lite/"
+    launchctl setenv KALITE_DIR "$CONTENT_PATH"
+    export KALITE_DIR="$CONTENT_PATH"
+    if [ $? -ne 0 ]; then
+        msg ".. Abort!  Error/s encountered exporting KALITE_DIR '$CONTENT_PATH'."
+        exit 1
+    fi
+}
+
 function create_plist {
 
     if [ -f "$PLIST_SRC" ]; then
@@ -199,22 +210,17 @@ fi
 msg "$STEP/$STEPS. Running kalite manage syncdb --noinput..."
 $KALITE_PEX_PATH manage syncdb --noinput
 
+((STEP++))
+msg "$STEP/$STEPS. Set KALITE_DIR environment ..."
+set_kalite_dir_path
 
 ((STEP++))
-msg "$STEP/$STEPS. Running kalite manage setup --noinput..."
+msg "$STEP/$STEPS. Set KALITE_PEX environment ..."
 $KALITE_PEX_PATH manage setup --noinput
-
 
 ((STEP++))
 msg "$STEP/$STEPS. Running kalite manage collectstatic --noinput..."
 $KALITE_PEX_PATH  manage collectstatic --noinput
-
-
-# Use `kalite manage retrievecontentpack local en path-to-en.zip`.
-((STEP++))
-CONTENTPACK_ZIP="$KALITE_SHARED/content/contentpacks/en.zip"
-$KALITE_PEX_PATH manage retrievecontentpack local en $CONTENTPACK_ZIP
-
 
 ((STEP++))
 # Change the owner of the ~/.kalite/ folder.
