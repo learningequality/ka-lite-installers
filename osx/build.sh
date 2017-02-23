@@ -19,16 +19,16 @@
 # 2. Check for valid arguments in terminal.
 # 3. Create temporary directory `temp`.
 # 4. Download the contentpacks/en.zip.
-# 5. Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
-# 6. Install and create virtualenv.
-# 7. Upgrade Python Pip
-# 8. Run `pip install -r requirements_dev.txt` to install the Makefile executables.
-# 9. Installing PEX to create kalite PEX file
-# 10. Run `make dist` for assets and docs.
-# 11. Build the Xcode project.
-# 12. Code-sign the built .app if running on build server.
-# 13. Run Packages script to build the .pkg.
-# 14. Download python installer.
+# 5. Download python installer.
+# 6. Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
+# 7. Install and create virtualenv.
+# 8. Upgrade Python Pip
+# 9. Run `pip install -r requirements_dev.txt` to install the Makefile executables.
+# 10. Installing PEX to create kalite PEX file
+# 11. Run `make dist` for assets and docs.
+# 12. Build the Xcode project.
+# 13. Code-sign the built .app if running on build server.
+# 14. Run Packages script to build the .pkg.
 # 15. Build the dmg file.
 
 
@@ -165,6 +165,23 @@ else
     fi
 fi
 
+# Create output directory path.
+OUTPUT_PATH="$WORKING_DIR/output"
+TEMP_OUTPUT_PATH="$WORKING_DIR/temp-output"
+test -e "$TEMP_OUTPUT_PATH" && rm -r "$TEMP_OUTPUT_PATH"
+test -e "$OUTPUT_PATH" && rm -r "$OUTPUT_PATH"
+test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
+test ! -d "$TEMP_OUTPUT_PATH" && mkdir "$TEMP_OUTPUT_PATH"
+
+# Download python installer.
+((STEP++))
+PYTHON_DOWNLOAD_URL="https://www.python.org/ftp/python/2.7.12/python-2.7.12-macosx10.6.pkg"
+cd $TEMP_OUTPUT_PATH
+wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue $PYTHON_DOWNLOAD_URL
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Can't download Python at '$PYTHON_DOWNLOAD_URL'"
+    exit 1
+fi
 
 ((STEP++))
 echo "$STEP/$STEPS. Checking Github source..."
@@ -246,89 +263,88 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+((STEP++))
+echo "$STEP/$STEPS. Installing Pip requirements for use of Makefile..."
 
-# ((STEP++))
-# echo "$STEP/$STEPS. Installing Pip requirements for use of Makefile..."
+PIP_CMD="pip install -r requirements_dev.txt"
+# TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
+cd "$KA_LITE_DIR"
+echo ".. Running $PIP_CMD..."
+$PIP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$PIP_CMD'."
+    exit 1
+fi
 
-# PIP_CMD="pip install -r requirements_dev.txt"
-# # TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
-# cd "$KA_LITE_DIR"
-# echo ".. Running $PIP_CMD..."
-# $PIP_CMD
-# if [ $? -ne 0 ]; then
-#     echo ".. Abort!  Error/s encountered running '$PIP_CMD'."
-#     exit 1
-# fi
+PIP_CMD="pip install -r requirements_sphinx.txt"
+# TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
+cd "$KA_LITE_DIR"
+echo ".. Running $PIP_CMD..."
+$PIP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Error/s encountered running '$PIP_CMD'."
+    exit 1
+fi
 
-# PIP_CMD="pip install -r requirements_sphinx.txt"
-# # TODO(cpauya): Streamline this to pip install only the needed modules/executables for `make dist` below.
-# cd "$KA_LITE_DIR"
-# echo ".. Running $PIP_CMD..."
-# $PIP_CMD
-# if [ $? -ne 0 ]; then
-#     echo ".. Abort! Error/s encountered running '$PIP_CMD'."
-#     exit 1
-# fi
+NPM_CMD="npm install"
+cd "$KA_LITE_DIR"
+echo ".. Running $NPM_CMD..."
+$NPM_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Error/s encountered running '$NPM_CMD'."
+    exit 1
+fi
 
-# NPM_CMD="npm install"
-# cd "$KA_LITE_DIR"
-# echo ".. Running $NPM_CMD..."
-# $NPM_CMD
-# if [ $? -ne 0 ]; then
-#     echo ".. Abort! Error/s encountered running '$NPM_CMD'."
-#     exit 1
-# fi
+PIP_CMD="pip install ."
+cd "$KA_LITE_DIR"
+echo ".. Running $PIP_CMD..."
+$PIP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Error/s encountered running '$PIP_CMD'."
+    exit 1
+fi
 
-# PIP_CMD="pip install ."
-# cd "$KA_LITE_DIR"
-# echo ".. Running $PIP_CMD..."
-# $PIP_CMD
-# if [ $? -ne 0 ]; then
-#     echo ".. Abort! Error/s encountered running '$PIP_CMD'."
-#     exit 1
-# fi
+PIP_CMD="pip install wheel"
+echo ".. Running $PIP_CMD..."
+$PIP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Error/s encountered running '$PIP_CMD'."
+    exit 1
+fi
 
-# PIP_CMD="pip install wheel"
-# echo ".. Running $PIP_CMD..."
-# $PIP_CMD
-# if [ $? -ne 0 ]; then
-#     echo ".. Abort! Error/s encountered running '$PIP_CMD'."
-#     exit 1
-# fi
+((STEP++))
+echo "$STEP/$STEPS. Running 'make dist'..."
 
-# ((STEP++))
-# echo "$STEP/$STEPS. Running 'make dist'..."
+# MUST: Make sure we have a KALITE_PYTHON env var that points to python
+# because `bin/kalite manage ...` will be called when we do `make assets`.
+export KALITE_PYTHON="python"
 
-# # MUST: Make sure we have a KALITE_PYTHON env var that points to python
-# # because `bin/kalite manage ...` will be called when we do `make assets`.
-# export KALITE_PYTHON="python"
+cd "$KA_LITE_DIR"
+MAKE_CMD="make dist"
+echo ".. Running $MAKE_CMD..."
+$MAKE_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Error/s encountered running '$MAKE_CMD'."
+    exit 1
+fi
 
-# cd "$KA_LITE_DIR"
-# MAKE_CMD="make dist"
-# echo ".. Running $MAKE_CMD..."
-# $MAKE_CMD
-# if [ $? -ne 0 ]; then
-#     echo ".. Abort!  Error/s encountered running '$MAKE_CMD'."
-#     exit 1
-# fi
+((STEP++))
+echo "Installing PEX to create kalite PEX file"
+PIP_CMD="pip install pex"
+echo ".. Running $PIP_CMD..."
+$PIP_CMD
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Error/s encountered running '$PIP_CMD'."
+    exit 1
+fi
 
-# ((STEP++))
-# echo "Installing PEX to create kalite PEX file"
-# PIP_CMD="pip install pex"
-# echo ".. Running $PIP_CMD..."
-# $PIP_CMD
-# if [ $? -ne 0 ]; then
-#     echo ".. Abort! Error/s encountered running '$PIP_CMD'."
-#     exit 1
-# fi
-
-# cd "$KA_LITE_DIR"
-# WHL_FILE="$(find dist/ -name 'ka_lite_static-*.whl')"
-# pex -o dist/kalite.pex -m kalite $WHL_FILE
-# if [ $? -ne 0 ]; then
-#     echo ".. Abort! Failed to build KA Lite pex file."
-#     exit 1
-# fi
+cd "$KA_LITE_DIR"
+WHL_FILE="$(find dist/ -name 'ka_lite_static-*.whl')"
+pex -o dist/kalite.pex -m kalite $WHL_FILE
+if [ $? -ne 0 ]; then
+    echo ".. Abort! Failed to build KA Lite pex file."
+    exit 1
+fi
 
 ENV_CMD="rm -r $ENV_PATH/venv"
 deactivate
@@ -360,13 +376,6 @@ if ! [ -d "$KA_LITE_APP_PATH" ]; then
     echo ".. Abort!  Build of '$KA_LITE_APP_PATH' failed!"
     exit 1
 fi
-
-# Create output directory path.
-OUTPUT_PATH="$WORKING_DIR/output"
-TEMP_OUTPUT_PATH="$WORKING_DIR/temp-output"
-test -e "$DMG_PATH" && rm "$TEMP_OUTPUT_PATH"
-test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
-test ! -d "$TEMP_OUTPUT_PATH" && mkdir "$TEMP_OUTPUT_PATH"
 
 
 # Check if to code-sign or not
@@ -414,18 +423,6 @@ else
         exit 1
     fi
 fi
-
-
-# Download python installer.
-((STEP++))
-PYTHON_DOWNLOAD_URL="https://www.python.org/ftp/python/2.7.12/python-2.7.12-macosx10.6.pkg"
-cd $TEMP_OUTPUT_PATH
-wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue $PYTHON_DOWNLOAD_URL
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't download '$PYTHON_DOWNLOAD_URL'"
-    exit 1
-fi
-
 
 # Build the .dmg file.
 ((STEP++))
