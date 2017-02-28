@@ -228,8 +228,7 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Install and create virtualenv..."
 
-# MUST: Override the PATH to add the path to the Pyrun binaries first so it's python executes instead of
-# the system python.  When the script exits the old PATH values will be restored.
+# Must use Python version 2.7.11+ to build KA Lite. 
 PIP_CMD="pip install virtualenv"
 cd "$KA_LITE_DIR"
 echo ".. Running $PIP_CMD..."
