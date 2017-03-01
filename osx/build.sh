@@ -48,16 +48,15 @@
 # . pkgutil --check-signature KA-Lite.app -- or;
 # . spctl --assess --type install KA-Lite.pkg
 
-
-echo "KA-Lite OS X build script for version 0.17.x and above."
-
 STEP=0
 STEPS=15
 
 # TODO(cpauya): get version from `ka-lite/kalite/version.py`
 # Set the default value to `develop` as suggested by [@benjaoming](https://github.com/learningequality/ka-lite-installers/pull/433#discussion_r96399812), so we can use the VERSION environment in bamboo settings. 
-VERSION="0.17.x"
 VERSION=${VERSION:-"develop"}
+
+echo "KA-Lite OS X build script for version '$VERSION' and above."
+
 CONTENT_VERSION="0.17"
 PANTRY_CONTENT_URL="http://pantry.learningequality.org/downloads/ka-lite/$CONTENT_VERSION/content"
 
@@ -177,10 +176,33 @@ test ! -d "$TEMP_OUTPUT_PATH" && mkdir "$TEMP_OUTPUT_PATH"
 ((STEP++))
 PYTHON_DOWNLOAD_URL="https://www.python.org/ftp/python/2.7.12/python-2.7.12-macosx10.6.pkg"
 cd $TEMP_OUTPUT_PATH
+echo "Downloading the minimum requirement of Python Installer at $PYTHON_DOWNLOAD_URL ..."
 wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue $PYTHON_DOWNLOAD_URL
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Can't download Python at '$PYTHON_DOWNLOAD_URL'"
     exit 1
+fi
+
+KA_LITE_PROJECT_DIR="$SCRIPTPATH/KA-Lite"
+DMG_PATH="$OUTPUT_PATH/KA-Lite-Installer.dmg"
+DMG_BUILDER_PATH="$WORKING_DIR/create-dmg"
+CREATE_DMG="$DMG_BUILDER_PATH/create-dmg"
+KA_LITE_ICNS_PATH="$KA_LITE_PROJECT_DIR/KA-Lite/Resources/images/ka-lite.icns"
+
+test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
+
+((STEP++))
+CREATE_DMG_ZIP="$WORKING_DIR/create-dmg.zip"
+CREATE_DMG_URL="https://github.com/mrpau/create-dmg/archive/master.zip"
+# clone the .dmg builder if non-existent
+if ! [ -d $DMG_BUILDER_PATH ]; then
+    cd $WORKING_DIR
+    echo ".. Downloading create dmg library at '$CREATE_DMG_URL'..."
+    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CREATE_DMG_ZIP $CREATE_DMG_URL
+        # Extract KA-Lite
+    echo ".. Extracting '$CREATE_DMG_ZIP'..."
+    tar -xf $CREATE_DMG_ZIP -C $WORKING_DIR
+    mv $WORKING_DIR/create-dmg-* create-dmg
 fi
 
 ((STEP++))
@@ -358,7 +380,6 @@ fi
 # Build the Xcode project
 ((STEP++))
 echo "$STEP/$STEPS. Building the Xcode project..."
-KA_LITE_PROJECT_DIR="$SCRIPTPATH/KA-Lite"
 if [ -d "$KA_LITE_PROJECT_DIR" ]; then
     # MUST: xcodebuild needs to be on the same directory as the .xcodeproj file
     cd "$KA_LITE_PROJECT_DIR"
@@ -423,27 +444,6 @@ else
     fi
 fi
 
-# Build the .dmg file.
-((STEP++))
-DMG_PATH="$OUTPUT_PATH/KA-Lite-Installer.dmg"
-DMG_BUILDER_PATH="$WORKING_DIR/create-dmg"
-CREATE_DMG="$DMG_BUILDER_PATH/create-dmg"
-KA_LITE_ICNS_PATH="$KA_LITE_PROJECT_DIR/KA-Lite/Resources/images/ka-lite.icns"
-
-echo "$STEP/$STEPS. Building the .dmg file at '$OUTPUT_PATH'..."
-test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
-
-CREATE_DMG_ZIP="$WORKING_DIR/create-dmg.zip"
-# clone the .dmg builder if non-existent
-if ! [ -d $DMG_BUILDER_PATH ]; then
-    cd $WORKING_DIR
-    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CREATE_DMG_ZIP https://github.com/mrpau/create-dmg/archive/master.zip
-        # Extract KA-Lite
-    echo ".. Extracting '$CREATE_DMG_ZIP'..."
-    tar -xf $CREATE_DMG_ZIP -C $WORKING_DIR
-    mv $WORKING_DIR/create-dmg-* create-dmg
-fi
-
 # Remove the .dmg if it exists.
 test -e "$DMG_PATH" && rm "$DMG_PATH"
 
@@ -452,6 +452,7 @@ test -e "$DMG_PATH" && rm "$DMG_PATH"
 cp "$SCRIPTPATH/dmg-resources/README.md" "$TEMP_OUTPUT_PATH"
 cp "$SCRIPTPATH/dmg-resources/ka-lite-logo.png" "$TEMP_OUTPUT_PATH"
 
+echo "$STEP/$STEPS. Building the .dmg file at '$OUTPUT_PATH'..."
 # Let's create the .dmg.
 $CREATE_DMG \
     --volname "KA Lite Installer" \
