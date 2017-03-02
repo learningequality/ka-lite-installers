@@ -176,7 +176,7 @@ test ! -d "$TEMP_OUTPUT_PATH" && mkdir "$TEMP_OUTPUT_PATH"
 ((STEP++))
 PYTHON_DOWNLOAD_URL="https://www.python.org/ftp/python/2.7.12/python-2.7.12-macosx10.6.pkg"
 cd $TEMP_OUTPUT_PATH
-echo "Downloading the minimum requirement of Python Installer at $PYTHON_DOWNLOAD_URL ..."
+echo "$STEP/$STEPS. Downloading the minimum requirement of Python Installer at $PYTHON_DOWNLOAD_URL ..."
 wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue $PYTHON_DOWNLOAD_URL
 if [ $? -ne 0 ]; then
     echo ".. Abort!  Can't download Python at '$PYTHON_DOWNLOAD_URL'"
@@ -192,6 +192,7 @@ KA_LITE_ICNS_PATH="$KA_LITE_PROJECT_DIR/KA-Lite/Resources/images/ka-lite.icns"
 test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
 
 ((STEP++))
+echo "$STEP/$STEPS. Checking create dmg library..."
 CREATE_DMG_ZIP="$WORKING_DIR/create-dmg.zip"
 CREATE_DMG_URL="https://github.com/mrpau/create-dmg/archive/master.zip"
 # clone the .dmg builder if non-existent
@@ -350,7 +351,7 @@ if [ $? -ne 0 ]; then
 fi
 
 ((STEP++))
-echo "Installing PEX to create kalite PEX file"
+echo "$STEP/$STEPS. Installing PEX to create kalite PEX file"
 PIP_CMD="pip install pex"
 echo ".. Running $PIP_CMD..."
 $PIP_CMD
