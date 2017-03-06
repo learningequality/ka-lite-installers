@@ -73,6 +73,7 @@ var
   startupFlag : string;
   ServerInformationPage : TInputQueryWizardPage;
   StartupOptionsPage : TOutputMsgWizardPage;
+  AddContentPathPage : TInputDirWizardPage;
   isUpgrade : boolean;
   stopServerCode: integer;
   removeOldGuiTool: integer;
@@ -81,8 +82,7 @@ var
   cleanOldKaliteFolder : integer;
   restoreDatabaseTemp : integer;
   forceCancel : boolean;
-
-
+ 
 procedure InitializeWizard;
 begin
     isUpgrade := False;
@@ -102,6 +102,12 @@ begin
     'Please specify the server name and a description, then click Next. (you can leave blank both fields if you want to use the default server name or if you do not want to insert a description)');
     ServerInformationPage.Add('Server name:', False);
     ServerInformationPage.Add('Server description:', False);
+
+    { Add KA Lite content data path }
+    AddContentPathPage := CreateInputDirPage(
+      wpSelectDir, 'Content Information', 'Please read the following important information.', 'KA Lite Setup is unable to locate the content folder of your previous installation in order to perform the upgrade to current version. Please select the .kalite/content/ folder on your computer and press the button OK to finish the upgrade process.', False, '');
+    AddContentPathPage.Add('Please select the .kalite/content/ folder');
+    AddContentPathPage.Values[0] := GetPreviousData('Content', ExpandConstant('{%USERPROFILE}'));
 
     StartupOptionsPage := CreateOutputMsgPage(ServerInformationPage.ID,
         'Startup options', 'Please read the following important information.',
@@ -129,6 +135,10 @@ begin
             result := True;
         end;
         if PageID = wpSelectDir then
+        begin
+            result := True;
+        end;
+        if PageID = AddContentPathPage.ID then
         begin
             result := True;
         end;
@@ -245,11 +255,12 @@ end;
 procedure HandleUpgrade(targetPath : String);
 var
     prevVerStr : String;
+    userKaliteContent: String;
+    systemKaliteDir: String;
     retCode: Integer;
 begin
-    prevVerStr := GetPreviousVersion();
-    if (CompareStr('{#TargetVersion}', prevVerStr) >= 0) and not (prevVerStr = '') then
-    begin
+   if (CompareStr('{#TargetVersion}', prevVerStr) >= 0) and not (prevVerStr = '') then
+   begin
         ConfirmUpgradeDialog;
         if Not isUpgrade then
         begin
@@ -268,11 +279,12 @@ begin
             begin
                 if CompareStr('{#TargetVersion}', '0.14.0') >= 0 then
                 begin
-                    DoGitMigrate;
+                   { DoGitMigrate;     }
                 end;
             end;
 
             { A special case where we'd like to remove a scheduled task, since it should now be run as current user }
+
             { instead of the SYSTEM user. }
             if CompareStr(prevVerStr, '0.15.99') < 0 then
             begin
@@ -287,11 +299,11 @@ begin
             begin
                 if CompareStr('{#TargetVersion}', '0.16.0') >= 0 then
                 begin
+
                     MoveSystemKaliteData;
                 end;
             end;
         end;
-
         { forceCancel will be true if something went awry in DoGitMigrate... abort instead of trampling the user's data. }
         if Not forceCancel then
         begin
@@ -303,7 +315,6 @@ end;
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
     result := True;
-
     if CurPageID = wpLicense then
     begin
         if WizardForm.PrevAppDir <> nil then
@@ -316,6 +327,7 @@ begin
         if Not isUpgrade then
             HandleUpgrade(ExpandConstant('{app}'));
     end;
+
 end;
 
 {REF: http://stackoverflow.com/questions/4438506/exit-from-inno-setup-instalation-from-code}
