@@ -19,16 +19,16 @@
 # 2. Check for valid arguments in terminal.
 # 3. Create temporary directory `temp`.
 # 4. Download the contentpacks/en.zip.
-# 5. Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
-# 6. Install and create virtualenv.
-# 7. Upgrade Python Pip
-# 8. Run `pip install -r requirements_dev.txt` to install the Makefile executables.
-# 9. Installing PEX to create kalite PEX file
-# 10. Run `make dist` for assets and docs.
-# 11. Build the Xcode project.
-# 12. Code-sign the built .app if running on build server.
-# 13. Run Packages script to build the .pkg.
-# 14. Download python installer.
+# 5. Download python installer.
+# 6. Get Github source, optionally use argument for the Github .zip URL, extract, and rename it to `ka-lite`.
+# 7. Install and create virtualenv.
+# 8. Upgrade Python Pip
+# 9. Run `pip install -r requirements_dev.txt` to install the Makefile executables.
+# 10. Installing PEX to create kalite PEX file
+# 11. Run `make dist` for assets and docs.
+# 12. Build the Xcode project.
+# 13. Code-sign the built .app if running on build server.
+# 14. Run Packages script to build the .pkg.
 # 15. Build the dmg file.
 
 
@@ -48,15 +48,15 @@
 # . pkgutil --check-signature KA-Lite.app -- or;
 # . spctl --assess --type install KA-Lite.pkg
 
-
-echo "KA-Lite OS X build script for version 0.17.x and above."
-
 STEP=0
 STEPS=15
 
 # TODO(cpauya): get version from `ka-lite/kalite/version.py`
 # Set the default value to `develop` as suggested by [@benjaoming](https://github.com/learningequality/ka-lite-installers/pull/433#discussion_r96399812), so we can use the VERSION environment in bamboo settings. 
 VERSION=${VERSION:-"develop"}
+
+echo "KA-Lite OS X build script for version '$VERSION' and above."
+
 CONTENT_VERSION="0.17"
 PANTRY_CONTENT_URL="http://pantry.learningequality.org/downloads/ka-lite/$CONTENT_VERSION/content"
 
@@ -151,7 +151,7 @@ fi
 CONTENTPACKS_DIR="$WORKING_DIR/content/contentpacks"
 test ! -d "$CONTENTPACKS_DIR" && mkdir -p "$CONTENTPACKS_DIR"
 
-CONTENTPACKS_EN_PATH="$CONTENTPACKS_DIR/$CONTENTPACKS_EN_ZIP"
+CONTENTPACKS_EN_PATH="$CONTENTPACKS_DIR/contentpack-$CONTENT_VERSION.en.zip"
 echo "$STEP/$STEPS. Checking for en.zip"
 if [ -f "$CONTENTPACKS_EN_PATH" ]; then
     echo ".. Found '$CONTENTPACKS_EN_PATH' so will not re-download.  Delete it to re-download."
@@ -164,6 +164,47 @@ else
     fi
 fi
 
+# Create output directory path.
+OUTPUT_PATH="$WORKING_DIR/output"
+TEMP_OUTPUT_PATH="$WORKING_DIR/temp-output"
+test -e "$TEMP_OUTPUT_PATH" && rm -r "$TEMP_OUTPUT_PATH"
+test -e "$OUTPUT_PATH" && rm -r "$OUTPUT_PATH"
+test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
+test ! -d "$TEMP_OUTPUT_PATH" && mkdir "$TEMP_OUTPUT_PATH"
+
+# Download python installer.
+((STEP++))
+PYTHON_DOWNLOAD_URL="https://www.python.org/ftp/python/2.7.12/python-2.7.12-macosx10.6.pkg"
+cd $TEMP_OUTPUT_PATH
+echo "$STEP/$STEPS. Downloading the minimum requirement of Python Installer at $PYTHON_DOWNLOAD_URL ..."
+wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue $PYTHON_DOWNLOAD_URL
+if [ $? -ne 0 ]; then
+    echo ".. Abort!  Can't download Python at '$PYTHON_DOWNLOAD_URL'"
+    exit 1
+fi
+
+KA_LITE_PROJECT_DIR="$SCRIPTPATH/KA-Lite"
+DMG_PATH="$OUTPUT_PATH/KA-Lite-Installer.dmg"
+DMG_BUILDER_PATH="$WORKING_DIR/create-dmg"
+CREATE_DMG="$DMG_BUILDER_PATH/create-dmg"
+KA_LITE_ICNS_PATH="$KA_LITE_PROJECT_DIR/KA-Lite/Resources/images/ka-lite.icns"
+
+test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
+
+((STEP++))
+echo "$STEP/$STEPS. Checking create dmg library..."
+CREATE_DMG_ZIP="$WORKING_DIR/create-dmg.zip"
+CREATE_DMG_URL="https://github.com/mrpau/create-dmg/archive/master.zip"
+# clone the .dmg builder if non-existent
+if ! [ -d $DMG_BUILDER_PATH ]; then
+    cd $WORKING_DIR
+    echo ".. Downloading create dmg library at '$CREATE_DMG_URL'..."
+    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CREATE_DMG_ZIP $CREATE_DMG_URL
+        # Extract KA-Lite
+    echo ".. Extracting '$CREATE_DMG_ZIP'..."
+    tar -xf $CREATE_DMG_ZIP -C $WORKING_DIR
+    mv $WORKING_DIR/create-dmg-* create-dmg
+fi
 
 ((STEP++))
 echo "$STEP/$STEPS. Checking Github source..."
@@ -210,8 +251,7 @@ fi
 ((STEP++))
 echo "$STEP/$STEPS. Install and create virtualenv..."
 
-# MUST: Override the PATH to add the path to the Pyrun binaries first so it's python executes instead of
-# the system python.  When the script exits the old PATH values will be restored.
+# Must use Python version 2.7.11+ to build KA Lite. 
 PIP_CMD="pip install virtualenv"
 cd "$KA_LITE_DIR"
 echo ".. Running $PIP_CMD..."
@@ -244,7 +284,6 @@ if [ $? -ne 0 ]; then
     echo ".. Abort!  Error/s encountered running '$UPGRADE_PIP_CMD'."
     exit 1
 fi
-
 
 ((STEP++))
 echo "$STEP/$STEPS. Installing Pip requirements for use of Makefile..."
@@ -312,7 +351,7 @@ if [ $? -ne 0 ]; then
 fi
 
 ((STEP++))
-echo "Installing PEX to create kalite PEX file"
+echo "$STEP/$STEPS. Installing PEX to create kalite PEX file"
 PIP_CMD="pip install pex"
 echo ".. Running $PIP_CMD..."
 $PIP_CMD
@@ -342,7 +381,6 @@ fi
 # Build the Xcode project
 ((STEP++))
 echo "$STEP/$STEPS. Building the Xcode project..."
-KA_LITE_PROJECT_DIR="$SCRIPTPATH/KA-Lite"
 if [ -d "$KA_LITE_PROJECT_DIR" ]; then
     # MUST: xcodebuild needs to be on the same directory as the .xcodeproj file
     cd "$KA_LITE_PROJECT_DIR"
@@ -359,13 +397,6 @@ if ! [ -d "$KA_LITE_APP_PATH" ]; then
     echo ".. Abort!  Build of '$KA_LITE_APP_PATH' failed!"
     exit 1
 fi
-
-# Create output directory path.
-OUTPUT_PATH="$WORKING_DIR/output"
-TEMP_OUTPUT_PATH="$WORKING_DIR/temp-output"
-test -e "$DMG_PATH" && rm "$TEMP_OUTPUT_PATH"
-test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
-test ! -d "$TEMP_OUTPUT_PATH" && mkdir "$TEMP_OUTPUT_PATH"
 
 
 # Check if to code-sign or not
@@ -414,39 +445,6 @@ else
     fi
 fi
 
-
-# Download python installer.
-((STEP++))
-PYTHON_DOWNLOAD_URL="https://www.python.org/ftp/python/2.7.12/python-2.7.12-macosx10.6.pkg"
-cd $TEMP_OUTPUT_PATH
-wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue $PYTHON_DOWNLOAD_URL
-if [ $? -ne 0 ]; then
-    echo ".. Abort!  Can't download '$PYTHON_DOWNLOAD_URL'"
-    exit 1
-fi
-
-
-# Build the .dmg file.
-((STEP++))
-DMG_PATH="$OUTPUT_PATH/KA-Lite-Installer.dmg"
-DMG_BUILDER_PATH="$WORKING_DIR/create-dmg"
-CREATE_DMG="$DMG_BUILDER_PATH/create-dmg"
-KA_LITE_ICNS_PATH="$KA_LITE_PROJECT_DIR/KA-Lite/Resources/images/ka-lite.icns"
-
-echo "$STEP/$STEPS. Building the .dmg file at '$OUTPUT_PATH'..."
-test ! -d "$OUTPUT_PATH" && mkdir "$OUTPUT_PATH"
-
-CREATE_DMG_ZIP="$WORKING_DIR/create-dmg.zip"
-# clone the .dmg builder if non-existent
-if ! [ -d $DMG_BUILDER_PATH ]; then
-    cd $WORKING_DIR
-    wget --retry-connrefused --read-timeout=20 --waitretry=1 -t 100 --continue -O $CREATE_DMG_ZIP https://github.com/mrpau/create-dmg/archive/master.zip
-        # Extract KA-Lite
-    echo ".. Extracting '$CREATE_DMG_ZIP'..."
-    tar -xf $CREATE_DMG_ZIP -C $WORKING_DIR
-    mv $WORKING_DIR/create-dmg-* create-dmg
-fi
-
 # Remove the .dmg if it exists.
 test -e "$DMG_PATH" && rm "$DMG_PATH"
 
@@ -455,6 +453,7 @@ test -e "$DMG_PATH" && rm "$DMG_PATH"
 cp "$SCRIPTPATH/dmg-resources/README.md" "$TEMP_OUTPUT_PATH"
 cp "$SCRIPTPATH/dmg-resources/ka-lite-logo.png" "$TEMP_OUTPUT_PATH"
 
+echo "$STEP/$STEPS. Building the .dmg file at '$OUTPUT_PATH'..."
 # Let's create the .dmg.
 $CREATE_DMG \
     --volname "KA Lite Installer" \

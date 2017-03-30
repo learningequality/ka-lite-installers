@@ -9,17 +9,18 @@
 # Steps
 # 1. Set KALITE_PYTHON environment variable to the Python executable.
 # 2. Set KALITE_PEX environment variable to the kalite PEX file executable.
-# 3. Create plist in /Library/LaunchAgents/ folder.
-# 4. Symlink kalite executable to /usr/local/bin.
-# 5. Set KALITE_HOME environment variable to ~/.kalite/ folder.
-# 6. Run kalite manage syncdb --noinput.
+# 3. Set KALITE_DIR environment variable.
+# 4. Create plist in /Library/LaunchAgents/ folder.
+# 5. Symlink kalite executable to /usr/local/bin.
+# 6. Set KALITE_HOME environment variable to ~/.kalite/ folder.
+# 7. Run kalite manage syncdb --noinput.
 # 7. Run kalite manage setup --noinput.
 # 8. Run kalite manage collectstatic --noinput.
-# 9. Run kalite manage retrievecontentpack local en path-to-en.zip.
 # 10. Change the owner of the ~/.kalite/ folder and .plist file to current user.
 # 11. Set the KALITE_PYTHON env var for the user doing the install so we don't need to restart after installation.
-# 12. Set KALITE_PEX under the user account
-# 13. Create a copy of ka-lite-remover.sh and name it as KA-Lite_Uninstall.tool.
+# 12. Set KALITE_DIR under the user account.
+# 13. Set KALITE_PEX under the user account.
+# 14. Create a copy of ka-lite-remover.sh and name it as KA-Lite_Uninstall.tool.
 
 
 #----------------------------------------------------------------------
@@ -28,10 +29,10 @@
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 
 STEP=0
-STEPS=13
+STEPS=14
 
 KALITE_SHARED="/Applications/KA-Lite/support"
-KALITE_DIR="$HOME/.kalite"
+KALITE_HOME_PATH="$HOME/.kalite"
 KALITE_UNINSTALL_SCRIPT="KA-Lite_Uninstall.tool"
 KALITE_PEX_PATH="$KALITE_SHARED/ka-lite/kalite.pex"
 
@@ -48,6 +49,7 @@ PRE_INSTALL_SCRIPT="$SCRIPT_PATH/ka-lite-remover.sh"
 SYMLINK_FILE="$KALITE_PEX_PATH"
 SYMLINK_TO="/usr/local/bin/kalite"
 COMMAND_SYMLINK="ln -s $SYMLINK_FILE $SYMLINK_TO"
+CONTENT_PATH="$KALITE_SHARED/content/ka-lite/"
 
 ORG="org.learningequality.kalite"
 LAUNCH_AGENTS="/Library/LaunchAgents/"
@@ -77,6 +79,16 @@ function set_kalite_pex_path {
     export KALITE_PEX="$KALITE_PEX_PATH"
     if [ $? -ne 0 ]; then
         msg ".. Abort!  Error/s encountered exporting KALITE_PYTHON '$PYTHON'."
+        exit 1
+    fi
+}
+
+function set_kalite_dir_path {
+    # This will set KALITE_DIR environment variable.
+    launchctl setenv KALITE_DIR "$CONTENT_PATH"
+    export KALITE_DIR="$CONTENT_PATH"
+    if [ $? -ne 0 ]; then
+        msg ".. Abort!  Error/s encountered exporting KALITE_DIR '$CONTENT_PATH'."
         exit 1
     fi
 }
@@ -147,6 +159,9 @@ update_env
 msg "$STEP/$STEPS. Set KALITE_PEX environment ..."
 set_kalite_pex_path
 
+((STEP++))
+msg "$STEP/$STEPS. Set KALITE_DIR environment ..."
+set_kalite_dir_path
 
 ((STEP++))
 msg "$STEP/$STEPS. Creating and loading plist in $LAUNCH_AGENTS folder..."
@@ -199,29 +214,20 @@ fi
 msg "$STEP/$STEPS. Running kalite manage syncdb --noinput..."
 $KALITE_PEX_PATH manage syncdb --noinput
 
-
 ((STEP++))
-msg "$STEP/$STEPS. Running kalite manage setup --noinput..."
+msg "$STEP/$STEPS. Set KALITE_PEX environment ..."
 $KALITE_PEX_PATH manage setup --noinput
-
 
 ((STEP++))
 msg "$STEP/$STEPS. Running kalite manage collectstatic --noinput..."
 $KALITE_PEX_PATH  manage collectstatic --noinput
 
-
-# Use `kalite manage retrievecontentpack local en path-to-en.zip`.
-((STEP++))
-CONTENTPACK_ZIP="$KALITE_SHARED/content/contentpacks/en.zip"
-$KALITE_PEX_PATH manage retrievecontentpack local en $CONTENTPACK_ZIP
-
-
 ((STEP++))
 # Change the owner of the ~/.kalite/ folder.
 msg "$STEP/$STEPS. Changing the owner of the '$KALITE_DIR' and '$PLIST_SRC' to the current user $USER..."
-chown -R $USER:$SUDO_GID $KALITE_DIR
+chown -R $USER:$SUDO_GID $KALITE_HOME_PATH
+chown -R $USER:$SUDO_GID $CONTENT_PATH
 chown -R $USER:$SUDO_GID $PLIST_SRC
-
 
 ((STEP++))
 # Set the KALITE_PYTHON env var for the user doing the install so we don't need to restart after installation.
@@ -235,6 +241,17 @@ if [ $? -ne 0 ]; then
 fi
 msg "KALITE_PYTHON env var is now set to $KALITE_PYTHON"
 
+((STEP++))
+# Set the KALITE_DIR env var for the user doing the install so we don't need to restart after installation.
+msg "$STEP/$STEPS. Set the KALITE_DIR env var for the user doing the install so we don't need to restart after installation..."
+# MUST: Do an unsetenv first because the env var may already be set.  This is useful during upgrade.
+su $USER -c "launchctl unsetenv KALITE_DIR"
+su $USER -c "launchctl setenv KALITE_DIR $KALITE_DIR"
+if [ $? -ne 0 ]; then
+    msg ".. Abort!  Error setting the KALITE_DIR env var under the user account."
+    exit 1
+fi
+msg "KALITE_DIR env var is now set to $KALITE_DIR"
 
 ((STEP++))
 msg "$STEP/$STEPS. Set the KALITE_PEX env var for the user doing the install so we don't need to restart after installation..."
