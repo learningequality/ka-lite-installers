@@ -423,19 +423,11 @@ begin
              exit;
         end
     else
-      if(MsgBox('Warning! All python process will be closed in order to upgrade your Python.' + #13#10 + #13#10 + 'Click OK to continue.', mbConfirmation, MB_OKCANCEL) = idCancel) then
-          begin
-          HandlePythonSetup();
-          exit;
-          end
-      else begin
-          Exec(ExpandConstant('taskkill.exe'), '/f /im ' + '"python.exe"', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
-          ExtractTemporaryFile('python-2.7.12.msi');
-          ExtractTemporaryFile('python-2.7.12.amd64.msi');
-          ExtractTemporaryFile('python-exe.bat');
-          ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
+        ExtractTemporaryFile('python-2.7.12.msi');
+        ExtractTemporaryFile('python-2.7.12.amd64.msi');
+        ExtractTemporaryFile('python-exe.bat');
+        ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
 
-      end
 end;
 
 function InitializeSetup(): Boolean;
@@ -449,9 +441,19 @@ begin
   
     ShellExec('open', 'taskkill.exe', '/F /T /im "KA Lite.exe"', '', SW_HIDE, ewWaitUntilTerminated, killErrorCode)
     ShellExec('open', 'tskill.exe', ' "KA Lite"', '', SW_HIDE, ewWaitUntilTerminated, killErrorCode);
-
     RegDeleteValue(HKCU, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Run', ExpandConstant('{#MyAppName}'));
-   
+    if(MsgBox('Warning! All python process will be closed in order to install KA Lite.' + #13#10 + #13#10 + 'Click OK to continue.', mbConfirmation, MB_OKCANCEL) = idCancel) then
+    begin
+        if(MsgBox('Are you sure you want to cancel the installation of KA Lite?' + #13#10 + 'If you select Yes, this installer will close and KA Lite will not be installed on your system.', mbConfirmation, MB_YESNO) = idYes) then
+          begin
+            forceCancel := True;
+            ExitProcess(1);
+          end
+          else begin
+            InitializeSetup()
+          end
+    end
+    Exec(ExpandConstant('taskkill.exe'), '/f /im ' + '"python.exe"', '', SW_HIDE, ewWaitUntilTerminated, killErrorCode);
     if ShellExec('open', 'python.exe','-c "import sys; (sys.version_info >= (2, 7, 11,) and sys.version_info < (3,) and sys.exit(0)) or sys.exit(1)"', '', SW_HIDE, ewWaitUntilTerminated, PythonVersionCodeCheck) then
     begin
         if PythonVersionCodeCheck = 1 then
