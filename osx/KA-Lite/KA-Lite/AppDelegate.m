@@ -231,23 +231,26 @@ BOOL isKaliteCommand(NSString *command) {
     
     // REF: http://stackoverflow.com/questions/9965360/async-execution-of-shell-command-not-working-properly
     // REF: http://www.raywenderlich.com/36537/nstask-tutorial
+    // REF: http://stackoverflow.com/questions/13747232/using-nstask-and-nspipe-causes-100-cpu-usage
     
     pipeOutput = [NSPipe pipe];
     task.standardOutput = pipeOutput;
     task.standardError = pipeOutput;
     
     [[task.standardOutput fileHandleForReading] setReadabilityHandler:^(NSFileHandle *file) {
+        
         NSData *data = [file availableData]; // this will read to EOF, so call only once
         NSString *outStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         if (self.status != self.lastStatus) {
             NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
             [self displayLogs:outStr];
         }
-        
+            
         // Set the current kalite version
         if (command == versionStr){
             self.kaliteVersion.stringValue = outStr;
         }
+        [file closeFile];
     }];
     
     [task launch];
