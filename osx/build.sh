@@ -25,7 +25,7 @@
 # 8. Upgrade Python Pip
 # 9. Run `pip install -r requirements_dev.txt` to install the Makefile executables.
 # 10. Installing PEX to create kalite PEX file
-# 11. Update installer version
+# 11. Update KA Lite installer version.
 # 12. Run `make dist` for assets and docs.
 # 13. Build the Xcode project.
 # 14. Code-sign the built .app if running on build server.
