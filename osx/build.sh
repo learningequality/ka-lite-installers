@@ -373,9 +373,9 @@ fi
 echo "Updating KA Lite installer version"
 KA_LITE_VERSION="$(kalite --version)"
 DOCS_PATH="$SCRIPTPATH/KA-Lite-Packages/docs"
-sed -i '' "13s/0.17.0/$KA_LITE_VERSION/g" "$DOCS_PATH/INTRODUCTION.rst.rtfd/TXT.rtf"
-sed -i '' "12s/0.17.0/$KA_LITE_VERSION/g" "$DOCS_PATH/SUMMARY.rtfd/TXT.rtf"
-sed -i '' "12s/0.17.0/$KA_LITE_VERSION/g" "$DOCS_PATH/README.rst.rtf"
+sed -i '' "13s/KA_LITE_VERSION/$KA_LITE_VERSION/g" "$DOCS_PATH/INTRODUCTION.rst.rtfd/TXT.rtf" && \
+sed -i '' "12s/KA_LITE_VERSION/$KA_LITE_VERSION/g" "$DOCS_PATH/SUMMARY.rtfd/TXT.rtf" && \
+sed -i '' "12s/KA_LITE_VERSION/$KA_LITE_VERSION/g" "$DOCS_PATH/README.rst.rtf"
 if [ $? -ne 0 ]; then
     echo ".. Failed to update KA Lite installer version."
 fi
