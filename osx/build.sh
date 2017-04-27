@@ -25,11 +25,12 @@
 # 8. Upgrade Python Pip
 # 9. Run `pip install -r requirements_dev.txt` to install the Makefile executables.
 # 10. Installing PEX to create kalite PEX file
-# 11. Run `make dist` for assets and docs.
-# 12. Build the Xcode project.
-# 13. Code-sign the built .app if running on build server.
-# 14. Run Packages script to build the .pkg.
-# 15. Build the dmg file.
+# 11. Update KA Lite installer version.
+# 12. Run `make dist` for assets and docs.
+# 13. Build the Xcode project.
+# 14. Code-sign the built .app if running on build server.
+# 15. Run Packages script to build the .pkg.
+# 16. Build the dmg file.
 
 
 # REF: Bash References
@@ -49,7 +50,7 @@
 # . spctl --assess --type install KA-Lite.pkg
 
 STEP=0
-STEPS=15
+STEPS=16
 
 # TODO(cpauya): get version from `ka-lite/kalite/version.py`
 # Set the default value to `develop` as suggested by [@benjaoming](https://github.com/learningequality/ka-lite-installers/pull/433#discussion_r96399812), so we can use the VERSION environment in bamboo settings. 
@@ -366,6 +367,17 @@ pex -o dist/kalite.pex -m kalite $WHL_FILE
 if [ $? -ne 0 ]; then
     echo ".. Abort! Failed to build KA Lite pex file."
     exit 1
+fi
+
+((STEP++))
+echo "Updating KA Lite installer version"
+KA_LITE_VERSION="$(kalite --version)"
+DOCS_PATH="$SCRIPTPATH/KA-Lite-Packages/docs"
+sed -i '' "13s/{{ KA_LITE_VERSION }}/$KA_LITE_VERSION/g" "$DOCS_PATH/INTRODUCTION.rst.rtfd/TXT.rtf" && \
+sed -i '' "12s/{{ KA_LITE_VERSION }}/$KA_LITE_VERSION/g" "$DOCS_PATH/SUMMARY.rtfd/TXT.rtf" && \
+sed -i '' "12s/{{ KA_LITE_VERSION }}/$KA_LITE_VERSION/g" "$DOCS_PATH/README.rst.rtf"
+if [ $? -ne 0 ]; then
+    echo ".. Failed to update KA Lite installer version."
 fi
 
 ENV_CMD="rm -r $ENV_PATH/venv"
