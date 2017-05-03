@@ -1,6 +1,28 @@
 Release Notes for KA Lite Mac OS X Application
 ==============================================
 
+0.17.0
+------
+
+**Mac Installer**
+
+* NEW - We now support macOS Sierra.
+* NEW - We now require Python version 2.7.12 or higher except Python 3.x.x to install KA Lite.
+* NEW - Add Python 2.7.12 installer to KA-Lite-Installer.dmg.
+* NEW - Add README.md to KA-Lite-Installer.dmg.
+* NEW - Move KA-Lite.pkg installer into KA-Lite-Installer.dmg.
+* NEW - Add `kalite.pex` to KA-Lite.pkg.
+* REMOVED - We removed `Pyrun` from the KA Lite installer.
+
+**Mac Application**
+* NEW - We now use "KALITE_PEX" environment variable to get the path of `kalite.pex` executable
+* NEW - We now use bundled `kalite.pex` executable.
+* NEW - KA Lite application will not start if port 8008 is not available.
+
+**KA Lite**
+* NEW - We now use [PEX](https://pex.readthedocs.io/en/stable/) to create `kalite.pex` executable.
+
+
 0.16.0
 ------
 

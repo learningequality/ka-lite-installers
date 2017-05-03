@@ -16,21 +16,28 @@ cd $DIR
 test_version=1.2.3
 echo "Starting tests"
 
+
+# A user account which is used for some tests and deleted after.
+TEST_USER="kalite_test"
+
 if [ "$1" = "" ]
 then
     target_kalite=true
     target_rpi=true
     target_bundle=true
     target_upgrade=true
+    target_bundle_manual_init=true
 else
     target_kalite=false
     target_rpi=false
     target_bundle=false
     target_upgrade=false
+    target_bundle_manual_init=false
     [ "$1" = "rpi" ] && target_rpi=true
     [ "$1" = "kalite" ] && target_kalite=true
     [ "$1" = "bundle" ] && target_bundle=true
     [ "$1" = "upgrade" ] && target_upgrade=true
+    [ "$1" = "manual_init" ] && target_bundle_manual_init=true
 fi
 
 
@@ -67,10 +74,6 @@ get_conf_value()
 
 cd test
 
-# Create a test assessment items archive
-echo "$test_version" > assessmentitems.version
-zip test.zip assessmentitems.version
-
 # Disable asking questions
 export DEBIAN_FRONTEND=noninteractive
 
@@ -89,44 +92,13 @@ then
     echo "Purging any prior values in debconf"
     echo PURGE | sudo debconf-communicate ka-lite
 
-    # Run a test that uses a local archive
-    echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
-    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb" "tail"
-    [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
-    tmp_location=`get_conf_value ka-lite ka-lite/download-assessment-items-tmp`
-    [ -f "$tmp_location/assessment_items.zip" ] && test_fail "Temporary zip not cleaned up"
-    sudo -E apt-get purge -y ka-lite
+    # Use the test user
+    echo "ka-lite ka-lite/user select $TEST_USER" | sudo debconf-set-selections
 
-    # Run a test that uses a local archive
-    echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
+    # Simple install of ka-lite with no prior debconf set...
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb" "tail"
-    [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
-    # Should not delete archive in this case
-    [ -f "$DIR/test/test.zip" ] || test_fail "local zip archive deleted after usage"
     kalite status
     sudo -E apt-get purge -y ka-lite
-
-    # Run a test that downloads assessment items
-    echo "ka-lite ka-lite/download-assessment-items-url select http://overtag.dk/upload/assessment_test.zip" | sudo debconf-set-selections
-    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb" "tail"
-    [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
-    kalite status
-    sudo -E apt-get purge -y ka-lite
-
-    # Run a test that uses a specific /tmp location
-    echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
-    mkdir -p /tmp/test
-    echo "ka-lite ka-lite/download-assessment-items-tmp select /tmp/test" | sudo debconf-set-selections
-    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb" "tail"
-    [ -f /usr/share/kalite/assessment/khan/assessmentitems.version ] || test_fail "Did not find assessment items"
-    kalite status
-    sudo -E apt-get purge -y ka-lite
-
-    # Test that there are no *pyc files
-    if [ -d /usr/share/kalite ]
-    then
-        [[ `find /usr/share/kalite -name '*pyc' | wc -l` == "0" ]] || test_fail "Lingering *pyc files after removal"
-    fi
 
     echo "Done with normal ka-lite tests"
 
@@ -149,10 +121,41 @@ then
     # Test ka-lite-bundle
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-bundle_${test_version}_all.deb" "tail"
     kalite status
+    # Test that the script restarts
+    sudo service ka-lite restart
     sudo -E apt-get purge -y ka-lite-bundle
 
     echo "Done with ka-lite-bundle tests"
 fi
+
+
+echo ""
+echo "======================================="
+echo " Testing ka-lite-bundle w/o update.rcd"
+echo "======================================="
+echo ""
+
+
+if $target_bundle_manual_init
+then
+
+    # Remove all previous values from debconf
+    echo "Purging any prior values in debconf"
+    echo PURGE | sudo debconf-communicate ka-lite-bundle
+
+    echo "ka-lite-bundle ka-lite/init select false" | sudo debconf-set-selections
+
+    # Test ka-lite-bundle
+    test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-bundle_${test_version}_all.deb" "tail"
+    kalite status
+    # Test that the script restarts
+    sudo service ka-lite start
+    sudo service ka-lite stop
+    sudo -E apt-get purge -y ka-lite-bundle
+
+    echo "Done with ka-lite-bundle tests"
+fi
+
 
 echo ""
 echo "=============================="
@@ -167,11 +170,12 @@ then
     echo "Purging any prior values in debconf"
     echo PURGE | sudo debconf-communicate ka-lite-raspberry-pi
 
-    # Test ka-lite-raspberry-pi
-    echo "ka-lite-raspberry-pi ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
     sudo -E apt-get install -y -q nginx-light
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}_all.deb" "tail"
     kalite status
+    # Test that the script restarts
+    sudo service ka-lite restart
+
     # Ensure there's a file created with the .kalite dir
     [ -f /etc/ka-lite/nginx.d/username.conf ] || test_fail "/etc/ka-lite/nginx.d/username.conf was not created"
     sudo -E apt-get purge -y ka-lite-raspberry-pi
@@ -180,6 +184,7 @@ then
     # Ensure that there is nothing left after purging, otherwise divertion process failed
     ! [ -d /etc/nginx ] || test_fail "/etc/nginx not empty after purging nginx"
     echo "Done with RPi tests"
+
 fi
 
 
@@ -194,10 +199,7 @@ echo ""
 if $target_upgrade
 then
     # Install previous test
-    echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}_all.deb" "tail"
-
-    sudo sh -c 'echo "1" > /usr/share/kalite/somefilethatshouldbecleaned.pyc'
 
     # Then install a version with .1 appended
     cd $DIR
@@ -205,9 +207,6 @@ then
     cd test
 
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite_${test_version}.1_all.deb" "tail"
-
-    # Test that there are no *pyc files
-    [ -f /usr/share/kalite/somefilethatshouldbecleaned.pyc ] && test_fail "Upgrade left a *pyc file!"
 
     sudo -E apt-get purge -y ka-lite
 
@@ -217,7 +216,6 @@ then
 
     sudo -E apt-get install -y -q nginx-light
 
-    echo "ka-lite ka-lite/download-assessment-items-url select file:///$DIR/test/test.zip" | sudo debconf-set-selections
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}_all.deb" "tail"
     test_command_with_pipe "sudo -E dpkg -i --debug=2 ka-lite-raspberry-pi_${test_version}.1_all.deb" "tail"
     sudo -E apt-get purge -y ka-lite-raspberry-pi
@@ -228,3 +226,11 @@ then
 
 
 fi
+
+echo ""
+echo "=============================="
+echo " Cleaning up"
+echo "=============================="
+echo ""
+
+sudo deluser --remove-home "$TEST_USER" || echo "$TEST_USER already deleted or not created"

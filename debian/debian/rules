@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@ --with python2 --buildsystem=python_distutils
+	dh $@ --with python2 --buildsystem=python_distutils --with=systemd
 
 
 override_dh_auto_clean:
@@ -28,7 +28,15 @@ override_dh_auto_install:
 	cp -rup debian/ka-lite/usr debian/ka-lite-bundle/
 	# Prepare assessment items
 	bash -c debian/prepare_assessment_items.sh
-
+	install -D -m0755 debian/startup/ka-lite.init $(CURDIR)/debian/ka-lite/etc/init.d/ka-lite
+	install -D -m0644 debian/startup/ka-lite.default $(CURDIR)/debian/ka-lite/etc/default/ka-lite
+	install -D -m0644 debian/startup/ka-lite.service $(CURDIR)/debian/ka-lite/lib/systemd/system/ka-lite.service
+	install -D -m0755 debian/startup/ka-lite.init $(CURDIR)/debian/ka-lite-bundle/etc/init.d/ka-lite
+	install -D -m0644 debian/startup/ka-lite.default $(CURDIR)/debian/ka-lite-bundle/etc/default/ka-lite
+	install -D -m0644 debian/startup/ka-lite.service $(CURDIR)/debian/ka-lite-bundle/lib/systemd/system/ka-lite.service
+	install -D -m0755 debian/startup/ka-lite.init $(CURDIR)/debian/ka-lite-raspberry-pi/etc/init.d/ka-lite
+	install -D -m0644 debian/startup/ka-lite.default $(CURDIR)/debian/ka-lite-raspberry-pi/etc/default/ka-lite
+	install -D -m0644 debian/startup/ka-lite.service $(CURDIR)/debian/ka-lite-raspberry-pi/lib/systemd/system/ka-lite.service
 
 
 # using dh-exec
@@ -42,10 +50,16 @@ override_dh_installdeb:
 	perl -w debian/dh_installscripts-common -p ka-lite -p ka-lite-raspberry-pi -p ka-lite-bundle
 endif
 
-# This is commented out because we depend on user input
-# before actually installing
-# override_dh_installinit:
-# 	dh_installinit
+
+override_dh_installinit:
+	# dh_installinit --init-script=ka-lite --name=ka-lite --noscripts
+
+
+override_dh_systemd_enable:
+# Do not enable the file by default on purpose.
+# The user should enable it only after making sure the configuration is
+# appropriate for his/her computer.
+# This corresponds to START=no in /etc/default/thinkfan
 
 
 override_dh_python2:

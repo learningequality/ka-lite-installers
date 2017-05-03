@@ -26,8 +26,7 @@ To build in Linux, first install `wine`. These directions assume you're building
 skip using msys and use bash instead.
 
 * Clone this repository;
-* Clone `ka-lite` repository from https://github.com/learningequality/ka-lite to this directory.
-* Download ka-lite-static sdist zipfile from https://pypi.python.org/pypi/ka-lite-static/ to this directory.
+* Download ka-lite-static sdist whl file from https://pypi.python.org/pypi/ka-lite-static/ to this directory.
 * Download the English content pack `en.zip` file to this directory. Look for it in [the pantry](http://pantry.learningequality.org/downloads/).
 * Set the environment variable KALITE_BUILD_VERSION to the desired version for the installer, e.g. `0.16.0`.
   This should match the version in the sdist *exactly*, so `ka-lite-static-0.17.3` means that `KALITE_BUILD_VERSION`
@@ -65,11 +64,11 @@ After adding both binaries to your path, you're ready to run `npm install` in th
 ---
 ### Build server instructions
 Our bamboo build server basically follows the above instructions. The primary difference is that instead of getting
-a KA Lite sdist from PyPI, we build it ourselves in .zip format instead of .tar.gz format, using the following
+a KA Lite sdist from PyPI, we build it ourselves in .whl format instead of .tar.gz format, using the following
 make directive in the ka-lite base directory:
 
 ```
-> make dist format=zip
+> make dist
 ```
 
 Additionally, you *must* update the value of the `KALITE_BUILD_VERSION` environment variable that the build server

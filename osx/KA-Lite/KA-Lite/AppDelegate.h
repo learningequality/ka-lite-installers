@@ -30,7 +30,12 @@
 @property (strong, nonatomic) NSStatusItem *stopItem;
 @property (strong, nonatomic) NSStatusItem *openItem;
 @property (unsafe_unretained) IBOutlet NSTextView *taskLogs;
-@property signed int processCounter;
+
+// It will set as YES if port 8008 is not available.
+@property BOOL isPortAlert;
+// It will set as YES when startFunction() will execute.
+@property BOOL iskaliteStart;
+
 @property BOOL isLoaded;
 @property BOOL autoStartOnLoad;
 @property NSString *version;
@@ -49,7 +54,6 @@
 @property (weak) IBOutlet NSPopover *popover;
 @property (weak) IBOutlet NSTextField *popoverMsg;
 @property (weak) IBOutlet NSView *aView;
-
 
 enum kaliteStatus {
     statusOkRunning = 0,

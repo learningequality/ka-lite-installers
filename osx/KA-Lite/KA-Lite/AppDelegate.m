@@ -10,7 +10,7 @@
 // Notes: Possible issues with OSX 10.10 or higher:
 // * http://www.dowdandassociates.com/blog/content/howto-set-an-environment-variable-in-mac-os-x-slash-etc-slash-launchd-dot-conf/
 // 
-
+#include <SystemConfiguration/SystemConfiguration.h>
 #import "AppDelegate.h"
 
 @import Foundation;
@@ -37,7 +37,7 @@
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
     // TODO(cpauya): Get version from the project's .plist file or from `kalite --version`.
-    self.version = @"0.16";
+    self.version = @"0.17";
     self.isLoaded = NO;
     self.autoStartOnLoad = YES;
     self.status = statusCouldNotDetermineStatus;
@@ -49,6 +49,8 @@
 //<##>applicationDidFinishLaunching
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
+    void *sel = @selector(closeSplash);
+    [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:sel userInfo:nil repeats:NO];
     // Set the delegate to self to make sure notifications work properly.
     [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:self];
     
@@ -74,19 +76,17 @@
     
     [self.kaliteDataHelp setToolTip:@"This will set the KALITE_HOME environment variable to the selected KA Lite data location. \n \nClick the 'Apply' button to save your changes and click the 'Start KA Lite' button to use your new data location. \n \nNOTE: To use your existing KA Lite data, manually copy it to the selected KA Lite data location."];
     [self.kaliteUninstallHelp setToolTip:@"This will uninstall the KA Lite application. \n \nCheck the `Delete KA Lite data folder` option if you want to delete your KA Lite data. \n \nNOTE: This will require admin privileges."];
-
-//    @try {
-//        [self runKalite:@"--version"];
-//        [self getKaliteStatus];
-//    }
-//    @catch (NSException *ex) {
-//        NSLog(@"KA Lite had an Error: %@", ex);
-//    }
     
-    void *sel = @selector(closeSplash);
-    [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:sel userInfo:nil repeats:NO];
+    //    @try {
+    //        [self runKalite:@"--version"];
+    //        [self getKaliteStatus];
+    //    }
+    //    @catch (NSException *ex) {
+    //        NSLog(@"KA Lite had an Error: %@", ex);
+    //    }
+    
     [self startKaliteTimer];
-
+    
     // TODO(cpauya): Auto-start KA Lite on application load.
     if (self.autoStartOnLoad) {
         [self startFunction];
@@ -97,26 +97,6 @@
         [self getKaliteStatus];
     }
 
-}
-
-
-- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
-    // Confirm quit action from user.
-    // TODO(cpauya): Don't ask if OS asked to quit the app.
-    if ([self checkSetup:NO] == YES) {
-        NSString *msg = @"This will stop and quit KA Lite, are you sure?";
-        switch ([self quitReason]) {
-            case quitByUser:
-                break;
-            default:
-                if (! confirm(msg)) {
-                    return NSTerminateCancel;
-                }
-                break;
-        }
-        [self stopFunction:true];
-    }
-    return NSTerminateNow;
 }
 
 
@@ -183,12 +163,28 @@ BOOL checkEnvVars() {
     });
 }
 
+BOOL isKaliteCommand(NSString *command) {
+    NSArray *kaliteCommands;
+    kaliteCommands = @[@"start", @"stop", @"status"];
+    if ([kaliteCommands containsObject:command]) {
+        return YES;
+    }
+    return NO;
+}
 
 - (void) runTask:(NSString *)command {
     NSString *kalitePath;
     NSString *statusStr;
     NSString *versionStr;
+    NSString *kaliteHomePath;
+    NSString *kaliteCommand;
+    NSMutableDictionary *environment;
     NSMutableDictionary *kaliteHomeEnv;
+    NSArray *array;
+    NSTask* task;
+    NSPipe *pipeOutput;
+    NSDictionary *defaultEnvironment;
+    
     
     statusStr = @"status";
     versionStr = @"--version";
@@ -198,58 +194,138 @@ BOOL checkEnvVars() {
         [self.statusItem setImage:[NSImage imageNamed:@"loading"]];
     }
     
-    self.processCounter += 1;
-    
     kalitePath = getKaliteExecutable();
-    
     kaliteHomeEnv = [[NSMutableDictionary alloc] init];
-    
-    NSString *kaliteHomePath = getKaliteDataPath();
+    kaliteHomePath = getKaliteDataPath();
     
     // Set KALITE_HOME environment
     [kaliteHomeEnv addEntriesFromDictionary:[[NSProcessInfo processInfo] environment]];
     [kaliteHomeEnv setObject:kaliteHomePath forKey:@"KALITE_HOME"];
     
     //REF: http://stackoverflow.com/questions/386783/nstask-not-picking-up-path-from-the-users-environment
-    NSTask* task = [[NSTask alloc] init];
-    NSString *kaliteCommand = [NSString stringWithFormat:@"kalite %@",command];
-    NSArray *array = [NSArray arrayWithObjects:@"-l",
-                      @"-c",
-                      kaliteCommand,
-                      nil];
+    task = [[NSTask alloc] init];
     
-    NSDictionary *defaultEnvironment = [[NSProcessInfo processInfo] environment];
-    NSMutableDictionary *environment = [[NSMutableDictionary alloc] initWithDictionary:defaultEnvironment];
-    [environment setObject:kaliteHomePath forKey:@"KALITE_HOME"];
-    [task setEnvironment:environment];
+    if (isKaliteCommand(command)) {
+        kaliteCommand = [NSString stringWithFormat:@"%@ %@", getKaliteExecutable(), command];
+        array = [NSArray arrayWithObjects:@"-l",
+                 @"-c",
+                 kaliteCommand,
+                 nil];
+        
+        defaultEnvironment = [[NSProcessInfo processInfo] environment];
+        environment = [[NSMutableDictionary alloc] initWithDictionary:defaultEnvironment];
+        [environment setObject:kaliteHomePath forKey:@"KALITE_HOME"];
+        [task setEnvironment:environment];
+        
+        [task setLaunchPath: @"/bin/bash"];
+        [task setArguments: array];
+    } else {
+        array = [NSArray arrayWithObjects:@"-l",
+                 @"-c",
+                 command,
+                 nil];
+        [task setLaunchPath: @"/bin/bash"];
+        [task setArguments: array];
+    }
 
-    
-    [task setLaunchPath: @"/bin/bash"];
-    [task setArguments: array];
     
     // REF: http://stackoverflow.com/questions/9965360/async-execution-of-shell-command-not-working-properly
     // REF: http://www.raywenderlich.com/36537/nstask-tutorial
+    // REF: http://stackoverflow.com/questions/13747232/using-nstask-and-nspipe-causes-100-cpu-usage
     
-    NSPipe *pipeOutput = [NSPipe pipe];
+    pipeOutput = [NSPipe pipe];
     task.standardOutput = pipeOutput;
     task.standardError = pipeOutput;
     
     [[task.standardOutput fileHandleForReading] setReadabilityHandler:^(NSFileHandle *file) {
+        
         NSData *data = [file availableData]; // this will read to EOF, so call only once
         NSString *outStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         if (self.status != self.lastStatus) {
             NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
             [self displayLogs:outStr];
         }
-        
+            
         // Set the current kalite version
         if (command == versionStr){
             self.kaliteVersion.stringValue = outStr;
         }
+        [file closeFile];
     }];
     
     [task launch];
     
+}
+
+
+- (enum kaliteStatus)checkRunTask:(NSNotification *)aNotification{
+    NSString *taskArgument;
+    NSString *lastCommandArg;
+    
+    enum kaliteStatus oldStatus = self.status;
+    
+    int status = [[aNotification object] terminationStatus];
+    
+    taskArgument = [[aNotification object] arguments].lastObject;
+    lastCommandArg = [taskArgument componentsSeparatedByString:@" "].lastObject;
+    
+    if (!isKaliteCommand(lastCommandArg)) {
+        if (status == statusOkRunning) {
+            self.isPortAlert = YES;
+        }
+        [self getKaliteStatus];
+        return self.status;
+    }
+    
+    if (checkKaliteExecutable()) {
+        
+        if ([lastCommandArg isEqualToString: @"status"]) {
+            
+            //Check if KA Lite port 8008 is open.
+            if ((self.isPortAlert) && (status != statusOkRunning)){
+                self.isPortAlert = NO;
+                alert(@"Port :8008 is occupied. Please close the process that is using it to start the KA Lite.");
+                [self setNewStatus:statusStopped];
+                [self showStatus:statusStopped];
+                return self.status;
+            } else {
+                if (self.isPortAlert) {
+                    self.isPortAlert = NO;
+                }
+                // This will run `kalite start` command after checking the port 8008.
+                if (self.iskaliteStart) {
+                    self.iskaliteStart = NO;
+                    [self setNewStatus:statusStartingUp];
+                    [self runKalite:@"start"];
+                    
+                    return self.status;
+                }
+            }
+            
+            // MUST: The result is on the 9th bit of the returned value.  Not sure why this
+            // is but maybe because of the returned values from the `system()` call.  For now
+            // we shift 8 bits to the right until we figure this one out.  TODO(cpauya): fix later
+            if (status >= 255) {
+                status = status >> 8;
+            }
+            [self setNewStatus:status];
+            if (oldStatus != status) {
+                [self showStatus:self.status];
+            }
+            return self.status;
+        } else {
+            // If command is not "status", run `kalite status` to get status of ka-lite.
+            // We need this check because this may be called inside the KA-Lite timer.
+            NSLog(@"Fetching `kalite status`...");
+            [self getKaliteStatus];
+            return self.status;
+        }
+    } else {
+        [self setNewStatus:statusCouldNotDetermineStatus];
+        [self showStatus:self.status];
+        showNotification(@"The `kalite` executable does not exist!", @"");
+    }
+    return self.status;
 }
 
 
@@ -305,54 +381,6 @@ BOOL kaliteExists() {
                                                  name:NSTaskDidTerminateNotification
                                                object:nil];
     return self;
-}
-
-
-- (enum kaliteStatus)checkRunTask:(NSNotification *)aNotification{
-    NSArray *taskArguments;
-    NSArray *statusArguments;
-    enum kaliteStatus oldStatus = self.status;
-    
-    int status = [[aNotification object] terminationStatus];
-
-    taskArguments = [[aNotification object] arguments];
-    statusArguments = [[NSArray alloc]initWithObjects:@"-l", @"-c", @"kalite status", nil];
-    NSSet *taskArgsSet = [NSSet setWithArray:taskArguments];
-    NSSet *statusArgsSet = [NSSet setWithArray:statusArguments];
-    
-    if (self.processCounter >= 1) {
-        self.processCounter -= 1;
-    }
-    if (self.processCounter != 0) {
-        return self.status;
-    }
-    
-    if (checkKaliteExecutable()) {
-        if ([taskArgsSet isEqualToSet:statusArgsSet]) {
-            // MUST: The result is on the 9th bit of the returned value.  Not sure why this
-            // is but maybe because of the returned values from the `system()` call.  For now
-            // we shift 8 bits to the right until we figure this one out.  TODO(cpauya): fix later
-            if (status >= 255) {
-                status = status >> 8;
-            }
-            [self setNewStatus:status];
-            if (oldStatus != status) {
-                [self showStatus:self.status];
-            }
-            return self.status;
-        } else {
-            // If command is not "status", run `kalite status` to get status of ka-lite.
-            // We need this check because this may be called inside the KA-Lite timer.
-            NSLog(@"Fetching `kalite status`...");
-            [self getKaliteStatus];
-            return self.status;
-        }
-    } else {
-        [self setNewStatus:statusCouldNotDetermineStatus];
-        [self showStatus:self.status];
-        showNotification(@"The `kalite` executable does not exist!", @"");
-    }
-    return self.status;
 }
 
 
@@ -440,7 +468,11 @@ void showNotification(NSString *subtitle, NSString *info) {
 
 
 NSString *getKaliteExecutable() {
-    return @"/usr/local/bin/kalite";
+    NSString* envKalitePexPath = getEnvVar(@"KALITE_PEX");
+    if (pathExists(envKalitePexPath)) {
+        return envKalitePexPath;
+    }
+    return @"/Applications/KA-Lite/support/ka-lite/kalite.pex";
 }
 
 
@@ -582,21 +614,16 @@ NSString *getEnvVar(NSString *var) {
 
 
 - (void)startFunction {
-    if (self.processCounter != 0) {
-        alert(@"KA Lite is still processing, please wait until it is finished.");
-        return;
-    }
-    showNotification(@"Starting...", @"");
-    [self setNewStatus:statusStartingUp];
-    [self runKalite:@"start"];
+    NSInteger *kalitePort = 8008;
+    // Check if port 8008 is running.
+    [self runTask:[NSString stringWithFormat:@"lsof -i :%d", kalitePort]];
+    // `kalite start` command will execute if port 8008 is available.
+    self.iskaliteStart = YES;
+    [self.startKalite setEnabled:NO];
 }
 
 
 - (void)stopFunction:(BOOL)isQuit {
-    if (self.processCounter != 0) {
-        alert(@"KA Lite is still processing, please wait until it is finished.");
-        return;
-    }
     NSString *msg = @"Stopping";
     if (isQuit) {
         msg = @"Stopping and quitting the application...";
@@ -612,6 +639,23 @@ NSString *getEnvVar(NSString *var) {
     if( ![[NSWorkspace sharedWorkspace] openURL:url] ) {
         NSString *msg = [NSString stringWithFormat:@" Failed to open url: %@",[url description]];
         showNotification(msg, @"");
+    }
+}
+
+
+- (IBAction)quitApplcation:(id)sender {
+    if ([self checkSetup:NO] == YES) {
+        NSString *msg = @"This will stop and quit KA Lite, are you sure?";
+        switch ([self quitReason]) {
+            case quitByUser:
+                break;
+            default:
+                if (confirm(msg)) {
+                    [self stopFunction:true];
+                    [[NSApplication sharedApplication] terminate:nil];
+                }
+                break;
+        }
     }
 }
 
@@ -763,23 +807,23 @@ NSString *getEnvVar(NSString *var) {
         isOk = NO;
     }
 
-    // Check the environment variables.
-    if (! checkEnvVars()) {
-        msg = [NSString stringWithFormat:@"%@\n* One of the KALITE_PYTHON or KALITE_HOME environment variables is invalid.", msg];
-        isOk = NO;
-    }
-
-    // Check the custom KA Lite data path.
-    NSString *dataPath = getKaliteDataPath();
-    if (dataPath == nil) {
-        msg = [NSString stringWithFormat:@"%@\n* The custom KA Lite data path is invalid, please check the KALITE_HOME environment variable value.", msg];
-        isOk = NO;
-    }
-
-    if (showIt == YES && isOk == NO) {
-        msg = [NSString stringWithFormat:@"%@  Please try to re-install KA Lite to attempt to fix the issue/s.%@", title, msg];
-        showNotification(title, msg);
-    }
+//    // Check the environment variables.
+//    if (! checkEnvVars()) {
+//        msg = [NSString stringWithFormat:@"%@\n* One of the KALITE_PYTHON or KALITE_HOME environment variables is invalid.", msg];
+//        isOk = NO;
+//    }
+//
+//    // Check the custom KA Lite data path.
+//    NSString *dataPath = getKaliteDataPath();
+//    if (dataPath == nil) {
+//        msg = [NSString stringWithFormat:@"%@\n* The custom KA Lite data path is invalid, please check the KALITE_HOME environment variable value.", msg];
+//        isOk = NO;
+//    }
+//
+//    if (showIt == YES && isOk == NO) {
+//        msg = [NSString stringWithFormat:@"%@  Please try to re-install KA Lite to attempt to fix the issue/s.%@", title, msg];
+//        showNotification(title, msg);
+//    }
     return isOk;
 }
 
@@ -815,7 +859,7 @@ NSString *getEnvVar(NSString *var) {
         [self setEnvVarsAndPlist];
         return YES;
     }
-    self.kaliteVersion.stringValue = version;
+    self.kaliteVersion.stringValue = @"0.17.x";
     return NO;
 }
 
@@ -1000,7 +1044,7 @@ NSString *getEnvVar(NSString *var) {
 - (void)startKaliteTimer {
     // TODO(cpauya): Use initWithFireDate of NSTimer instance.
     // TODO(amodia): Check if kalite environment variables change.
-    [NSTimer scheduledTimerWithTimeInterval:5.0
+    [NSTimer scheduledTimerWithTimeInterval:08.0
                                      target:self
                                    selector:@selector(getKaliteStatus)
                                    userInfo:nil

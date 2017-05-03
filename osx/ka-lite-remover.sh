@@ -289,6 +289,14 @@ msg "Unsetting the KALITE_PYTHON environment variable..."
 unset KALITE_PYTHON
 launchctl unsetenv KALITE_PYTHON
 
+msg "Unsetting the KALITE_PEX environment variable..."
+unset KALITE_PEX
+launchctl unsetenv KALITE_PEX
+
+msg "Unsetting the KALITE_DIR environment variable..."
+unset KALITE_DIR
+launchctl unsetenv KALITE_DIR
+
 msg "Unsetting the KALITE_HOME environment variable..."
 unset KALITE_HOME
 launchctl unsetenv KALITE_HOME
