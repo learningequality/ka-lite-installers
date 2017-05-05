@@ -1,5 +1,5 @@
-# The below was copied from an auto-generated file made
-# by systemd-sysv-generator
+# This provides the KA Lite service, started by invoking the old
+# style /etc/init.d/ka-lite service for backwards-compatibility.
 
 [Unit]
 SourcePath=/etc/init.d/ka-lite
@@ -10,10 +10,14 @@ Wants=network-online.target
 [Service]
 Type=forking
 Restart=no
-TimeoutSec=5min
+TimeoutStartSec=infinity
 IgnoreSIGPIPE=no
 KillMode=process
 GuessMainPID=no
 RemainAfterExit=yes
 ExecStart=/etc/init.d/ka-lite start
 ExecStop=/etc/init.d/ka-lite stop
+
+[Install]
+WantedBy=multi-user.target
+
