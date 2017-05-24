@@ -43,6 +43,35 @@ void kaliteScriptPath(char *buffer, const DWORD MAX_SIZE)
 	return;
 }
 
+void kaliteHomePath(char *buffer, const DWORD MAX_SIZE)
+{
+	/*
+	Get the path of kalite.pid file directory, from KALITE_HOME environment variable.
+	*/
+	LPCSTR kalite_script_dir = "KALITE_HOME";
+	DWORD bufsize = GetEnvironmentVariableA(kalite_script_dir, buffer, MAX_SIZE);
+	if (bufsize == 0)
+	{
+		char* defaultPath = "C:\\Users\\user\\.kalite";
+		struct stat fileAtt;
+		if (stat(defaultPath, &fileAtt) != 0) {
+			buffer = 0;
+			return;
+		}
+		else {
+			strcpy(buffer, defaultPath);
+		}
+	}
+	else if (bufsize > MAX_SIZE)
+	{
+		char err_message[255];
+		sprintf(err_message, "Error: the value of KALITE_HOME must be less than %d, but it was length %d. Please start KA Lite from the command line.", MAX_SIZE, bufsize);
+		window->sendTrayMessage("KA Lite", err_message);
+		buffer = 0;
+	}
+	return;
+}
+
 void startServerAction()
 {
 	const DWORD MAX_SIZE = 255;
@@ -176,17 +205,37 @@ void checkServerThread()
 	// We can handle things like checking if the server is online and controlling the state of each component.
 	if(isServerOnline("KA Lite session", "http://127.0.0.1:8008/"))
 	{
-		menu1->disable();
-		menu2->enable();
-		menu3->enable();
-
-		if(needNotify)
-		{
-			window->sendTrayMessage("KA Lite is running", "The server will be accessible locally at: http://127.0.0.1:8008/ or you can select \"Load in browser.\"");
-			needNotify = false;
+		// Validate if running port 8008 is used at KA Lite server.
+		const DWORD MAX_SIZE = 255;
+		std:string filePath = "\\kalite.pid";
+		char home_path[MAX_SIZE];
+		kaliteHomePath(home_path, MAX_SIZE);
+		std::string str(home_path);
+		std::string kalite_pid_path = home_path + filePath;
+		char *pid_path = &kalite_pid_path[0u];
+		struct stat fileAtt;
+		if (stat(pid_path, &fileAtt) != 0) {
+			if (needNotify)
+			{
+				menu1->enable();
+				window->sendTrayMessage("KA Lite", "Port :8008 is occupied. Please close the process that's using it to start the KA Lite");
+				needNotify = false;
+			}
 		}
+		else {
+			menu1->disable();
+			menu2->enable();
+			menu3->enable();
 
-		isServerStarting = false;
+			if (needNotify)
+			{
+				window->sendTrayMessage("KA Lite is running", "The server will be accessible locally at: http://127.0.0.1:8008/ or you can select \"Load in browser.\"");
+				needNotify = false;
+			}
+
+			isServerStarting = false;
+		}
+		
 	}
 	else
 	{
