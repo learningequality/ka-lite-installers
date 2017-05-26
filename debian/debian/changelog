@@ -1,6 +1,21 @@
+ka-lite-source (0.17.0-0ubuntu3) trusty; urgency=medium
+
+  * Fixes ka-lite-raspberry-pi nginx config error
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 14 Apr 2017 15:29:37 +0200
+
+ka-lite-source (0.17.0-0ubuntu2) trusty; urgency=medium
+
+  * Rebuild with systemd fix
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sun, 19 Mar 2017 10:39:42 +0100
+
 ka-lite-source (0.17.0-0ubuntu1) trusty; urgency=medium
 
-  * New upstream release
+  * Use systemd helpers for init script, fixes issues on newer debian systems
+  * Content pack zips used instead of deprecated assessment item zips
+  * ka-lite-raspberry-pi does not serve deprecated assessment item path
+  * ka-lite-bundle upgrade English content pack
 
  -- Benjamin Bach <benjamin@learningequality.org>  Thu, 16 Feb 2017 15:52:04 +0100
 
