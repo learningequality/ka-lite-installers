@@ -232,10 +232,22 @@ kalite_configure()
 
     if $ENABLE_INIT_D
     then
+        # Remove because we might re-register as systemd during an upgrade
+        update-rc.d -f ka-lite remove
+
         # Register init script as service
-        update-rc.d ka-lite defaults
-        # Start service -- nevermind if it fails
-        invoke-rc.d ka-lite start || true
+        if which systemctl > /dev/null 2>&1 ; then
+            # Works no matter if it's already enabled
+            systemctl enable ka-lite
+            systemctl start ka-lite || true
+        # Sysv
+        else
+            # Works no matter if it's already enabled
+            update-rc.d ka-lite defaults
+            # Start service -- nevermind if it fails
+            invoke-rc.d ka-lite start || true
+        fi
+        
     fi
 
     # We don't download stuff during installation anymore.
