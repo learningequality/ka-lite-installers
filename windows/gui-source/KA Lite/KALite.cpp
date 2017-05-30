@@ -1,5 +1,7 @@
 #include "fle_win32_framework.h"
 #include "config.h"
+#include <iostream>
+#include <cstdlib>
 
 // Declare global stuff that you need to use inside the functions.
 fle_TrayWindow * window;
@@ -52,14 +54,21 @@ void kaliteHomePath(char *buffer, const DWORD MAX_SIZE)
 	DWORD bufsize = GetEnvironmentVariableA(kalite_script_dir, buffer, MAX_SIZE);
 	if (bufsize == 0)
 	{
-		char* defaultPath = "C:\\Users\\user\\.kalite";
+		const char* homeDrive = getenv("HOMEDRIVE");
+		const char* homePath = getenv("HOMEPATH");
+		char * userHomePath = new char[strlen(homeDrive) + strlen(homePath) + 1];
+		strcpy(userHomePath, homeDrive);
+		strcat(userHomePath, homePath);
+		char * kalitedefaultPAth = new char[strlen(userHomePath) + strlen("\\.kalite") + 1];
+		strcpy(kalitedefaultPAth, userHomePath);
+		strcat(kalitedefaultPAth, "\\.kalite");
 		struct stat fileAtt;
-		if (stat(defaultPath, &fileAtt) != 0) {
+		if (stat(kalitedefaultPAth, &fileAtt) != 0) {
 			buffer = 0;
 			return;
 		}
 		else {
-			strcpy(buffer, defaultPath);
+			strcpy(buffer, kalitedefaultPAth);
 		}
 	}
 	else if (bufsize > MAX_SIZE)
@@ -226,7 +235,6 @@ void checkServerThread()
 			menu1->disable();
 			menu2->enable();
 			menu3->enable();
-
 			if (needNotify)
 			{
 				window->sendTrayMessage("KA Lite is running", "The server will be accessible locally at: http://127.0.0.1:8008/ or you can select \"Load in browser.\"");
