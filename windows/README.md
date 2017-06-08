@@ -8,6 +8,7 @@ This project provides a smoother way to install and run KA Lite in a Windows Mac
 * Inno Setup 5.5.3 [Download] (http://files.jrsoftware.org/is/5/)
 * Microsoft Visual Studio Community 2015 [Website] (https://www.visualstudio.com/)
 * Git (note: install with the option to place the `git` executable in the path, so it can be run within `cmd`)
+* LogExpert Website] (http://www.log-expert.de)
 
 ---
 #### Instructions to build the GUI:

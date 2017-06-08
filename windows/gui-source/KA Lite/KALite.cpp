@@ -1,5 +1,7 @@
 #include "fle_win32_framework.h"
 #include "config.h"
+#include <stdlib.h>  
+#include <ShellApi.h>
 
 // Declare global stuff that you need to use inside the functions.
 fle_TrayWindow * window;
@@ -12,6 +14,8 @@ fle_TrayMenuItem * menu5;
 fle_TrayMenuItem * menu6;
 fle_TrayMenuItem * menu7;
 fle_TrayMenuItem * menu8;
+fle_TrayMenuItem * showKaliteLogs;
+
 
 bool needNotify = false;
 bool isServerStarting = false;
@@ -37,6 +41,42 @@ void kaliteScriptPath(char *buffer, const DWORD MAX_SIZE)
 	{
 		char err_message[255];
 		sprintf(err_message, "Error: the value of KALITE_SCRIPT_DIR must be less than %d, but it was length %d. Please start KA Lite from the command line.", MAX_SIZE, bufsize);
+		window->sendTrayMessage("KA Lite", err_message);
+		buffer = 0;
+	}
+	return;
+}
+
+void kaliteHomePath(char *buffer, const DWORD MAX_SIZE)
+{
+	/*
+	Get the path of kalite.pid file directory, from KALITE_HOME environment variable.
+	*/
+	LPCSTR kalite_script_dir = "KALITE_HOME";
+	DWORD bufsize = GetEnvironmentVariableA(kalite_script_dir, buffer, MAX_SIZE);
+	if (bufsize == 0)
+	{
+		const char* homeDrive = getenv("HOMEDRIVE");
+		const char* homePath = getenv("HOMEPATH");
+		char * userHomePath = new char[strlen(homeDrive) + strlen(homePath) + 1];
+		strcpy(userHomePath, homeDrive);
+		strcat(userHomePath, homePath);
+		char * kalitedefaultPAth = new char[strlen(userHomePath) + strlen("\\.kalite") + 1];
+		strcpy(kalitedefaultPAth, userHomePath);
+		strcat(kalitedefaultPAth, "\\.kalite");
+		struct stat fileAtt;
+		if (stat(kalitedefaultPAth, &fileAtt) != 0) {
+			buffer = 0;
+			return;
+		}
+		else {
+			strcpy(buffer, kalitedefaultPAth);
+		}
+	}
+	else if (bufsize > MAX_SIZE)
+	{
+		char err_message[255];
+		sprintf(err_message, "Error: the value of KALITE_HOME must be less than %d, but it was length %d. Please start KA Lite from the command line.", MAX_SIZE, bufsize);
 		window->sendTrayMessage("KA Lite", err_message);
 		buffer = 0;
 	}
@@ -171,6 +211,32 @@ void autoStartServerAction()
 	}
 }
 
+void showKaliteServerLogs()
+{	
+	const DWORD MAX_SIZE = 255;
+	std:string filePath = "\\server.log";
+	char home_path[MAX_SIZE];
+	kaliteHomePath(home_path, MAX_SIZE);
+	std::string str(home_path);
+	struct stat fileAtt;
+	std::string kalite_logs_path = home_path + filePath;
+	if (stat(&kalite_logs_path[0u], &fileAtt) != 0) {
+		window->sendTrayMessage("KA Lite", "The KA Lite log file doesn't exist.");
+	}
+	else {
+		 char* pPath = getenv("LOG_EXPERT_PATH");
+		if (pPath != NULL) {
+			string exePath = '"' + std::string(pPath) + "\\LogExpert.exe" + '"';
+			ShellExecuteA(GetDesktopWindow(), "open", &exePath[0u], &kalite_logs_path[0u], NULL, SW_SHOW);
+		}
+		else {
+			string startCmd = "start notepad.exe ";
+			string runCmd = startCmd + kalite_logs_path;
+			system(&runCmd[0u]);
+		}
+	}
+}
+
 void checkServerThread()
 {
 	// We can handle things like checking if the server is online and controlling the state of each component.
@@ -225,6 +291,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	menu6 = new fle_TrayMenuItem("Run KA Lite at system startup.", &runAtStartupAction);
 	menu7 = new fle_TrayMenuItem("Auto-start server when KA Lite is run.", &autoStartServerAction);
 	menu8 = new fle_TrayMenuItem("Exit KA Lite.", &exitKALiteAction);
+	showKaliteLogs = new fle_TrayMenuItem("Show KA Lite logs.", &showKaliteServerLogs);
 
 	menu4->setSubMenu();
 	menu4->addSubMenu(menu5);
@@ -234,6 +301,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	window->addMenu(menu1);
 	window->addMenu(menu2);
 	window->addMenu(menu3);
+	window->addMenu(showKaliteLogs);
 	window->addMenu(menu4);
 	window->addMenu(menu8);
 

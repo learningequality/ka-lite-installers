@@ -39,6 +39,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "..\ka_lite_static-*.whl"; DestDir: "{app}\ka-lite"
 Source: "..\en.zip"; DestDir: "{app}"
+Source: "..\LogExpert\*"; DestDir: "{app}\LogExpert"
 Source: "..\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
@@ -424,6 +425,13 @@ begin
         'KALITE_PYTHON',
         pythonPath
     );
+    RegWriteStringValue(
+        HKLM,
+        'System\CurrentControlSet\Control\Session Manager\Environment',
+        'LOG_EXPERT_PATH',
+        ExpandConstant('{app}') + '\LogExpert'
+    );
+    
 end;
 
 function InitializeSetup(): Boolean;
@@ -550,5 +558,10 @@ begin
         HKLM,
         'System\CurrentControlSet\Control\Session Manager\Environment',
         'KALITE_SCRIPT_DIR'
+    )
+    RegDeleteValue(
+        HKLM,
+        'System\CurrentControlSet\Control\Session Manager\Environment',
+        'LOG_EXPERT_PATH'
     )
 end;
