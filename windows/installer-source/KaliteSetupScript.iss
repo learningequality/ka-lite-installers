@@ -242,6 +242,144 @@ begin
     end;
 end;
 
+procedure HandleUpgrade(targetPath : String);
+var
+    prevVerStr : String;
+    userKaliteContent: String;
+    systemKaliteDir: String;
+    userPath : String;
+    contentPath : String;
+    contentDb : String;
+    retCode: Integer;
+begin
+    prevVerStr := GetPreviousVersion();
+    if (CompareStr('{#TargetVersion}', prevVerStr) >= 0) and not (prevVerStr = '') then
+    begin
+        ConfirmUpgradeDialog;
+        if Not isUpgrade then
+        begin
+            if Not DeleteFile(targetPath + '\ka-lite\kalite\database\data.sqlite') then
+            begin
+                MsgBox('Error' #13#13 'Failed to delete the old database as requested; aborting the install.', mbError, MB_OK);
+                forceCancel := True;
+                WizardForm.Close;
+            end;
+        end
+        else
+        begin
+            { This is where version-specific migration stuff should happen. }
+
+            if CompareStr(prevVerStr, '0.13.99') < 0 then
+            begin
+                if CompareStr('{#TargetVersion}', '0.14.0') >= 0 then
+                begin
+                    DoGitMigrate;
+                end;
+            end;
+
+            { A special case where we'd like to remove a scheduled task, since it should now be run as current user }
+
+            { instead of the SYSTEM user. }
+            if CompareStr(prevVerStr, '0.15.99') < 0 then
+            begin
+                if CompareStr('{#TargetVersion}', '0.16.0') >= 0 then
+                begin
+                    Exec(ExpandConstant('{cmd}'),'/C "schtasks /delete /tn "KALite" /f"', '', SW_SHOW, ewWaitUntilTerminated, retCode);
+                end;
+            end;
+
+            { Migrating from 0.14.x and 0.15.x to 0.16.x }
+            if (CompareStr(prevVerStr, '0.14.0') >= 0) and (CompareStr(prevVerStr, '0.15.99') < 0) then
+            begin
+                if CompareStr('{#TargetVersion}', '0.16.0') >= 0 then
+                begin
+
+                    MoveSystemKaliteData;
+                end;
+            end;
+        end;
+        userPath := ExpandConstant('{%USERPROFILE}')
+        contentPath := ExpandConstant('{%CONTENT_ROOT}')
+        systemKaliteDir := ExpandConstant(userPath + '\.kalite')
+        userKaliteContent := ExpandConstant(systemKaliteDir + '\content');
+        if Not DirExists(userKaliteContent) then
+        begin
+           if Not DirExists(contentPath) then
+              begin
+                  MsgBox('KA Lite Setup is unable to locate the content folder of your previous installation in order to perform the upgrade to current version. Please select the .kalite/content/ folder on your computer and press the button OK to finish the upgrade process.', mbInformation, MB_OK); 
+                 if BrowseForFolder('Please select the .kalite/content/ folder', userPath, False) then
+                 begin
+                        RegWriteStringValue(
+                            HKLM,
+                            'System\CurrentControlSet\Control\Session Manager\Environment',
+                            'CONTENT_ROOT',
+                            userPath
+                        );
+                        contentDb := ExtractFilePath(userPath) + 'database\data.sqlite'
+                        if FileExists(contentDb) then
+                        begin
+                           if(MsgBox('KA Lite found an existing database at your content folder,' #13
+                           'Do you wish to import this database into KA Lite', mbConfirmation, MB_YESNO) = idYes) then
+                              begin
+                                  Exec(ExpandConstant('{cmd}'), '/C "xcopy  "' + ExtractFilePath(userPath) + 'database\*.sqlite' +'" "' + systemKaliteDir + '\database' +'\" /Y /S"', '', SW_SHOW, ewWaitUntilTerminated, retCode)
+                              end
+                        end
+                 end;
+              end;
+           
+        end;
+
+        { forceCancel will be true if something went awry in DoGitMigrate... abort instead of trampling the user's data. }
+        if Not forceCancel then
+        begin
+            RemoveOldInstallation(targetPath);
+        end;
+    end;
+end;
+
+function NextButtonClick(CurPageID: Integer): Boolean;
+begin
+    result := True;
+
+    if CurPageID = wpLicense then
+    begin
+        if WizardForm.PrevAppDir <> nil then
+            HandleUpgrade(WizardForm.PrevAppDir);
+    end;
+    
+    if CurPageID = wpSelectDir then
+    begin
+        { Unclear what the logic here is. This is only executed if HandleUpgrade was not previously run. }
+        if Not isUpgrade then
+            HandleUpgrade(ExpandConstant('{app}'));
+    end;
+end;
+
+{REF: http://stackoverflow.com/questions/4438506/exit-from-inno-setup-instalation-from-code}
+procedure ExitProcess(uExitCode: Integer);
+  external 'ExitProcess@kernel32.dll stdcall';
+
+procedure HandlePythonSetup;
+var
+    installPythonErrorCode : Integer;
+begin
+    if(MsgBox('KA Lite requires Python to be installed on your system.' + #13#10 + 'This wizard will proceed to install Python 2.7.12, and then continue with  KA Lite installation.' + #13#10 + #13#10 + 'Click OK to continue.', mbConfirmation, MB_OKCANCEL) = idCancel) then
+        if(MsgBox('Are you sure you want to cancel the installation of Python 2.7.12?' + #13#10 + 'If you select Yes, this installer will close and KA Lite will not be installed on your system.', mbConfirmation, MB_YESNO) = idYes) then
+          begin
+            forceCancel := True;
+            ExitProcess(1);
+          end
+        else begin
+             HandlePythonSetup();
+             exit;
+        end
+    else
+        ExtractTemporaryFile('python-2.7.12.msi');
+        ExtractTemporaryFile('python-2.7.12.amd64.msi');
+        ExtractTemporaryFile('python-exe.bat');
+        ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
+end;
+
 { Used in GetPipPath below }
 const
     DEFAULT_PIP_PATH = '\Python27\Scripts\pip.exe';
@@ -323,111 +461,7 @@ begin
         'KALITE_PYTHON',
         pythonPath
     );
-end;
-
-procedure HandleUpgrade(targetPath : String);
-var
-    prevVerStr : String;
-    retCode: Integer;
-    pipPath: string;
-begin
-    prevVerStr := GetPreviousVersion();
-    pipPath := GetPipPath;
-    Exec(ExpandConstant('{cmd}'),'/C ' + ExtractFileDir(pipPath) +'\kalite.bat stop', WizardForm.PrevAppDir, SW_HIDE, ewWaitUntilTerminated, stopServerCode);
-    if (CompareStr('{#TargetVersion}', prevVerStr) >= 0) and not (prevVerStr = '') then
-    begin
-        ConfirmUpgradeDialog;
-        if Not isUpgrade then
-        begin
-            if Not DeleteFile(targetPath + '\ka-lite\kalite\database\data.sqlite') then
-            begin
-                MsgBox('Error' #13#13 'Failed to delete the old database as requested; aborting the install.', mbError, MB_OK);
-                forceCancel := True;
-                WizardForm.Close;
-            end;
-        end
-        else
-        begin
-            { This is where version-specific migration stuff should happen. }
-
-            if CompareStr(prevVerStr, '0.13.99') < 0 then
-            begin
-                if CompareStr('{#TargetVersion}', '0.14.0') >= 0 then
-                begin
-                    DoGitMigrate;
-                end;
-            end;
-
-            { A special case where we'd like to remove a scheduled task, since it should now be run as current user }
-            { instead of the SYSTEM user. }
-            if CompareStr(prevVerStr, '0.15.99') < 0 then
-            begin
-                if CompareStr('{#TargetVersion}', '0.16.0') >= 0 then
-                begin
-                    Exec(ExpandConstant('{cmd}'),'/C "schtasks /delete /tn "KALite" /f"', '', SW_SHOW, ewWaitUntilTerminated, retCode);
-                end;
-            end;
-
-            { Migrating from 0.14.x and 0.15.x to 0.16.x }
-            if (CompareStr(prevVerStr, '0.14.0') >= 0) and (CompareStr(prevVerStr, '0.15.99') < 0) then
-            begin
-                if CompareStr('{#TargetVersion}', '0.16.0') >= 0 then
-                begin
-                    MoveSystemKaliteData;
-                end;
-            end;
-        end;
-
-        { forceCancel will be true if something went awry in DoGitMigrate... abort instead of trampling the user's data. }
-        if Not forceCancel then
-        begin
-            RemoveOldInstallation(targetPath);
-        end;
-    end;
-end;
-
-function NextButtonClick(CurPageID: Integer): Boolean;
-begin
-    result := True;
-
-    if CurPageID = wpLicense then
-    begin
-        if WizardForm.PrevAppDir <> nil then
-            HandleUpgrade(WizardForm.PrevAppDir);
-    end;
     
-    if CurPageID = wpSelectDir then
-    begin
-        { Unclear what the logic here is. This is only executed if HandleUpgrade was not previously run. }
-        if Not isUpgrade then
-            HandleUpgrade(ExpandConstant('{app}'));
-    end;
-end;
-
-{REF: http://stackoverflow.com/questions/4438506/exit-from-inno-setup-instalation-from-code}
-procedure ExitProcess(uExitCode: Integer);
-  external 'ExitProcess@kernel32.dll stdcall';
-
-procedure HandlePythonSetup;
-var
-    installPythonErrorCode : Integer;
-begin
-    if(MsgBox('KA Lite requires Python to be installed on your system.' + #13#10 + 'This wizard will proceed to install Python 2.7.12, and then continue with  KA Lite installation.' + #13#10 + #13#10 + 'Click OK to continue.', mbConfirmation, MB_OKCANCEL) = idCancel) then
-        if(MsgBox('Are you sure you want to cancel the installation of Python 2.7.12?' + #13#10 + 'If you select Yes, this installer will close and KA Lite will not be installed on your system.', mbConfirmation, MB_YESNO) = idYes) then
-          begin
-            forceCancel := True;
-            ExitProcess(1);
-          end
-        else begin
-             HandlePythonSetup();
-             exit;
-        end
-    else
-        ExtractTemporaryFile('python-2.7.12.msi');
-        ExtractTemporaryFile('python-2.7.12.amd64.msi');
-        ExtractTemporaryFile('python-exe.bat');
-        ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
-
 end;
 
 function InitializeSetup(): Boolean;
@@ -441,9 +475,9 @@ begin
   
     ShellExec('open', 'taskkill.exe', '/F /T /im "KA Lite.exe"', '', SW_HIDE, ewWaitUntilTerminated, killErrorCode)
     ShellExec('open', 'tskill.exe', ' "KA Lite"', '', SW_HIDE, ewWaitUntilTerminated, killErrorCode);
+
     RegDeleteValue(HKCU, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Run', ExpandConstant('{#MyAppName}'));
-    MsgBox('Warning! All Python processes will be closed.' + #13#10 + #13#10 + 'Click OK to continue.', mbConfirmation, MB_OK);
-    Exec(ExpandConstant('taskkill.exe'), '/f /im ' + '"python.exe"', '', SW_HIDE, ewWaitUntilTerminated, killErrorCode);
+   
     if ShellExec('open', 'python.exe','-c "import sys; (sys.version_info >= (2, 7, 11,) and sys.version_info < (3,) and sys.exit(0)) or sys.exit(1)"', '', SW_HIDE, ewWaitUntilTerminated, PythonVersionCodeCheck) then
     begin
         if PythonVersionCodeCheck = 1 then
