@@ -461,6 +461,7 @@ begin
         'KALITE_PYTHON',
         pythonPath
     );
+    
 end;
 
 function InitializeSetup(): Boolean;
