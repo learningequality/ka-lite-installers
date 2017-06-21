@@ -38,7 +38,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "..\ka_lite_static-*.whl"; DestDir: "{app}\ka-lite"
-Source: "..\en.zip"; DestDir: "{app}"
+Source: "..\*en.zip"; DestDir: "{app}\ka-lite\preseed"
 Source: "..\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
@@ -461,6 +461,12 @@ begin
         'KALITE_PYTHON',
         pythonPath
     );
+    RegWriteStringValue(
+        HKLM,
+        'System\CurrentControlSet\Control\Session Manager\Environment',
+        'KALITE_DIR',
+        ExpandConstant('{app}') + '\ka-lite'
+    );
     
 end;
 
@@ -502,15 +508,6 @@ begin
   result := True;
 end;
 
-procedure DoSetup;
-var
-    retCode: integer;
-begin
-    { Used to have more responsibility, but we delegated those to the app itself! }
-    { Unpacks the English content pack. }
-    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage syncdb --noinput"', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, retCode);
-    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage retrievecontentpack local en en.zip --foreground"', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, retCode);
-end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
@@ -570,9 +567,6 @@ begin
         if installFlag then
         begin
             HandlePipSetup();
-            begin
-                DoSetup;
-            end;
         end;
     end;
 end;
@@ -588,5 +582,10 @@ begin
         HKLM,
         'System\CurrentControlSet\Control\Session Manager\Environment',
         'KALITE_SCRIPT_DIR'
+    )
+    RegDeleteValue(
+        HKLM,
+        'System\CurrentControlSet\Control\Session Manager\Environment',
+        'KALITE_DIR'
     )
 end;
