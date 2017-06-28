@@ -245,6 +245,11 @@ end;
 procedure HandleUpgrade(targetPath : String);
 var
     prevVerStr : String;
+    userKaliteContent: String;
+    systemKaliteDir: String;
+    userPath : String;
+    contentPath : String;
+    contentDb : String;
     retCode: Integer;
 begin
     prevVerStr := GetPreviousVersion();
@@ -273,6 +278,7 @@ begin
             end;
 
             { A special case where we'd like to remove a scheduled task, since it should now be run as current user }
+
             { instead of the SYSTEM user. }
             if CompareStr(prevVerStr, '0.15.99') < 0 then
             begin
@@ -287,9 +293,40 @@ begin
             begin
                 if CompareStr('{#TargetVersion}', '0.16.0') >= 0 then
                 begin
+
                     MoveSystemKaliteData;
                 end;
             end;
+        end;
+        userPath := ExpandConstant('{%USERPROFILE}')
+        contentPath := ExpandConstant('{%CONTENT_ROOT}')
+        systemKaliteDir := ExpandConstant(userPath + '\.kalite')
+        userKaliteContent := ExpandConstant(systemKaliteDir + '\content');
+        if Not DirExists(userKaliteContent) then
+        begin
+           if Not DirExists(contentPath) then
+              begin
+                  MsgBox('KA Lite Setup is unable to locate the content folder of your previous installation in order to perform the upgrade to current version. Please select the .kalite/content/ folder on your computer and press the button OK to finish the upgrade process.', mbInformation, MB_OK); 
+                 if BrowseForFolder('Please select the .kalite/content/ folder', userPath, False) then
+                 begin
+                        RegWriteStringValue(
+                            HKLM,
+                            'System\CurrentControlSet\Control\Session Manager\Environment',
+                            'CONTENT_ROOT',
+                            userPath
+                        );
+                        contentDb := ExtractFilePath(userPath) + 'database\data.sqlite'
+                        if FileExists(contentDb) then
+                        begin
+                           if(MsgBox('KA Lite found an existing database at your content folder,' #13
+                           'Do you wish to import this database into KA Lite', mbConfirmation, MB_YESNO) = idYes) then
+                              begin
+                                  Exec(ExpandConstant('{cmd}'), '/C "xcopy  "' + ExtractFilePath(userPath) + 'database\*.sqlite' +'" "' + systemKaliteDir + '\database' +'\" /Y /S"', '', SW_SHOW, ewWaitUntilTerminated, retCode)
+                              end
+                        end
+                 end;
+              end;
+           
         end;
 
         { forceCancel will be true if something went awry in DoGitMigrate... abort instead of trampling the user's data. }
@@ -424,6 +461,7 @@ begin
         'KALITE_PYTHON',
         pythonPath
     );
+    
 end;
 
 function InitializeSetup(): Boolean;
