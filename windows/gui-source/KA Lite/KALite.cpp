@@ -99,7 +99,7 @@ void startServerAction()
 		needNotify = true;
 		isServerStarting = true;
 
-		window->sendTrayMessage("KA Lite", "The server is starting, please wait to be notified.");
+		window->sendTrayMessage("KA Lite", "The server is starting, please wait to be notified before opening the browser.");
 	}
 }
 
