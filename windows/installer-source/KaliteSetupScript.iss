@@ -258,7 +258,7 @@ begin
     begin
      if Not DirExists(contentPath) then
         begin
-            if MsgBox('KA Lite Setup is unable to locate the content folder, would you like to select the .kalite/content path on your computer?', mbInformation,  MB_YESNO or MB_DEFBUTTON1) = IDYES then
+            if MsgBox('You can also download contents after the installation. If you don`t have a folder with downloaded contents, press Cancel.', mbInformation,  MB_YESNO or MB_DEFBUTTON1) = IDYES then
             begin 
                if BrowseForFolder('Please select the .kalite/content/ folder', userPath, False) then
                begin
