@@ -249,30 +249,30 @@ var
     userPath : String;
     contentPath : String;
     retCode: Integer;
+    msg : String;
 begin
-    userPath := ExpandConstant('{%USERPROFILE}')
-    contentPath := ExpandConstant('{%CONTENT_ROOT}')
-    systemKaliteDir := ExpandConstant(userPath + '\.kalite')
+    userPath := ExpandConstant('{%USERPROFILE}');
+    contentPath := ExpandConstant('{%CONTENT_ROOT}');
+    systemKaliteDir := ExpandConstant(userPath + '\.kalite');
     userKaliteContent := ExpandConstant(systemKaliteDir + '\content');
-    if Not DirExists(userKaliteContent) then
-    begin
-     if Not DirExists(contentPath) then
+
+    if Not DirExists(contentPath) then
+      begin
+        contentPath := userKaliteContent;
+      end
+    msg := 'KA Lite Setup will look for video contents in the folder ' + contentPath + '. You can download contents to the selected folder after the installation completes - or - select a folder with already downloaded contents. you don`t have a folder with downloaded contents or want to use the suggested folder, press Cancel. ' #13#13 'To change the default folder for downloaded contents, press OK.'
+    if MsgBox(msg, mbInformation,  MB_OKCANCEL or MB_DEFBUTTON1) = IDYES then
+    begin 
+       if BrowseForFolder('Please select the content folder where you wish downloaded videos to be stored.', userPath, False) then
         begin
-            if MsgBox('You can also download contents after the installation. If you don`t have a folder with downloaded contents, press Cancel.', mbInformation,  MB_YESNO or MB_DEFBUTTON1) = IDYES then
-            begin 
-               if BrowseForFolder('Please select the .kalite/content/ folder', userPath, False) then
-               begin
-                    RegWriteStringValue(
-                        HKLM,
-                        'System\CurrentControlSet\Control\Session Manager\Environment',
-                        'CONTENT_ROOT',
-                        userPath
-                    );
-               end
-           end;
-        end;
-     
-      end;
+            RegWriteStringValue(
+                HKLM,
+                'System\CurrentControlSet\Control\Session Manager\Environment',
+                'CONTENT_ROOT',
+                userPath
+            );
+       end
+    end;
 end;
 
 procedure HandleUpgrade(targetPath : String);
