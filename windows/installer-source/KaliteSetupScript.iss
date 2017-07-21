@@ -289,7 +289,6 @@ var
     prevVerStr : String;
     retCode: Integer;
 begin
-    SelectKaliteDatabase;
     prevVerStr := GetPreviousVersion();
     if (CompareStr('{#TargetVersion}', prevVerStr) >= 0) and not (prevVerStr = '') then
     begin
@@ -305,8 +304,10 @@ begin
         end
         else
         begin
-            { This is where version-specific migration stuff should happen. }
 
+            SelectKaliteDatabase;
+
+            { This is where version-specific migration stuff should happen. }
             if CompareStr(prevVerStr, '0.13.99') < 0 then
             begin
                 if CompareStr('{#TargetVersion}', '0.14.0') >= 0 then
@@ -359,6 +360,7 @@ begin
         { Unclear what the logic here is. This is only executed if HandleUpgrade was not previously run. }
         if Not isUpgrade then
             HandleUpgrade(ExpandConstant('{app}'));
+
     end;
 end;
 
