@@ -242,16 +242,54 @@ begin
     end;
 end;
 
+{ This will allow the user to import KA Lite database during upgrade. }
+procedure SelectKaliteDatabase;
+var
+     kaliterDir : String;
+     systemKaliteDir : String;
+     userDatabasePAth : String;
+     databasePAth : String;
+     systemKaliteDir : String;
+     userPath : String;
+     kaliteDb : String;
+     retCode: Integer;
+begin
+    userPath := ExpandConstant('{%USERPROFILE}');
+    kaliterDir := ExpandConstant('{%KALITE_DIR}');
+    userDatabasePAth := ExpandConstant(systemKaliteDir + '\database');
+    systemKaliteDir := ExpandConstant(ExpandConstant('{%USERPROFILE}') + '\.kalite');
+    databasePAth := systemKaliteDir + 'database';
+    if(MsgBox('Would you like to import a KA Lite database?', mbConfirmation, MB_YESNO) = idYes) then
+    begin;
+        if BrowseForFolder('Please select the KA Lite database folder', userPath, False) then
+        begin
+            kaliteDb := userPath + '\data.sqlite';
+            if FileExists(kaliteDb) then
+            begin
+            
+                if Not DirExists(kaliterDir) then
+                begin
+                    kaliterDir := systemKaliteDir;
+                end
+                if not Exec(ExpandConstant('{cmd}'), '/C "xcopy "' + kaliteDb + '" "' + kaliterDir + '\database' +'\" /Y /S"', '', SW_HIDE, ewWaitUntilTerminated, retCode) then
+                begin
+                    MsgBox('KA Lite Setup' #13#13 'Failed to import KA Lite database from this path ' + userPath, mbError, MB_OK);
+                end
+            end
+            else
+            begin
+                MsgBox('KA Lite Setup' #13#13 'Couldn`t find any database file at this path' + userPath, mbError, MB_OK);
+            end
+        end
+    end;
+end;
+
 procedure HandleUpgrade(targetPath : String);
 var
     prevVerStr : String;
-    userKaliteContent: String;
-    systemKaliteDir: String;
-    userPath : String;
-    contentPath : String;
-    contentDb : String;
     retCode: Integer;
 begin
+    SelectKaliteDatabase;
     prevVerStr := GetPreviousVersion();
     if (CompareStr('{#TargetVersion}', prevVerStr) >= 0) and not (prevVerStr = '') then
     begin
@@ -298,37 +336,6 @@ begin
                 end;
             end;
         end;
-        userPath := ExpandConstant('{%USERPROFILE}')
-        contentPath := ExpandConstant('{%CONTENT_ROOT}')
-        systemKaliteDir := ExpandConstant(userPath + '\.kalite')
-        userKaliteContent := ExpandConstant(systemKaliteDir + '\content');
-        if Not DirExists(userKaliteContent) then
-        begin
-           if Not DirExists(contentPath) then
-              begin
-                  MsgBox('KA Lite Setup is unable to locate the content folder of your previous installation in order to perform the upgrade to current version. Please select the .kalite/content/ folder on your computer and press the button OK to finish the upgrade process.', mbInformation, MB_OK); 
-                 if BrowseForFolder('Please select the .kalite/content/ folder', userPath, False) then
-                 begin
-                        RegWriteStringValue(
-                            HKLM,
-                            'System\CurrentControlSet\Control\Session Manager\Environment',
-                            'CONTENT_ROOT',
-                            userPath
-                        );
-                        contentDb := ExtractFilePath(userPath) + 'database\data.sqlite'
-                        if FileExists(contentDb) then
-                        begin
-                           if(MsgBox('KA Lite found an existing database at your content folder,' #13
-                           'Do you wish to import this database into KA Lite', mbConfirmation, MB_YESNO) = idYes) then
-                              begin
-                                  Exec(ExpandConstant('{cmd}'), '/C "xcopy  "' + ExtractFilePath(userPath) + 'database\*.sqlite' +'" "' + systemKaliteDir + '\database' +'\" /Y /S"', '', SW_SHOW, ewWaitUntilTerminated, retCode)
-                              end
-                        end
-                 end;
-              end;
-           
-        end;
-
         { forceCancel will be true if something went awry in DoGitMigrate... abort instead of trampling the user's data. }
         if Not forceCancel then
         begin
