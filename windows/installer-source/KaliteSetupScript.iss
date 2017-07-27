@@ -423,6 +423,16 @@ begin
     end;
 end;
 
+procedure DoSetup;
+var
+    retCode: integer;
+begin
+    { Used to have more responsibility, but we delegated those to the app itself! }
+    { Unpacks the English content pack. }
+    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage syncdb --noinput"', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, retCode);
+    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage collectstatic --noinput"', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, retCode);
+end;
+
 procedure HandlePipSetup;
 var
     PipCommand: string;
@@ -461,6 +471,7 @@ begin
         'KALITE_PYTHON',
         pythonPath
     );
+    DoSetup;
     RegWriteStringValue(
         HKLM,
         'System\CurrentControlSet\Control\Session Manager\Environment',
@@ -507,7 +518,6 @@ begin
   ShellExec('open', ExpandConstant('{app}') + '\ka-lite\bin\windows\kalite.bat stop', '', '', SW_HIDE, ewWaitUntilTerminated, ErrorCode);
   result := True;
 end;
-
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
