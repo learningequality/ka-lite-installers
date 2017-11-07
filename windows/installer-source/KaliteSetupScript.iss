@@ -37,7 +37,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\ka_lite_static-*.whl"; DestDir: "{app}\ka-lite"
+Source: "..\ka_lite*.whl"; DestDir: "{app}\ka-lite"
 Source: "..\*en.zip"; DestDir: "{app}\ka-lite\preseed"
 Source: "..\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -423,14 +423,19 @@ begin
     end;
 end;
 
+function GetPipDir(Value: string): String;
+begin
+    result := ExtractFileDir(GetPipPath);
+end;
+
 procedure DoSetup;
 var
     retCode: integer;
 begin
     { Used to have more responsibility, but we delegated those to the app itself! }
     { Unpacks the English content pack. }
-    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage syncdb --noinput"', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, retCode);
-    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage collectstatic --noinput"', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, retCode);
+    Exec(ExpandConstant('{cmd}'), '/k " ' + '"' +  ExpandConstant('{app}')+'\ka-lite\scripts\reset-env-vars.bat"' + ' && ' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage setup --noinput"', ExpandConstant('{app}'), SW_SHOW, ewWaitUntilTerminated, retCode);
+    
 end;
 
 procedure HandlePipSetup;
@@ -445,7 +450,7 @@ begin
     PipPath := GetPipPath;
     if PipPath = '' then
         exit;
-    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka_lite_static-' + '{#TargetVersion}' + '-py2-none-any' + '.whl"';
+    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka_lite-' + '{#TargetVersion}' + '-py2-none-any' + '.whl"';
 
     MsgBox('Setup will now install kalite source files to your Python site-packages.', mbInformation, MB_OK);
     if not Exec(PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
