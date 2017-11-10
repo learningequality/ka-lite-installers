@@ -36,10 +36,11 @@ KALITE_HOME_PATH="$HOME/.kalite"
 KALITE_UNINSTALL_SCRIPT="KA-Lite_Uninstall.tool"
 KALITE_PEX_PATH="$KALITE_SHARED/ka-lite/kalite.pex"
 
-PYTHON="/usr/local/bin/python"
+PYTHON="$(which python2)"
 if ! $PYTHON --version >/dev/null 2>&1; then
     PYTHON="$(which python)"
 fi
+
 
 SCRIPT_PATH="$KALITE_SHARED/scripts/"
 APPLICATION_PATH="/Applications/KA-Lite"
