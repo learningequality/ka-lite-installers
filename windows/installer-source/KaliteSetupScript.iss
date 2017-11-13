@@ -37,7 +37,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\ka_lite*.whl"; DestDir: "{app}\ka-lite"
+Source: "..\ka_lite_static-*.whl"; DestDir: "{app}\ka-lite"
 Source: "..\*en.zip"; DestDir: "{app}\ka-lite\preseed"
 Source: "..\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -448,11 +448,11 @@ begin
     PipPath := GetPipPath;
     if PipPath = '' then
         exit;
-    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka_lite-' + '{#TargetVersion}' + '-py2-none-any' + '.whl"';
+    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka_lite_static-' + '{#TargetVersion}' + '-py2-none-any.whl"';
 
     WizardForm.StatusLabel.Caption := 'Setup wizard is copying files. This may take a while, please wait...';
     WizardForm.StatusLabel.Font.Style := [fsBold];
-    if not Exec(PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
+    if not Exec(PipPath, PipCommand, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
     begin
       MsgBox('Critical error.' #13#13 'Dependencies have failed to install. Error Number: ' + IntToStr(ErrorCode), mbInformation, MB_OK);
       forceCancel := True;
