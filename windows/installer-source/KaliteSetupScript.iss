@@ -38,7 +38,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "..\ka_lite_static-*.whl"; DestDir: "{app}\ka-lite"
-Source: "..\en.zip"; DestDir: "{app}"
+Source: "..\*en.zip"; DestDir: "{app}\ka-lite\preseed"
 Source: "..\scripts\*.bat"; DestDir: "{app}\ka-lite\scripts\"
 Source: "..\gui-packed\KA Lite.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\gui-packed\guitools.vbs"; DestDir: "{app}"; Flags: ignoreversion
@@ -423,6 +423,19 @@ begin
     end;
 end;
 
+function GetPipDir(Value: string): String;
+begin
+    result := ExtractFileDir(GetPipPath);
+end;
+
+procedure DoSetup;
+var
+    retCode: integer;
+begin
+    { Run kalite manage setup command. }
+    Exec(ExpandConstant('{cmd}'), '/S /C " ' + '"' +  ExpandConstant('{app}')+'\ka-lite\scripts\reset-env-vars.bat"' + ' && ' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage setup --noinput"', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, retCode);
+end;
+
 procedure HandlePipSetup;
 var
     PipCommand: string;
@@ -435,16 +448,16 @@ begin
     PipPath := GetPipPath;
     if PipPath = '' then
         exit;
-    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka_lite_static-' + '{#TargetVersion}' + '-py2-none-any' + '.whl"';
+    PipCommand := 'install "' + ExpandConstant('{app}') + '\ka-lite\ka_lite_static-' + '{#TargetVersion}' + '-py2-none-any.whl"';
 
-    MsgBox('Setup will now install kalite source files to your Python site-packages.', mbInformation, MB_OK);
-    if not Exec(PipPath, PipCommand, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
+    WizardForm.StatusLabel.Caption := 'Setup wizard is copying files. This may take a while, please wait...';
+    WizardForm.StatusLabel.Font.Style := [fsBold];
+    if not Exec(PipPath, PipCommand, '', SW_HIDE, ewWaitUntilTerminated, ErrorCode) then
     begin
       MsgBox('Critical error.' #13#13 'Dependencies have failed to install. Error Number: ' + IntToStr(ErrorCode), mbInformation, MB_OK);
       forceCancel := True;
       WizardForm.Close;
     end
-
     { Must set this environment variable so the systray executable knows where to find the installed kalite.bat script}
     { Should by in the same directory as pip.exe, e.g. 'C:\Python27\Scripts' }
     RegWriteStringValue(
@@ -461,6 +474,14 @@ begin
         'KALITE_PYTHON',
         pythonPath
     );
+    RegWriteStringValue(
+        HKLM,
+        'System\CurrentControlSet\Control\Session Manager\Environment',
+        'KALITE_DIR',
+        ExpandConstant('{app}') + '\ka-lite'
+    );
+    DoSetup;
+
     
 end;
 
@@ -500,16 +521,6 @@ begin
   ShellExec('open', 'tskill.exe', '"KA Lite"', '', SW_HIDE, ewWaitUntilTerminated, ErrorCode);
   ShellExec('open', ExpandConstant('{app}') + '\ka-lite\bin\windows\kalite.bat stop', '', '', SW_HIDE, ewWaitUntilTerminated, ErrorCode);
   result := True;
-end;
-
-procedure DoSetup;
-var
-    retCode: integer;
-begin
-    { Used to have more responsibility, but we delegated those to the app itself! }
-    { Unpacks the English content pack. }
-    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage syncdb --noinput"', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, retCode);
-    Exec(ExpandConstant('{cmd}'), '/S /C "' + ExpandConstant('"{reg:HKLM\System\CurrentControlSet\Control\Session Manager\Environment,KALITE_SCRIPT_DIR}\kalite.bat"') + ' manage retrievecontentpack local en en.zip --foreground"', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, retCode);
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -570,9 +581,6 @@ begin
         if installFlag then
         begin
             HandlePipSetup();
-            begin
-                DoSetup;
-            end;
         end;
     end;
 end;
@@ -588,5 +596,10 @@ begin
         HKLM,
         'System\CurrentControlSet\Control\Session Manager\Environment',
         'KALITE_SCRIPT_DIR'
+    )
+    RegDeleteValue(
+        HKLM,
+        'System\CurrentControlSet\Control\Session Manager\Environment',
+        'KALITE_DIR'
     )
 end;
