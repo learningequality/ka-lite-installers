@@ -1,3 +1,17 @@
+ka-lite-source (0.17.3-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 31 Aug 2017 23:18:40 +0200
+
+ka-lite-source (0.17.2-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+  * Fixing `service ka-lite status`
+  * New updated English content pack in ka-lite-bundled
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Sat, 19 Aug 2017 00:01:21 +0200
+
 ka-lite-source (0.17.1-0ubuntu1) trusty; urgency=medium
 
   * New upstream release
