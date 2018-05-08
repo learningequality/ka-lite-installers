@@ -363,8 +363,8 @@ procedure HandlePythonSetup;
 var
     installPythonErrorCode : Integer;
 begin
-    if(MsgBox('KA Lite requires Python to be installed on your system.' + #13#10 + 'This wizard will proceed to install Python 2.7.12, and then continue with  KA Lite installation.' + #13#10 + #13#10 + 'Click OK to continue.', mbConfirmation, MB_OKCANCEL) = idCancel) then
-        if(MsgBox('Are you sure you want to cancel the installation of Python 2.7.12?' + #13#10 + 'If you select Yes, this installer will close and KA Lite will not be installed on your system.', mbConfirmation, MB_YESNO) = idYes) then
+    if(MsgBox('KA Lite requires Python to be installed on your system.' + #13#10 + 'This wizard will proceed to install Python 2.7.13, and then continue with  KA Lite installation.' + #13#10 + #13#10 + 'Click OK to continue.', mbConfirmation, MB_OKCANCEL) = idCancel) then
+        if(MsgBox('Are you sure you want to cancel the installation of Python 2.7.13?' + #13#10 + 'If you select Yes, this installer will close and KA Lite will not be installed on your system.', mbConfirmation, MB_YESNO) = idYes) then
           begin
             forceCancel := True;
             ExitProcess(1);
@@ -374,8 +374,8 @@ begin
              exit;
         end
     else
-        ExtractTemporaryFile('python-2.7.12.msi');
-        ExtractTemporaryFile('python-2.7.12.amd64.msi');
+        ExtractTemporaryFile('python-2.7.13.msi');
+        ExtractTemporaryFile('python-2.7.13.amd64.msi');
         ExtractTemporaryFile('python-exe.bat');
         ShellExec('open', ExpandConstant('{tmp}')+'\python-exe.bat', '', '', SW_HIDE, ewWaitUntilTerminated, installPythonErrorCode);
 end;
