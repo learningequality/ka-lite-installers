@@ -123,6 +123,8 @@ then
     kalite status
     # Test that the script restarts
     sudo service ka-lite restart
+    # Test that status command is possible
+    sudo service ka-lite status
     sudo -E apt-get purge -y ka-lite-bundle
 
     echo "Done with ka-lite-bundle tests"

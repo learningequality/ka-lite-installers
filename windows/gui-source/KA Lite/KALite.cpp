@@ -1,17 +1,21 @@
 #include "fle_win32_framework.h"
 #include "config.h"
+#include <iostream>
+#include <cstdlib>
 
 // Declare global stuff that you need to use inside the functions.
 fle_TrayWindow * window;
 
-fle_TrayMenuItem * menu1;
-fle_TrayMenuItem * menu2;
-fle_TrayMenuItem * menu3;
-fle_TrayMenuItem * menu4;
-fle_TrayMenuItem * menu5;
-fle_TrayMenuItem * menu6;
-fle_TrayMenuItem * menu7;
-fle_TrayMenuItem * menu8;
+fle_TrayMenuItem * mnuStartServer;
+fle_TrayMenuItem * mnuStopServer;
+fle_TrayMenuItem * mnuLoadBrowser;
+fle_TrayMenuItem * mnuOptions;
+fle_TrayMenuItem * mnuRunUserLogsIn;
+fle_TrayMenuItem * mnuRunAtStartup;
+fle_TrayMenuItem * mnuAutoStart;
+fle_TrayMenuItem * mnuExit;
+fle_TrayMenuItem * showKaliteLogs;
+
 
 bool needNotify = false;
 bool isServerStarting = false;
@@ -43,6 +47,42 @@ void kaliteScriptPath(char *buffer, const DWORD MAX_SIZE)
 	return;
 }
 
+void kaliteHomePath(char *buffer, const DWORD MAX_SIZE)
+{
+	/*
+	Get the path of kalite.pid file directory, from KALITE_HOME environment variable.
+	*/
+	LPCSTR kalite_script_dir = "KALITE_HOME";
+	DWORD bufsize = GetEnvironmentVariableA(kalite_script_dir, buffer, MAX_SIZE);
+	if (bufsize == 0)
+	{
+		const char* homeDrive = getenv("HOMEDRIVE");
+		const char* homePath = getenv("HOMEPATH");
+		char * userHomePath = new char[strlen(homeDrive) + strlen(homePath) + 1];
+		strcpy(userHomePath, homeDrive);
+		strcat(userHomePath, homePath);
+		char * kalitedefaultPAth = new char[strlen(userHomePath) + strlen("\\.kalite") + 1];
+		strcpy(kalitedefaultPAth, userHomePath);
+		strcat(kalitedefaultPAth, "\\.kalite");
+		struct stat fileAtt;
+		if (stat(kalitedefaultPAth, &fileAtt) != 0) {
+			buffer = 0;
+			return;
+		}
+		else {
+			strcpy(buffer, kalitedefaultPAth);
+		}
+	}
+	else if (bufsize > MAX_SIZE)
+	{
+		char err_message[255];
+		sprintf(err_message, "Error: the value of KALITE_HOME must be less than %d, but it was length %d. Please start KA Lite from the command line.", MAX_SIZE, bufsize);
+		window->sendTrayMessage("KA Lite", err_message);
+		buffer = 0;
+	}
+	return;
+}
+
 void startServerAction()
 {
 	const DWORD MAX_SIZE = 255;
@@ -54,12 +94,12 @@ void startServerAction()
 	}
 	else
 	{
-		menu1->disable();
+		mnuStartServer->disable();
 
 		needNotify = true;
 		isServerStarting = true;
 
-		window->sendTrayMessage("KA Lite", "The server is starting... please wait");
+		window->sendTrayMessage("KA Lite", "The server is starting, please wait to be notified before opening the browser.");
 	}
 }
 
@@ -74,9 +114,9 @@ void stopServerAction()
 	}
 	else
 	{
-		menu1->enable();
-		menu2->disable();
-		menu3->disable();
+		mnuStartServer->enable();
+		mnuStopServer->disable();
+		mnuLoadBrowser->disable();
 	}
 }
 
@@ -99,7 +139,7 @@ void exitKALiteAction()
 
 void runUserLogsInAction()
 {
-	if(menu5->isChecked())
+	if(mnuRunUserLogsIn->isChecked())
 	{
 		if(!runShellScript("guitools.vbs", "1", NULL))
 		{
@@ -108,7 +148,7 @@ void runUserLogsInAction()
 		}
 		else
 		{
-			menu5->uncheck();
+			mnuRunUserLogsIn->uncheck();
 			setConfigurationValue("RUN_AT_LOGIN", "FALSE");
 		}
 	}
@@ -121,7 +161,7 @@ void runUserLogsInAction()
 		}
 		else
 		{
-			menu5->check();
+			mnuRunUserLogsIn->check();
 			setConfigurationValue("RUN_AT_LOGIN", "TRUE");
 		}
 	}
@@ -129,7 +169,7 @@ void runUserLogsInAction()
 
 void runAtStartupAction()
 {
-	if(menu6->isChecked())
+	if(mnuRunAtStartup->isChecked())
 	{
 		if(!runShellScript("guitools.vbs", "5", NULL))
 		{
@@ -138,7 +178,7 @@ void runAtStartupAction()
 		}
 		else
 		{
-			menu6->uncheck();
+			mnuRunAtStartup->uncheck();
 			setConfigurationValue("RUN_AT_STARTUP", "FALSE");
 		}
 	}
@@ -151,7 +191,7 @@ void runAtStartupAction()
 		}
 		else
 		{
-			menu6->check();
+			mnuRunAtStartup->check();
 			setConfigurationValue("RUN_AT_STARTUP", "TRUE");
 		}
 	}
@@ -159,15 +199,34 @@ void runAtStartupAction()
 
 void autoStartServerAction()
 {
-	if(menu7->isChecked())
+	if(mnuAutoStart->isChecked())
 	{
-		menu7->uncheck();
+		mnuAutoStart->uncheck();
 		setConfigurationValue("AUTO_START", "FALSE");
 	}
 	else
 	{
-		menu7->check();
+		mnuAutoStart->check();
 		setConfigurationValue("AUTO_START", "TRUE");
+	}
+}
+
+void showKaliteServerLogs()
+{	
+	const DWORD MAX_SIZE = 255;
+	std:string filePath = "\\server.log";
+	char homePath[MAX_SIZE];
+	kaliteHomePath(homePath, MAX_SIZE);
+	std::string str(homePath);
+	struct stat fileAtt;
+	std::string kaliteLogsPath = homePath + filePath;
+	if (stat(&kaliteLogsPath[0u], &fileAtt) != 0) {
+		window->sendTrayMessage("KA Lite", "The KA Lite log file doesn't exist.");
+	}
+	else {
+		string startCmd = "start notepad.exe ";
+		string runCmd = startCmd + kaliteLogsPath;
+		system(&runCmd[0u]);
 	}
 }
 
@@ -176,25 +235,44 @@ void checkServerThread()
 	// We can handle things like checking if the server is online and controlling the state of each component.
 	if(isServerOnline("KA Lite session", "http://127.0.0.1:8008/"))
 	{
-		menu1->disable();
-		menu2->enable();
-		menu3->enable();
-
-		if(needNotify)
-		{
-			window->sendTrayMessage("KA Lite is running", "The server will be accessible locally at: http://127.0.0.1:8008/ or you can select \"Load in browser.\"");
-			needNotify = false;
+		// Validate if running port 8008 is used at KA Lite server.
+		const DWORD MAX_SIZE = 255;
+		std:string filePath = "\\kalite.pid";
+		char home_path[MAX_SIZE];
+		kaliteHomePath(home_path, MAX_SIZE);
+		std::string str(home_path);
+		std::string kalite_pid_path = home_path + filePath;
+		char *pid_path = &kalite_pid_path[0u];
+		struct stat fileAtt;
+		if (stat(pid_path, &fileAtt) != 0) {
+			if (needNotify)
+			{
+				mnuStartServer->enable();
+				window->sendTrayMessage("KA Lite", "Port :8008 is occupied. Please close the process that's using it to start the KA Lite");
+				needNotify = false;
+			}
 		}
+		else {
+			mnuStartServer->disable();
+			mnuStopServer->enable();
+			mnuLoadBrowser->enable();
+			if (needNotify)
+			{
+				window->sendTrayMessage("KA Lite is running", "The server will be accessible locally at: http://127.0.0.1:8008/ or you can select \"Load in browser.\"");
+				needNotify = false;
+			}
 
-		isServerStarting = false;
+			isServerStarting = false;
+		}
+		
 	}
 	else
 	{
 		if(!isServerStarting)
 		{
-			menu1->enable();
-			menu2->disable();
-			menu3->disable();
+			mnuStartServer->enable();
+			mnuStopServer->disable();
+			mnuLoadBrowser->disable();
 		}
 	}
 }
@@ -217,41 +295,43 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	window = new fle_TrayWindow(&hInstance);
 	window->setTrayIcon("images\\logo48.ico");
 
-	menu1 = new fle_TrayMenuItem("Start Server.", &startServerAction);
-	menu2 = new fle_TrayMenuItem("Stop Server.", &stopServerAction);
-	menu3 = new fle_TrayMenuItem("Load in browser.", &loadBrowserAction);
-	menu4 = new fle_TrayMenuItem("Options", NULL);
-	menu5 = new fle_TrayMenuItem("Run KA Lite when the user logs in.", &runUserLogsInAction);
-	menu6 = new fle_TrayMenuItem("Run KA Lite at system startup.", &runAtStartupAction);
-	menu7 = new fle_TrayMenuItem("Auto-start server when KA Lite is run.", &autoStartServerAction);
-	menu8 = new fle_TrayMenuItem("Exit KA Lite.", &exitKALiteAction);
+	mnuStartServer = new fle_TrayMenuItem("Start Server.", &startServerAction);
+	mnuStopServer = new fle_TrayMenuItem("Stop Server.", &stopServerAction);
+	mnuLoadBrowser = new fle_TrayMenuItem("Load in browser.", &loadBrowserAction);
+	mnuOptions = new fle_TrayMenuItem("Options", NULL);
+	mnuRunUserLogsIn = new fle_TrayMenuItem("Run KA Lite when the user logs in.", &runUserLogsInAction);
+	mnuRunAtStartup = new fle_TrayMenuItem("Run KA Lite at system startup.", &runAtStartupAction);
+	mnuAutoStart = new fle_TrayMenuItem("Auto-start server when KA Lite is run.", &autoStartServerAction);
+	mnuExit = new fle_TrayMenuItem("Exit KA Lite.", &exitKALiteAction);
+	showKaliteLogs = new fle_TrayMenuItem("Show KA Lite logs.", &showKaliteServerLogs);
 
-	menu4->setSubMenu();
-	menu4->addSubMenu(menu5);
-	menu4->addSubMenu(menu6);
-	menu4->addSubMenu(menu7);
+	mnuOptions->setSubMenu();
+	mnuOptions->addSubMenu(mnuRunUserLogsIn);
+	mnuOptions->addSubMenu(mnuRunAtStartup);
+	mnuOptions->addSubMenu(mnuAutoStart);
 	
-	window->addMenu(menu1);
-	window->addMenu(menu2);
-	window->addMenu(menu3);
-	window->addMenu(menu4);
-	window->addMenu(menu8);
+	window->addMenu(mnuStartServer);
+	window->addMenu(mnuStopServer);
+	window->addMenu(mnuLoadBrowser);
+	window->addMenu(showKaliteLogs);
+	window->addMenu(mnuOptions);
+	window->addMenu(mnuExit);
 
-	menu2->disable();
-	menu3->disable();
+	mnuStopServer->disable();
+	mnuLoadBrowser->disable();
 
 	// Load configurations.
 	if(isSetConfigurationValueTrue("RUN_AT_LOGIN"))
 	{
-		menu5->check();
+		mnuRunUserLogsIn->check();
 	}
 	if(isSetConfigurationValueTrue("RUN_AT_STARTUP"))
 	{
-		menu6->check();
+		mnuRunAtStartup->check();
 	}
 	if(isSetConfigurationValueTrue("AUTO_START"))
 	{
-		menu7->check();
+		mnuAutoStart->check();
 		startServerAction();
 	}
 

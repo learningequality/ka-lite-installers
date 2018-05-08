@@ -6,12 +6,17 @@ function msg() {
     syslog -s -l alert "KA-Lite: $1"
 }
 
-PYTHON_PATH="/usr/local/bin/python"
+PYTHON_PATH="/usr/local/bin/python2"
 KALITE_REQ_PYTHON='2.7.11'
+
+if ! $PYTHON_PATH --version >/dev/null 2>&1; then
+    PYTHON_PATH="$(which python2)"
+fi
 
 if ! $PYTHON_PATH --version >/dev/null 2>&1; then
     PYTHON_PATH="$(which python)"
 fi
+
 msg "Checking Python path at $PYTHON_PATH"
 PYTHON_VERSION="$($PYTHON_PATH -c 'import platform; print(platform.python_version())')"
 # REF: http://stackoverflow.com/questions/6141581/detect-python-version-in-shell-script
