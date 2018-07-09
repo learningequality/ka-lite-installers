@@ -266,6 +266,16 @@ kalite_purge()
     # This old location can be safely purged.
     rm -rf /usr/share/kalite/assessment
 
+    # The below is disabled because dh_systemd takes care of it
+    # Remove service file using `ucf` (checking whether `ucf` is still available first)
+    # if type ucf >/dev/null 2>&1;
+    # then
+    #     ucf --purge "/etc/init.d/ka-lite"
+    # fi
+
+    # Remove service file by hand (in case the above failed somehow)
+    # rm -f "/etc/init.d/ka-lite"
+
 }
 
 
@@ -310,10 +320,7 @@ kalite_debconf_set_defaults()
 
 kalite_preinst()
 {
-    # TODO: Should add this call here, no??
-    # https://github.com/learningequality/ka-lite-installers/issues/474
-    # rm_states
-
+    
     # Only do this if install, abort-upgrade
     if [ "${args[0]}" = "install" ] ||
        [ "${args[0]}" = "upgrade" ]
@@ -323,6 +330,17 @@ kalite_preinst()
         then
             # Stop service -- nevermind if it fails
             invoke-rc.d ka-lite stop || true
+        fi
+
+    
+        # Remove pyc files from previous installations
+        # Why not with pyclean? BECAUSE PYTHON IS NOT IN PRE-DEPENDS, SO WE CANNOT
+        # ASSUME THAT IT EXISTS!!
+        # TODO: This can be removed once we stop support for 0.16 upgrades, because
+        # these directories will not contain non-managed pyc files from 0.16+
+        if [ -d /usr/share/kalite/ ]
+        then
+            find /usr/share/kalite/ -name '*pyc' -exec rm {} \;
         fi
 
     fi
