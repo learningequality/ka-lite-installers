@@ -1,3 +1,9 @@
+ka-lite-source (0.17.5-0ubuntu1) trusty; urgency=medium
+
+  * Final version bump
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 12 Jul 2018 01:00:18 +0200
+
 ka-lite-source (0.17.5~b1-0ubuntu1) trusty; urgency=medium
 
   * New upstream bugfix release
