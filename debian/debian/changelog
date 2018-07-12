@@ -1,3 +1,33 @@
+ka-lite-source (0.17.5-0ubuntu1) trusty; urgency=medium
+
+  * Final version bump
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Thu, 12 Jul 2018 01:00:18 +0200
+
+ka-lite-source (0.17.5~b1-0ubuntu1) trusty; urgency=medium
+
+  * New upstream bugfix release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 09 Jul 2018 19:02:04 +0200
+
+ka-lite-source (0.17.4-0ubuntu2) trusty; urgency=medium
+
+  * Go back to previous content pack
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Fri, 19 Jan 2018 17:10:29 +0100
+
+ka-lite-source (0.17.4-0ubuntu1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Tue, 16 Jan 2018 14:16:19 +0100
+
+ka-lite-source (0.17.4~b2-0ubuntu1) trusty; urgency=medium
+
+  * New upstream pre-release
+
+ -- Benjamin Bach <benjamin@learningequality.org>  Mon, 27 Nov 2017 17:43:34 +0100
+
 ka-lite-source (0.17.3-0ubuntu1) trusty; urgency=medium
 
   * New upstream release
