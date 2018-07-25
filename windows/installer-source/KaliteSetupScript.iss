@@ -242,14 +242,42 @@ begin
     end;
 end;
 
-procedure HandleUpgrade(targetPath : String);
+procedure SelectContentFolder;
 var
-    prevVerStr : String;
     userKaliteContent: String;
     systemKaliteDir: String;
     userPath : String;
     contentPath : String;
-    contentDb : String;
+    retCode: Integer;
+    msg : String;
+begin
+    userPath := ExpandConstant('{%USERPROFILE}');
+    contentPath := ExpandConstant('{%CONTENT_ROOT}');
+    systemKaliteDir := ExpandConstant(userPath + '\.kalite');
+    userKaliteContent := ExpandConstant(systemKaliteDir + '\content');
+
+    if Not DirExists(contentPath) then
+      begin
+        contentPath := userKaliteContent;
+      end
+    msg := 'KA Lite Setup will look for video contents in the folder ' + contentPath + '. You can download contents to the selected folder after the installation completes - or - select a folder with already downloaded contents. you don`t have a folder with downloaded contents or want to use the suggested folder, press Cancel. ' #13#13 'To change the default folder for downloaded contents, press OK.'
+    if MsgBox(msg, mbInformation,  MB_OKCANCEL or MB_DEFBUTTON1) = IDYES then
+    begin 
+       if BrowseForFolder('Please select the content folder where you wish downloaded videos to be stored.', userPath, False) then
+        begin
+            RegWriteStringValue(
+                HKLM,
+                'System\CurrentControlSet\Control\Session Manager\Environment',
+                'CONTENT_ROOT',
+                userPath
+            );
+       end
+    end;
+end;
+
+procedure HandleUpgrade(targetPath : String);
+var
+    prevVerStr : String;
     retCode: Integer;
 begin
     prevVerStr := GetPreviousVersion();
@@ -298,36 +326,6 @@ begin
                 end;
             end;
         end;
-        userPath := ExpandConstant('{%USERPROFILE}')
-        contentPath := ExpandConstant('{%CONTENT_ROOT}')
-        systemKaliteDir := ExpandConstant(userPath + '\.kalite')
-        userKaliteContent := ExpandConstant(systemKaliteDir + '\content');
-        if Not DirExists(userKaliteContent) then
-        begin
-           if Not DirExists(contentPath) then
-              begin
-                  MsgBox('KA Lite Setup is unable to locate the content folder of your previous installation in order to perform the upgrade to current version. Please select the .kalite/content/ folder on your computer and press the button OK to finish the upgrade process.', mbInformation, MB_OK); 
-                 if BrowseForFolder('Please select the .kalite/content/ folder', userPath, False) then
-                 begin
-                        RegWriteStringValue(
-                            HKLM,
-                            'System\CurrentControlSet\Control\Session Manager\Environment',
-                            'CONTENT_ROOT',
-                            userPath
-                        );
-                        contentDb := ExtractFilePath(userPath) + 'database\data.sqlite'
-                        if FileExists(contentDb) then
-                        begin
-                           if(MsgBox('KA Lite found an existing database at your content folder,' #13
-                           'Do you wish to import this database into KA Lite', mbConfirmation, MB_YESNO) = idYes) then
-                              begin
-                                  Exec(ExpandConstant('{cmd}'), '/C "xcopy  "' + ExtractFilePath(userPath) + 'database\*.sqlite' +'" "' + systemKaliteDir + '\database' +'\" /Y /S"', '', SW_SHOW, ewWaitUntilTerminated, retCode)
-                              end
-                        end
-                 end;
-              end;
-           
-        end;
 
         { forceCancel will be true if something went awry in DoGitMigrate... abort instead of trampling the user's data. }
         if Not forceCancel then
@@ -343,6 +341,7 @@ begin
 
     if CurPageID = wpLicense then
     begin
+        SelectContentFolder;
         if WizardForm.PrevAppDir <> nil then
             HandleUpgrade(WizardForm.PrevAppDir);
     end;
