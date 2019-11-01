@@ -1,14 +1,12 @@
 #!/bin/bash
 
-# KA Lite sources are really big, this script takes an original KA Lite
-# debian source and creates one without all the fuzz.
-
 # If you did changes in a package and want the changelog included:
-# ./copy_from_package /path/to/ka-lite-source-0.16~b1 -c
+# ./copy_from_package /path/to/ka-lite-0.16~b1 -c
 
 set -e
 
 if
+	[ "$1" == "" ] ||
 	[ "$1" == "-h" ] ||
 	[ "$1" == "--help" ]
 then
@@ -20,14 +18,9 @@ fi
 
 # Goto location of this script
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $DIR
 
-if [ "$1" == "" ]
-then
-	test_dir=test/ka-lite-test
-else
-	test_dir=$1
-fi
+test_dir=$1
+
 
 if [ "$2" == "-c" ]
 then
@@ -36,7 +29,7 @@ else
 	also_changelog=0
 fi
 
-dest_dir=`realpath .`
+dest_dir=`realpath $DIR`
 
 if ! [ -d $test_dir/debian ]
 then
@@ -61,16 +54,15 @@ case "$choice" in
 		# Copy everything except the assessment zip from the test pkg dir to this dir
 		cd $test_dir
 		debclean
-		cd -
 		# The below has to run with respect to relative paths, hence the cd and the cp --parents
 		cd $test_dir
 		find debian -mindepth 1 -not -name '*.zip' -exec cp -rp \{\} --parents $dest_dir \;
 		if [ $also_changelog -eq 0 ]
 		then
 			rm $dest_dir/debian/changelog
+			git reset -- $dest_dir/debian/changelog
+			git checkout $dest_dir/debian/changelog
 		fi
-		git reset -- $dest_dir/debian/changelog
-		git checkout $dest_dir/debian/changelog
 ;;
 	n|N ) echo "no" ;;
 	* ) echo "Okay leaving then..." ;;
