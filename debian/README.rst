@@ -52,7 +52,7 @@ you do:
 
 1.  Assumption: The latest release of KA Lite is already on PyPi !
 2.  Make sure you have the PPA of our sources:
-    ``sudo apt-add-repository --enable-source ppa:benjaoming/ka-lite``
+    ``sudo apt-add-repository --enable-source ppa:learningequality/ka-lite``
 3.  Go to a new directory, ``my_code/ka-lite-debian``
 4.  Fetch the source package "apt-get source ka-lite"
 5.  Fetch a python sdist source tarball of the updated version:
@@ -71,49 +71,8 @@ you do:
     to Launchpad
 
 
-Background (Summer 2015)
-------------------------
-
-The Debian installer is based on
-`stdeb <https://github.com/astraw/stdeb>`__ which is a tool that
-automatically converts a normal *setup.py*-based package to a Debian
-package structure. There are two equivilent ways of installing KA Lite:
-
-1. ``pip install ka-lite-static`` -- installs KA Lite from PyPi with all
-   dependencies builtin ("static").
-2. ``dpkg -i NAME_OF_PACKAGE.deb`` - installs KA Lite from a Debian
-   package.
-
-The Debian package essentially uses the same distribution script
-(setup.py) as the other installers and hence does as little
-platform-specific work as possible.
-
-Notice that ``setup.py`` is run while BUILDING the .deb and not while
-installing the .deb.
-
-
 Historic notes - Reproducing the build technique
 ________________________________________________
-
-**Requirements**
-
-1. stdeb - ``pip install stdeb``
-2. setuptools - If you have pip, you have it :)
-
-**Building / developing**
-
-1. From the root example (the one containing setup.py), link your
-   ka-lite source tree.
-2. Run ``./build.sh`` which does the following:
-
-   1. Invokes ``py2dsc``, then either choose (at the end of the build):
-
-      -  Build your own unsigned .deb for all architectures
-      -  Create and sign a new PPA for benjaoming's Launchpad PPA
-
-**Signing**
-
-Everything is signed with benjaoming's PGP.
 
 **Resources:**
 
