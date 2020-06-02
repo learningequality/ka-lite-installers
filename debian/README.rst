@@ -48,19 +48,33 @@ do the following:
    .. code-block:: bash
    
       cd ka-lite-source-x.y/
-      uupdate -v NEW_VERSION ../ka-lite-static-x.y.tar.gz
+      uupdate -v 1.2.3 ../ka-lite-static-1.2.2.tar.gz
    
-   **NB!** ``NEW_VERSION`` is a DEBIAN formatted version. 0.14a1 becomes 0.14~a1.
-   This is important because it decides package order. If your version
-   isn't considered strictly greater than the previous version,
-   Launchpad will reject it.
+   **NB!** ``1.2.3`` is replaced with a Debian-friendly version, which for
+   pre-releases will differ from PEP440-style versions. 0.14a1 becomes 0.14~a1.
+   Insert a tilde ``~`` just before the a/b/rc. This is important because it
+   decides package order. If your version isn't considered strictly greater than
+   the previous version, Launchpad will reject it. So you cannot release
+   ``1.2.3`` after ``1.2.3a1``, hence we add ``~``.
    
 #. Run ``dch`` and add new comment about the update -- remember to use
    a valid email for PGP signing. You should also change ``UNRELEASED`` to
    ``trusty`` as this is the lower bound of our target dist series.
 
-#. Run ``dpkg-buildpackage -S`` to build new sources, they will be
-   located in the parent dir and signed.
+#. Now we need to build the new source package and sign it. The source package
+   will be located in the parent directory.
+   
+   .. code-block:: bash
+
+      dpkg-buildpackage -S
+
+   If you are building on a Virtual Machine and want to sign the outputs
+   elsewhere, run the above with ``--no-sign`` and use ``debsign`` to sign the
+   new ``.changes`` manifest on another host:
+   
+   .. code-block:: bash
+
+       debsign ka-lite-source_0.17.6~b10-0ubuntu1_source.changes
 
 #. At this stage, before uploading to Launchpad, you may want to try to install
    a local build. The source package just built cannot be installed, you need
@@ -69,7 +83,7 @@ do the following:
    
    .. code-block:: bash
    
-      debuild -us -uc --lintian-opts --no-lintiandebuild -us -uc --no-lintian
+      debuild -us -uc --lintian-opts --no-lintian
 
 #. The new Debian source package cannot be installed, but it can be uploaded 
    to Launcpad where it will be built:
