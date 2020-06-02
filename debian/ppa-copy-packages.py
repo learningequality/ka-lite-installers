@@ -33,7 +33,7 @@ PPA_NAME = 'ka-lite-proposed'
 PACKAGE_WHITELIST = ['ka-lite-source']
 
 SOURCE_SERIES = 'trusty'
-TARGET_SERIESES = ['trusty', 'xenial', 'artful', 'bionic', 'cosmic']
+TARGET_SERIESES = ['xenial', 'bionic', 'eoan', 'focal']
 POCKET = 'Release'
 
 APP_NAME = 'ppa-ka-lite-copy-packages'
