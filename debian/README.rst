@@ -1,13 +1,107 @@
 Debian installer
 ================
 
+How to create an updated .deb for release
+-----------------------------------------
+
+If there is a new release of KA Lite and you need to create a new .deb package,
+do the following:
+
+#. Prerequisite: The latest release of KA Lite is already on PyPi!
+#. Make sure you have the PPA of our sources:
+
+   .. code-block:: bash
+
+      sudo apt-add-repository --enable-source ppa:learningequality/ka-lite
+
+#. Install the build dependencies:
+
+   .. code-block:: bash
+
+      sudo apt build-dep ka-lite
+      sudo apt install build-essential devscripts
+
+#. Go to a new working directory and fetch the source package:
+
+   .. code-block:: bash
+
+      # For instance, if you are in ka-lite-installers, you could work in
+      # debian/build - it's already in .gitignore
+      mkdir -p debian/build
+      cd debian/build
+      
+      # Grab the latest source available
+      apt-get source ka-lite
+
+#. Fetch a python sdist source tarball of the updated version:
+   https://pypi.python.org/pypi/ka-lite-static
+
+   You can fetch the latest pre-release like this:
+   
+   .. code-block:: bash
+
+      pip download --no-binary ":all:" --pre ka-lite-static
+
+#. Now change working directory to the Debian source package that was unpacked
+   and create a new package, using the Python package that you just downloaded:
+
+   .. code-block:: bash
+   
+      cd ka-lite-source-x.y/
+      uupdate -v 1.2.3 ../ka-lite-static-1.2.2.tar.gz
+   
+   **NB!** ``1.2.3`` is replaced with a Debian-friendly version, which for
+   pre-releases will differ from PEP440-style versions. 0.14a1 becomes 0.14~a1.
+   Insert a tilde ``~`` just before the a/b/rc. This is important because it
+   decides package order. If your version isn't considered strictly greater than
+   the previous version, Launchpad will reject it. So you cannot release
+   ``1.2.3`` after ``1.2.3a1``, hence we add ``~``.
+   
+#. Run ``dch`` and add new comment about the update -- remember to use
+   a valid email for PGP signing. You should also change ``UNRELEASED`` to
+   ``trusty`` as this is the lower bound of our target dist series.
+
+#. Now we need to build the new source package and sign it. The source package
+   will be located in the parent directory.
+   
+   .. code-block:: bash
+
+      dpkg-buildpackage -S
+
+   If you are building on a Virtual Machine and want to sign the outputs
+   elsewhere, run the above with ``--no-sign`` and use ``debsign`` to sign the
+   new ``.changes`` manifest on another host:
+   
+   .. code-block:: bash
+
+       debsign ka-lite-source_0.17.6~b10-0ubuntu1_source.changes
+
+#. At this stage, before uploading to Launchpad, you may want to try to install
+   a local build. The source package just built cannot be installed, you need
+   to build the artifacts instead. Use this command to build an unsigned set of
+   packages in the parent directory:
+   
+   .. code-block:: bash
+   
+      debuild -us -uc --lintian-opts --no-lintian
+
+#. The new Debian source package cannot be installed, but it can be uploaded 
+   to Launcpad where it will be built:
+   
+   .. code-block:: bash
+
+      dput ppa:learningequality/ka-lite blahblah.changes
+
 How to develop the debian/ sources
 ----------------------------------
 
-You wouldn't wanna do this with the full KA Lite sources because they
-take too much time to build.
+This section is about developing the scripts that pertain installing, updating, configuring and system service for the Debian package of KA Lite: We can call these *maint* scripts, or just "Debian sources".
 
-Run::
+If you are changing these and need to test locally (because that's a lot faster), do the following to test everything WITHOUT a full KA Lite source -- having 400+ MB of data in the package makes it slow.
+
+Therefore, this development workflow SIMULATES KA Lite itself, but retains all of the packaging code.
+
+.. code-block:: bash
 
     ./make_test_pkg.sh 1.2.3  # <- notice the version string required
     cd test/ka-lite-test
@@ -19,18 +113,22 @@ Run::
     ./copy_from_pkg.sh  # By default, this command copies from the default test folder
 
 
-To create a test package in another directory, do::
+To create a test package in another directory:
+
+.. code-block:: bash
 
     ./make_test_pkg.sh path/to/test 1.2.3
 
-If you want to copy the debian sources from another test setup, do::
+If you want to copy the debian sources from another test setup, do:
+
+.. code-block:: bash
 
     ./copy_from_pkg.sh path/to/other/pkg
 
 
-Regarding the **coding style**, all the so-called "maint" scripts (preinst/postinst/prerm/postrm/config) are
-running ``/bin/bash`` and have the ``set -e`` option on. There is a clear intention to be very DRY and
-to have loads of comments because many choices reflect tough experiences.
+Regarding **coding style**, all the so-called "maint" scripts (preinst/postinst/prerm/postrm/config) are
+running ``/bin/bash`` and have the ``set -e`` option on. The intention is to be DRY and
+to have lots of comments because many choices reflect tough experiences.
 
 Consider reading this blog post: http://www.davidpashley.com/articles/writing-robust-shell-scripts/
 
@@ -43,33 +141,6 @@ Use ``set -x`` in bash scripts to enable debugging, it's extremely helpful.
 Everything should be compatible with ``set -e``. See: http://www.davidpashley.com/articles/writing-robust-shell-scripts/
 
 Run ``debconf-show ka-lite`` to view the ``ka-lite`` package debconf settings.
-
-How to create an updated .deb for release
------------------------------------------
-
-Say there is a change and you wish to update our sources, here's what
-you do:
-
-1.  Assumption: The latest release of KA Lite is already on PyPi !
-2.  Make sure you have the PPA of our sources:
-    ``sudo apt-add-repository --enable-source ppa:learningequality/ka-lite``
-3.  Go to a new directory, ``my_code/ka-lite-debian``
-4.  Fetch the source package "apt-get source ka-lite"
-5.  Fetch a python sdist source tarball of the updated version:
-    https://pypi.python.org/pypi/ka-lite-static
-6.  ``cd ka-lite-source-x.x/``
-7.  ``uupdate -v NEW_VERSION ../ka-lite-static-x.x.tar.gz`` where
-    NEW\_VERSION is a DEBIAN formatted version. 0.14a1 becomes 0.14~a1.
-    This is important because it decides package order. If your version
-    isn't considered strictly greater than the previous version,
-    Launchpad will reject it.
-8.  Run ``dch`` and add new comment about the update -- remember to use
-    a valid email for PGP signing
-9.  Run ``dpkg-buildpackage -S`` to build new sources, they will be
-    located in the parent dir and signed
-10. Use ``dput ppa:learningequality/ka-lite blahblah.changes`` to upload
-    to Launchpad
-
 
 Historic notes - Reproducing the build technique
 ________________________________________________
